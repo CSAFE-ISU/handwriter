@@ -171,7 +171,11 @@ stepB = function(img, coords)
 thinImage = function(img, verbose = FALSE)
 {
   flag = TRUE
-  if(verbose) iterCount = 1
+  if(verbose)
+  {
+    iterCount = 1
+    total.time.start = Sys.time()
+  }
   thinned = img
   change = which(img == 0)
   while(flag == TRUE)
@@ -213,6 +217,11 @@ thinImage = function(img, verbose = FALSE)
       end.time <- Sys.time()
       cat("\nIteration Time:", end.time - start.time, "\n")
     }
+  }
+  if(verbose)
+  {
+    total.time.end = Sys.time()
+    cat("\n------------------------\nTotal Run Time:", difftime(total.time.end, total.time.start, units = "secs"), "\n------------------------\n")
   }
   return(thinned)
 }
