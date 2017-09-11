@@ -6,6 +6,7 @@
 
 # Also from Zhang thinning paper (allegedly)
 
+#' Internal function for counting 4-connected components around a pixel.
 countChanges = function(coords, img)
 {
   rr = coords[1]
@@ -21,6 +22,30 @@ countChanges = function(coords, img)
   }
 }
 
+#' getNodes
+#'
+#' Detect intersection points of an image thinned with thinImage.
+#' @param img Thinned binary image.
+#' @keywords vertex detection, Zhang, Suen
+#' @return Returns image matrix. 1 is blank, 0 is a node.
+#' @examples
+#' data(london)
+#' london = crop(london)
+#' london_thin = thinImage(london, verbose = TRUE)
+#' london_nodes = getNodes(london_thin)
+#' 
+#' data(cells)
+#' cells = crop(cells)
+#' cells_thin = thinImage(cells, verbose = TRUE)
+#' cells_nodes = getNodes(cells_thin)
+#' 
+#' data(message)
+#' message = crop(message)
+#' message_thin = thinImage(message, verbose = TRUE)
+#' message_nodes = getNodes(message_thin)
+#' 
+#' @export
+
 getNodes = function(img)
 {
   indices = which(img == 0)
@@ -31,17 +56,23 @@ getNodes = function(img)
   return(nodes)
 }
 
-plotNodes = function(thinned, nodeList)
-{
-  t.m = melt(thinned)
-  n.m = melt(nodeList)
-  t.m$value[n.m$value == 0] = 2
-  n.m2 = n.m[n.m$value == 0,]
-  p = ggplot(t.m, aes(Var2, rev(Var1))) + geom_raster(aes(fill = as.factor(value))) + scale_fill_manual(values = c("black", "white", "red"), guide = FALSE) + theme_void() + geom_point(data= n.m2, aes(x = Var2, y = dim(thinned)[1] - Var1 + 1), shape = I(24), color = I("red"))
-  return(p)
-}
+#' plotNodes
+#' 
+#' This function returns a plot with the full image plotted in light gray and the skeleton printed in black, with red triangles over the vertices.
+#' @param img Full image matrix, unthinned.
+#' @param thinned Thinned image matrix
+#' @param nodeList Nodelist returned from getNodes.
+#' @param nodeSize Size of triangles printed. 3 by default. Move down to 2 or 1 for small text images.
+#' @return Plot of full and thinned image with vertices overlaid.
+#' @examples
+#' # See getNodes() examples first.
+#' plotNodes(london, london_thin, london_nodes)
+#' plotNodes(cells, cells_thin, cells_nodes)
+#' plotNodes(message, message_thin, message_nodes)
+#' 
+#' @export
 
-plotPreprocess = function(img, thinned, nodeList, nodeSize = 3)
+plotNodes = function(img, thinned, nodeList, nodeSize = 3)
 {
   l.m = melt(img)
   t.m = melt(thinned)
