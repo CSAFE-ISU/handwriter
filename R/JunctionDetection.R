@@ -30,11 +30,25 @@ getNodes = function(img)
   nodes[indices] = ifelse(changeCount == 1 | changeCount >= 3, 0, 1)
   return(nodes)
 }
+
 plotNodes = function(thinned, nodeList)
 {
   t.m = melt(thinned)
   n.m = melt(nodeList)
   t.m$value[n.m$value == 0] = 2
-  p = ggplot(t.m, aes(Var2, rev(Var1))) + geom_raster(aes(fill = as.factor(value))) + scale_fill_manual(values = c("black", "white", "red"), guide = FALSE) + theme_void()
+  n.m2 = n.m[n.m$value == 0,]
+  p = ggplot(t.m, aes(Var2, rev(Var1))) + geom_raster(aes(fill = as.factor(value))) + scale_fill_manual(values = c("black", "white", "red"), guide = FALSE) + theme_void() + geom_point(data= n.m2, aes(x = Var2, y = dim(thinned)[1] - Var1 + 1), shape = I(24), color = I("red"))
+  return(p)
+}
+
+plotPreprocess = function(img, thinned, nodeList, nodeSize = 3)
+{
+  l.m = melt(img)
+  t.m = melt(thinned)
+  n.m = melt(nodeList)
+  l.m$value[t.m$value == 0] = 2
+  l.m$value[n.m$value == 0] = 3
+  n.m2 = n.m[n.m$value == 0,]
+  p = ggplot(l.m, aes(Var2, rev(Var1))) + geom_raster(aes(fill = as.factor(value != 1), alpha = ifelse(value==0,.3,1))) + scale_alpha_continuous(guide = FALSE) + scale_fill_manual(values = c("white", "black"), guide = FALSE) + theme_void() + geom_point(data= n.m2, aes(x = Var2, y = dim(thinned)[1] - Var1 + 1), shape = I(17), size = I(nodeSize), color = I("red"))
   return(p)
 }
