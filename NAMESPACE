@@ -2,8 +2,11 @@
 
 export(crop)
 export(getNodes)
+export(makeGifImages)
 export(plotImage)
 export(plotImageThinned)
 export(plotNodes)
+export(plotPath)
+export(processHandwriting)
 export(readPNGBinary)
 export(thinImage)

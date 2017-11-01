@@ -20,6 +20,7 @@ Plot of full and thinned image with vertices overlaid.
 }
 \description{
 This function returns a plot with the full image plotted in light gray and the skeleton printed in black, with red triangles over the vertices.
+Also called from plotPath, which is a more useful function, in general.
 }
 \examples{
 # See getNodes() examples first.
