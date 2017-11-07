@@ -103,7 +103,7 @@ getLoops = function(nodeList, graph, graph0, pathList, dims)
   unusedAdj = matrix(1, ncol = length(unused), nrow = length(unused))
   colnames(unusedAdj) = as.character(unused)
   rownames(unusedAdj) = as.character(unused)
-  unusedAdj[as.character(nodeList),][,as.character(nodeList)] = 0
+  unusedAdj[which(unused %in% nodeList),][,which(unused %in% nodeList)] = 0 #[as.character(nodeList),][,as.character(nodeList)] = 0
   unusedGraph = graph_from_adjacency_matrix(unusedAdj, mode = "undirected")
 
   graph0 = intersection(graph0, unusedGraph, keep.all.vertices = TRUE)
@@ -171,7 +171,7 @@ getLoops = function(nodeList, graph, graph0, pathList, dims)
 #' #### Not Run
 #' # Make csafe_pathList the resulting object from the pathList item in the processHandwriting returned list
 #'
-#' plotPath(csafe_pathList[[1]], csafe, csafe_thin, zoomBorder = NA)
+#' # plotPath(csafe_pathList[[1]], csafe, csafe_thin, zoomBorder = NA)
 #'
 #' @export
 
@@ -212,7 +212,7 @@ plotPath = function(path, image, image_thin, zoomBorder = NA, nodeSize = 3)
 #' #### Not Run
 #' # Make csafe_pathList the resulting object from the pathList item in the processHandwriting returned list
 #'
-#' makeGifImages(csafe, csafe_thin, csafe_pathList, "../GifPlots/", "csafePaths")
+#' # makeGifImages(csafe, csafe_thin, csafe_pathList, "../GifPlots/", "csafePaths")
 #'
 #' @export
 makeGifImages = function(img, img_thin, allPaths, file_path, filenames)
@@ -265,24 +265,33 @@ checkBreakPoints = function(candidateNodes, allPaths, nodeGraph, dims)
       # No break if either vertex on edge has an order of 1
       breakFlag[nodeChecks] = FALSE
     }
-    else if(length(nodeChecks) > 1)
+
+    if(sum(breakFlag[nodeChecks]) > 1)
     {
       # No breaking occurs twice on one edge within 25 pixels (if this occurs, the higher y-Coordinate break is taken)
-      pixelDist = c(NA, nodeChecks[-1] - nodeChecks[-length(nodeChecks)])
-      if(any(pixelDist < 25))
+      pathIndex = which(tempPath %in% candidateNodes[breakFlag[nodeChecks]])
+
+      i = 2
+      while(TRUE)
       {
-        toIndex = which(pixelDist < 25)
-        for(j in toIndex)
+        if(i > length(pathIndex)){ break }
+
+        if(pathIndex[i] < (pathIndex[i-1]+25))
         {
-          if(((tempPath[nodeChecks[j-1]] - 1)%%dims[1] + 1) > ((tempPath[nodeChecks[j]] - 1)%%dims[1]))
+          if(((tempPath[pathIndex[i]] - 1)%%dims[1] + 1) > ((tempPath[pathIndex[i-1]] - 1)%%dims[1]))
           {
-            breakFlag[nodeChecks[j]] = FALSE
+            breakFlag[which(candidateNodes == tempPath[pathIndex[i]])] = FALSE
+            pathIndex = pathIndex[-i]
+            i=i-1
           }
           else
           {
-            breakFlag[nodeChecks[j-1]] = FALSE
+            breakFlag[which(candidateNodes == tempPath[pathIndex[i-1]])] = FALSE
+            pathIndex = pathIndex[-(i-1)]
+            i = i-1
           }
         }
+        i = i+1
       }
     }
 
@@ -467,8 +476,13 @@ processHandwriting = function(img, nodes)
       candidateNodes = c(candidateNodes, tempPath[floor(length(tempPath)/2)])
     }
   }
-  breaks = c(1,which(troughNodes[-1] - troughNodes[-length(troughNodes)] != dim(img)[1]), length(troughNodes))
+  breaks = which((((troughNodes[-1]-1) %% dim(img)[1]) + 1) != (((troughNodes[-length(troughNodes)] - 1) %% dim(img)[1]) + 1) |
+                   ((((troughNodes[-1]-1) %/% dim(img)[1]) + 1) != (((troughNodes[-length(troughNodes)] - 1) %/% dim(img)[1])) &
+                      (((troughNodes[-1]-1) %/% dim(img)[1])) != (((troughNodes[-length(troughNodes)] - 1) %/% dim(img)[1]) + 1)))
+  breaks = c(1, breaks, length(troughNodes))
   candidateNodes = c(candidateNodes, troughNodes[ceiling((breaks[-1] + breaks[-length(breaks)])/2)])
+
+  print(plotPath(candidateNodes, img, img, zoomBorder = NA))
 
   goodBreaks = checkBreakPoints(candidateNodes = candidateNodes, allPaths = allPaths, nodeGraph = getNodeGraph(allPaths, nodeList), dim(img))
   preStackBreaks = candidateNodes[goodBreaks]
@@ -480,7 +494,6 @@ processHandwriting = function(img, nodes)
   V(skel_graph0)$graphemeID = graphemesList[[2]]
 
   finalBreaks = preStackBreaks[!(checkStacking(preStackBreaks, allPaths, graphemes, skel_graph0, dim(img)))]
-
   graphemesList = graphemePaths(allpaths, skel_graph0, finalBreaks)
 
   graphemesList = graphemePaths(allpaths, skel_graph0, finalBreaks)
@@ -520,19 +533,28 @@ checkStacking = function(candidateBreaks, allPaths, graphemes, nodeGraph0, dims)
         gr2 = graphemes[[borderGraphemes[2]]]
         gr2Rows = ((gr2 - 1) %% dims[1]) + 1
 
-        quarts = matrix(c(quantile(gr1Rows, c(.25,.75)), quantile(gr2Rows, c(.25,.75))), ncol = 2, nrow = 2, byrow = FALSE)
-
         # Call a break a stack point if the overlap between the bordering graphemes is
-        # less than 20% of the total range of the combined graphemes.
+        # less than 10% of the total range of the combined graphemes.
         overlap = min(abs(max(gr1Rows) - min(gr2Rows)), abs(max(gr2Rows) - min(gr1Rows)))
         totalRange = (diff(range(c(gr1Rows,gr2Rows))))
         overlapPercentage = overlap/totalRange
-        if(overlapPercentage < .1) stackPtFlag[nodeChecks] = TRUE
+        if(overlapPercentage < .1)
+        {
+          stackPtFlag[nodeChecks] = TRUE
+        }
+        else
+        {
+          # Call a break point a stack point if one of the graphemes is completely dominated
+          # In the vertical sense. AKA if 1 is contained completely within the columns of another.
 
-        #if(min(gr2Rows) > quarts[1,2] | max(gr2Rows) < quarts[1,1] | min(gr1Rows) > quarts[2,2] | max(gr1Rows) < quarts[2,1])
-        #{
-        #  stackPtFlag[nodeChecks] = TRUE
-        #}
+          gr1Cols = ((gr1 - 1) %/% dims[1]) + 1
+          gr2Cols = ((gr2 - 1) %/% dims[1]) + 1
+          rg1 = range(gr1Cols)
+          rg2 = range(gr2Cols)
+     #     cat("rg1:", rg1, "\nrg2:", rg2)
+          if(all(between(rg1, rg2[1], rg2[2])) | all(between(rg2, rg1[1], rg1[2])))
+            stackPtFlag[nodeChecks] = TRUE
+        }
       }
     }
   }
