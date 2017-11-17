@@ -2,19 +2,65 @@
 #'
 #' This function reads in and binarizes PNG images from the specified file path.
 #' @param path File path for image.
-#' @param binarizationCutoff Value to cut off non binary images. Values higher than this value go to 1 and lower than this value go to 0. 0 by default, no binarization.
-#' @param inversion Boolean dictating whether or not to flip each bin of binarized image. Flipping happens after binarization. FALSE by default.
-#' @keywords PNG, binary
+#' @param binaryCutoff Value to cut off non binary images. Leave at "auto" to let k-means pick.
+#' Put in "xx%" to set default threshold. Enter numeric value to scale auto threshold by that amount.
+#' @param inversion Boolean dictating whether or not to flip each pixel of binarized image. Flipping happens after binarization. FALSE by default.
+#' @keywords binary
 #' @return Returns image from path. 0 represents black, and 1 represents white by default.
-#' @export 
+#' @export
 
-readPNGBinary = function(path, binarizationCutoff = 0, inversion = FALSE)
+readPNGBinary = function(path, binaryCutoff = "auto", inversion = FALSE)
 {
-  img = readPNG(path, native = FALSE)
-  img = apply(img, c(1,2), FUN = function(x){1-any(x < 1-binarizationCutoff)})
-  if(inversion == TRUE)
+  img = load.image(path)
+  img = as.array(img)
+  if(dim(img)[4] == 4)
+  {
+    img = rgba2rgb(img)
+  }
+  if(dim(img)[4] > 1)
+  {
+    img = grayscale(img)
+  }
+  img = threshold(img, binaryCutoff)
+  if(inversion)
     img = 1-img
-  return(img)
+  return(t(img[,,1,1]) + 0)
+}
+
+#' cleanBinaryImage
+#'
+#' Function to clean up a binary image. If clean is true, then will shrink by 1 pixel and then regrow by 1 pixel.
+#' If fill is true, then will grow by 1 pixel then shrink by 1 pixel. By default it does both - shrinks then grows.
+#' @param img Binary image to clean.
+#' @param clean Boolean for whether or not to shrink then grow image.
+#' @param fill Boolean for whether or not to grow then shrink image.
+#' @param amount Parameter passed to clean and fill. Strength of clean and/or fill.
+#'
+#' @return Cleaned binary image.
+#' @export
+
+cleanBinaryImage = function(img, clean = TRUE, fill = TRUE, cleanAmt = 2, fillAmt = 2)
+{
+  dim(img) = c(dim(img), 1, 1)
+  # This is confusing, but correct for this case. The way we have our image stored makes it so that
+  # fill shrinks then expands and clean expands and then shrinks, which is the opposite of what should happen.
+  if(fill)
+    img = clean(img, fillAmt)
+  if(clean)
+    img = fill(img, cleanAmt)
+  return(img[,,1,1])
+}
+
+#' rgba2rgb
+#'
+#' Internal function for converting rgb with alpha channel to standard rgb.
+#' @param rgba 3-d vector with 4 channels. [n, p, # channels]
+#'
+#' @return 3-d vector with 3 channels [n, p, 3]
+rgba2rgb = function(rgba)
+{
+  rgb = apply(rgba, c(1,2,3), function(x){return(x[1:3]*x[4])})
+  return(aperm(rgb, c(2,3,4,1)))
 }
 
 #' plotImage
@@ -78,7 +124,7 @@ numNeighbors = function(coords, img)
 #' @param coords Point location.
 #' @param img Image object.
 #' @return Returns 1 or 0 for condition mentioned above.
-#' 
+#'
 neighbs246468 = function(coords, img)
 {
   rr = coords[1]
@@ -157,16 +203,16 @@ stepB = function(img, coords)
 #' data(london)
 #' london = crop(london)
 #' london_thin = thinImage(london, verbose = TRUE)
-#' 
+#'
 #' data(cells)
 #' cells = crop(cells)
 #' cells_thin = thinImage(cells, verbose = TRUE)
-#' 
+#'
 #' data(message)
 #' message = crop(message)
 #' message_thin = thinImage(message, verbose = TRUE)
-#' 
-#' @export 
+#'
+#' @export
 
 thinImage = function(img, verbose = FALSE)
 {
@@ -187,7 +233,7 @@ thinImage = function(img, verbose = FALSE)
     thinned[index] = ifelse(c(thinned[index] == 0) & flagA == 0, 0, 1)
     flagB = stepB(thinned, img.m)
     thinned[index] = ifelse(c(thinned[index] == 0) & flagB == 0, 0, 1)
-    
+
     if(sum(flagA + flagB, na.rm = T) == 0)
     {
       flag = FALSE
@@ -207,13 +253,13 @@ thinImage = function(img, verbose = FALSE)
     }
     flagA[] = 0
     flagB[] = 0
-    
+
     if(verbose == TRUE)
     {
       #temp = matrix(1, dim(img)[1], dim(img)[2])
       #temp[change] = 0
       #image(temp, main = "Need to update")
-      
+
       end.time <- Sys.time()
       cat("\nIteration Time:", end.time - start.time, "\n")
     }
@@ -227,7 +273,7 @@ thinImage = function(img, verbose = FALSE)
 }
 
 #' plotImageThinned
-#' 
+#'
 #' This function returns a plot with the full image plotted in light gray and the skeleton printed in black on top.
 #' @param img Full image matrix
 #' @param thinned Thinned image matrix
@@ -236,7 +282,7 @@ thinImage = function(img, verbose = FALSE)
 #' plotImageThinned(london, london_thin)
 #' plotImageThinned(cells, cells_thin)
 #' plotImageThinned(message, message_thin)
-#' 
+#'
 #' @export
 
 plotImageThinned = function(img, thinned)
@@ -249,11 +295,11 @@ plotImageThinned = function(img, thinned)
 }
 
 #' crop
-#' 
+#'
 #' This function crops an image down so that there is 1 pixel of padding on each side of the outermost 0 points.
 #' @param img Full image matrix to be cropped
 #' @return Cropped image matrix.
-#' 
+#'
 #' @export
 
 crop = function(img)
@@ -262,13 +308,13 @@ crop = function(img)
   if(any(img[,dim(img)[2]] != 1)) {img = cbind(img, rep(1, dim(img)[1]))}
   if(any(img[1,] != 1)) {img = rbind(rep(1, dim(img)[2]), img)}
   if(any(img[dim(img)[1],] != 1)) {img = rbind(img, rep(1, dim(img)[2]))}
-  
+
   rows = apply(img, 1, FUN = function(x){any(x != 1)})
   cols = apply(img, 2, FUN = function(x){any(x != 1)})
   x.min = max(which(rows)[1] - 1, 1)
   x.max = min(which(rows)[sum(rows)] + 1, length(rows))
   y.min = max(which(cols)[1] - 1, 1)
   y.max = min(which(cols)[sum(cols)] + 1, length(cols))
-  
+
   return(img[x.min:x.max,y.min:y.max])
 }

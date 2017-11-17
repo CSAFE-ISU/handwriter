@@ -4,14 +4,15 @@
 \alias{readPNGBinary}
 \title{readPNGBinary}
 \usage{
-readPNGBinary(path, binarizationCutoff = 0, inversion = FALSE)
+readPNGBinary(path, binaryCutoff = "auto", inversion = FALSE)
 }
 \arguments{
 \item{path}{File path for image.}
 
-\item{binarizationCutoff}{Value to cut off non binary images. Values higher than this value go to 1 and lower than this value go to 0. 0 by default, no binarization.}
+\item{binaryCutoff}{Value to cut off non binary images. Leave at "auto" to let k-means pick.
+Put in "xx%" to set default threshold. Enter numeric value to scale auto threshold by that amount.}
 
-\item{inversion}{Boolean dictating whether or not to flip each bin of binarized image. Flipping happens after binarization. FALSE by default.}
+\item{inversion}{Boolean dictating whether or not to flip each pixel of binarized image. Flipping happens after binarization. FALSE by default.}
 }
 \value{
 Returns image from path. 0 represents black, and 1 represents white by default.
@@ -19,5 +20,4 @@ Returns image from path. 0 represents black, and 1 represents white by default.
 \description{
 This function reads in and binarizes PNG images from the specified file path.
 }
-\keyword{PNG,}
 \keyword{binary}

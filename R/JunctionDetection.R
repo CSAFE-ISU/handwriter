@@ -215,6 +215,7 @@ plotPath = function(path, image, image_thin, zoomBorder = NA, nodeSize = 3)
 #' # makeGifImages(csafe, csafe_thin, csafe_pathList, "../GifPlots/", "csafePaths")
 #'
 #' @export
+
 makeGifImages = function(img, img_thin, allPaths, file_path, filenames)
 {
   if(length(allPaths) < 1000)
@@ -391,7 +392,7 @@ getNodes = function(img)
 #' csafe_graphemes = csafe_processList$graphemeList
 #'
 #' @export
-#'
+
 processHandwriting = function(img, nodes)
 {
   # Next, we have to follow certain rules to find non intersection breakpoints.

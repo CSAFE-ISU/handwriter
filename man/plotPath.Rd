@@ -26,6 +26,6 @@ Returns a plot with a little red triangle on the pixels in the 'path' vector.
 #### Not Run
 # Make csafe_pathList the resulting object from the pathList item in the processHandwriting returned list
 
-plotPath(csafe_pathList[[1]], csafe, csafe_thin, zoomBorder = NA)
+# plotPath(csafe_pathList[[1]], csafe, csafe_thin, zoomBorder = NA)
 
 }
