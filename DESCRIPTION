@@ -4,7 +4,7 @@ Version: 0.0.0.9000
 Author: Nick Berry <berryni@iastate.edu>
 Maintainer: Nick Berry <berryni@iastate.edu>
 Description: We’ll get there when it does something.
-Depends: R (>= 3.4.0), igraph, dplyr, ggplot2, reshape2, png
+Depends: R (>= 3.4.0), igraph, dplyr, ggplot2, reshape2, imager
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
