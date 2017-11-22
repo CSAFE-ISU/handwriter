@@ -248,7 +248,7 @@ checkBreakPoints = function(candidateNodes, allPaths, nodeGraph, dims)
     if(length(tempPath) < 11)
     {
       # If path length < 11, no break points. <- This is redundant with the within 5 pixels to vertex rule.
-      breakFlag[nodeChecks] = FALSE
+    #  breakFlag[nodeChecks] = FALSE
     }
     else if(tempPath[1] == tempPath[length(tempPath)])
     {
@@ -266,6 +266,7 @@ checkBreakPoints = function(candidateNodes, allPaths, nodeGraph, dims)
       # No break if either vertex on edge has an order of 1
       breakFlag[nodeChecks] = FALSE
     }
+
 
     if(sum(breakFlag[nodeChecks]) > 1)
     {
@@ -296,7 +297,7 @@ checkBreakPoints = function(candidateNodes, allPaths, nodeGraph, dims)
       }
     }
 
-    if(any(which(tempPath %in% c(candidateNodes[nodeChecks])) <= 6 | which(tempPath %in% c(candidateNodes[nodeChecks])) >= length(tempPath) - 5))
+    if(any(which(tempPath %in% c(candidateNodes[nodeChecks])) <= 5 | which(tempPath %in% c(candidateNodes[nodeChecks])) >= length(tempPath) - 4))
     {
       #No breaking occurs within 5 pixels to a vertex <- Think this means I can delete 11 thing.
       breakFlag[nodeChecks[which(candidateNodes[nodeChecks] <= 6 | candidateNodes[nodeChecks] >= length(tempPath) - 5)]] = FALSE
@@ -474,7 +475,7 @@ processHandwriting = function(img, nodes)
     }
     if(hasTrough == FALSE)
     {
-      candidateNodes = c(candidateNodes, tempPath[floor(length(tempPath)/2)])
+      candidateNodes = c(candidateNodes, tempPath[ceiling(length(tempPath)/2)])
     }
   }
   breaks = which((((troughNodes[-1]-1) %% dim(img)[1]) + 1) != (((troughNodes[-length(troughNodes)] - 1) %% dim(img)[1]) + 1) |
