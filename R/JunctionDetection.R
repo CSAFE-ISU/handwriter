@@ -357,16 +357,18 @@ graphemePaths = function(allPaths, nodeGraph0, breakPoints)
 #'
 #' @export
 
-getNodes = function(img)
+getNodes = function(img, dims)
 {
   ## First, we find endpoints and intersections of skeleton.
-  indices = which(img == 0)
-  img.m = cbind(((indices-1) %% dim(img)[1]) + 1, ((indices - 1) %/% dim(img)[1]) + 1)
+  indices = img
+  img = matrix(1, ncol = dims[2], nrow = dims[1])
+  img[indices] = 0
+  img.m = cbind(((indices-1) %% dims[1]) + 1, ((indices - 1) %/% dims[1]) + 1)
   changeCount = matrix(apply(X = img.m, MARGIN = 1, FUN = countChanges, img = img), byrow = F, nrow = 1)
-  nodes = matrix(1, dim(img)[1], dim(img)[2])
+  nodes = matrix(1, dims[1], dims[2])
   nodes[indices] = ifelse(changeCount == 1 | changeCount >= 3, 0, 1)
 
-  return(nodes)
+  return(which(nodes == 0))
 }
 
 #' processHandwriting
@@ -394,20 +396,22 @@ getNodes = function(img)
 #'
 #' @export
 
-processHandwriting = function(img, nodes)
+processHandwriting = function(img, nodes, dims)
 {
   # Next, we have to follow certain rules to find non intersection breakpoints.
 
-  indices = which(img == 0)
-  nodeList = which(nodes == 0)
-  img.m = cbind(((indices-1) %% dim(img)[1]) + 1, ((indices - 1) %/% dim(img)[1]) + 1)
+  indices = img
+  img = matrix(1, nrow = dims[1], ncol = dims[2])
+  img[indices] = 0
+  nodeList = nodes
+  img.m = cbind(((indices-1) %% dims[1]) + 1, ((indices - 1) %/% dims[1]) + 1)
 
   neighborList = matrix(NA, nrow = indices, ncol = 8)
   neighborList = t(apply(as.matrix(img.m, ncol = 2), 1, whichNeighbors, img = img))
   graphdf = melt(neighborList)
   graphdf = subset(graphdf, value == 1)
   graphdf$from = indices[graphdf$Var1]
-  graphdf$to = graphdf$from + c(-1, dim(img)[1]-1, dim(img)[1], dim(img)[1] + 1, 1, 1-dim(img)[1], -dim(img)[1], -1-dim(img)[1])[graphdf$Var2]
+  graphdf$to = graphdf$from + c(-1, dims[1]-1, dims[1], dims[1] + 1, 1, 1-dims[1], -dims[1], -1-dims[1])[graphdf$Var2]
   graphdf$man_dist = rep(c(1,2), 4)[graphdf$Var2]
   graphdf$euc_dist = c(1,sqrt(2), 1, sqrt(2), 1, sqrt(2), 1, sqrt(2))[graphdf$Var2]
   graphdf$pen_dist = c(1,3,1,3,1,3,1,3)[graphdf$Var2]
@@ -417,7 +421,7 @@ processHandwriting = function(img, nodes)
   graphdf0 = melt(neighborList0)
   graphdf0 = subset(graphdf0, value == 1)
   graphdf0$from = indices[graphdf0$Var1]
-  graphdf0$to = graphdf0$from + c(-1, dim(img)[1]-1, dim(img)[1], dim(img)[1] + 1, 1, 1-dim(img)[1], -dim(img)[1], -1-dim(img)[1])[graphdf0$Var2]
+  graphdf0$to = graphdf0$from + c(-1, dims[1]-1, dims[1], dims[1] + 1, 1, 1-dims[1], -dims[1], -1-dims[1])[graphdf0$Var2]
   graphdf0$nodeOnlyDist = ifelse(graphdf0$from %in% nodeList | graphdf0$to %in% nodeList, 1, 0)
   graphdf0$from = as.character(graphdf0$from)
   graphdf0$to = as.character(graphdf0$to)
@@ -458,7 +462,7 @@ processHandwriting = function(img, nodes)
     tempPath = allPaths[[i]]
     if(length(tempPath) > 10)
     {
-      rows = ((tempPath-1) %% dim(img)[1]) + 1
+      rows = ((tempPath-1) %% dims[1]) + 1
       for(j in 6:(length(rows)-5))
       {
         if(any(rows[1:(j-1)] < rows[j]-1) & any(rows[(j+1):length(rows)] < rows[j]-1))
@@ -478,15 +482,15 @@ processHandwriting = function(img, nodes)
       candidateNodes = c(candidateNodes, tempPath[ceiling(length(tempPath)/2)])
     }
   }
-  breaks = which((((troughNodes[-1]-1) %% dim(img)[1]) + 1) != (((troughNodes[-length(troughNodes)] - 1) %% dim(img)[1]) + 1) |
-                   ((((troughNodes[-1]-1) %/% dim(img)[1]) + 1) != (((troughNodes[-length(troughNodes)] - 1) %/% dim(img)[1])) &
-                      (((troughNodes[-1]-1) %/% dim(img)[1])) != (((troughNodes[-length(troughNodes)] - 1) %/% dim(img)[1]) + 1)))
+  breaks = which((((troughNodes[-1]-1) %% dims[1]) + 1) != (((troughNodes[-length(troughNodes)] - 1) %% dims[1]) + 1) |
+                   ((((troughNodes[-1]-1) %/% dims[1]) + 1) != (((troughNodes[-length(troughNodes)] - 1) %/% dims[1])) &
+                      (((troughNodes[-1]-1) %/% dims[1])) != (((troughNodes[-length(troughNodes)] - 1) %/% dims[1]) + 1)))
   breaks = c(1, breaks, length(troughNodes))
   candidateNodes = c(candidateNodes, troughNodes[ceiling((breaks[-1] + breaks[-length(breaks)])/2)])
 
-  print(plotPath(candidateNodes, img, img, zoomBorder = NA))
+ # print(plotPath(candidateNodes, img, img, zoomBorder = NA))
 
-  goodBreaks = checkBreakPoints(candidateNodes = candidateNodes, allPaths = allPaths, nodeGraph = getNodeGraph(allPaths, nodeList), dim(img))
+  goodBreaks = checkBreakPoints(candidateNodes = candidateNodes, allPaths = allPaths, nodeGraph = getNodeGraph(allPaths, nodeList), dims)
   preStackBreaks = candidateNodes[goodBreaks]
 
   ##################### Potential breakpoints (except for stacked graphemes) found. Break into grapheme paths.
@@ -495,7 +499,7 @@ processHandwriting = function(img, nodes)
   graphemes = graphemesList[[1]]
   V(skel_graph0)$graphemeID = graphemesList[[2]]
 
-  finalBreaks = preStackBreaks[!(checkStacking(preStackBreaks, allPaths, graphemes, skel_graph0, dim(img)))]
+  finalBreaks = preStackBreaks[!(checkStacking(preStackBreaks, allPaths, graphemes, skel_graph0, dims))]
   graphemesList = graphemePaths(allpaths, skel_graph0, finalBreaks)
 
   graphemesList = graphemePaths(allpaths, skel_graph0, finalBreaks)
@@ -595,11 +599,9 @@ getNodeGraph = function(allPaths, nodeList)
 plotNodes = function(img, thinned, nodeList, nodeSize = 3)
 {
   l.m = melt(img)
-  t.m = melt(thinned)
-  n.m = melt(nodeList)
-  l.m$value[t.m$value == 0] = 2
-  l.m$value[n.m$value == 0] = 3
-  n.m2 = n.m[n.m$value == 0,]
-  p = ggplot(l.m, aes(Var2, rev(Var1))) + geom_raster(aes(fill = as.factor(value != 1), alpha = ifelse(value==0,.3,1))) + scale_alpha_continuous(guide = FALSE) + scale_fill_manual(values = c("white", "black"), guide = FALSE) + theme_void() + geom_point(data= n.m2, aes(x = Var2, y = dim(thinned)[1] - Var1 + 1), shape = I(17), size = I(nodeSize), color = I("red"))
+  l.m$value[thinned] = 2
+  l.m$value[nodeList] = 3
+  n.m2 = n.m[nodeList,]
+  p = ggplot(l.m, aes(Var2, rev(Var1))) + geom_raster(aes(fill = as.factor(value != 1), alpha = ifelse(value==0,.3,1))) + scale_alpha_continuous(guide = FALSE) + scale_fill_manual(values = c("white", "black"), guide = FALSE) + theme_void() + geom_point(data= n.m2, aes(x = Var2, y = dim(img)[1] - Var1 + 1), shape = I(17), size = I(nodeSize), color = I("red"))
   return(p)
 }

@@ -270,7 +270,7 @@ thinImage = function(img, verbose = FALSE)
     total.time.end = Sys.time()
     cat("\n------------------------\nTotal Run Time:", difftime(total.time.end, total.time.start, units = "secs"), "\n------------------------\n")
   }
-  return(thinned)
+  return(which(thinned == 0))
 }
 
 #' plotImageThinned
@@ -289,8 +289,8 @@ thinImage = function(img, verbose = FALSE)
 plotImageThinned = function(img, thinned)
 {
   l.m = melt(img)
-  t.m = melt(thinned)
-  l.m$value[t.m$value == 0] = 2
+  #t.m = melt(thinned)
+  l.m$value[thinned] = 2
   p = ggplot(l.m, aes(Var2, rev(Var1))) + geom_raster(aes(fill = as.factor(value != 1), alpha = ifelse(value==0,.3,1))) + scale_alpha_continuous(guide = FALSE) + scale_fill_manual(values = c("white", "black"), guide = FALSE) + theme_void()
   return(p)
 }
