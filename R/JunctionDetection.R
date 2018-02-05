@@ -175,29 +175,6 @@ getLoops = function(nodeList, graph, graph0, pathList, dims)
 #'
 #' @export
 
-plotPath = function(path, image, image_thin, zoomBorder = NA, nodeSize = 3)
-{
-  i1 = min(path %% dim(image)[1])
-  i2 = max(path %% dim(image)[1])
-  j1 = min(path %/% dim(image)[1])
-  j2 = max(path %/% dim(image)[1])
-
-  image_path = matrix(1, ncol = dim(image)[2], nrow = dim(image)[1])
-  image_path[path] = 0
-
-  if(!is.na(zoomBorder))
-  {
-    mincol = min(j1, j2)-zoomBorder
-    maxcol = max(j1, j2)+zoomBorder
-    minrow = min(i1, i2)-zoomBorder
-    maxrow = max(i1, i2)+zoomBorder
-
-    return(plotNodes(image[minrow:maxrow,][,mincol:maxcol], image_thin[minrow:maxrow,][,mincol:maxcol], image_path[minrow:maxrow,][,mincol:maxcol]))
-  }
-  else
-    return(plotNodes(image, image_thin, image_path, nodeSize = nodeSize))
-}
-
 #' makeGifImages
 #'
 #' Saves a collection of plots, which sequentially display paths in a list, to the provided file path.
@@ -598,10 +575,13 @@ getNodeGraph = function(allPaths, nodeList)
 
 plotNodes = function(img, thinned, nodeList, nodeSize = 3)
 {
-  l.m = melt(img)
-  l.m$value[thinned] = 2
-  l.m$value[nodeList] = 3
-  n.m2 = n.m[nodeList,]
-  p = ggplot(l.m, aes(Var2, rev(Var1))) + geom_raster(aes(fill = as.factor(value != 1), alpha = ifelse(value==0,.3,1))) + scale_alpha_continuous(guide = FALSE) + scale_fill_manual(values = c("white", "black"), guide = FALSE) + theme_void() + geom_point(data= n.m2, aes(x = Var2, y = dim(img)[1] - Var1 + 1), shape = I(17), size = I(nodeSize), color = I("red"))
+  p = plotImageThinned(img, thinned)
+  pointSet = data.frame(X = ((nodeList - 1) %/% dim(img)[1]) + 1, Y = dim(img)[1] - ((nodeList - 1) %% dim(img)[1]))
+  p = p + geom_point(data = pointSet, aes(X, Y), shape = I("o"), size = I(6), color = I("red"))
   return(p)
+  #l.m = melt(img)
+  #l.m$value[thinned] = 2
+  #l.m$value[nodeList] = 3
+  #n.m2 = n.m[nodeList,]
+  #p = ggplot(l.m, aes(Var2, rev(Var1))) + geom_raster(aes(fill = as.factor(value != 1), alpha = ifelse(value==0,.3,1))) + scale_alpha_continuous(guide = FALSE) + scale_fill_manual(values = c("white", "black"), guide = FALSE) + theme_void() + geom_point(data= n.m2, aes(x = Var2, y = dim(img)[1] - Var1 + 1), shape = I(17), size = I(nodeSize), color = I("red"))
 }
