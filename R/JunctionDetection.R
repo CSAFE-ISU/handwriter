@@ -158,23 +158,6 @@ getLoops = function(nodeList, graph, graph0, pathList, dims)
   return(loopList)
 }
 
-#' plotPath
-#'
-#' Returns a plot with a little red triangle on the pixels in the 'path' vector.
-#' @param image Binary image.
-#' @param image_thin Thinned binary image.
-#' @param zoomBorder Pixel padding around the most extreme red triangles in every direction.
-#' Doesn't check boundaries, so be smarter than the plot. Default is NA, which shows the whole image.
-#' @param nodeSize Size of the red triangles. For fine images a smaller size may be necessary. Default is 3.
-#' @return Returns a ggplot2 plot.
-#' @examples
-#' #### Not Run
-#' # Make csafe_pathList the resulting object from the pathList item in the processHandwriting returned list
-#'
-#' # plotPath(csafe_pathList[[1]], csafe, csafe_thin, zoomBorder = NA)
-#'
-#' @export
-
 #' makeGifImages
 #'
 #' Saves a collection of plots, which sequentially display paths in a list, to the provided file path.
@@ -202,7 +185,7 @@ makeGifImages = function(img, img_thin, allPaths, file_path, filenames)
 
     for(i in 1:length(allPaths))
     {
-      p = plotPath(allPaths[[i]], img, img_thin, zoomBorder = NA)
+      p = plotNodes(img, img_thin, allPaths[[i]], zoomBorder = NA)
       ggsave(paste0(file_path, filenames, num[i], ".png"), p, device = "png")
     }
   }

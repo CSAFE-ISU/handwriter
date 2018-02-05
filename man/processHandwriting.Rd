@@ -4,7 +4,7 @@
 \alias{processHandwriting}
 \title{processHandwriting}
 \usage{
-processHandwriting(img, nodes)
+processHandwriting(img, nodes, dims)
 }
 \arguments{
 \item{img}{Thinned binary image.}

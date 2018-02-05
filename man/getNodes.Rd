@@ -4,7 +4,7 @@
 \alias{getNodes}
 \title{getNodes}
 \usage{
-getNodes(img)
+getNodes(img, dims)
 }
 \arguments{
 \item{img}{Thinned binary image.}

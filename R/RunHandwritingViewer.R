@@ -11,10 +11,9 @@
 #' @examples
 runHandwritingViewer = function()
 {
-  appDir <- system.file("R", "ShinyHWViewer", package = "handwriter")
+  appDir <- system.file("ShinyHWViewer", package = "handwriter")
   if (appDir == "") {
     stop("Could not find example directory. Try re-installing `handwriter`.", call. = FALSE)
   }
-  
   shiny::runApp(appDir, display.mode = "normal")
 }
