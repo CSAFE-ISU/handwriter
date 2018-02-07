@@ -7,8 +7,7 @@
 #'
 #' @return None
 #' @export
-#'
-#' @examples
+#' 
 runHandwritingViewer = function()
 {
   appDir <- system.file("ShinyHWViewer", package = "handwriter")

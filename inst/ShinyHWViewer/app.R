@@ -30,7 +30,12 @@ ui <- fluidPage(
 )
 
 server <- function(input, output) {
+  if(!require(handwriter))
+  {
+    devtools::install_github("CSAFE-ISU/handwriter")
+  }
   library(handwriter)
+  
   data <- reactive({
     req(input$filePath)
     path <- input$filePath$datapath
@@ -58,12 +63,12 @@ server <- function(input, output) {
       letterRanges$y = round(letterRanges$y)
       subimage = data()$image[(dim(data()$image)[1] - letterRanges$y[2] + 1):(dim(data()$image)[1] - letterRanges$y[1] + 1),][,(letterRanges$x[1] + 1):(letterRanges$x[2] + 1)]
       subthindf = data.frame(X = ((data()$thin - 1) %/% dim(data()$image)[1]) + 1, Y = ((data()$thin - 1) %% dim(data()$image)[1]) + 1)
-      subthindf = as.data.frame(t(t(subthindf) - c(letterRanges$x[1] - 1, dim(data()$image)[1] - letterRanges$y[2] - 1)))
+      subthindf = as.data.frame(t(t(subthindf) - c(letterRanges$x[1], dim(data()$image)[1] - letterRanges$y[2])))
       subthindf = subthindf[between(subthindf$X, 1, letterRanges$x[2] - letterRanges$x[1] + 1) & between(subthindf$Y, 1, letterRanges$y[2] - letterRanges$y[1] + 1),]
       subthin = (subthindf$X - 1)*dim(subimage)[1] + subthindf$Y
    
       points = data.frame(X = ((data()$nodes - 1) %/% dim(data()$image)[1]) + 1, Y = ((data()$nodes - 1) %% dim(data()$image)[1]) + 1)
-      points = as.data.frame(t(t(points) - c(letterRanges$x[1] - 1, dim(data()$image)[1] - letterRanges$y[2] - 1)))
+      points = as.data.frame(t(t(points) - c(letterRanges$x[1], dim(data()$image)[1] - letterRanges$y[2] - 1)))
       points = points[between(points$X, 1, letterRanges$x[2] - letterRanges$x[1] + 1) & between(points$Y, 1, letterRanges$y[2] - letterRanges$y[1] + 1),]
    
       yheight = letterRanges$y[2] - letterRanges$y[1] + 2
