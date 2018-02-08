@@ -19,17 +19,13 @@ Detect intersection points of an image thinned with thinImage.
 data(london)
 london = crop(london)
 london_thin = thinImage(london, verbose = TRUE)
-london_nodes = getNodes(london_thin)
+london_nodes = getNodes(london_thin, dim(london))
 
-data(cells)
-cells = crop(cells)
-cells_thin = thinImage(cells, verbose = TRUE)
-cells_nodes = getNodes(cells_thin)
-
-data(message)
-message = crop(message)
-message_thin = thinImage(message, verbose = TRUE)
-message_nodes = getNodes(message_thin)
+## Not Run
+#data(message)
+#message = crop(message)
+#message_thin = thinImage(message, verbose = TRUE)
+#message_nodes = getNodes(message_thin, dim(message))
 
 }
 \keyword{Suen}

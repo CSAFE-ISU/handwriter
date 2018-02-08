@@ -30,7 +30,7 @@ ui <- fluidPage(
 )
 
 server <- function(input, output) {
-  if(!require(handwriter))
+  if(!require(handwriter, ))
   {
     devtools::install_github("CSAFE-ISU/handwriter")
     require(handwriter)

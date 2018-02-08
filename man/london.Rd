@@ -3,12 +3,12 @@
 \docType{data}
 \name{london}
 \alias{london}
-\title{London}
+\title{Cursive written word: London}
 \format{Binary image matrix. 148 rows and 481 columns.}
 \usage{
 london
 }
 \description{
-Cursive written word: 'London'
+Cursive written word: London
 }
 \keyword{datasets}

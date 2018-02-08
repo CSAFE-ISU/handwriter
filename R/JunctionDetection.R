@@ -94,6 +94,8 @@ AllUniquePaths = function(adj, graph, graph0)
 }
 
 #' Internal function for getting looped paths.
+#' 
+#' @importFrom utils combn
 getLoops = function(nodeList, graph, graph0, pathList, dims)
 {
   vertexNames = names(V(graph0))
@@ -170,7 +172,8 @@ getLoops = function(nodeList, graph, graph0, pathList, dims)
 #' @return Nothing. Will print out a terminal command for creating your gif. Just navigate to the directory and copy and paste.
 #' @examples
 #' #### Not Run
-#' # Make csafe_pathList the resulting object from the pathList item in the processHandwriting returned list
+#' # Make csafe_pathList the resulting object from the pathList
+#' # item in the processHandwriting returned list
 #'
 #' # makeGifImages(csafe, csafe_thin, csafe_pathList, "../GifPlots/", "csafePaths")
 #'
@@ -185,7 +188,7 @@ makeGifImages = function(img, img_thin, allPaths, file_path, filenames)
 
     for(i in 1:length(allPaths))
     {
-      p = plotNodes(img, img_thin, allPaths[[i]], zoomBorder = NA)
+      p = plotNodes(img, img_thin, allPaths[[i]])
       ggsave(paste0(file_path, filenames, num[i], ".png"), p, device = "png")
     }
   }
@@ -303,17 +306,13 @@ graphemePaths = function(allPaths, nodeGraph0, breakPoints)
 #' data(london)
 #' london = crop(london)
 #' london_thin = thinImage(london, verbose = TRUE)
-#' london_nodes = getNodes(london_thin)
+#' london_nodes = getNodes(london_thin, dim(london))
 #'
-#' data(cells)
-#' cells = crop(cells)
-#' cells_thin = thinImage(cells, verbose = TRUE)
-#' cells_nodes = getNodes(cells_thin)
-#'
-#' data(message)
-#' message = crop(message)
-#' message_thin = thinImage(message, verbose = TRUE)
-#' message_nodes = getNodes(message_thin)
+#' ## Not Run
+#' #data(message)
+#' #message = crop(message)
+#' #message_thin = thinImage(message, verbose = TRUE)
+#' #message_nodes = getNodes(message_thin, dim(message))
 #'
 #' @export
 
@@ -344,12 +343,15 @@ getNodes = function(img, dims)
 #' Object [[2]] (called pathList) is a list of the paths between the input specified nodes.
 #' Object [[3]] (called graphemes) is a list of the pixels in the different graphemes in the handwriting sample.
 #'
+#' @importFrom reshape2 melt
+#' @import igraph
+#'
 #' @examples
 #' data(csafe)
 #' csafe = crop(csafe)
 #' csafe_thin = thinImage(csafe, verbose = TRUE)
-#' csafe_nodes = getNodes(csafe_thin)
-#' csafe_processList = processHandwriting(csafe_thin, csafe_nodes)
+#' csafe_nodes = getNodes(csafe_thin, dim(csafe))
+#' csafe_processList = processHandwriting(csafe_thin, csafe_nodes, dim(csafe))
 #' csafe_breaks = csafe_processList$breakPoints
 #' csafe_paths = csafe_processList$pathList
 #' csafe_graphemes = csafe_processList$graphemeList
@@ -399,7 +401,7 @@ processHandwriting = function(img, nodes, dims)
   V(skel_graph)$color = ifelse(V(skel_graph)$name %in% nodeList, 1, 0)
   V(skel_graph0)$color = ifelse(V(skel_graph0)$name %in% nodeList, 1, 0)
 
-  dists0 = distances(skel_graph0, v = as.character(nodeList), to = as.character(nodeList),weight = E(skel_graph0)$nodeOnlyDist)
+  dists0 = distances(skel_graph0, v = as.character(nodeList), to = as.character(nodeList), weights = E(skel_graph0)$nodeOnlyDist)
   adj0 = ifelse(dists0 == 1 | dists0 == 2, 1, 0)
   adj0[lower.tri(adj0)] = 0
   adj.m = melt(adj0)
@@ -518,7 +520,8 @@ checkStacking = function(candidateBreaks, allPaths, graphemes, nodeGraph0, dims)
           rg1 = range(gr1Cols)
           rg2 = range(gr2Cols)
      #     cat("rg1:", rg1, "\nrg2:", rg2)
-          if(all(between(rg1, rg2[1], rg2[2])) | all(between(rg2, rg1[1], rg1[2])))
+          #if(all(between(rg1, rg2[1], rg2[2])) | all(between(rg2, rg1[1], rg1[2])))
+          if(all(rg1 > rg2[1] & rg1 < rg2[2]) | all(rg2 > rg1[1] & rg2 < rg1[2]))
             stackPtFlag[nodeChecks] = TRUE
         }
       }
@@ -548,11 +551,13 @@ getNodeGraph = function(allPaths, nodeList)
 #' @param nodeList Nodelist returned from getNodes.
 #' @param nodeSize Size of triangles printed. 3 by default. Move down to 2 or 1 for small text images.
 #' @return Plot of full and thinned image with vertices overlaid.
+#' 
+#' @import ggplot2
+#' 
 #' @examples
 #' # See getNodes() examples first.
-#' plotNodes(london, london_thin, london_nodes)
-#' plotNodes(cells, cells_thin, cells_nodes)
-#' plotNodes(message, message_thin, message_nodes)
+#' # plotNodes(london, london_thin, london_nodes)
+#' # plotNodes(message, message_thin, message_nodes)
 #'
 #' @export
 

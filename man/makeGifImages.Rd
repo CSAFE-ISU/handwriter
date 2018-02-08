@@ -26,7 +26,8 @@ Also prints some suggested code for imagemagick gif creation. Can be useful for 
 }
 \examples{
 #### Not Run
-# Make csafe_pathList the resulting object from the pathList item in the processHandwriting returned list
+# Make csafe_pathList the resulting object from the pathList
+# item in the processHandwriting returned list
 
 # makeGifImages(csafe, csafe_thin, csafe_pathList, "../GifPlots/", "csafePaths")
 

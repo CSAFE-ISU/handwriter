@@ -22,9 +22,6 @@ data(london)
 london = crop(london)
 london_thin = thinImage(london, verbose = TRUE)
 
-data(cells)
-cells = crop(cells)
-cells_thin = thinImage(cells, verbose = TRUE)
 
 data(message)
 message = crop(message)

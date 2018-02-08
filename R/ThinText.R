@@ -7,6 +7,7 @@
 #' binaryCutoff is passed to imager::threshold.
 #' @param inversion Boolean dictating whether or not to flip each pixel of binarized image. Flipping happens after binarization. FALSE by default.
 #' @keywords binary
+#' @importFrom imager load.image threshold grayscale
 #' @return Returns image from path. 0 represents black, and 1 represents white by default.
 #' @export
 
@@ -37,6 +38,7 @@ readPNGBinary = function(path, binaryCutoff = "auto", inversion = FALSE)
 #' @param fill Boolean for whether or not to grow then shrink image.
 #' @param amount Parameter passed to clean and fill. Strength of clean and/or fill.
 #'
+#'@importFrom imager clean fill
 #' @return Cleaned binary image.
 #' @export
 
@@ -48,7 +50,7 @@ cleanBinaryImage = function(img, clean = TRUE, fill = TRUE, cleanAmt = 2, fillAm
   if(fill)
     img = clean(img, fillAmt)
   if(clean)
-    img = fill(img, cleanAmt)
+    img = imager::fill(img, cleanAmt)
   return(img[,,1,1])
 }
 
@@ -70,12 +72,13 @@ rgba2rgb = function(rgba)
 #' @param x Binary matrix, usually from readPNGBinary
 #' @keywords plot
 #' @return Returns plot of x.
+#' @import ggplot2
 #' @export
 
 plotImage = function(x)
 {
   xm = melt(x)
-  p = ggplot(xm, aes(Var2, rev(Var1))) + geom_raster(aes(fill = as.factor(value))) + scale_fill_manual(values = c("black", "white"), guide = FALSE) + theme_void()
+  p = ggplot(xm, aes(Var2, rev(Var1))) + geom_raster(aes(fill = as.factor(value))) + scale_fill_manual(values = c("black", "white"), guide = FALSE) + coord_fixed() + theme_void()
   return(p)
 }
 
@@ -205,9 +208,6 @@ stepB = function(img, coords)
 #' london = crop(london)
 #' london_thin = thinImage(london, verbose = TRUE)
 #'
-#' data(cells)
-#' cells = crop(cells)
-#' cells_thin = thinImage(cells, verbose = TRUE)
 #'
 #' data(message)
 #' message = crop(message)
@@ -279,10 +279,14 @@ thinImage = function(img, verbose = FALSE)
 #' @param img Full image matrix
 #' @param thinned Thinned image matrix
 #' @return Plot of full and thinned image.
+#' 
+#' @import ggplot2
+#' 
 #' @examples
-#' plotImageThinned(london, london_thin)
-#' plotImageThinned(cells, cells_thin)
-#' plotImageThinned(message, message_thin)
+#' 
+#' ## Not Run
+#' # plotImageThinned(london, london_thin)
+#' # plotImageThinned(message, message_thin)
 #'
 #' @export
 
@@ -291,7 +295,7 @@ plotImageThinned = function(img, thinned)
   l.m = melt(img)
   #t.m = melt(thinned)
   l.m$value[thinned] = 2
-  p = ggplot(l.m, aes(Var2, rev(Var1))) + geom_raster(aes(fill = as.factor(value != 1), alpha = ifelse(value==0,.3,1))) + scale_alpha_continuous(guide = FALSE) + scale_fill_manual(values = c("white", "black"), guide = FALSE) + theme_void()
+  p = ggplot(l.m, aes(Var2, rev(Var1))) + geom_raster(aes(fill = as.factor(value != 1), alpha = ifelse(value==0,.3,1))) + scale_alpha_continuous(guide = FALSE) + scale_fill_manual(values = c("white", "black"), guide = FALSE) + coord_fixed() + theme_void()
   return(p)
 }
 

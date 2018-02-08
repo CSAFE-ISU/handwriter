@@ -24,8 +24,7 @@ Also called from plotPath, which is a more useful function, in general.
 }
 \examples{
 # See getNodes() examples first.
-plotNodes(london, london_thin, london_nodes)
-plotNodes(cells, cells_thin, cells_nodes)
-plotNodes(message, message_thin, message_nodes)
+# plotNodes(london, london_thin, london_nodes)
+# plotNodes(message, message_thin, message_nodes)
 
 }

@@ -18,8 +18,9 @@ Plot of full and thinned image.
 This function returns a plot with the full image plotted in light gray and the skeleton printed in black on top.
 }
 \examples{
-plotImageThinned(london, london_thin)
-plotImageThinned(cells, cells_thin)
-plotImageThinned(message, message_thin)
+
+## Not Run
+# plotImageThinned(london, london_thin)
+# plotImageThinned(message, message_thin)
 
 }
