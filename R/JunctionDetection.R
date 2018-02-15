@@ -305,13 +305,13 @@ graphemePaths = function(allPaths, nodeGraph0, breakPoints)
 #' @examples
 #' data(london)
 #' london = crop(london)
-#' london_thin = thinImage(london, verbose = TRUE)
+#' london_thin = thinImage(london)
 #' london_nodes = getNodes(london_thin, dim(london))
 #'
 #' ## Not Run
 #' #data(message)
 #' #message = crop(message)
-#' #message_thin = thinImage(message, verbose = TRUE)
+#' #message_thin = thinImage(message)
 #' #message_nodes = getNodes(message_thin, dim(message))
 #'
 #' @export
@@ -349,7 +349,7 @@ getNodes = function(img, dims)
 #' @examples
 #' data(csafe)
 #' csafe = crop(csafe)
-#' csafe_thin = thinImage(csafe, verbose = TRUE)
+#' csafe_thin = thinImage(csafe)
 #' csafe_nodes = getNodes(csafe_thin, dim(csafe))
 #' csafe_processList = processHandwriting(csafe_thin, csafe_nodes, dim(csafe))
 #' csafe_breaks = csafe_processList$breakPoints
@@ -362,6 +362,7 @@ processHandwriting = function(img, nodes, dims)
 {
   # Next, we have to follow certain rules to find non intersection breakpoints.
 
+  cat("Starting Processing...\n")
   indices = img
   img = matrix(1, nrow = dims[1], ncol = dims[2])
   img[indices] = 0
@@ -408,13 +409,16 @@ processHandwriting = function(img, nodes, dims)
   adj.m = subset(adj.m, value == 1)
   names(adj.m) = c("from", "to", "value")
 
+  cat("Finding direct paths..")
   pathList = AllUniquePaths(adj.m, skel_graph, skel_graph0)
+  cat("and loops...\n")
   loopList = getLoops(nodeList, skel_graph, skel_graph0, pathList, dim(img))
 
   allPaths = append(pathList, loopList)
 
   ####################### This is after path finding. Find breakpoints and check rules for removal.
   #Nominate and check candidate breakpoints
+  cat("Looking for letter break points...")
   troughNodes = c()
   candidateNodes = c()
   for(i in 1:length(allPaths))
@@ -451,12 +455,15 @@ processHandwriting = function(img, nodes, dims)
   candidateNodes = c(candidateNodes, troughNodes[ceiling((breaks[-1] + breaks[-length(breaks)])/2)])
 
  # print(plotPath(candidateNodes, img, img, zoomBorder = NA))
-
+  cat("and discarding bad ones...\n")
+  
   goodBreaks = checkBreakPoints(candidateNodes = candidateNodes, allPaths = allPaths, nodeGraph = getNodeGraph(allPaths, nodeList), dims)
   preStackBreaks = candidateNodes[goodBreaks]
 
   ##################### Potential breakpoints (except for stacked graphemes) found. Break into grapheme paths.
 
+  cat("Isolating letter paths...")
+  
   graphemesList = graphemePaths(allpaths, skel_graph0, preStackBreaks)
   graphemes = graphemesList[[1]]
   V(skel_graph0)$graphemeID = graphemesList[[2]]
@@ -467,6 +474,7 @@ processHandwriting = function(img, nodes, dims)
   graphemesList = graphemePaths(allpaths, skel_graph0, finalBreaks)
   graphemes = graphemesList[[1]]
 
+  cat("and done.\n")
   return(list(breakPoints = finalBreaks, pathList = allPaths, graphemeList = graphemes))
 }
 

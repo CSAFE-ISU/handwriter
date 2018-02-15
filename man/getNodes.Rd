@@ -18,13 +18,13 @@ Detect intersection points of an image thinned with thinImage.
 \examples{
 data(london)
 london = crop(london)
-london_thin = thinImage(london, verbose = TRUE)
+london_thin = thinImage(london)
 london_nodes = getNodes(london_thin, dim(london))
 
 ## Not Run
 #data(message)
 #message = crop(message)
-#message_thin = thinImage(message, verbose = TRUE)
+#message_thin = thinImage(message)
 #message_nodes = getNodes(message_thin, dim(message))
 
 }

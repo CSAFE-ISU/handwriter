@@ -25,7 +25,7 @@ and a list of the grapheme paths in the image.
 \examples{
 data(csafe)
 csafe = crop(csafe)
-csafe_thin = thinImage(csafe, verbose = TRUE)
+csafe_thin = thinImage(csafe)
 csafe_nodes = getNodes(csafe_thin, dim(csafe))
 csafe_processList = processHandwriting(csafe_thin, csafe_nodes, dim(csafe))
 csafe_breaks = csafe_processList$breakPoints

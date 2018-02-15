@@ -9,37 +9,177 @@ using namespace arma;
 
 void countBNeighbors(const arma::mat &img, uvec checkList, vec &toWhite);
 void countWBTransitions(const arma::mat &img, uvec checkList, vec &toWhite);
+void count246(const arma::mat &img, uvec checkList, vec &toWhite);
+void count468(const arma::mat &img, uvec checkList, vec &toWhite);
+void count248(const arma::mat &img, uvec checkList, vec &toWhite);
+void count268(const arma::mat &img, uvec checkList, vec &toWhite);
 
-
+//' thinImage
+//' 
+//' This function returns a vector of locations for black pixels in the thinned image.
+//' Thinning done using Zhang - Suen algorithm.
+//'
+//' @param img A binary matrix of the text that is to be thinned.
+//' @export
 // [[Rcpp::export]]
-arma::mat thinImage_c(arma::mat img) {
-  int n = img.n_rows;
-  int m = img.n_cols;
+arma::uvec thinImage(arma::mat img) {
   
-  uvec black = find(img == 0);
-  vec toWhite = zeros<vec>(black.n_elem);
+  uvec black;
+  vec toWhite;
   
-  // Step 1
-  countWBTransitions(img, black, toWhite);
-  black = black.elem(find(toWhite == 0));
-  toWhite = zeros<vec>(black.n_elem);
+  bool changed = true;
+  int startingNumBlack = 0;
+ // int oldnum= 0;
   
+  while(changed)
+  {
+    black = find(img == 0);
+    toWhite = zeros<vec>(black.n_elem);
+    
+    startingNumBlack = black.n_elem;
+    
+    // Step 1
+
+    countWBTransitions(img, black, toWhite);
+    black = black.elem(find(toWhite == 1));
+    toWhite = zeros<vec>(black.n_elem);
+   // Rcpp::Rcout << "Marked " << startingNumBlack - black.n_elem << " pixels at A1.\n";
+   // oldnum = black.n_elem;
+    
+    countBNeighbors(img, black, toWhite);
+    black = black.elem(find(toWhite == 1));
+    toWhite = zeros<vec>(black.n_elem);
+  //  Rcpp::Rcout << "Marked " << oldnum - black.n_elem << " pixels at B1.\n";
+  //  oldnum = black.n_elem;
+    
+    count246(img, black, toWhite);
+    black = black.elem(find(toWhite == 1));
+    toWhite = zeros<vec>(black.n_elem);
+  //  Rcpp::Rcout << "Marked " << oldnum - black.n_elem << " pixels at count 246.\n";
+  //  oldnum = black.n_elem;
+    
+    count468(img, black, toWhite);
+    black = black.elem(find(toWhite == 1));
+
+    img.elem(black) = ones<vec>(black.n_elem);
+  //  Rcpp::Rcout << "Marked " << oldnum - black.n_elem << " pixels at count468.\n";
+    
+    // Step 2
+    black = find(img == 0);
+    toWhite = zeros<vec>(black.n_elem);
+   // oldnum = black.n_elem;
+    
+    countWBTransitions(img, black, toWhite);
+    black = black.elem(find(toWhite == 1));
+    toWhite = zeros<vec>(black.n_elem);
+   // Rcpp::Rcout << "Marked " << oldnum - black.n_elem << " pixels at A2.\n";
+  //  oldnum = black.n_elem;
+    
+    countBNeighbors(img, black, toWhite);
+    black = black.elem(find(toWhite == 1));
+    toWhite = zeros<vec>(black.n_elem);
+   // Rcpp::Rcout << "Marked " << oldnum - black.n_elem << " pixels at B2.\n";
+   // oldnum = black.n_elem;
+    
+    count248(img, black, toWhite);
+    black = black.elem(find(toWhite == 1));
+    toWhite = zeros<vec>(black.n_elem);
+   // Rcpp::Rcout << "Marked " << oldnum - black.n_elem << " pixels at count248.\n";
+   // oldnum = black.n_elem;
+    
+    count268(img, black, toWhite);
+    black = black.elem(find(toWhite == 1));
+   // Rcpp::Rcout << "Marked " << oldnum - black.n_elem << " pixels at count268.\n";
+    
+    img.elem(black) = ones<vec>(black.n_elem);
+    black = find(img == 0);
+    
+  //  Rcpp::Rcout << "Turned " << startingNumBlack - black.n_elem << " pixels white.\n"; 
+    if(startingNumBlack == black.n_elem)
+    {
+      changed = false;
+    }
+  }
   
-  
-  
-  Rcpp::Rcout << n << m;
-  return(img);
+  return(black + 1);
 }
 
+void count246(const arma::mat &img, uvec checkList, vec &toWhite)
+{
+  vec neighbors = zeros<vec>(3);
+  int n = img.n_rows;
+  int cell;
+  for(int i = 0; i < checkList.n_elem; i++)
+  {
+    cell = checkList[i];
+    neighbors << img[cell - 1] << img[cell + n] << img[cell + 1];
+    if(any(neighbors == 1))
+      toWhite[i] = 1;
+  }
+}
+void count468(const arma::mat &img, uvec checkList, vec &toWhite)
+{
+  vec neighborInd = zeros<vec>(3);
+  int n = img.n_rows;
+  int cell;
+  for(int i = 0; i < checkList.n_elem; i++)
+  {
+    cell = checkList[i];
+    neighborInd << img[cell + n] << img[cell + 1] << img[cell - n];
+    if(any(neighborInd == 1))
+      toWhite[i] = 1;
+  }
+}
+void count248(const arma::mat &img, uvec checkList, vec &toWhite)
+{
+  vec neighborInd = zeros<vec>(3);
+  int n = img.n_rows;
+  int cell;
+  for(int i = 0; i < checkList.n_elem; i++)
+  {
+    cell = checkList[i];
+    neighborInd << img[cell - 1] << img[cell + n] << img[cell - n];
+    if(any(neighborInd == 1))
+      toWhite[i] = 1;
+  }
+}
+void count268(const arma::mat &img, uvec checkList, vec &toWhite)
+{
+  vec neighborInd = zeros<vec>(3);
+  int n = img.n_rows;
+  int cell;
+  for(int i = 0; i < checkList.n_elem; i++)
+  {
+    cell = checkList[i];
+    neighborInd << img[cell - 1] << img[cell + 1] << img[cell - n];
+    if(any(neighborInd == 1))
+      toWhite[i] = 1;
+  }
+}
 void countBNeighbors(const arma::mat &img, uvec checkList, vec &toWhite)
 {
-  
+  vec neighborInd = zeros<vec>(8);
+  int n = img.n_rows;
+  int cell;
+  int numBlack = 0;
+  uvec isBlack;
+  for(int i = 0; i < checkList.n_elem; i++)
+  {
+    cell = checkList[i];
+    neighborInd << img[cell - 1] << img[cell + n - 1] << img[cell + n] << img[cell + n + 1] << img[cell + 1] 
+                << img[cell - n + 1] << img[cell - n] << img[cell - n - 1];
+    isBlack = find(neighborInd == 0);
+    numBlack = isBlack.n_elem;
+    if(numBlack <= 6 && numBlack >= 2)
+    {
+      toWhite[i] = 1;
+    }
+  }
 }
 void countWBTransitions(const arma::mat &img, uvec checkList, vec &toWhite)
 {
   vec neighborInd = zeros<vec>(9);
   int n = img.n_rows;
-  //int m = img.n_cols;
   int cell;
   int counter;
   for(int i = 0; i < checkList.n_elem; i++)
@@ -50,7 +190,7 @@ void countWBTransitions(const arma::mat &img, uvec checkList, vec &toWhite)
     counter = 0;
     for(int j = 0; j < 8; j++)
     {
-      if(img[checkList[neighborInd[j]]] == 1 && img[checkList[neighborInd[j+1]]] == 0)
+      if(img[neighborInd[j]] == 1 && img[neighborInd[j+1]] == 0)
       {
         counter++;
       }
@@ -63,5 +203,24 @@ void countWBTransitions(const arma::mat &img, uvec checkList, vec &toWhite)
 // (useful for testing and development). The R code will be automatically 
 // run after the compilation.
 //
+/*** R
+data(message)
+img = message
+message = list()
+message$image = crop(img)
+message$thin = thinImage(message$image)
+#message$nodes = getNodes(message$thin, dim(message$image))
+#plotNodes(message$image, message$thin, message$nodes)
+#message_processList = processHandwriting(message$thin, message$nodes, dim(message$image))
+#message$breaks = message_processList$breakPoints
+#message$paths = message_processList$pathList
+#message$graphemes = message_processList$graphemeList
 
+#message$nodes = diff
+#saveRDS(message, file = "/Users/Nick/Desktop/MessageDiffTest.Rdata")
+
+
+#message_thin = thinImage(message)
+plotImageThinned(message$image, message$thin)
+*/
 
