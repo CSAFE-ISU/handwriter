@@ -30,7 +30,7 @@ ui <- fluidPage(
 )
 
 server <- function(input, output) {
-  if(!require(handwriter, ))
+  if(!require(handwriter))
   {
     devtools::install_github("CSAFE-ISU/handwriter")
     require(handwriter)
@@ -65,7 +65,7 @@ server <- function(input, output) {
       subthindf = data.frame(X = ((data()$thin - 1) %/% dim(data()$image)[1]) + 1, Y = ((data()$thin - 1) %% dim(data()$image)[1]) + 1)
       subthindf = as.data.frame(t(t(subthindf) - c(letterRanges$x[1], dim(data()$image)[1] - letterRanges$y[2])))
       subthindf = subthindf[between(subthindf$X, 1, letterRanges$x[2] - letterRanges$x[1] + 1) & between(subthindf$Y, 1, letterRanges$y[2] - letterRanges$y[1] + 1),]
-      subthin = (subthindf$X - 1)*dim(subimage)[1] + subthindf$Y
+      subthin = (subthindf$X - 1)*dim(subimage)[1] + subthindf$Y + 1
    
       points = data.frame(X = ((data()$nodes - 1) %/% dim(data()$image)[1]) + 1, Y = ((data()$nodes - 1) %% dim(data()$image)[1]) + 1)
       points = as.data.frame(t(t(points) - c(letterRanges$x[1], dim(data()$image)[1] - letterRanges$y[2] - 1)))

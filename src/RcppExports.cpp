@@ -6,20 +6,20 @@
 
 using namespace Rcpp;
 
-// thinImage_c
-arma::mat thinImage_c(arma::mat img);
-RcppExport SEXP _handwriter_thinImage_c(SEXP imgSEXP) {
+// thinImage
+arma::uvec thinImage(arma::mat img);
+RcppExport SEXP _handwriter_thinImage(SEXP imgSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::mat >::type img(imgSEXP);
-    rcpp_result_gen = Rcpp::wrap(thinImage_c(img));
+    rcpp_result_gen = Rcpp::wrap(thinImage(img));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_handwriter_thinImage_c", (DL_FUNC) &_handwriter_thinImage_c, 1},
+    {"_handwriter_thinImage", (DL_FUNC) &_handwriter_thinImage, 1},
     {NULL, NULL, 0}
 };
 
