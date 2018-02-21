@@ -6,8 +6,14 @@
 #
 #    http://shiny.rstudio.com/
 #
-
+#devtools::install_github("CSAFE-ISU/handwriter")
+#Rcpp::sourceCpp(file = "~/src/ThinImageCpp.cpp")
 library(shiny)
+
+between = function(x, left, right)
+{
+  x <= max(left, right) & x >= min(left, right)
+}
 
 ui <- fluidPage(
   fluidRow(
@@ -71,9 +77,10 @@ server <- function(input, output) {
       points = as.data.frame(t(t(points) - c(letterRanges$x[1], dim(data()$image)[1] - letterRanges$y[2] - 1)))
       points = points[between(points$X, 1, letterRanges$x[2] - letterRanges$x[1] + 1) & between(points$Y, 1, letterRanges$y[2] - letterRanges$y[1] + 1),]
    
+      nodes = (points$X-1)*(letterRanges$y[2] - letterRanges$y[1] + 1) + points$Y
       yheight = letterRanges$y[2] - letterRanges$y[1] + 2
       points$Y = yheight - points$Y
-      plotImageThinned(subimage, subthin) + geom_point(data = points, aes(X, Y), shape = I("o"), size = I(6), color = I("red"))
+      plotNodes(subimage, subthin, nodes, nodeShape = "o", nodeSize = 6, nodeColor = "red") + theme(panel.border = element_rect(colour = "gray", fill=NA, size=.3))
     }
   })
 

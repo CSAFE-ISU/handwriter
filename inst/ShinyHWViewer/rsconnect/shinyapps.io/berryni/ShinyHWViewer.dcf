@@ -1,0 +1,12 @@
+name: ShinyHWViewer
+title: ShinyHWViewer
+username:
+account: berryni
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 275134
+bundleId: 1234141
+url: https://berryni.shinyapps.io/ShinyHWViewer/
+when: 1519251645.61573
+asMultiple: FALSE
+asStatic: FALSE
