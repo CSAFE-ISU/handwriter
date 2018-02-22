@@ -71,13 +71,13 @@ server <- function(input, output) {
       subthindf = data.frame(X = ((data()$thin - 1) %/% dim(data()$image)[1]) + 1, Y = ((data()$thin - 1) %% dim(data()$image)[1]) + 1)
       subthindf = as.data.frame(t(t(subthindf) - c(letterRanges$x[1], dim(data()$image)[1] - letterRanges$y[2])))
       subthindf = subthindf[between(subthindf$X, 1, letterRanges$x[2] - letterRanges$x[1] + 1) & between(subthindf$Y, 1, letterRanges$y[2] - letterRanges$y[1] + 1),]
-      subthin = (subthindf$X - 1)*dim(subimage)[1] + subthindf$Y + 1
+      subthin = (subthindf$X - 1)*dim(subimage)[1] + subthindf$Y
    
       points = data.frame(X = ((data()$nodes - 1) %/% dim(data()$image)[1]) + 1, Y = ((data()$nodes - 1) %% dim(data()$image)[1]) + 1)
       points = as.data.frame(t(t(points) - c(letterRanges$x[1], dim(data()$image)[1] - letterRanges$y[2] - 1)))
       points = points[between(points$X, 1, letterRanges$x[2] - letterRanges$x[1] + 1) & between(points$Y, 1, letterRanges$y[2] - letterRanges$y[1] + 1),]
    
-      nodes = (points$X-1)*(letterRanges$y[2] - letterRanges$y[1] + 1) + points$Y
+      nodes = (points$X-1)*(letterRanges$y[2] - letterRanges$y[1] + 1) + points$Y - 1
       yheight = letterRanges$y[2] - letterRanges$y[1] + 2
       points$Y = yheight - points$Y
       plotNodes(subimage, subthin, nodes, nodeShape = "o", nodeSize = 6, nodeColor = "red") + theme(panel.border = element_rect(colour = "gray", fill=NA, size=.3))
