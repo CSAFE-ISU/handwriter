@@ -6,13 +6,19 @@
 #
 #    http://shiny.rstudio.com/
 #
-#devtools::install_github("CSAFE-ISU/handwriter")
-#Rcpp::sourceCpp(file = "~/src/ThinImageCpp.cpp")
+# devtools::install_github("CSAFE-ISU/handwriter")
+# Rcpp::sourceCpp(file = "~/src/ThinImageCpp.cpp")
 library(shiny)
+options(shiny.sanitize.errors = FALSE)
 
 between = function(x, left, right)
 {
   x <= max(left, right) & x >= min(left, right)
+}
+index2subindex = function(index, x1, x2, y1, y2, d1)
+{
+  index = index[between(((index - 1) %/% d1 + 1), x1, x2) & between(((index - 1) %% d1 + 1), d1-y2+1, d1-y1+1)]
+  index - (x1-1)*d1 - (d1-y2)*(((index-1) %/% d1 + 1) - x1 + 1) - (y1 - 1)*((index - 1) %/% d1 - x1 + 1)
 }
 
 ui <- fluidPage(
@@ -29,7 +35,7 @@ ui <- fluidPage(
                 )
           )
       ),
-      column(5, align="center", style="margin-top:100px;",
+      column(5, align="center", style="margin-top:10px;",
         plotOutput("zoomedPlot")
       )
     )
@@ -45,42 +51,40 @@ server <- function(input, output) {
   data <- reactive({
     req(input$filePath)
     path <- input$filePath$datapath
-    df <- readRDS(file = path)
+    df = list()
+    df$image = crop(readPNGBinary(path))
+    df$thin = thinImage(df$image)
+    df$nodes = getNodes(df$thin, dim(df$image))
     return(df)
   })
   output$letterPlot <- renderPlot({
-    plotImageThinned(data()$image, data()$thin)
+    imgList = data()
+    plotImageThinned(imgList$image, imgList$thin)
   })
   letterRanges <- reactiveValues(x = NULL, y = NULL)
 
   output$zoomedPlot <- renderPlot({
+    imgList = data()
+
     if(!is.null(letterRanges$x) & !is.null(letterRanges$y))
     {
+      xlims = floor(letterRanges$x)+1
+      ylims = floor(letterRanges$y)+1
+      
       for(i in 1:2){
-        if(letterRanges$x[i] < 0) letterRanges$x[i] = 1
-        else if(letterRanges$x[i] > dim(data()$image)[2] - 1) letterRanges$x[i] = dim(data()$image)[2]- 1
+        if(xlims[i] <= 0) xlims[i] = 1
+        else if(xlims[i] > dim(imgList$image)[2]) xlims[i] = dim(imgList$image)[2]
       }
       for(i in 1:2){
-        if(letterRanges$y[i] < 0) letterRanges$y[i] = 1
-        else if(letterRanges$y[i] > dim(data()$image)[1] - 1) letterRanges$y[i] = dim(data()$image)[1] - 1
+        if(ylims[i] <= 0) ylims[i] = 1
+        else if(ylims[i] > dim(imgList$image)[1]) ylims[i] = dim(imgList$image)[1]
       }
-
-      letterRanges$x = round(letterRanges$x)
-      letterRanges$y = round(letterRanges$y)
-      subimage = data()$image[(dim(data()$image)[1] - letterRanges$y[2] + 1):(dim(data()$image)[1] - letterRanges$y[1] + 1),][,(letterRanges$x[1] + 1):(letterRanges$x[2] + 1)]
-      subthindf = data.frame(X = ((data()$thin - 1) %/% dim(data()$image)[1]) + 1, Y = ((data()$thin - 1) %% dim(data()$image)[1]) + 1)
-      subthindf = as.data.frame(t(t(subthindf) - c(letterRanges$x[1], dim(data()$image)[1] - letterRanges$y[2])))
-      subthindf = subthindf[between(subthindf$X, 1, letterRanges$x[2] - letterRanges$x[1] + 1) & between(subthindf$Y, 1, letterRanges$y[2] - letterRanges$y[1] + 1),]
-      subthin = (subthindf$X - 1)*dim(subimage)[1] + subthindf$Y
-   
-      points = data.frame(X = ((data()$nodes - 1) %/% dim(data()$image)[1]) + 1, Y = ((data()$nodes - 1) %% dim(data()$image)[1]) + 1)
-      points = as.data.frame(t(t(points) - c(letterRanges$x[1], dim(data()$image)[1] - letterRanges$y[2] - 1)))
-      points = points[between(points$X, 1, letterRanges$x[2] - letterRanges$x[1] + 1) & between(points$Y, 1, letterRanges$y[2] - letterRanges$y[1] + 1),]
-   
-      nodes = (points$X-1)*(letterRanges$y[2] - letterRanges$y[1] + 1) + points$Y - 1
-      yheight = letterRanges$y[2] - letterRanges$y[1] + 2
-      points$Y = yheight - points$Y
-      plotNodes(subimage, subthin, nodes, nodeShape = "o", nodeSize = 6, nodeColor = "red") + theme(panel.border = element_rect(colour = "gray", fill=NA, size=.3))
+      
+      subimage = imgList$image[(dim(imgList$image)[1] - ylims[2] + 1):(dim(imgList$image)[1] - ylims[1] + 1),(xlims[1]):(xlims[2])]
+      subthin = index2subindex(imgList$thin, xlims[1], xlims[2], ylims[1], ylims[2], dim(imgList$image)[1])
+      subnodes = index2subindex(imgList$nodes, xlims[1], xlims[2], ylims[1], ylims[2], dim(imgList$image)[1])
+      
+      plotNodes(subimage, subthin, subnodes, nodeShape = "o", nodeSize = 6, nodeColor = "red") + ggplot2::theme(panel.border = ggplot2::element_rect(colour = "gray", fill=NA, size=.3))
     }
   })
 

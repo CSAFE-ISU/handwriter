@@ -43,58 +43,42 @@ arma::uvec thinImage(arma::mat img) {
     countWBTransitions(img, black, toWhite);
     black = black.elem(find(toWhite == 1));
     toWhite = zeros<vec>(black.n_elem);
-   // Rcpp::Rcout << "Marked " << startingNumBlack - black.n_elem << " pixels at A1.\n";
-   // oldnum = black.n_elem;
     
     countBNeighbors(img, black, toWhite);
     black = black.elem(find(toWhite == 1));
     toWhite = zeros<vec>(black.n_elem);
-  //  Rcpp::Rcout << "Marked " << oldnum - black.n_elem << " pixels at B1.\n";
-  //  oldnum = black.n_elem;
     
     count246(img, black, toWhite);
     black = black.elem(find(toWhite == 1));
     toWhite = zeros<vec>(black.n_elem);
-  //  Rcpp::Rcout << "Marked " << oldnum - black.n_elem << " pixels at count 246.\n";
-  //  oldnum = black.n_elem;
     
     count468(img, black, toWhite);
     black = black.elem(find(toWhite == 1));
 
     img.elem(black) = ones<vec>(black.n_elem);
-  //  Rcpp::Rcout << "Marked " << oldnum - black.n_elem << " pixels at count468.\n";
-    
+
     // Step 2
     black = find(img == 0);
     toWhite = zeros<vec>(black.n_elem);
-   // oldnum = black.n_elem;
-    
+
     countWBTransitions(img, black, toWhite);
     black = black.elem(find(toWhite == 1));
     toWhite = zeros<vec>(black.n_elem);
-   // Rcpp::Rcout << "Marked " << oldnum - black.n_elem << " pixels at A2.\n";
-  //  oldnum = black.n_elem;
     
     countBNeighbors(img, black, toWhite);
     black = black.elem(find(toWhite == 1));
     toWhite = zeros<vec>(black.n_elem);
-   // Rcpp::Rcout << "Marked " << oldnum - black.n_elem << " pixels at B2.\n";
-   // oldnum = black.n_elem;
     
     count248(img, black, toWhite);
     black = black.elem(find(toWhite == 1));
     toWhite = zeros<vec>(black.n_elem);
-   // Rcpp::Rcout << "Marked " << oldnum - black.n_elem << " pixels at count248.\n";
-   // oldnum = black.n_elem;
-    
+
     count268(img, black, toWhite);
     black = black.elem(find(toWhite == 1));
-   // Rcpp::Rcout << "Marked " << oldnum - black.n_elem << " pixels at count268.\n";
-    
+
     img.elem(black) = ones<vec>(black.n_elem);
     black = find(img == 0);
     
-  //  Rcpp::Rcout << "Turned " << startingNumBlack - black.n_elem << " pixels white.\n"; 
     if(startingNumBlack == black.n_elem)
     {
       changed = false;
@@ -209,18 +193,6 @@ img = message
 message = list()
 message$image = crop(img)
 message$thin = thinImage(message$image)
-#message$nodes = getNodes(message$thin, dim(message$image))
-#plotNodes(message$image, message$thin, message$nodes)
-#message_processList = processHandwriting(message$thin, message$nodes, dim(message$image))
-#message$breaks = message_processList$breakPoints
-#message$paths = message_processList$pathList
-#message$graphemes = message_processList$graphemeList
-
-#message$nodes = diff
-#saveRDS(message, file = "/Users/Nick/Desktop/MessageDiffTest.Rdata")
-
-
-#message_thin = thinImage(message)
 plotImageThinned(message$image, message$thin)
 */
 

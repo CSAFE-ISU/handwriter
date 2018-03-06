@@ -9,6 +9,6 @@
 #' @param img A binary matrix of the text that is to be thinned.
 #' @export
 thinImage <- function(img) {
-    .Call(`_handwriter_thinImage`, img)
+    .Call('_handwriter_thinImage', PACKAGE = 'handwriter', img)
 }
 

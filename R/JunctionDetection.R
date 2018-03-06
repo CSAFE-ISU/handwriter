@@ -569,11 +569,11 @@ getNodeGraph = function(allPaths, nodeList)
 #'
 #' @export
 
-plotNodes = function(img, thinned, nodeList, nodeSize = 3, nodeShape = "o", nodeColor = "red")
+plotNodes = function(img, thinned, nodeList, nodeSize = 3, nodeColor = "red")
 {
   p = plotImageThinned(img, thinned)
   pointSet = data.frame(X = ((nodeList - 1) %/% dim(img)[1]) + 1, Y = dim(img)[1] - ((nodeList - 1) %% dim(img)[1]))
-  p = p + geom_point(data = pointSet, aes(X, Y), shape = I(nodeShape), size = nodeSize, color = I(nodeColor))
+  p = p + geom_point(data = pointSet, aes(X, Y), size = nodeSize, shape = I(16), color = I(nodeColor), alpha = I(.4))
   return(p)
   #l.m = melt(img)
   #l.m$value[thinned] = 2

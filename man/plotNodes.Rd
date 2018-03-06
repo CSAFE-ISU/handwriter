@@ -4,8 +4,7 @@
 \alias{plotNodes}
 \title{plotNodes}
 \usage{
-plotNodes(img, thinned, nodeList, nodeSize = 3, nodeShape = "o",
-  nodeColor = "red")
+plotNodes(img, thinned, nodeList, nodeSize = 3, nodeColor = "red")
 }
 \arguments{
 \item{img}{Full image matrix, unthinned.}
