@@ -4,14 +4,14 @@
 \alias{readPNGBinary}
 \title{readPNGBinary}
 \usage{
-readPNGBinary(path, binaryCutoff = "auto", inversion = FALSE)
+readPNGBinary(path, cutoffAdjust = 1, clean = TRUE, inversion = FALSE)
 }
 \arguments{
 \item{path}{File path for image.}
 
-\item{binaryCutoff}{Value to cut off non binary images. Leave at "auto" to let k-means pick.
-Put in "xx\%" to set default threshold. Enter numeric value to scale auto threshold by that amount.
-binaryCutoff is passed to imager::threshold.}
+\item{cutoffAdjust}{Multiplicative adjustment to the K-means estimated binarization cutoff.}
+
+\item{clean}{Whether to fill in white pixels with 7 or 8 neighbors. This will help a lot when thinning -- keeps from getting little white bubbles in text.}
 
 \item{inversion}{Boolean dictating whether or not to flip each pixel of binarized image. Flipping happens after binarization. FALSE by default.}
 }
