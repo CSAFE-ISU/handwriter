@@ -6,6 +6,39 @@
 
 using namespace Rcpp;
 
+// rgba2rgb
+arma::cube rgba2rgb(arma::cube img);
+RcppExport SEXP _handwriter_rgba2rgb(SEXP imgSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::cube >::type img(imgSEXP);
+    rcpp_result_gen = Rcpp::wrap(rgba2rgb(img));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rgb2grayscale
+arma::mat rgb2grayscale(arma::cube img);
+RcppExport SEXP _handwriter_rgb2grayscale(SEXP imgSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::cube >::type img(imgSEXP);
+    rcpp_result_gen = Rcpp::wrap(rgb2grayscale(img));
+    return rcpp_result_gen;
+END_RCPP
+}
+// whichToFill
+arma::uvec whichToFill(arma::mat img);
+RcppExport SEXP _handwriter_whichToFill(SEXP imgSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type img(imgSEXP);
+    rcpp_result_gen = Rcpp::wrap(whichToFill(img));
+    return rcpp_result_gen;
+END_RCPP
+}
 // thinImage
 arma::uvec thinImage(arma::mat img);
 RcppExport SEXP _handwriter_thinImage(SEXP imgSEXP) {
@@ -19,6 +52,9 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_handwriter_rgba2rgb", (DL_FUNC) &_handwriter_rgba2rgb, 1},
+    {"_handwriter_rgb2grayscale", (DL_FUNC) &_handwriter_rgb2grayscale, 1},
+    {"_handwriter_whichToFill", (DL_FUNC) &_handwriter_whichToFill, 1},
     {"_handwriter_thinImage", (DL_FUNC) &_handwriter_thinImage, 1},
     {NULL, NULL, 0}
 };

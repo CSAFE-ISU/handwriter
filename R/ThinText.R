@@ -2,68 +2,46 @@
 #'
 #' This function reads in and binarizes PNG images from the specified file path.
 #' @param path File path for image.
-#' @param binaryCutoff Value to cut off non binary images. Leave at "auto" to let k-means pick.
-#' Put in "xx\%" to set default threshold. Enter numeric value to scale auto threshold by that amount.
-#' binaryCutoff is passed to imager::threshold.
+#' @param cutoffAdjust Multiplicative adjustment to the K-means estimated binarization cutoff.
+#' @param clean Whether to fill in white pixels with 7 or 8 neighbors. This will help a lot when thinning -- keeps from getting little white bubbles in text.
 #' @param inversion Boolean dictating whether or not to flip each pixel of binarized image. Flipping happens after binarization. FALSE by default.
 #' @keywords binary
-#' @importFrom imager load.image threshold grayscale
+#' @importFrom png readPNG
 #' @return Returns image from path. 0 represents black, and 1 represents white by default.
 #' @export
 
-readPNGBinary = function(path, binaryCutoff = "auto", inversion = FALSE)
+readPNGBinary = function(path, cutoffAdjust = 1, clean = TRUE, inversion = FALSE)
 {
-  img = load.image(path)
+  img = png::readPNG(path)
   img = as.array(img)
-  if(dim(img)[4] == 4)
+  if(length(dim(img)) > 2)
   {
-    img = rgba2rgb(img)
+    if(dim(img)[3] == 4)
+    {
+      img = rgba2rgb(img)
+    }
+    if(dim(img)[3] > 1)
+    {
+      img = rgb2grayscale(img)
+    }
   }
-  if(dim(img)[4] > 1)
-  {
-    img = grayscale(img)
-  }
-  img = threshold(img, binaryCutoff)
   if(inversion)
     img = 1-img
-  return(t(img[,,1,1]) + 0)
-}
-
-#' cleanBinaryImage
-#'
-#' Function to clean up a binary image. If clean is true, then will shrink by 1 pixel and then regrow by 1 pixel.
-#' If fill is true, then will grow by 1 pixel then shrink by 1 pixel. By default it does both - shrinks then grows.
-#' @param img Binary image to clean.
-#' @param clean Boolean for whether or not to shrink then grow image.
-#' @param fill Boolean for whether or not to grow then shrink image.
-#' @param amount Parameter passed to clean and fill. Strength of clean and/or fill.
-#'
-#'@importFrom imager clean fill
-#' @return Cleaned binary image.
-#' @export
-
-cleanBinaryImage = function(img, clean = TRUE, fill = TRUE, cleanAmt = 2, fillAmt = 2)
-{
-  dim(img) = c(dim(img), 1, 1)
-  # This is confusing, but correct for this case. The way we have our image stored makes it so that
-  # fill shrinks then expands and clean expands and then shrinks, which is the opposite of what should happen.
-  if(fill)
-    img = clean(img, fillAmt)
+  
+  # Threshold Image
+  km1 = kmeans(c(img), c(0,1))
+  m = which.min(km1$centers)
+  m1 = max(img[km1$cluster == m])
+  m2 = min(img[km1$cluster == 3-m])
+  thresh = cutoffAdjust*mean(c(m1, m2))
+  img = img > thresh
+  
   if(clean)
-    img = imager::fill(img, cleanAmt)
-  return(img[,,1,1])
-}
-
-#' rgba2rgb
-#'
-#' Internal function for converting rgb with alpha channel to standard rgb.
-#' @param rgba 3-d vector with 4 channels. [n, p, # channels]
-#'
-#' @return 3-d vector with 3 channels [n, p, 3]
-rgba2rgb = function(rgba)
-{
-  rgb = apply(rgba, c(1,2,3), function(x){return(x[1:3]*x[4])})
-  return(aperm(rgb, c(2,3,4,1)))
+  {
+    img[whichToFill(img)] = 0;
+  }
+  
+  return(img + 0)
 }
 
 #' plotImage
@@ -78,7 +56,7 @@ rgba2rgb = function(rgba)
 plotImage = function(x)
 {
   xm = melt(x)
-  p = ggplot(xm, aes(Var2, rev(Var1))) + geom_raster(aes(fill = as.factor(value))) + scale_fill_manual(values = c("black", "white"), guide = FALSE) + coord_fixed() + theme_void()
+  p = ggplot(xm, aes(Var2, rev(Var1))) + geom_raster(aes(fill = as.factor(value))) + scale_fill_manual(values = c("black", NA), guide = FALSE) + coord_fixed() + theme_void()
   return(p)
 }
 
@@ -304,9 +282,8 @@ plotImage = function(x)
 plotImageThinned = function(img, thinned)
 {
   l.m = melt(img)
-  #t.m = melt(thinned)
   l.m$value[thinned] = 2
-  p = ggplot(l.m, aes(Var2, rev(Var1))) + geom_raster(aes(fill = as.factor(value != 1), alpha = ifelse(value==0,.3,1))) + scale_alpha_continuous(guide = FALSE) + scale_fill_manual(values = c("white", "black"), guide = FALSE) + coord_fixed() + theme_void()
+  p = ggplot(l.m, aes(Var2, rev(Var1))) + geom_raster(aes(fill = as.factor(value), alpha = as.factor(value)), na.rm=TRUE) + scale_alpha_manual(values = c(.1, NA, 1), guide = FALSE) + scale_fill_manual(values = c("black", NA, "black"), guide = FALSE) + coord_fixed() + theme_void()
   return(p)
 }
 

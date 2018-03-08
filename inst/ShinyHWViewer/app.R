@@ -84,7 +84,7 @@ server <- function(input, output) {
       subthin = index2subindex(imgList$thin, xlims[1], xlims[2], ylims[1], ylims[2], dim(imgList$image)[1])
       subnodes = index2subindex(imgList$nodes, xlims[1], xlims[2], ylims[1], ylims[2], dim(imgList$image)[1])
       
-      plotNodes(subimage, subthin, subnodes, nodeShape = "o", nodeSize = 6, nodeColor = "red") + ggplot2::theme(panel.border = ggplot2::element_rect(colour = "gray", fill=NA, size=.3))
+      plotNodes(subimage, subthin, subnodes, nodeSize = 6, nodeColor = "red") + ggplot2::theme(panel.border = ggplot2::element_rect(colour = "gray", fill=NA, size=.3))
     }
   })
 
