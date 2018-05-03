@@ -11,6 +11,21 @@
 library(shiny)
 options(shiny.sanitize.errors = FALSE)
 
+saveData <- function(data) {
+  data <- as.data.frame(data)
+  if (exists("responses")) {
+    responses <<- rbind(responses, data)
+  } else {
+    responses <<- data
+  }
+}
+
+loadData <- function() {
+  if (exists("responses")) {
+    responses
+  }
+}
+
 between = function(x, left, right)
 {
   x <= max(left, right) & x >= min(left, right)
@@ -45,13 +60,15 @@ ui <- fluidPage(
     ),
     fluidRow(
       column(7, align = "center",
-             textInput("letter", label = h3("What letter is written?"), value = "Enter a single letter, no spaces"),
+             textInput("letter", label = h3("What letter is written? (Enter a single letter, no spaces)"), value = ""),
              actionButton("save", label = "Save Data")
-             
              ),
       column(5, align = "center",
              plotOutput("dblzoomPlot")
              )
+    ), 
+    fluidRow(
+      DT::dataTableOutput("responses", width = 300)
     )
 )
 
@@ -72,6 +89,7 @@ server <- function(input, output) {
     return(df)
   })
   output$letterPlot <- renderPlot({
+    req(data())
     imgList = data()
     plotImageThinned(imgList$image, imgList$thin)
   })
@@ -128,6 +146,7 @@ server <- function(input, output) {
   
   
   output$zoomedPlot <- renderPlot({
+      req(subdata())
       subimgList = subdata()
       
       plotNodes(subimgList$image, subimgList$thin, subimgList$nodes, nodeSize = 6, nodeColor = "red") + ggplot2::theme(panel.border = ggplot2::element_rect(colour = "gray", fill=NA, size=.3))
@@ -135,6 +154,7 @@ server <- function(input, output) {
   
   # double zoom plot
   output$dblzoomPlot <- renderPlot({
+      req(subsubdata())
       subsubimgList = subsubdata()
     
       plotNodes(subsubimgList$image, subsubimgList$thin, subsubimgList$nodes, nodeSize = 6, nodeColor = "red") + ggplot2::theme(panel.border = ggplot2::element_rect(colour = "gray", fill=NA, size=.3))
@@ -164,21 +184,28 @@ server <- function(input, output) {
     
   })
   
-  # obs_letter_info <- data.frame(file = input$filePath$datapath, 
-  #                               data_xmin = letterRanges$x[1], 
-  #                               data_xmax = letterRanges$x[2],
-  #                               data_ymin = letterRanges$y[1], 
-  #                               data_ymax = letterRanges$y[2], 
-  #                               subdata_xmin = letterRanges$x[1], 
-  #                               subdata_xmax = letterRanges$x[2],
-  #                               subdata_ymin = letterRanges$y[1], 
-  #                               data_ymax = letterRanges$y[2], 
-  #                               letter = input$letter)
-  # saveRDS(obs_letter_info, file = "~/Desktop/test.rda")
-  # 
-  # observeEvent(input$save, {
-  #   
-  # })
+  obs_letter_info <- reactive({
+  letterData <- data.frame(file = input$filePath$datapath,
+                                data_xmin = letterRanges$x[1],
+                                data_xmax = letterRanges$x[2],
+                                data_ymin = letterRanges$y[1],
+                                data_ymax = letterRanges$y[2],
+                                subdata_xmin = letterRanges2$x[1],
+                                subdata_xmax = letterRanges2$x[2],
+                                subdata_ymin = letterRanges2$y[1],
+                                subdata_ymax = letterRanges2$y[2],
+                                letter = input$letter,
+                                time = Sys.time())
+      letterData
+  }) 
+  observeEvent(input$save, {
+      saveData(obs_letter_info())
+  })
+  output$responses <- DT::renderDataTable({
+    input$save
+    loadData()
+  })  
+  
 }
 
 # Run the application
