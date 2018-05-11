@@ -8,23 +8,21 @@
 #
 # devtools::install_github("CSAFE-ISU/handwriter")
 # Rcpp::sourceCpp(file = "~/src/ThinImageCpp.cpp")
+# For data storage via a shiny app, I used 
+# https://shiny.rstudio.com/articles/persistent-data-storage.html#gsheets
+library(googlesheets)
 library(shiny)
 options(shiny.sanitize.errors = FALSE)
 
+key <- "1myKHYX1YTJHbiyDhQ_YjnuO5Ft0kPrB7DQ-OG3go_sM"
+
 saveData <- function(data) {
-  data <- as.data.frame(data)
-  if (exists("responses")) {
-    responses <<- rbind(responses, data)
-  } else {
-    responses <<- data
-  }
+  # Grab the Google Sheet
+  sheet <- gs_key(key)
+  # Add the data as a new row
+  gs_add_row(sheet, input = data)
 }
 
-loadData <- function() {
-  if (exists("responses")) {
-    responses
-  }
-}
 
 between = function(x, left, right)
 {
@@ -39,6 +37,7 @@ index2subindex = function(index, x1, x2, y1, y2, d1)
 ui <- fluidPage(
   fluidRow(
     column(5, offset = 1, h1("Handwriting Viewer")),
+    column(5, offset = 1, textInput("user", label = "User: (Enter your initials.)", value = "")),
     column(5, offset = 1, fileInput("filePath", "Choose handwriter R object:"))),
   hr(),
     fluidRow(
@@ -66,9 +65,6 @@ ui <- fluidPage(
       column(5, align = "center",
              plotOutput("dblzoomPlot")
              )
-    ), 
-    fluidRow(
-      DT::dataTableOutput("responses", width = 300)
     )
 )
 
@@ -185,27 +181,23 @@ server <- function(input, output) {
   })
   
   obs_letter_info <- reactive({
-  letterData <- data.frame(file = input$filePath$datapath,
-                                data_xmin = letterRanges$x[1],
-                                data_xmax = letterRanges$x[2],
-                                data_ymin = letterRanges$y[1],
-                                data_ymax = letterRanges$y[2],
-                                subdata_xmin = letterRanges2$x[1],
-                                subdata_xmax = letterRanges2$x[2],
-                                subdata_ymin = letterRanges2$y[1],
-                                subdata_ymax = letterRanges2$y[2],
-                                letter = input$letter,
-                                time = Sys.time())
+  letterData <- data.frame(filename = input$filePath$name,
+                           letter = input$letter,
+                           data_xmin = letterRanges$x[1],
+                           data_xmax = letterRanges$x[2],
+                           data_ymin = letterRanges$y[1],
+                           data_ymax = letterRanges$y[2],
+                           subdata_xmin = letterRanges2$x[1],
+                           subdata_xmax = letterRanges2$x[2],
+                           subdata_ymin = letterRanges2$y[1],
+                           subdata_ymax = letterRanges2$y[2],
+                           time = Sys.time(), 
+                           user = input$user)
       letterData
   }) 
   observeEvent(input$save, {
-      saveData(obs_letter_info())
+      saveData(obs_letter_info()[1,])
   })
-  output$responses <- DT::renderDataTable({
-    input$save
-    loadData()
-  })  
-  
 }
 
 # Run the application
