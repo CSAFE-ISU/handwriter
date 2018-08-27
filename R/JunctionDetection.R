@@ -63,9 +63,10 @@ LooplessPaths = function(nodes, graph, graph0)
   paths = list()
   fromNode = as.character(nodes[1])
   toNode = as.character(nodes[2])
-  while(distances(graph0, v = fromNode, to = toNode, weights = E(graph0)$nodeOnlyDist) %in% c(1,2))
+
+  while(shortest.paths(graph0, v = fromNode, to = toNode, weights = E(graph0)$nodeOnlyDist) %in% c(1,2))
   {
-    shortest = shortest_paths(graph0, from = fromNode, to = toNode, weights = E(graph0)$nodeOnlyDist)#pen_dist)
+    shortest = shortest_paths(graph0, from = fromNode, to = toNode, weights = E(graph0)$nodeOnlyDist)
     len = length(unlist(shortest[[1]]))
     paths = c(paths, shortest)
     graph = delete.edges(graph, paste0(names(shortest$vpath[[1]])[-len],"|",names(shortest$vpath[[1]])[-1]))
@@ -323,6 +324,26 @@ getNodes = function(img, dims)
   nodes = matrix(1, dims[1], dims[2])
   nodes[indices] = ifelse(changeCount == 1 | changeCount >= 3, 0, 1)
 
+  ## If there is a 2x2 block in the thinned image and none of those pixels are nodes, make one of them a node.
+  ## All will have connectivity of 2. Choose pixel with most neighbors as node.
+  node2by2fill = function(coords, img)
+  {
+    rr = coords[1]
+    cc = coords[2]
+    
+    if(img[rr,cc] == 0 & img[rr+1, cc] == 0 & img[rr,cc+1] == 0 & img[rr+1,cc+1] == 0)
+    {
+      index2by2 = matrix(c(rr,cc,rr+1, cc, rr,cc+1, rr+1,cc+1), byrow = TRUE, ncol = 2)
+      numNeighbors = colSums(apply(X = index2by2, MARGIN = 1, FUN = whichNeighbors, img = img))
+      newNode = index2by2[which.max(numNeighbors),]
+      return(newNode[1] + (newNode[2] - 1)*dim(img)[1])
+    }
+    else
+      return(NA)
+  }
+  
+  nodes2by2 = apply(img.m, 1, FUN = node2by2fill, img = img)
+  nodes[nodes2by2[!is.na(nodes2by2)]] = 0
   return(which(nodes == 0))
 }
 
