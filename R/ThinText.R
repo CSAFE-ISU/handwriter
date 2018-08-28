@@ -56,6 +56,7 @@ readPNGBinary = function(path, cutoffAdjust = 1, clean = TRUE, inversion = FALSE
 plotImage = function(x)
 {
   xm = melt(x)
+  names(xm) = c("Var1", "Var2", "value")
   p = ggplot(xm, aes(Var2, rev(Var1))) + geom_raster(aes(fill = as.factor(value)), na.rm=TRUE) + scale_fill_manual(values = c("black", NA), guide = FALSE) + coord_fixed() + theme_void()
   return(p)
 }
