@@ -279,7 +279,7 @@ sampleMatrix1 = [
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
 """
-r_list = pd.read_csv("./sample_c.csv")
+r_list = pd.read_csv("./sample_c_all.csv")
 def clean_list(r_list):
     for i in r_list:
         i.pop(0)
