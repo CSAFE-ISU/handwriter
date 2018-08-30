@@ -1,5 +1,4 @@
-from numba import jit
-
+#!/usr/bin/env pypy3
 """
 this varient is working on sample.png / anything big
 30 8 18, step 5 implemented.. debugged
@@ -65,7 +64,6 @@ I3MASK = [
 # compares current
 
 
-@jit
 def compareMask(mask, sr, sc, matrix):
     #print('comparing masks')
     sc_copy = sc
@@ -85,7 +83,6 @@ def compareMask(mask, sr, sc, matrix):
     return True
 
 
-@jit
 def process(sr, sc, process_type, fill, clean, matrix):
     if (process_type == "3x3"):
         #print('processing 3x3"')
@@ -115,7 +112,6 @@ H1 -> I1, H2 -> I3, H3 -> I2
 # should be less messy and ideally faster
 
 
-@jit
 # ensure before I masks are checked the sr and sc are changed in these functions below
 def p3x3(sr, sc, fill, clean, matrix):
     # print("length of g_matrix in p3x3",len(matrix))
@@ -130,7 +126,6 @@ def p3x3(sr, sc, fill, clean, matrix):
         else:
             fill.append((sr + 1, sc + 1))
 
-@jit
 def p4x3(sr, sc, fill, clean, matrix):
     #print('inside p4x3')
     if (matrix[sr][sc + 1] == BLACK and matrix[sr + 1][sc] == BLACK
@@ -145,7 +140,6 @@ def p4x3(sr, sc, fill, clean, matrix):
             fill.append((sr + 1, sc + 1))
             fill.append((sr + 2, sc + 1))
 
-@jit
 def p3x4(sr, sc, fill, clean, matrix):
     # debug = [matrix[sr+1][sc],matrix[sr][sc+1],matrix[sr][sc+2],matrix[sr+2][sc+1],
     #          matrix[sr+2][sc+2],matrix[sr+1][sr+3],matrix[sr+1][sc+1],matrix[sr+1][sc+2]]
@@ -163,7 +157,6 @@ def p3x4(sr, sc, fill, clean, matrix):
 
 
 # receives tuples from pXxX, marks elements for deletion if needed
-@jit
 def check_corners(tl, tr, br, bl, clean, matrix):
     #print("checking corners..")
     prev_clean_len = len(clean)
@@ -185,7 +178,6 @@ def check_corners(tl, tr, br, bl, clean, matrix):
     return prev_clean_len != len(clean)
 
 #so i'd ideally like not to mutate the values and instead return where it should be replaced?
-@jit
 def clean_marked(clean, matrix):
     for i in clean:
         if(i[0] < 0 or i[1] < 0):
@@ -194,7 +186,6 @@ def clean_marked(clean, matrix):
         #matrix[i[0]][i[1]] = WHITE
 
 
-@jit
 def fill_marked(fill, matrix):
     for i in fill:
         if(i[0] < 0 or i[1] < 0):
@@ -208,7 +199,6 @@ def fill_marked(fill, matrix):
 # 15:21 23-8, if issues remove - 3
 
 # improvements in logic can be made below most likely
-@jit
 def clean_s5(matrix):
     # matrix = []
     fill = []
