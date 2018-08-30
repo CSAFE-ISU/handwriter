@@ -1,6 +1,7 @@
 from numba import jit
 
 """
+30 8 18, step 5 implemented.. debugged
 naive implementation of steps 1-5
 
 i'm anticipating even with jit poor
@@ -49,13 +50,13 @@ I2MASK = [
     [DNC, DNC, BLACK, BLACK, BLACK, DNC, DNC]
 ]
 I3MASK = [
-    [DNC, DNC, BLACK, BLACK, BLACK, DNC, DNC, DNC],
-    [DNC, BLACK, BLACK, BLACK, BLACK, BLACK, DNC],
-    [DNC, BLACK, BLACK, BLACK, BLACK, BLACK, DNC],
-    [BLACK, BLACK, BLACK, WHITE, BLACK, BLACK, BLACK],
-    [DNC, BLACK, BLACK, BLACK, BLACK, BLACK, DNC],
-    [DNC, BLACK, BLACK, BLACK, BLACK, BLACK, DNC],
-    [DNC, DNC, BLACK, BLACK, BLACK, DNC, DNC]
+   [DNC,DNC,BLACK,BLACK,BLACK,BLACK,DNC,DNC],
+   [DNC,DNC,BLACK,BLACK,BLACK,BLACK,DNC,DNC],
+   [DNC,BLACK,BLACK,BLACK,BLACK,BLACK,BLACK,DNC],
+   [BLACK,BLACK,BLACK,WHITE,WHITE,BLACK,BLACK,BLACK],
+   [DNC,BLACK,BLACK,BLACK,BLACK,BLACK,BLACK,DNC],
+   [DNC,DNC,BLACK,BLACK,BLACK,BLACK,DNC,DNC],
+   [DNC,DNC,BLACK,BLACK,BLACK,BLACK,DNC,DNC],
 ]
 
 
@@ -75,7 +76,7 @@ def compareMask(mask, sr, sc, matrix):
                 return False
             #print('about to assign value? in comparemask')
             value = matrix[sr][sc]
-            if (not value == mask[i][j] and not value == DNC):
+            if (not value == mask[i][j] and not mask[i][j] == DNC):
                 return False
             sc = sc + 1
         sr = sr + 1
@@ -121,15 +122,12 @@ def p3x3(sr, sc, fill, clean, matrix):
     if (matrix[sr][sc + 1] == BLACK and matrix[sr + 1][sc] == BLACK
             and matrix[sr + 2][sc + 1] == BLACK and matrix[sr + 1][sc + 2] == BLACK
             and matrix[sr + 1][sc + 1] == WHITE):
-        check_corners((sr, sc), (sr, sc + 2), (sr + 2, sc), (sr + 2, sc + 2), clean, matrix)
-    else:
-        return
-    if (compareMask(I1MASK, sr - 2, sc - 2, matrix)):
-        return
-        #print("compare mask found, nothing to be done")
-    else:
-        fill.append((sr + 1, sc + 1))
-
+        if(check_corners((sr, sc), (sr, sc + 2), (sr + 2, sc + 2), (sr + 2, sc), clean, matrix)):
+            return
+        elif(compareMask(I1MASK, sr - 2, sc - 2, matrix)):
+            return
+        else:
+            fill.append((sr + 1, sc + 1))
 
 @jit
 def p4x3(sr, sc, fill, clean, matrix):
@@ -138,38 +136,36 @@ def p4x3(sr, sc, fill, clean, matrix):
             and matrix[sr + 2][sc] == BLACK and matrix[sr + 3][sc + 1] == BLACK
             and matrix[sr + 1][sc + 2] == BLACK and matrix[sr + 2][sc + 2] == BLACK
             and matrix[sr + 1][sc + 1] == WHITE and matrix[sr + 2][sc + 1] == WHITE):
-        check_corners((sr, sc), (sr + 3, sc), (sr + 2, sc), (sr + 2, sc + 3), clean, matrix)
-    else:
-        return
-    if (compareMask(I2MASK, sr - 2, sc - 2, matrix)):
-        return
-        #print("compare mask found, nothing to be done")
-    else:
-        fill.append((sr + 1, sc + 1))
-        fill.append((sr + 2, sc + 1))
-
+        if(check_corners((sr, sc), (sr, sc + 2), (sr + 3, sc+2), (sr + 3, sc), clean, matrix)):
+            return
+        elif(compareMask(I2MASK, sr - 2, sc - 2, matrix)):
+            return
+        else:
+            fill.append((sr + 1, sc + 1))
+            fill.append((sr + 2, sc + 1))
 
 @jit
 def p3x4(sr, sc, fill, clean, matrix):
+    # debug = [matrix[sr+1][sc],matrix[sr][sc+1],matrix[sr][sc+2],matrix[sr+2][sc+1],
+    #          matrix[sr+2][sc+2],matrix[sr+1][sr+3],matrix[sr+1][sc+1],matrix[sr+1][sc+2]]
     if (matrix[sr + 1][sc] == BLACK and matrix[sr][sc + 1] == BLACK
             and matrix[sr][sc + 2] == BLACK and matrix[sr + 2][sc + 1] == BLACK
-            and matrix[sr + 2][sc + 2] == BLACK and matrix[sr + 1][sr + 2] == BLACK
+            and matrix[sr + 2][sc + 2] == BLACK and matrix[sr + 1][sc + 3] == BLACK
             and matrix[sr + 1][sc + 1] == WHITE and matrix[sr + 1][sc + 2] == WHITE):
-        check_corners((sr, sc), (sr, sc + 3), (sr + 2, sc), (sr + 2, sc + 3), clean, matrix)
-    else:
-        return
-    if (compareMask(I3MASK, sr - 2, sc - 2, matrix)):
-        return
-        #print("compare mask found, nothing to be done")
-    else:
-        fill.append((sr + 1, sc + 1))
-        fill.append((sr + 1, sc + 2))
+        if(check_corners((sr, sc), (sr, sc + 3), (sr + 2, sc + 3), (sr + 2, sc), clean, matrix)):
+            return
+        elif(compareMask(I3MASK, sr - 2, sc - 2, matrix)):
+            return
+        else:
+            fill.append((sr + 1, sc + 1))
+            fill.append((sr + 1, sc + 2))
 
 
 # receives tuples from pXxX, marks elements for deletion if needed
 @jit
 def check_corners(tl, tr, br, bl, clean, matrix):
     #print("checking corners..")
+    prev_clean_len = len(clean)
     if (matrix[tl[0]][tl[1]] == WHITE):
         print('appending to clean')
         clean.append((tl[0], tl[1] + 1))
@@ -185,11 +181,14 @@ def check_corners(tl, tr, br, bl, clean, matrix):
     if (matrix[bl[0]][bl[1]] == WHITE):
         clean.append((bl[0] - 1, bl[1]))
         clean.append((bl[0], bl[1] + 1))
+    return prev_clean_len != len(clean)
 
 #so i'd ideally like not to mutate the values and instead return where it should be replaced?
 @jit
 def clean_marked(clean, matrix):
     for i in clean:
+        if(i[0] < 0 or i[1] < 0):
+            continue
         print("to clean (row,col): ",i[0],i[1])
         #matrix[i[0]][i[1]] = WHITE
 
@@ -197,6 +196,8 @@ def clean_marked(clean, matrix):
 @jit
 def fill_marked(fill, matrix):
     for i in fill:
+        if(i[0] < 0 or i[1] < 0):
+            continue
         print("to fill (row,col): ",i[0],i[1])
         #matrix[i[0]][i[1]] = BLACK
 
@@ -211,6 +212,7 @@ def clean_s5(matrix):
     # matrix = []
     fill = []
     clean = []
+    #p3x4(7,20,fill,clean,matrix)
     #print("len of gmatrix in local cleans5: ", len(matrix))
     for row in range(0, len(matrix) - 4):
         for col in range(0, len(matrix[0]) - 4):
@@ -224,20 +226,56 @@ def clean_s5(matrix):
     clean_marked(clean, matrix)
     fill_marked(fill, matrix)
     print("success, no errors (but maybe undefined behavior)")
-
+"""
 sampleMatrix = [
-    [1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-    [0,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-    [1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    #0 1 2 3 4 5 6 7 8 9 1 2 3 4 5 6 7 8 9 1 2
+    [1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], #0
+    [0,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], #1
+    [1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], #2
+    [1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], #3
+    [1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], #4
+    [1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], #5
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], #6
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], #7
+    [1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], #8
+    [1,1,1,1,1,0,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], #9
+    [1,1,1,1,1,0,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+]
+#verified all H masks working
+sampleMatrix1 = [
+    #0 1 2 3 4 5 6 7 8 9 1 1 2 3 4 5 6 7 8 9 2
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], #0
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], #1
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], #2
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], #3
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], #4
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], #5
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,1,1,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], #6
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], #7
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], #8
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], #9
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
 ]
+
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], #0
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], #1
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], #2
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], #3
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], #4
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], #5
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], #6
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], #7
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], #8
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], #9
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+"""
+#clean_s5(sampleMatrix1)

@@ -1,5 +1,6 @@
 from numba import jit
-
+import pandas as pd
+import csv
 """
 naive implementation of steps 1-5
 
@@ -210,6 +211,7 @@ def fill_marked(fill, matrix):
 def clean_s5(matrix):
     # matrix = []
     fill = []
+    clean_list(matrix)
     clean = []
     #p3x4(7,20,fill,clean,matrix)
     #print("len of gmatrix in local cleans5: ", len(matrix))
@@ -277,4 +279,9 @@ sampleMatrix1 = [
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
 """
-clean_s5(sampleMatrix1)
+r_list = pd.read_csv("./sample_c.csv")
+def clean_list(r_list):
+    for i in r_list:
+        i.pop(0)
+#print(r_list.values.tolist())
+clean_s5(r_list.values.tolist())
