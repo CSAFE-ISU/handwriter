@@ -1,0 +1,8 @@
+#!/home/esc/git_repos/fall_18/work/handwriter/testing/clean_test/bin/python
+# -*- coding: UTF-8 -*-
+from __future__ import print_function, division, absolute_import
+
+from numba.numba_entry import main
+
+if __name__ == "__main__":
+    main()

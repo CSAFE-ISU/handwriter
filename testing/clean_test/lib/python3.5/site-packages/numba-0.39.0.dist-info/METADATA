@@ -1,0 +1,168 @@
+Metadata-Version: 2.0
+Name: numba
+Version: 0.39.0
+Summary: compiling Python code using LLVM
+Home-page: http://numba.github.com
+Author: Anaconda, Inc.
+Author-email: numba-users@continuum.io
+License: BSD
+Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3.4
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Topic :: Software Development :: Compilers
+Requires-Dist: llvmlite (>=0.24.0dev0)
+Requires-Dist: numpy
+
+*****
+Numba
+*****
+
+.. image:: https://badges.gitter.im/numba/numba.svg
+   :target: https://gitter.im/numba/numba?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge
+   :alt: Gitter
+
+A compiler for Python array and numerical functions
+###################################################
+
+Numba is an Open Source NumPy-aware optimizing compiler for Python
+sponsored by Anaconda, Inc.  It uses the
+remarkable LLVM compiler infrastructure to compile Python syntax to
+machine code.
+
+It is aware of NumPy arrays as typed memory regions and so can speed-up
+code using NumPy arrays.  Other, less well-typed code will be translated
+to Python C-API calls effectively removing the "interpreter" but not removing
+the dynamic indirection.
+
+Numba is also not a tracing JIT.  It *compiles* your code before it gets
+run either using run-time type information or type information you provide
+in the decorator.
+
+Numba is a mechanism for producing machine code from Python syntax and typed
+data structures such as those that exist in NumPy.
+
+
+Dependencies
+============
+
+* llvmlite
+* numpy (version 1.9 or higher)
+* funcsigs (for Python 2)
+
+
+Installing
+==========
+
+The easiest way to install numba and get updates is by using the Anaconda
+Distribution: https://www.anaconda.com/download
+
+::
+
+   $ conda install numba
+
+If you wanted to compile Numba from source,
+it is recommended to use conda environment to maintain multiple isolated
+development environments.  To create a new environment for Numba development::
+
+   $ conda create -p ~/dev/mynumba python numpy llvmlite
+
+To select the installed version, append "=VERSION" to the package name,
+where, "VERSION" is the version number.  For example::
+
+   $ conda create -p ~/dev/mynumba python=2.7 numpy=1.9 llvmlite
+
+to use Python 2.7 and Numpy 1.9.
+
+If you need CUDA support, you should also install the CUDA toolkit::
+
+   $ conda install cudatoolkit
+
+This installs the CUDA Toolkit version 8.0, which requires driver version 375.x
+or later to be installed.
+
+Custom Python Environments
+--------------------------
+
+If you're not using conda, you will need to build llvmlite yourself:
+
+Building and installing llvmlite
+''''''''''''''''''''''''''''''''
+
+See https://github.com/numba/llvmlite for the most up-to-date instructions.
+You will need a build of LLVM 6.0.x.
+
+::
+
+   $ git clone https://github.com/numba/llvmlite
+   $ cd llvmlite
+   $ python setup.py install
+
+Installing Numba
+''''''''''''''''
+
+::
+
+   $ git clone https://github.com/numba/numba.git
+   $ cd numba
+   $ pip install -r requirements.txt
+   $ python setup.py build_ext --inplace
+   $ python setup.py install
+
+or simply
+
+::
+
+   $ pip install numba
+
+If you want to enable CUDA support, you will need to install CUDA Toolkit 8.0.
+After installing the toolkit, you might have to specify environment variables
+in order to override the standard search paths:
+
+NUMBAPRO_CUDA_DRIVER
+  Path to the CUDA driver shared library
+NUMBAPRO_NVVM
+  Path to the CUDA libNVVM shared library file
+NUMBAPRO_LIBDEVICE
+  Path to the CUDA libNVVM libdevice directory which contains .bc files
+
+
+Documentation
+=============
+
+http://numba.pydata.org/numba-doc/dev/index.html
+
+
+Mailing Lists
+=============
+
+Join the numba mailing list numba-users@continuum.io:
+https://groups.google.com/a/continuum.io/d/forum/numba-users
+
+or access it through the Gmane mirror:
+http://news.gmane.org/gmane.comp.python.numba.user
+
+Some old archives are at: http://librelist.com/browser/numba/
+
+
+Website
+=======
+
+See if our sponsor can help you (which can help this project): https://www.anaconda.com
+
+http://numba.pydata.org
+
+
+Continuous Integration
+======================
+
+https://travis-ci.org/numba/numba
+
+
