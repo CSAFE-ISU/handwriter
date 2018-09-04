@@ -1,73 +1,31 @@
-from numba import jit
-
+#!/usr/bin/env pypy3
+#Do not remove above line, results in poor performance!
+from maskconstants import *
 """
-this varient is working on sample.png / anything big
-30 8 18, step 5 implemented.. debugged
-naive implementation of steps 1-5
-
-i'm anticipating even with jit poor
-relative performance in comparison to
-an algorithm designed for large scale iteration
-but this can serve as clear, readable psuedo code
-as well as identify any issues with a linear approach
-
-ben escobar, csafe-isu 2k24
-
+Preprocessing of a binary image
+ben escobar, csafe-isu 
 src:
     IEEE TRANSACTIONS ON SYSTEMS, MAN, 
     AND CYBERNETICS, VOL. SMC - 13, 
     NO. 1, JANUARY/FEBRUARY 1983 
-
-!!! recall all programatic dimensions will be Row x Col, not X x Y
+    
+4 Sept 18:
+    All steps except step 6 have been implemented.
+    Steps 1-5 have been tested.
+    Please see attatched "benlog" text document for a comprehensive log
 """
-# constants
-BLACK = 0
-WHITE = 1
-DNC = 3  # "do not care"
+
 """
-# globals
-g_matrix = []
-fill = []
-clean = []
 """
-# probably should be a regex tostring ?? idk
-I1MASK = [
-    [DNC, DNC, BLACK, BLACK, BLACK, DNC, DNC],
-    [DNC, BLACK, BLACK, BLACK, BLACK, BLACK, DNC],
-    [DNC, BLACK, BLACK, BLACK, BLACK, BLACK, DNC],
-    [BLACK, BLACK, BLACK, WHITE, BLACK, BLACK, BLACK],
-    [DNC, BLACK, BLACK, BLACK, BLACK, BLACK, DNC],
-    [DNC, BLACK, BLACK, BLACK, BLACK, BLACK, DNC],
-    [DNC, DNC, BLACK, BLACK, BLACK, DNC, DNC]
-]
-I2MASK = [
-    [DNC, DNC, BLACK, BLACK, BLACK, DNC, DNC],
-    [DNC, BLACK, BLACK, BLACK, BLACK, BLACK, DNC],
-    [DNC, BLACK, BLACK, BLACK, BLACK, BLACK, DNC],
-    [BLACK, BLACK, BLACK, WHITE, BLACK, BLACK, BLACK],
-    [BLACK, BLACK, BLACK, WHITE, BLACK, BLACK, BLACK],
-    [DNC, BLACK, BLACK, BLACK, BLACK, BLACK, DNC],
-    [DNC, BLACK, BLACK, BLACK, BLACK, BLACK, DNC],
-    [DNC, DNC, BLACK, BLACK, BLACK, DNC, DNC]
-]
-I3MASK = [
-   [DNC,DNC,BLACK,BLACK,BLACK,BLACK,DNC,DNC],
-   [DNC,DNC,BLACK,BLACK,BLACK,BLACK,DNC,DNC],
-   [DNC,BLACK,BLACK,BLACK,BLACK,BLACK,BLACK,DNC],
-   [BLACK,BLACK,BLACK,WHITE,WHITE,BLACK,BLACK,BLACK],
-   [DNC,BLACK,BLACK,BLACK,BLACK,BLACK,BLACK,DNC],
-   [DNC,DNC,BLACK,BLACK,BLACK,BLACK,DNC,DNC],
-   [DNC,DNC,BLACK,BLACK,BLACK,BLACK,DNC,DNC],
-]
-
-
-# iterates through consant masks defined above
-# compares current
-
-
-@jit
 def compareMask(mask, sr, sc, matrix):
-    #print('comparing masks')
+    """ Compares a constant mask to the current point in the vector, if possible
+    :param mask: 2D List filled with constants representing pixels Black, White, or Either
+    :param sr: Starting row to check the mask
+    :param sc: Starting col to check the mask
+    :param matrix: Binary representation of handwriting sample
+    :return: If the mask was able to be matched given sr and sc
+    """
+
     sc_copy = sc
     for i in range(len(mask)):
         for j in range(len(mask[0])):
@@ -84,8 +42,7 @@ def compareMask(mask, sr, sc, matrix):
         sc = sc_copy
     return True
 
-
-@jit
+#september, TODO, change process_type to mask
 def process(sr, sc, process_type, fill, clean, matrix):
     if (process_type == "3x3"):
         #print('processing 3x3"')
@@ -115,7 +72,6 @@ H1 -> I1, H2 -> I3, H3 -> I2
 # should be less messy and ideally faster
 
 
-@jit
 # ensure before I masks are checked the sr and sc are changed in these functions below
 def p3x3(sr, sc, fill, clean, matrix):
     # print("length of g_matrix in p3x3",len(matrix))
@@ -130,7 +86,6 @@ def p3x3(sr, sc, fill, clean, matrix):
         else:
             fill.append((sr + 1, sc + 1))
 
-@jit
 def p4x3(sr, sc, fill, clean, matrix):
     #print('inside p4x3')
     if (matrix[sr][sc + 1] == BLACK and matrix[sr + 1][sc] == BLACK
@@ -145,7 +100,6 @@ def p4x3(sr, sc, fill, clean, matrix):
             fill.append((sr + 1, sc + 1))
             fill.append((sr + 2, sc + 1))
 
-@jit
 def p3x4(sr, sc, fill, clean, matrix):
     # debug = [matrix[sr+1][sc],matrix[sr][sc+1],matrix[sr][sc+2],matrix[sr+2][sc+1],
     #          matrix[sr+2][sc+2],matrix[sr+1][sr+3],matrix[sr+1][sc+1],matrix[sr+1][sc+2]]
@@ -163,7 +117,6 @@ def p3x4(sr, sc, fill, clean, matrix):
 
 
 # receives tuples from pXxX, marks elements for deletion if needed
-@jit
 def check_corners(tl, tr, br, bl, clean, matrix):
     #print("checking corners..")
     prev_clean_len = len(clean)
@@ -185,7 +138,6 @@ def check_corners(tl, tr, br, bl, clean, matrix):
     return prev_clean_len != len(clean)
 
 #so i'd ideally like not to mutate the values and instead return where it should be replaced?
-@jit
 def clean_marked(clean, matrix):
     for i in clean:
         if(i[0] < 0 or i[1] < 0):
@@ -194,7 +146,6 @@ def clean_marked(clean, matrix):
         #matrix[i[0]][i[1]] = WHITE
 
 
-@jit
 def fill_marked(fill, matrix):
     for i in fill:
         if(i[0] < 0 or i[1] < 0):
@@ -202,19 +153,30 @@ def fill_marked(fill, matrix):
         print("to fill (row,col): ",i[0],i[1])
         #matrix[i[0]][i[1]] = BLACK
 
-
+def compareMasks(masks,sr,sc,matrix):
+    for mask in masks:
+        if compareMask(mask,sr,sc,matrix):
+            return True
+    return False
 # iterates, drives processes steps 1-5
 # main driver function
 # 15:21 23-8, if issues remove - 3
-
+def s7_11(matrix,fill,clean):
+    for row in range(0,len(matrix)):
+        for col in range(0,len(matrix[0])):
+            if compareMasks([DU_MASKS]):
+                clean.append((row+2,col+2))
+    clean_marked(clean,matrix)
+    #! if clean_marked behavior is changed this line must change
+    if(len(clean>0)):
+        clean = []
+        for row in range(0,len(matrix)):
+            for col in range(0,len(matrix[0])):
+                if compareMasks([DU3_MASKS]):
+                    clean.append((row+2,col+2))
+        clean_marked(clean,matrix)
 # improvements in logic can be made below most likely
-@jit
-def clean_s5(matrix):
-    # matrix = []
-    fill = []
-    clean = []
-    #p3x4(7,20,fill,clean,matrix)
-    #print("len of gmatrix in local cleans5: ", len(matrix))
+def s1_5(matrix,fill,clean):
     for row in range(0, len(matrix) - 4):
         for col in range(0, len(matrix[0]) - 4):
             #print("row col of cur iteration:", row, col)
@@ -226,4 +188,9 @@ def clean_s5(matrix):
                 process(row, col, "3x3", fill, clean, matrix)
     clean_marked(clean, matrix)
     fill_marked(fill, matrix)
+
+def preprocess(matrix,fill,clean):
+    s1_5(matrix,fill,clean)
+    clean = []
+    s7_11(matrix,fill,clean)
     print("success, no errors (but maybe undefined behavior)")

@@ -1,6 +1,12 @@
 #!/usr/bin/env pypy3
+from maskconstants import *
 """
-this varient is working on sample.png / anything big
+the above line is absolutely essential as it uses a python interpreter 
+which is significantly faster than the original one. 
+
+testing took cases that'd take over 2 minutes down to a couple seconds
+
+this vari[a/e]nt is working on sample.png / anything big
 30 8 18, step 5 implemented.. debugged
 naive implementation of steps 1-5
 
@@ -20,9 +26,6 @@ src:
 !!! recall all programatic dimensions will be Row x Col, not X x Y
 """
 # constants
-BLACK = 0
-WHITE = 1
-DNC = 3  # "do not care"
 """
 # globals
 g_matrix = []
@@ -30,35 +33,7 @@ fill = []
 clean = []
 """
 # probably should be a regex tostring ?? idk
-I1MASK = [
-    [DNC, DNC, BLACK, BLACK, BLACK, DNC, DNC],
-    [DNC, BLACK, BLACK, BLACK, BLACK, BLACK, DNC],
-    [DNC, BLACK, BLACK, BLACK, BLACK, BLACK, DNC],
-    [BLACK, BLACK, BLACK, WHITE, BLACK, BLACK, BLACK],
-    [DNC, BLACK, BLACK, BLACK, BLACK, BLACK, DNC],
-    [DNC, BLACK, BLACK, BLACK, BLACK, BLACK, DNC],
-    [DNC, DNC, BLACK, BLACK, BLACK, DNC, DNC]
-]
-I2MASK = [
-    [DNC, DNC, BLACK, BLACK, BLACK, DNC, DNC],
-    [DNC, BLACK, BLACK, BLACK, BLACK, BLACK, DNC],
-    [DNC, BLACK, BLACK, BLACK, BLACK, BLACK, DNC],
-    [BLACK, BLACK, BLACK, WHITE, BLACK, BLACK, BLACK],
-    [BLACK, BLACK, BLACK, WHITE, BLACK, BLACK, BLACK],
-    [DNC, BLACK, BLACK, BLACK, BLACK, BLACK, DNC],
-    [DNC, BLACK, BLACK, BLACK, BLACK, BLACK, DNC],
-    [DNC, DNC, BLACK, BLACK, BLACK, DNC, DNC]
-]
-I3MASK = [
-   [DNC,DNC,BLACK,BLACK,BLACK,BLACK,DNC,DNC],
-   [DNC,DNC,BLACK,BLACK,BLACK,BLACK,DNC,DNC],
-   [DNC,BLACK,BLACK,BLACK,BLACK,BLACK,BLACK,DNC],
-   [BLACK,BLACK,BLACK,WHITE,WHITE,BLACK,BLACK,BLACK],
-   [DNC,BLACK,BLACK,BLACK,BLACK,BLACK,BLACK,DNC],
-   [DNC,DNC,BLACK,BLACK,BLACK,BLACK,DNC,DNC],
-   [DNC,DNC,BLACK,BLACK,BLACK,BLACK,DNC,DNC],
-]
-
+#for sure masks should be contained in a different file
 
 # iterates through consant masks defined above
 # compares current
@@ -82,7 +57,7 @@ def compareMask(mask, sr, sc, matrix):
         sc = sc_copy
     return True
 
-
+#september, TODO, change process_type to mask
 def process(sr, sc, process_type, fill, clean, matrix):
     if (process_type == "3x3"):
         #print('processing 3x3"')
@@ -193,7 +168,11 @@ def fill_marked(fill, matrix):
         print("to fill (row,col): ",i[0],i[1])
         #matrix[i[0]][i[1]] = BLACK
 
-
+def compareMasks(masks,sr,sc,matrix):
+    for mask in masks:
+        if compareMask(mask,sr,sc,matrix):
+            return True
+    return False
 # iterates, drives processes steps 1-5
 # main driver function
 # 15:21 23-8, if issues remove - 3
@@ -214,6 +193,21 @@ def clean_s5(matrix):
                 process(row, col, "3x4", fill, clean, matrix)
             if (row + 3 < len(matrix) and col + 3 < len(matrix[0])):
                 process(row, col, "3x3", fill, clean, matrix)
+    #right now these just print, should fill/remove as per step 4,5
     clean_marked(clean, matrix)
     fill_marked(fill, matrix)
+    clean = []
+    for row in range(0,len(matrix)):
+        for col in range(0,len(matrix[0])):
+            if compareMasks([DU_MASKS]):
+                clean.append((row+2,col+2))
+    clean_marked(clean,matrix)
+    if(len(clean>0)):
+        for row in range(0,len(matrix)):
+            for col in range(0,len(matrix[0])):
+                if compareMasks([DU3_MASKS]):
+                    clean.append((row+2,col+2))
+
+
     print("success, no errors (but maybe undefined behavior)")
+#
