@@ -1,7 +1,6 @@
 #!/usr/bin/env pypy3
 #Do not remove above line, results in poor performance!
 import sys
-import numpy as np
 sys.path.append("/home/esc/git_repos/fall_18/work/handwriter/R")
 from maskconstants import *
 """
@@ -176,7 +175,7 @@ def clean_marked(clean, matrix):
         if(i[0] < 0 or i[1] < 0):
             continue
         print("to clean (row,col): ",i[0],i[1])
-        matrix[i[0]][i[1]] = WHITE
+        #matrix[i[0]][i[1]] = WHITE
 
 
 def fill_marked(fill, matrix):
@@ -191,7 +190,7 @@ def fill_marked(fill, matrix):
         if(i[0] < 0 or i[1] < 0):
             continue
         print("to fill (row,col): ",i[0],i[1])
-        matrix[i[0]][i[1]] = BLACK
+        #matrix[i[0]][i[1]] = BLACK
 
 def compareMasks(masks,sr,sc,matrix):
     """ Compares constant masks to the current point in the vector, if possible
@@ -207,17 +206,17 @@ def compareMasks(masks,sr,sc,matrix):
     return False
 def s_11(matrix,fill,clean):
     #if(len(clean)>0):
-    #clean = []
-    for row in range(0,len(matrix)):
-        for col in range(0,len(matrix[0])):
-            if compareMasks(DU3_MASKS,row,col,matrix):
-                clean.append((row+2,col+2))
-    clean_marked(clean,matrix)
+        clean = []
+        for row in range(0,len(matrix)):
+            for col in range(0,len(matrix[0])):
+                if compareMasks(DU3_MASKS,row,col,matrix):
+                    clean.append((row+2,col+2))
+        clean_marked(clean,matrix)
     return clean
 
-def s7_10(matrix,fill,clean):
+def s7_11(matrix,fill,clean):
     """
-    Execute steps 7 through ten of cited paper
+    Execute steps 7 through eleven of cited paper
     :param matrix: Binary representation of handwriting sample
     :param fill:  List of tuples (row,col) of elements to be filled
     :param clean: List of tuples (row,col) of elements to be cleaned
@@ -255,47 +254,29 @@ def preprocess(matrix):
     :param clean: List of tuples (row,col) of elements to be cleaned
     :return: None
     """
-    matrix = np.copy(matrix)
-    matrix.flags.writeable = True
     clean = []
     fill = []
-    changes = [[],[]]
     s1_5(matrix,fill,clean)
-    changes[1].extend(clean)
-    changes[0].extend(fill)
+    print("S1-5 COMPLETE -------")
     #step 6 is computationally intensive and nic mentioned having an implementation of something similar already
     #perhaps this is split into two functions, with his connectivity cleaner running in between the two?
     clean = []
-    if(len(s7_10(matrix,fill,clean))>0):
-        changes[1].extend(clean)
-        clean = []
-        s_11(matrix,fill,clean)
-        changes[1].extend(clean)
+    s7_11(matrix,fill,clean)
     print("success, no errors (but maybe undefined behavior)")
-    print(changes)
-    return changes
-#okay now that i've read some numpy documentation this seems like it'll work fine
-"""
+
 def preprocess_s1_5(matrix):
-    
+    """
     Preprocess a binary image, duplicating code for presentation purposes.. will remove
     :param matrix: Binary representation of handwriting sample
     :param fill:  List of tuples (row,col) of elements to be filled
     :param clean: List of tuples (row,col) of elements to be cleaned
     :return: None
-    
+    """
     clean = []
     fill = []
     rt = s1_5(matrix,fill,clean)
     print(rt)
     return rt
 
-def preprocess_s7_10(matrix):
-    print(matrix)
-    matrix = np.copy(matrix)
-    matrix.flags.writeable = True
-    clean = []
-    fill = []
-    rt = s7_10(matrix,fill,clean)
-    return rt
-"""
+def preprocess_s7_11(matrix):
+    rt = s7_11(matrix,fill,clean)
