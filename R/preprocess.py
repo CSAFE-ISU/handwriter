@@ -1,5 +1,7 @@
 #!/usr/bin/env pypy3
 #Do not remove above line, results in poor performance!
+import sys
+sys.path.append("/home/esc/git_repos/fall_18/work/handwriter/R")
 from maskconstants import *
 """
 Preprocessing of a binary image
@@ -14,9 +16,6 @@ src:
     Steps 1-5 have been tested.
     Please see attatched "benlog" text document for a comprehensive log
 """
-
-"""
-"""
 def compareMask(mask, sr, sc, matrix):
     """ Compares a constant mask to the current point in the vector, if possible
     :param mask: 2D List filled with constants representing pixels Black, White, or Either
@@ -29,21 +28,33 @@ def compareMask(mask, sr, sc, matrix):
     sc_copy = sc
     for i in range(len(mask)):
         for j in range(len(mask[0])):
-            #print("indexes in compare mask: ", i, j)
-            #print("sr sc in compare mask: ", sr, sc)
             if (sr >= len(matrix) or sc >= len(matrix[0]) or sr < 0 or sc < 0):
                 return False
-            #print('about to assign value? in comparemask')
             value = matrix[sr][sc]
-            if (not value == mask[i][j] and not mask[i][j] == DNC):
+            """
+            print(value, "value")
+            print(mask, "og mask")
+            print(mask[i], "mask at i")
+            print(mask[i][j], "mask at i,j")
+            """
+            if (not (value == mask[i][j]) and not (mask[i][j] == DNC)):
                 return False
             sc = sc + 1
         sr = sr + 1
         sc = sc_copy
     return True
 
-#september, TODO, change process_type to mask
 def process(sr, sc, process_type, fill, clean, matrix):
+    """
+    Processes binary image's corners for each initial H mask match
+    :param sr: Starting row to check the mask
+    :param sc: Starting col to check the mask
+    :param process_type: Dimension of H mask checked
+    :param fill: List of tuples (row,col) of elements to be filled
+    :param clean: List of tuples (row,col) of elements to be cleaned
+    :param matrix: Binary representation of handwriting sample
+    :return: None
+    """
     if (process_type == "3x3"):
         #print('processing 3x3"')
         p3x3(sr, sc, fill, clean, matrix)
@@ -56,26 +67,16 @@ def process(sr, sc, process_type, fill, clean, matrix):
     else:
         print("error in process_type")
 
-
-"""
-kinda gross and manual
-all pXxX execute as follows:
-1) ensure H1,H2,H3 is fit
-2) check corners
-3) if corner is white mark neighbords for deletion
-4) if neither corner is white check I1,I2,I3
-H1 -> I1, H2 -> I3, H3 -> I2
-"""
-
-
-# !! idea 28 8 18, define constant masks, splice og matrix to check conditional
-# should be less messy and ideally faster
-
-
-# ensure before I masks are checked the sr and sc are changed in these functions below
 def p3x3(sr, sc, fill, clean, matrix):
-    # print("length of g_matrix in p3x3",len(matrix))
-    # print(g_matrix[sr][sc+1])
+    """
+    Processes binary image with H1 mask
+    :param sr: Starting row to check the mask
+    :param sc: Starting col to check the mask
+    :param fill: List of tuples (row,col) of elements to be filled
+    :param clean: List of tuples (row,col) of elements to be cleaned
+    :param matrix: Binary representation of handwriting sample
+    :return: None
+    """
     if (matrix[sr][sc + 1] == BLACK and matrix[sr + 1][sc] == BLACK
             and matrix[sr + 2][sc + 1] == BLACK and matrix[sr + 1][sc + 2] == BLACK
             and matrix[sr + 1][sc + 1] == WHITE):
@@ -87,7 +88,15 @@ def p3x3(sr, sc, fill, clean, matrix):
             fill.append((sr + 1, sc + 1))
 
 def p4x3(sr, sc, fill, clean, matrix):
-    #print('inside p4x3')
+    """
+    Processes binary image with H3 mask
+    :param sr: Starting row to check the mask
+    :param sc: Starting col to check the mask
+    :param fill: List of tuples (row,col) of elements to be filled
+    :param clean: List of tuples (row,col) of elements to be cleaned
+    :param matrix: Binary representation of handwriting sample
+    :return: None
+    """
     if (matrix[sr][sc + 1] == BLACK and matrix[sr + 1][sc] == BLACK
             and matrix[sr + 2][sc] == BLACK and matrix[sr + 3][sc + 1] == BLACK
             and matrix[sr + 1][sc + 2] == BLACK and matrix[sr + 2][sc + 2] == BLACK
@@ -101,8 +110,15 @@ def p4x3(sr, sc, fill, clean, matrix):
             fill.append((sr + 2, sc + 1))
 
 def p3x4(sr, sc, fill, clean, matrix):
-    # debug = [matrix[sr+1][sc],matrix[sr][sc+1],matrix[sr][sc+2],matrix[sr+2][sc+1],
-    #          matrix[sr+2][sc+2],matrix[sr+1][sr+3],matrix[sr+1][sc+1],matrix[sr+1][sc+2]]
+    """
+    Processes binary image with H2 mask
+    :param sr: Starting row to check the mask
+    :param sc: Starting col to check the mask
+    :param fill: List of tuples (row,col) of elements to be filled
+    :param clean: List of tuples (row,col) of elements to be cleaned
+    :param matrix: Binary representation of handwriting sample
+    :return: None
+    """
     if (matrix[sr + 1][sc] == BLACK and matrix[sr][sc + 1] == BLACK
             and matrix[sr][sc + 2] == BLACK and matrix[sr + 2][sc + 1] == BLACK
             and matrix[sr + 2][sc + 2] == BLACK and matrix[sr + 1][sc + 3] == BLACK
@@ -116,9 +132,17 @@ def p3x4(sr, sc, fill, clean, matrix):
             fill.append((sr + 1, sc + 2))
 
 
-# receives tuples from pXxX, marks elements for deletion if needed
 def check_corners(tl, tr, br, bl, clean, matrix):
-    #print("checking corners..")
+    """
+    Checks corners to delete neighbors if a white cell is found, step 2
+    :param tl: Neighboring tuple (row,col) top left of cell under analysis
+    :param tr: Neighboring tuple (row,col) top right of cell under analysis
+    :param br: Neighboring tuple (row,col) bottom right of cell under analysis
+    :param bl: Neighboring tuple (row,col) bottom left of cell under analysis
+    :param clean: List of tuples (row,col) of elements to be cleaned
+    :param matrix: Binary representation of handwriting sample
+    :return:
+    """
     prev_clean_len = len(clean)
     if (matrix[tl[0]][tl[1]] == WHITE):
         print('appending to clean')
@@ -137,8 +161,14 @@ def check_corners(tl, tr, br, bl, clean, matrix):
         clean.append((bl[0], bl[1] + 1))
     return prev_clean_len != len(clean)
 
-#so i'd ideally like not to mutate the values and instead return where it should be replaced?
 def clean_marked(clean, matrix):
+    """
+    Clean all marked holes
+    4 Sep 18: Currently only prints
+    :param clean: List of tuples (row,col) of elements to be cleaned
+    :param matrix: Binary representation of handwriting sample
+    :return:
+    """
     for i in clean:
         if(i[0] < 0 or i[1] < 0):
             continue
@@ -147,6 +177,13 @@ def clean_marked(clean, matrix):
 
 
 def fill_marked(fill, matrix):
+    """
+    Fill all marked holes
+    4 Sep 18: Currently only prints
+    :param clean: List of tuples (row,col) of elements to be cleaned
+    :param matrix: Binary representation of handwriting sample
+    :return:
+    """
     for i in fill:
         if(i[0] < 0 or i[1] < 0):
             continue
@@ -154,25 +191,37 @@ def fill_marked(fill, matrix):
         #matrix[i[0]][i[1]] = BLACK
 
 def compareMasks(masks,sr,sc,matrix):
+    """ Compares constant masks to the current point in the vector, if possible
+    :param masks: 2D Lists filled with constants representing pixels Black, White, or Either
+    :param sr: Starting row to check the masks
+    :param sc: Starting col to check the masks
+    :param matrix: Binary representation of handwriting sample
+    :return: If the masks were able to be matched given sr and sc
+    """
     for mask in masks:
         if compareMask(mask,sr,sc,matrix):
             return True
     return False
-# iterates, drives processes steps 1-5
-# main driver function
-# 15:21 23-8, if issues remove - 3
+
 def s7_11(matrix,fill,clean):
+    """
+    Execute steps 7 through eleven of cited paper
+    :param matrix: Binary representation of handwriting sample
+    :param fill:  List of tuples (row,col) of elements to be filled
+    :param clean: List of tuples (row,col) of elements to be cleaned
+    :return: None
+    """
     for row in range(0,len(matrix)):
         for col in range(0,len(matrix[0])):
-            if compareMasks([DU_MASKS]):
+            if compareMasks(DU_MASKS,row,col,matrix):
                 clean.append((row+2,col+2))
     clean_marked(clean,matrix)
     #! if clean_marked behavior is changed this line must change
-    if(len(clean>0)):
+    if(len(clean)>0):
         clean = []
         for row in range(0,len(matrix)):
             for col in range(0,len(matrix[0])):
-                if compareMasks([DU3_MASKS]):
+                if compareMasks(DU3_MASKS,row,col,matrix):
                     clean.append((row+2,col+2))
         clean_marked(clean,matrix)
 # improvements in logic can be made below most likely
@@ -189,8 +238,19 @@ def s1_5(matrix,fill,clean):
     clean_marked(clean, matrix)
     fill_marked(fill, matrix)
 
-def preprocess(matrix,fill,clean):
+def preprocess(matrix):
+    """
+    Preprocess a binary image
+    :param matrix: Binary representation of handwriting sample
+    :param fill:  List of tuples (row,col) of elements to be filled
+    :param clean: List of tuples (row,col) of elements to be cleaned
+    :return: None
+    """
+    clean = []
+    fill = []
     s1_5(matrix,fill,clean)
+    #step 6 is computationally intensive and nic mentioned having an implementation of something similar already
+    #perhaps this is split into two functions, with his connectivity cleaner running in between the two?
     clean = []
     s7_11(matrix,fill,clean)
     print("success, no errors (but maybe undefined behavior)")
