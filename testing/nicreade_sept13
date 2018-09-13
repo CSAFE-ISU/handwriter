@@ -1,0 +1,13 @@
+Quick summary of how to run preprocess.py
+for performance / testing reasons i used an interpreter called pypy. learning numpy to reduce need for interpreter dependency. 
+
+installing the pypy binary and adding it to your systems $PATH will make it visible for preprocess to get a welcome performance boost, i'll change this for sure in the future.
+
+switch to my branch
+library("reticulate")
+cwd to handwriter/R/
+source_python("preprocess.py")
+test <- preprocess(someSampleProcessedAndCropped)
+test will now be a list with row(y) and col(x) indexes marked, along with another column called "type".
+
+I followed your email and converted the resultant list into a vector. 
