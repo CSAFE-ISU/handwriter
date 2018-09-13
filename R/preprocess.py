@@ -2,6 +2,7 @@
 #Do not remove above line, results in poor performance!
 import sys
 import numpy as np
+import pandas as pd
 sys.path.append("/home/esc/git_repos/fall_18/work/handwriter/R")
 from maskconstants import *
 """
@@ -147,19 +148,19 @@ def check_corners(tl, tr, br, bl, clean, matrix):
     """
     prev_clean_len = len(clean)
     if (matrix[tl[0]][tl[1]] == WHITE):
-        print('appending to clean')
+        #print('appending to clean')
         clean.append((tl[0], tl[1] + 1))
         clean.append((tl[0] + 1, tl[1]))
     if (matrix[tr[0]][tr[1]] == WHITE):
-        print('appending to clean')
+        #print('appending to clean')
         clean.append((tr[0], tr[1] - 1))
         clean.append((tr[0] + 1, tr[1]))
     if (matrix[br[0]][br[1]] == WHITE):
-        print('appending to clean')
+        #print('appending to clean')
         clean.append((br[0] - 1, br[1]))
         clean.append((br[0], br[1] - 1))
     if (matrix[bl[0]][bl[1]] == WHITE):
-        print('appending to clean')
+        #print('appending to clean')
         clean.append((bl[0] - 1, bl[1]))
         clean.append((bl[0], bl[1] + 1))
     return prev_clean_len != len(clean)
@@ -175,7 +176,7 @@ def clean_marked(clean, matrix):
     for i in clean:
         if(i[0] < 0 or i[1] < 0):
             continue
-        print("to clean (row,col): ",i[0],i[1])
+        #print("to clean (row,col): ",i[0],i[1])
         matrix[i[0]][i[1]] = WHITE
 
 
@@ -190,7 +191,7 @@ def fill_marked(fill, matrix):
     for i in fill:
         if(i[0] < 0 or i[1] < 0):
             continue
-        print("to fill (row,col): ",i[0],i[1])
+        #print("to fill (row,col): ",i[0],i[1])
         matrix[i[0]][i[1]] = BLACK
 
 def compareMasks(masks,sr,sc,matrix):
@@ -272,8 +273,15 @@ def preprocess(matrix):
         s_11(matrix,fill,clean)
         changes[1].extend(clean)
     print("success, no errors (but maybe undefined behavior)")
-    print(changes)
-    return changes
+    #print(changes)
+    #changes[0].append([69,69])
+    changes[0] = pd.DataFrame(changes[0],columns=['row','col'])
+    changes[0]['type'] = 'blue'
+    changes[1] = pd.DataFrame(changes[1],columns=['row','col'])
+    changes[1]['type'] = 'red'
+    return pd.concat(changes)
+    #return changes
+
 #okay now that i've read some numpy documentation this seems like it'll work fine
 """
 def preprocess_s1_5(matrix):

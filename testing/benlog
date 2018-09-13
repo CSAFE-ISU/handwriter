@@ -1,0 +1,48 @@
+Writing a log to be transparent / house updates on progress
+Aug - Sept 4:
+
+Nic introduced me to the project and took me through a line by line walkthrough
+
+I created the beginnings of a UML diagram to show my understanding of the process
+A synopsis of the thinning process is as follows:
+	png parse, crop
+	preprocess
+	thin
+	plot_thinned
+
+My introductory task was preprocessing a binary image before thinning, to provide Amy with less anomalies.
+
+https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=6313034&tag=1
+I thought I would use a library called 'numba' to speed up operations.
+Naievly, I went against using numpy libraries to remove a layer of complexity to expidite the development process.
+Fortunately, I found an alternative route to improve performance by a different interpreter, pypy.
+
+PROS:
+	Significantly faster program
+	Reads easy
+	Pure python
+CONS:
+	Pure python
+	Additional dependency (always bad)
+
+Step 5 is fully implemented, and I figure with the advent of a short work week I should flesh out steps 7-10 as I recall Nic showing
+me functionality for 6, and I figure just writing a seperate script for his already created algorithm for connectivity would prevent a lot of wheel reinventing.
+
+Okay, now I'd like to bring my working script to show some of its changes to the binary image.
+I believe the process will go as so..
+(assume this is all in R)
+source("handwriter")
+source("reticulate") <- let R use python
+source_python("preprocess"){
+	instead of one monolithic function, i'll split them up as elements
+	must be removed right after step 5, then removed after 6, then 7 onward is ran.
+
+	consequently the R script must now likely run as so:
+		run steps 1-5, return points to fill/clean, change them in R
+		run step 6 with nic's existing function, return points to fill/clean
+		run steps 7 onward after both, returning points to fill/clean 
+	as opposed to a simple "preprocess" as i intended.
+	BUT if I am able to mutate the matrix and return it in its entirety, we can avoid this.
+
+	After reading further, steps 7-9 must be segregated
+}
