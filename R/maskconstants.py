@@ -1,3 +1,4 @@
+import numpy as np
 """
 Using constants instead of transposing / manually accessing memory in the massive matrix constantly
 Unless its 3-4 elements, doing a series of checks is the fastest route to finding myself in a buggy mess
@@ -5,6 +6,22 @@ Unless its 3-4 elements, doing a series of checks is the fastest route to findin
 BLACK = 0
 WHITE = 1
 DNC = 3
+H1MASK = np.array([
+      [DNC,BLACK,DNC],
+      [BLACK,WHITE,BLACK],
+      [DNC,BLACK,DNC]
+          ])
+H2MASK = [
+      [DNC,BLACK,BLACK,DNC],
+      [BLACK,WHITE,WHITE,BLACK],
+      [DNC,BLACK,BLACK,DNC]
+         ]
+H3MASK = [
+      [DNC,BLACK,DNC],
+      [BLACK,WHITE,BLACK],
+      [BLACK,WHITE,BLACK],
+      [DNC,BLACK,DNC]
+          ]
 I1MASK = [
     [DNC, DNC, BLACK, BLACK, BLACK, DNC, DNC],
     [DNC, BLACK, BLACK, BLACK, BLACK, BLACK, DNC],

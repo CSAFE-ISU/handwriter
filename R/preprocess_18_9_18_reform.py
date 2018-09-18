@@ -256,8 +256,15 @@ def preprocess(matrix):
     :param clean: List of tuples (row,col) of elements to be cleaned
     :return: None
     """
-    matrix = np.copy(matrix)
-    print(typeof(matrix))
+    matrix = np.copy(matrix) #this is a numpy.darray type
+    #idk = np.where(matrix == H1MASK)
+    #idk1 = np.where(np.all(matrix == H1MASK, axis = 0))
+    #print(idk)
+    #print(np.all(matrix == H1MASK,axis = 0))
+    toprow = np.array([DNC,BLACK,DNC])
+    print(np.where( np.all(matrix == toprow)) )
+
+    """
     matrix.flags.writeable = True
     clean = []
     fill = []
@@ -282,29 +289,14 @@ def preprocess(matrix):
     changes[1]['type'] = 'red'
     return pd.concat(changes)
     #return changes
-
-#okay now that i've read some numpy documentation this seems like it'll work fine
 """
-def preprocess_s1_5(matrix):
-    
-    Preprocess a binary image, duplicating code for presentation purposes.. will remove
-    :param matrix: Binary representation of handwriting sample
-    :param fill:  List of tuples (row,col) of elements to be filled
-    :param clean: List of tuples (row,col) of elements to be cleaned
-    :return: None
-    
-    clean = []
-    fill = []
-    rt = s1_5(matrix,fill,clean)
-    print(rt)
-    return rt
-
-def preprocess_s7_10(matrix):
-    print(matrix)
-    matrix = np.copy(matrix)
-    matrix.flags.writeable = True
-    clean = []
-    fill = []
-    rt = s7_10(matrix,fill,clean)
-    return rt
-"""
+#deleted split cases, can be found in regular preprocess.py
+sample_matrix = [
+                 [1,1,1,1,1,1,1,1,1],
+                 [1,1,1,DNC,BLACK,DNC,1,1,1],
+                 [1,1,1,BLACK,WHITE,BLACK,1,1,1],
+                 [1,1,1,DNC,BLACK,DNC,1,1,1],
+                 [1,1,1,1,1,1,1,1,1],
+                 [1,1,1,1,1,1,1,1,1]
+                 ]
+preprocess(sample_matrix)
