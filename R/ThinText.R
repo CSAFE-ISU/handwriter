@@ -1,5 +1,77 @@
-#' readPNGBinary
+preprocessThinPlotPNG = function(path){
+  png = readPNGBinary(path)
+  png= crop(png)
+  png_thinned = thinImage(png)
+  png_pp = preprocessCroppedBinary(png)
+  png_pp_v = preprocessToIndexVector(png,png_pp)
+  if(length(png_pp_v)<2){
+    plotCleaningChanges(png,png_thinned,NULL,png_pp_v["clean"][[1]])
+  }
+  else{
+    plotCleaningChanges(png,png_thinned,png_pp_v["fill"][[1]],png_pp_v["clean"][[1]])
+  }
+}
+#' preprocessCroppedBinary
+#' This function is intended after crop(), preprocesses images based on masks, uses Python
+#' @param img Cropped binary image (pass through readPNGBinary then crop, found below)
+#' @param reticulate_init If you do not have reticulate installed, will handle the installation and sourcing of script
+#' @param pypath path to preprocess.py
+#' @return list of values corresponding to fill / clean. 18 sept 18: red = clean, blue = fill, i don't know how to make use of this
 #'
+preprocessCroppedBinary = function(img, reticulate_init = FALSE, pypath = "./"){
+  if(reticulate_init){
+    libraries.install("reticulate")
+    library("reticulate")
+  }
+  source_python(paste(pypath,"preprocess.py",sep =""))
+  x <- preprocess(img)
+  return(x)
+}
+
+#' preprocessToIndexVector
+#' This function is intended after preprocessCroppedBinary
+#' @param preprocessList list resultant after preprocessCroppedBinary
+#' @param img Cropped binary image (pass through readPNGBinary then crop, found below)
+#' @return vector of indicies to plot points via ggplot
+#'
+preprocessToIndexVector = function(img,preprocessList){
+  #(column-1)*dim(image)[1] + row  
+  fcl = split(preprocessList,preprocessList$type)
+  #so fill clean list will have fills at fcl[1] and cleans at fcl[2]
+  #uhh cleans seem guarenteed if a fill is ever present
+  if(length(fcl)<2){
+    clean_data = fcl[[1]]
+    cd_rt = (as.numeric(clean_data[[2]])-1)*dim(img)[1] + as.numeric(clean_data[[1]])
+    ul_cd = unlist(cd_rt, use.names=FALSE)
+    return_list = list("clean" = ul_cd)
+  }
+  else{
+    fill_data = fcl[[1]]
+    clean_data = fcl[[2]]
+    fd_rt = (as.numeric(fill_data[2])-1)*dim(img)[1] + as.numeric(fill_data[1])
+    cd_rt = (as.numeric(clean_data[2])-1)*dim(img)[1] + as.numeric(clean_data[1])
+    ul_fd = unlist(fd_rt, use.names=FALSE)
+    ul_cd = unlist(cd_rt, use.names=FALSE)
+    return_list = list("fill" = ul_fd, "clean" = ul_cd)
+  }
+  return(return_list)
+}
+
+#nic made this, thank you
+#nicktext_pp_vectors["clean"][[1]]
+plotCleaningChanges = function(img, thinned, added, removed)
+{
+  p = plotImageThinned(img, thinned)
+  pointsAdded = data.frame(X = ((added - 1) %/% dim(img)[1]) + 1, Y = dim(img)[1] - ((added - 1) %% dim(img)[1]))
+  pointsRemoved = data.frame(X = ((removed - 1) %/% dim(img)[1]) + 1, Y = dim(img)[1] - ((removed - 1) %% dim(img)[1]))
+  p = p + geom_point(data = pointsRemoved, aes(X, Y), size = 3, shape = I(16), color = I("red"), alpha = I(.4)) + 
+    geom_point(data = pointsAdded, aes(X, Y), size = 3, shape = I(16), color = I("darkgreen"), alpha = I(.4))
+  return(p)
+}
+#appendages above, nic will likely want me to move / remove them from this package
+
+
+#' readPNGBinary
 #' This function reads in and binarizes PNG images from the specified file path.
 #' @param path File path for image.
 #' @param cutoffAdjust Multiplicative adjustment to the K-means estimated binarization cutoff.

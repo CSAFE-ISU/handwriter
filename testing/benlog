@@ -46,3 +46,17 @@ source_python("preprocess"){
 
 	After reading further, steps 7-9 must be segregated
 }
+
+18 9 18
+
+I'm going to work on converting what I have to numpy, as I'm not the biggest fan of the current expensive iteration operations on the Matrix. Perhaps I'll just return a list of coordinates, but I need some way to couple behavior.
+
+Anyways, here's a checklist for today:
+
+- Begin converting iteration operations to numpy, eventually move to Numba from PyPy
+- Decide with Nic on a better unified format, as a big question remains.
+	- I can get the points to mutate the program with no-problem, but how can I define which indecies are going to be filled vs cleaned? 
+
+- Step 6 connectivity, or if my program is really fast I'll implement it myself.
+
+-ughh I wasted a bunch of time trying to take numpy approachesm oh well I learned my naive approach is pretty decent already

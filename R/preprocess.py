@@ -87,7 +87,7 @@ def p3x3(sr, sc, fill, clean, matrix):
         elif(compareMask(I1MASK, sr - 2, sc - 2, matrix)):
             return
         else:
-            print("APPENDING FILL")
+            #print("APPENDING FILL")
             fill.append((sr + 1, sc + 1))
 
 def p4x3(sr, sc, fill, clean, matrix):
@@ -257,7 +257,6 @@ def preprocess(matrix):
     :return: None
     """
     matrix = np.copy(matrix)
-    print(typeof(matrix))
     matrix.flags.writeable = True
     clean = []
     fill = []

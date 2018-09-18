@@ -1,6 +1,6 @@
-#!/usr/bin/env pypy3
 #Do not remove above line, results in poor performance!
 import sys
+from numba import jit
 import numpy as np
 import pandas as pd
 sys.path.append("/home/esc/git_repos/fall_18/work/handwriter/R")
@@ -18,6 +18,8 @@ src:
     Steps 1-5 have been tested.
     Please see attatched "benlog" text document for a comprehensive log
 """
+
+@jit
 def compareMask(mask, sr, sc, matrix):
     """ Compares a constant mask to the current point in the vector, if possible
     :param mask: 2D List filled with constants representing pixels Black, White, or Either
@@ -46,6 +48,7 @@ def compareMask(mask, sr, sc, matrix):
         sc = sc_copy
     return True
 
+@jit
 def process(sr, sc, process_type, fill, clean, matrix):
     """
     Processes binary image's corners for each initial H mask match
@@ -69,6 +72,7 @@ def process(sr, sc, process_type, fill, clean, matrix):
     else:
         print("error in process_type")
 
+@jit
 def p3x3(sr, sc, fill, clean, matrix):
     """
     Processes binary image with H1 mask
@@ -90,6 +94,7 @@ def p3x3(sr, sc, fill, clean, matrix):
             print("APPENDING FILL")
             fill.append((sr + 1, sc + 1))
 
+@jit
 def p4x3(sr, sc, fill, clean, matrix):
     """
     Processes binary image with H3 mask
@@ -112,6 +117,7 @@ def p4x3(sr, sc, fill, clean, matrix):
             fill.append((sr + 1, sc + 1))
             fill.append((sr + 2, sc + 1))
 
+@jit
 def p3x4(sr, sc, fill, clean, matrix):
     """
     Processes binary image with H2 mask
@@ -134,7 +140,7 @@ def p3x4(sr, sc, fill, clean, matrix):
             fill.append((sr + 1, sc + 1))
             fill.append((sr + 1, sc + 2))
 
-
+@jit
 def check_corners(tl, tr, br, bl, clean, matrix):
     """
     Checks corners to delete neighbors if a white cell is found, step 2
@@ -165,6 +171,7 @@ def check_corners(tl, tr, br, bl, clean, matrix):
         clean.append((bl[0], bl[1] + 1))
     return prev_clean_len != len(clean)
 
+@jit
 def clean_marked(clean, matrix):
     """
     Clean all marked holes
@@ -179,7 +186,7 @@ def clean_marked(clean, matrix):
         #print("to clean (row,col): ",i[0],i[1])
         matrix[i[0]][i[1]] = WHITE
 
-
+@jit
 def fill_marked(fill, matrix):
     """
     Fill all marked holes
@@ -194,6 +201,7 @@ def fill_marked(fill, matrix):
         #print("to fill (row,col): ",i[0],i[1])
         matrix[i[0]][i[1]] = BLACK
 
+@jit
 def compareMasks(masks,sr,sc,matrix):
     """ Compares constant masks to the current point in the vector, if possible
     :param masks: 2D Lists filled with constants representing pixels Black, White, or Either
@@ -206,6 +214,8 @@ def compareMasks(masks,sr,sc,matrix):
         if compareMask(mask,sr,sc,matrix):
             return True
     return False
+
+@jit
 def s_11(matrix,fill,clean):
     #if(len(clean)>0):
     #clean = []
@@ -216,6 +226,7 @@ def s_11(matrix,fill,clean):
     clean_marked(clean,matrix)
     return clean
 
+@jit
 def s7_10(matrix,fill,clean):
     """
     Execute steps 7 through ten of cited paper
@@ -233,6 +244,7 @@ def s7_10(matrix,fill,clean):
     #! if clean_marked behavior is changed this line must change
 
 # improvements in logic can be made below most likely
+@jit
 def s1_5(matrix,fill,clean):
     for row in range(0, len(matrix) - 4):
         for col in range(0, len(matrix[0]) - 4):
@@ -248,6 +260,7 @@ def s1_5(matrix,fill,clean):
     #return [fill,clean]
 
 #WARNING, should behave odd as I added return statements to the sX_X(...) to put dots on the image in R
+@jit
 def preprocess(matrix):
     """
     Preprocess a binary image
@@ -257,14 +270,6 @@ def preprocess(matrix):
     :return: None
     """
     matrix = np.copy(matrix) #this is a numpy.darray type
-    #idk = np.where(matrix == H1MASK)
-    #idk1 = np.where(np.all(matrix == H1MASK, axis = 0))
-    #print(idk)
-    #print(np.all(matrix == H1MASK,axis = 0))
-    toprow = np.array([DNC,BLACK,DNC])
-    print(np.where( np.all(matrix == toprow)) )
-
-    """
     matrix.flags.writeable = True
     clean = []
     fill = []
@@ -281,22 +286,8 @@ def preprocess(matrix):
         s_11(matrix,fill,clean)
         changes[1].extend(clean)
     print("success, no errors (but maybe undefined behavior)")
-    #print(changes)
-    #changes[0].append([69,69])
     changes[0] = pd.DataFrame(changes[0],columns=['row','col'])
     changes[0]['type'] = 'blue'
     changes[1] = pd.DataFrame(changes[1],columns=['row','col'])
     changes[1]['type'] = 'red'
     return pd.concat(changes)
-    #return changes
-"""
-#deleted split cases, can be found in regular preprocess.py
-sample_matrix = [
-                 [1,1,1,1,1,1,1,1,1],
-                 [1,1,1,DNC,BLACK,DNC,1,1,1],
-                 [1,1,1,BLACK,WHITE,BLACK,1,1,1],
-                 [1,1,1,DNC,BLACK,DNC,1,1,1],
-                 [1,1,1,1,1,1,1,1,1],
-                 [1,1,1,1,1,1,1,1,1]
-                 ]
-preprocess(sample_matrix)
