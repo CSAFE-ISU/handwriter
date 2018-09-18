@@ -326,6 +326,7 @@ getNodes = function(img, dims)
 
   ## If there is a 2x2 block in the thinned image and none of those pixels are nodes, make one of them a node.
   ## All will have connectivity of 2. Choose pixel with most neighbors as node.
+  ## Later note: This isn't good enough. Consider path finding later.
   node2by2fill = function(coords, img)
   {
     rr = coords[1]
@@ -375,7 +376,7 @@ getNodes = function(img, dims)
 #'
 #' @export
 
-processHandwriting = function(img, nodes, dims)
+processHandwriting = function(img, dims)
 {
   # Next, we have to follow certain rules to find non intersection breakpoints.
 
@@ -383,7 +384,8 @@ processHandwriting = function(img, nodes, dims)
   indices = img
   img = matrix(1, nrow = dims[1], ncol = dims[2])
   img[indices] = 0
-  nodeList = nodes
+  cat("Getting Nodes...\n")
+  nodeList = getNodes(indices, dims)
   img.m = cbind(((indices-1) %% dims[1]) + 1, ((indices - 1) %/% dims[1]) + 1)
 
   neighborList = matrix(NA, nrow = indices, ncol = 8)
@@ -476,7 +478,7 @@ processHandwriting = function(img, nodes, dims)
   
   goodBreaks = checkBreakPoints(candidateNodes = candidateNodes, allPaths = allPaths, nodeGraph = getNodeGraph(allPaths, nodeList), dims)
   preStackBreaks = candidateNodes[goodBreaks]
-
+  
   ##################### Potential breakpoints (except for stacked graphemes) found. Break into grapheme paths.
 
   cat("Isolating letter paths...")
@@ -486,13 +488,27 @@ processHandwriting = function(img, nodes, dims)
   V(skel_graph0)$graphemeID = graphemesList[[2]]
 
   finalBreaks = preStackBreaks[!(checkStacking(preStackBreaks, allPaths, graphemes, skel_graph0, dims))]
-  graphemesList = graphemePaths(allpaths, skel_graph0, finalBreaks)
-
+  
+  pathsWithBreaks = lapply(pathList, function(x){which(x %in% finalBreaks)})
+  for(i in which(lapply(pathsWithBreaks, length) > 0))
+  {
+    newNodes = which(pathList[[i]] %in% finalBreaks)
+    newNodes = c(newNodes + 1, newNodes - 1)
+    nodeList = c(nodeList, pathList[[i]][newNodes])
+    pathList[[i]] = list(pathList[[i]][1:(newNodes[1]-1)], pathList[[i]][(newNodes[1]-1):length(pathList[[i]])])
+  }
+  
+  if(any(unlist(lapply(pathsWithBreaks, length) > 0)))
+  {
+    pathList = unlist(pathList, recursive = FALSE)
+  }
+  
   graphemesList = graphemePaths(allpaths, skel_graph0, finalBreaks)
   graphemes = graphemesList[[1]]
-
+  
+  graphemes = graphemes[unlist(lapply(graphemes, length)) > 5]
   cat("and done.\n")
-  return(list(breakPoints = finalBreaks, pathList = allPaths, graphemeList = graphemes))
+  return(list(thin = indices, nodes = nodeList, breakPoints = finalBreaks, pathList = allPaths, graphemeList = graphemes))
 }
 
 #' Internal function for removing breakpoints that follow all of the rules, but separate two graphemes that are
@@ -553,6 +569,12 @@ checkStacking = function(candidateBreaks, allPaths, graphemes, nodeGraph0, dims)
     }
   }
   return(stackPtFlag)
+}
+
+#' @export
+countNodes = function(graphemeList, nodes)
+{
+  unlist(lapply(graphemeList, function(x){sum(x %in% nodes)}))
 }
 
 #' Internal function for creating a graph from a path list and node list.
