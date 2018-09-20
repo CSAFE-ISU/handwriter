@@ -74,3 +74,8 @@ So now my goal is as follows:
 - Return binary Matrix after mutated
 - Create something to plot the differences between the mutated layer and original binary matrix
 - Figure out why the hell the algorithm is trying to clean whitespace
+
+
+Made a bunch of progress today
+py_capture_output(exp,type=c("stdout","stderr")) <- extremely useful for debugging information
+Huge performance boosts by basal memory checks before expensive iteration

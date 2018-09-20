@@ -3,6 +3,7 @@
 import sys
 import numpy as np
 import pandas as pd
+import time
 sys.path.append("/home/esc/git_repos/fall_18/work/handwriter/R")
 from maskconstants import *
 """
@@ -223,10 +224,13 @@ def compareMasks(masks,sr,sc,matrix):
 def s_11(matrix,fill,clean):
     #if(len(clean)>0):
     #clean = []
-    for row in range(0,len(matrix)):
-        for col in range(0,len(matrix[0])):
-            if compareMasks(DU3_MASKS,row,col,matrix):
-                clean.append((row+2,col+2))
+    for row in range(0,len(matrix)-4):
+        for col in range(0,len(matrix[0])-4):
+            #NEW CONDITIONAL
+            if((matrix[row+1][col+2] == WHITE and matrix[row][col+2] == WHITE and matrix[row+2][col+2] == BLACK)
+                    or (matrix[row+3][col+2] == WHITE and matrix[row+4][col+2] == WHITE and matrix[row+3][col+2] == BLACK)):
+                if compareMasks(DU3_MASKS,row,col,matrix):
+                    clean.append((row+2,col+2))
     clean_marked(clean,matrix)
     return clean
 
@@ -238,10 +242,13 @@ def s7_10(matrix,fill,clean):
     :param clean: List of tuples (row,col) of elements to be cleaned
     :return: None
     """
-    for row in range(0,len(matrix)):
-        for col in range(0,len(matrix[0])):
-            if compareMasks(DU_MASKS,row,col,matrix):
-                clean.append((row+2,col+2))
+    for row in range(0,len(matrix)-4):
+        for col in range(0,len(matrix[0])-4):
+            #this if conditional is very very new
+            if((matrix[row+1][col+2] == WHITE and matrix[row][col+2] == WHITE and matrix[row+2][col+2] == BLACK)
+                    or (matrix[row+3][col+2] == WHITE and matrix[row+4][col+2] == WHITE and matrix[row+3][col+2] == BLACK)):
+                if compareMasks(DU_MASKS,row,col,matrix):
+                    clean.append((row+2,col+2))
     clean_marked(clean,matrix)
     return clean
     #! if clean_marked behavior is changed this line must change
@@ -252,7 +259,8 @@ def s6(matrix,fill,clean):
     #script was complaining so tightened bounds
     for row in range(1,len(matrix)-1):
         for col in range(1,len(matrix[0])-1):
-            s6check(matrix,row,col,clean)
+            if(matrix[row][col]==BLACK):
+                s6check(matrix,row,col,clean)
     clean_marked(clean,matrix)
 
 def s6check(matrix,row,col,clean):
@@ -276,7 +284,8 @@ def s6check(matrix,row,col,clean):
             black_neighbors += 1
 
     if(black_neighbors < 3 and connectivity < 2):
-        clean.append((row,col))
+        #VERY IMPORTANT, +1 as R IS 0 INDEXED
+        clean.append((row+1,col+1))
 
 # improvements in logic can be made below most likely
 def s1_5(matrix,fill,clean):
@@ -306,12 +315,24 @@ def preprocess(matrix):
     matrix.flags.writeable = True
     clean = []
     fill = []
+    s1 = time.time()
     s1_5(matrix,fill,clean)
+    s1e = time.time()
+    print("steps 1-5 time: ",s1-s1e)
+    s2 = time.time()
     s6(matrix,fill,clean)
+    s2e = time.time()
+    print("step 6 time: ",s2-s2e)
     clean = []
+    s3 = time.time()
     if(len(s7_10(matrix,fill,clean))>0):
+        s3e = time.time()
+        print("steps 7-10 time: ",s3-s3e)
         clean = []
+        s4 = time.time()
         s_11(matrix,fill,clean)
+        s4e = time.time()
+        print("step 11 time: ",s4-s4e)
     print("success, no errors (but maybe undefined behavior)")
     return matrix
 
