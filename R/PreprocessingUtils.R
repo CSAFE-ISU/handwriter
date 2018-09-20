@@ -29,6 +29,12 @@ loadLibaries = function(){
   library("ggplot2")
   library("reshape2")
 }
+plotMutationsFromVector = function(img,thinned,nodesize=1,mutations){
+  mutation_index = preprocessToIndexVector(dim(img),mutations)
+  mutation_df = data.frame(index=mutation_index)
+  plotCleaningChanges(img,thinned,NULL,mutation_df$index,nodesize)
+}
+
 plotCleaningChangesFromVector = function(img, thinned,nodesize = 1,preprocess_result){
   preprocess_index = preprocessToIndexVector(dim(img),preprocess_result)
   preprocess_df = data.frame(cleantype=preprocess_result[,3],index = preprocess_index)

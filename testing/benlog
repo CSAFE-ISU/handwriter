@@ -60,3 +60,17 @@ Anyways, here's a checklist for today:
 - Step 6 connectivity, or if my program is really fast I'll implement it myself.
 
 -ughh I wasted a bunch of time trying to take numpy approachesm oh well I learned my naive approach is pretty decent already
+
+20 9 18
+
+Feeling really down but glad I have this project to distract me. 
+
+Met with Nic tuesday, made quality progress in regards to ensuring we can plot elements. A lot of my issues were R tweaks of concepts I wasn't aware of e.g extracting information from lists consistently. I saved the history and made Utility functions to prevent EVER having to manually draw out all of that again.
+
+Mutability is present in memory in my python script. I'm going to finalize the algorithm in Python (inclusive of mutability) and return the result as a binary matrix.
+
+So now my goal is as follows:
+- Implement the final step measuring connectivity
+- Return binary Matrix after mutated
+- Create something to plot the differences between the mutated layer and original binary matrix
+- Figure out why the hell the algorithm is trying to clean whitespace

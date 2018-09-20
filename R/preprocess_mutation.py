@@ -20,6 +20,18 @@ src:
     Steps 1-5 have been tested.
     Please see attatched "benlog" text document for a comprehensive log
 """
+def compareBinaries(matrix1,matrix2):
+    difs = []
+    if(len(matrix1)!=len(matrix2) or len(matrix1[0])!=len(matrix2[0])):
+        print("issue with lengths, aborting")
+        return
+    for row in range(len(matrix1)):
+        for col in range(len(matrix1[0])):
+            if(matrix1[row][col]!=matrix2[row][col]):
+                difs.append([row,col])
+    difs = pd.DataFrame(difs,columns=['row','col'])
+    return difs
+
 def compareMask(mask, sr, sc, matrix):
     """ Compares a constant mask to the current point in the vector, if possible
     :param mask: 2D List filled with constants representing pixels Black, White, or Either
@@ -237,8 +249,9 @@ def s7_10(matrix,fill,clean):
 
 """
 def s6(matrix,fill,clean):
+    #script was complaining so tightened bounds
     for row in range(1,len(matrix)-1):
-        for col in range(1,len(matrix)-1):
+        for col in range(1,len(matrix[0])-1):
             s6check(matrix,row,col,clean)
     clean_marked(clean,matrix)
 
