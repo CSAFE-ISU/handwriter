@@ -1,0 +1,273 @@
+help
+lol
+test
+help
+man
+help
+install.packages('swirl')
+library("swirl")
+swirt()
+swirl()
+5+7
+Person <- data.frame(
+  gender = "Male",
+  height = 100,
+  weight = 200
+  q()
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/dij.r')
+  source('~/git_repos/fall_18/work/dij.r')
+  source('~/git_repos/fall_18/work/dij.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/dij.r')
+  source('~/git_repos/fall_18/work/dij.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/dij.r')
+  source('~/git_repos/fall_18/work/dij.r')
+  source('~/git_repos/fall_18/work/dij.r')
+  source('~/git_repos/fall_18/work/dij.r')
+  source('~/git_repos/fall_18/work/dij.r')
+  source('~/git_repos/fall_18/work/dij.r')
+  source('~/git_repos/fall_18/work/dij.r')
+  source('~/git_repos/fall_18/work/dij.r')
+  source('~/git_repos/fall_18/work/dij.r')
+  source('~/git_repos/fall_18/work/dij.r')
+  source('~/git_repos/fall_18/work/dij.r')
+  source('~/git_repos/fall_18/work/dij.r')
+  source('~/git_repos/fall_18/work/dij.r')
+  source('~/git_repos/fall_18/work/dij.r')
+  source('~/git_repos/fall_18/work/dij.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  source('~/git_repos/fall_18/work/test.r')
+  install.packages("rmarkdown")
+  install.packages("devtools")
+  install.packages("xaringan")
+  source('~/git_repos/fall_18/work/handwriter/R/ThinText.R')
+  library(handwriter)
+  library(reticulate)
+  source_python("./git_repos/fall_18/work/handwriter/R/preprocess.py")
+  readPNGBinary("./git_repos/fall_18/work/handwriter/testing/samples/NickCodingText.png")
+  nicktext = readPNGBinary("./git_repos/fall_18/work/handwriter/testing/samples/NickCodingText.png")
+  nicktext
+  nicktext = crop(nicktext)
+  nicktext_pp = preprocessCroppedBinary(nicktext)
+  setwd("./git_repos/fall_18/work/handwriter/R/")
+  nicktext_pp = preprocessCroppedBinary(nicktext)
+  nicktext_pp_vectors = preprocessToIndexVector(nicktext,nicktext_pp)
+  nicktext_pp
+  plot(nictext)
+  length(nicktext)
+  length(nicktext_pp)
+  nicktext_pp
+  nicktext_pp_split = split(nicktext_pp,nicktext_pp$type)
+  length(nicktext_pp_split)
+  source('~/git_repos/fall_18/work/handwriter/R/ThinText.R')
+  nicktext_pp_split = split(nicktext_pp,nicktext_pp$type)
+  nicktext_pp_split
+  nicktext_pp_vectors = preprocessToIndexVector(nicktext,nicktext_pp)
+  nicktext_pp
+  nicktext_pp[[1]]
+  nicktext_pp[[1]]-1
+  nicktext_pp[[[1]]-1
+              nicktext_pp[[[1]]]-1
+              nicktext_pp[[[1]]]-1
+              clean
+              clear
+              clear()
+              nicktext_pp
+              nicktext_pp[[1]]
+              nicktext_pp[[1]]-1
+              nicktext_pp-1
+              nicktext_pp[1]-1
+              nicktext_pp[1]
+              nicktext_pp[[1]]
+              nicktext_pp["red]"
+                          sa''
+                          nicktext_pp["red"]
+                          nicktext_pp["red]"
+                                      nicktext_pp["red"]
+                                      nicktext_pp
+                                      nicktext_pp
+                                      x = (nicktext_pp[2]-1)*100+1
+                                      x = nicktext_pp[2]
+                                      x = nicktext_pp[2]-1
+                                      x = nicktext_pp[[2]]-1
+                                      nicktext_pp[[2]]
+                                      nicktext_pp[[[2]]]
+                                      nicktext_pp[2]
+                                      nicktext_pp[2]-1
+                                      nicktext_pp-1
+                                      typeof(nicktext_pp)
+                                      nicktext_pp[[1]] -1
+                                      nicktext_pp[[1]]
+                                      nicktext_pp[[1]]-1
+                                      nicktext_pp = preprocessCroppedBinary(nicktext)
+                                      nicktext_pp
+                                      nicktext_pp-1
+                                      nicktext_pp[1]-1
+                                      nicktext_pp[[1]]-1
+                                      typeof(nicktext_pp[1])
+                                      typeof(nicktext_pp[[1]])
+                                      typeof(nicktext_pp[[1]])
+                                      nick-1
+                                      nicktext_pp -1
+                                      nicktext_pp-1
+                                      View(nicktext_pp)
+                                      nicktext_pp[1]
+                                      nicktext_pp[1]-1
+                                      Number(nicktext_pp[1])
+                                      asNumeric(nicktext_pp[1])
+                                      as.numeric(nicktext_pp[1])
+                                      as.numeric(nicktext_pp[[1]])
+                                      as.numeric(nicktext_pp[[1]])-1
+                                      nicktext_pp_vectors = preprocessToIndexVector(nicktext,nicktext_pp)
+                                      nicktext_pp_vectors = preprocessToIndexVector(nicktext,nicktext_pp)
+                                      nicktext_pp_split
+                                      nicktext_pp_split[[1]]
+                                      as.numeric(nicktext_pp_split[[1]])
+                                      as.numeric(nicktext_pp_split[[[1]]])
+                                      as.numeric(nicktext_pp_split[[1]])
+                                      nicktext_pp
+                                      nicktext_pp_split
+                                      nicktext_pp_split[1]
+                                      nicktext_pp_split[[1]]
+                                      nicktext_pp_split[[1]]-1
+                                      as.numeric(nicktext_pp_split[[1]])-1
+                                      as.numeric(nicktext_pp_split[[1]][1])-1
+                                      nicktext_pp_split[[1]][1]
+                                      nicktext_pp_split[[1]][1]-1
+                                      as.numeric(nicktext_pp_split[[1]][1])-1
+                                      as.numeric(nicktext_pp_split[[1]][[1]])-1
+                                      as.numeric(nicktext_pp_split[[1]][[1]])
+                                      as.numeric(nicktext_pp_split[[1]][[1]])-1
+                                      as.numeric(nicktext_pp_split[[1]])-1
+                                      as.numeric(nicktext_pp_split[[1]][1])-1
+                                      as.numeric(nicktext_pp_split[[1]][[1]])-1
+                                      as.numeric(nicktext_pp_split[[1]][[2]])-1
+                                      source('~/git_repos/fall_18/work/handwriter/R/ThinText.R')
+                                      nicktext_pp_vectors = preprocessToIndexVector(nicktext,nicktext_pp)
+                                      nicktext_pp_split
+                                      nicktext_pp_split[[1]]
+                                      nicktext_pp_split[[1]][[2]]
+                                      nicktext_pp_split[[1]][[2]]-1
+                                      as.numeric(nicktext_pp_split[[1]][[2]])
+                                      as.numeric(nicktext_pp_split[[1]][[2]])-1
+                                      source('~/git_repos/fall_18/work/handwriter/R/ThinText.R')
+                                      nicktext_pp_vectors = preprocessToIndexVector(nicktext,nicktext_pp)
+                                      nicktext_pp_vectors
+                                      source('~/git_repos/fall_18/work/handwriter/R/ThinText.R')
+                                      nicktext_thinned = thinImage(nicktext)
+                                      plotCleaningChanges(nicktext,nicktext_thinned,NULL,nicktext_pp_vectors["clean"])
+                                      library(reshape2)
+                                      library(ggplot2)
+                                      plotCleaningChanges(nicktext,nicktext_thinned,NULL,nicktext_pp_vectors["clean"])
+                                      nicktext_pp_vectors
+                                      nicktext_pp_vectors["clean"]
+                                      nicktext_pp_vectors["clean"][1]
+                                      nicktext_pp_vectors["clean"][[1]]
+                                      plotCleaningChanges(nicktext,nicktext_thinned,NULL,nicktext_pp_vectors["clean"][[1]])
+                                      length(nicktext_pp_vectors)
+                                      source('~/git_repos/fall_18/work/handwriter/R/ThinText.R')
+                                      preprocessThinPlotPNG("../testing/samples/message.png")
+                                      message = readPNGBinary("../testing/samples/message.png")
+                                      message = crop(message)
+                                      message_thinned = thinImage(message)
+                                      message_pp = preprocessCroppedBinary(message)
+                                      message_pp
+                                      message_pp_v = preprocessToIndexVector(message,message_pp)
+                                      message_pp_v = preprocessToIndexVector(message,message_pp)
+                                      message_pp_v = preprocessToIndexVector(message,message_pp)
+                                      message_pp
+                                      split(message_pp,message_pp$type)
+                                      message_pp_split = split(message_pp,message_pp$type)
+                                      message_pp_split[1]
+                                      message_pp_split[2]
+                                      message_pp_split[1]
+                                      message_pp_split[1]-1
+                                      message_pp_split[[1]]-1
+                                      as.numeric(message_pp_split[[1]])-1
+                                      message_pp
+                                      typeof(message_pp)
+                                      message_pp[1]
+                                      message_pp[1]-1
+                                      message_pp[,1]
+                                      message_pp[,1]
+                                      nicktext_pp
+                                      message_pp
+                                      message_pp[,1]
+                                      message_pp
+                                      source('~/git_repos/fall_18/work/handwriter/R/ThinText.R')
+                                      source('~/git_repos/fall_18/work/handwriter/R/ThinText.R')
+                                      source('~/git_repos/fall_18/work/handwriter/R/ThinText.R')
+                                      preprocessToIndexVector(message_pp)
+                                      preprocessToIndexVector(dim(message),message_pp)
+                                      message_index = preprocessToIndexVector(dim(message),message_pp)
+                                      message_index
+                                      message_clean = data.frame()
+                                      message_clean = data.frame(cleantype=message_pp[,3],index=message_index)
+                                      message_clean
+                                      head(message_clean)
+                                      typeof(message_clean)
+                                      typeof(message_clean[1])
+                                      typeof(message_clean[[1]])
+                                      typeof(message_clean[,1])
+                                      typeof(message_clean)
+                                      plotCleaningChanges(message,message_thinned,message_clean$index[message_clean$cleantype=="blue"],message_clean$index[message_clean$cleantype=="red"])
+                                      source('~/git_repos/fall_18/work/handwriter/R/ThinText.R')
+                                      plotCleaningChanges(message,message_thinned,message_clean$index[message_clean$cleantype=="blue"],message_clean$index[message_clean$cleantype=="red"])
+                                      source('~/git_repos/fall_18/work/handwriter/R/ThinText.R')
+                                      plotCleaningChanges(message,message_thinned,message_clean$index[message_clean$cleantype=="blue"],message_clean$index[message_clean$cleantype=="red"])
+                                      savehistory("~/.Rhistory")
