@@ -1,3 +1,25 @@
+#'preprocess_mutations
+#'expidite the testing process for the new preprocessing algorithm
+#'@param path path to binary image, function will handle most of the rest
+#'
+preprocess_mutations = function(path, nodesize = 1, init = FALSE){
+  if(init){
+    library(handwriter)
+    library(reticulate)
+    library(ggplot2)
+    library(reshape)
+    setwd("/home/esc/git_repos/")
+    source_python("./preprocess_mutation.py")
+  }
+  binImg = readPNGBinary(path)
+  binImg = crop(binImg)
+  binImgthin = thinImage(binImg)
+  binImgpp = preprocess(binImg)
+  binImgDif = compareBinaries(binImgpp,binImg)
+  binImgpp_v = preprocessToIndexVector(dim(binImg),binImgDif)
+  plotCleaningChanges(binImg,binImgthin,NULL,binImgpp_v,nodesize)
+}
+
 preprocessThinPlotPNG = function(path){
   png = readPNGBinary(path)
   png= crop(png)
