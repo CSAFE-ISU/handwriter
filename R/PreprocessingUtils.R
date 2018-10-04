@@ -8,7 +8,7 @@ preprocess_mutations = function(path, nodesize = 1, init = FALSE){
     library(reticulate)
     library(ggplot2)
     library(reshape)
-    setwd("/home/esc/git_repos/")
+    setwd("/home/esc/git_repos/fall_18/work/handwriter/R/")
     source_python("./preprocess_mutation.py")
   }
   binImg = readPNGBinary(path)
@@ -17,7 +17,63 @@ preprocess_mutations = function(path, nodesize = 1, init = FALSE){
   binImgpp = preprocess(binImg)
   binImgDif = compareBinaries(binImgpp,binImg)
   binImgpp_v = preprocessToIndexVector(dim(binImg),binImgDif)
+  print(binImgpp_v)
   plotCleaningChanges(binImg,binImgthin,NULL,binImgpp_v,nodesize)
+}
+
+#'preprocess_mutations
+#'expidite the testing process for the new preprocessing algorithm
+#'@param path path to binary image, function will handle most of the rest
+#'
+preprocess_mutations_dif = function(path, clean = TRUE, nodesize = 1, init = FALSE){
+  if(init){
+    library(handwriter)
+    library(reticulate)
+    library(ggplot2)
+    library(reshape)
+    setwd("/home/esc/git_repos/fall_18/work/handwriter/R/")
+    source_python("./preprocess_mutation.py")
+  }
+  binImg = readPNGBinary(path,clean)
+  binImg = crop(binImg)
+  binImgthin = thinImage(binImg)
+  binImgpp = preprocess(binImg)
+  binImgDif = compareBinariesDif(binImg,binImgpp)
+  binImgpp_v = preprocessToIndexVector(dim(binImg),binImgDif)
+  binImg_df = data.frame(index=binImgpp_v,type=binImgDif[,3])
+  print("binary image dataframe below \n")
+  print(binImg_df)
+  plotCleaningChanges(binImg,binImgthin,binImg_df$index[binImg_df$type=="fill"],binImg_df$index[binImg_df$type=="clean"],nodesize)
+  #plotCleaningChanges(img,thinned,preprocess_df$index[preprocess_df$cleantype=="blue"],preprocess_df$index[preprocess_df$cleantype=="red"],nodesize)
+}
+
+#'preprocess_mutations tester
+#'expidite the testing process for the new preprocessing algorithm
+#'trying reordering some steps of the thinning program
+#'@param path path to binary image, function will handle most of the rest
+#'
+preprocess_mutations_test = function(path, clean = TRUE, nodesize = 1, init = FALSE){
+  if(init){
+    library(handwriter)
+    library(reticulate)
+    library(ggplot2)
+    library(reshape)
+    setwd("/home/esc/git_repos/fall_18/work/handwriter/R/")
+    source_python("./preprocess_mutation.py")
+  }
+  binImg = readPNGBinary(path,clean)
+  binImg = crop(binImg)
+  
+  binImgpp = preprocess(binImg)
+  binImgthinog = thinImage(binImg)
+  binImgthin = thinImage(binImgpp)
+  binImgDif = compareBinariesDif(binImgthin,binImgthinog)
+  binImgpp_v = preprocessToIndexVector(dim(binImg),binImgDif)
+  binImg_df = data.frame(index=binImgpp_v,type=binImgDif[,3])
+  print("binary image dataframe below \n")
+  print(binImg_df)
+  plotCleaningChanges(binImg,binImgthin,binImg_df$index[binImg_df$type=="fill"],binImg_df$index[binImg_df$type=="clean"],nodesize)
+  #plotCleaningChanges(img,thinned,preprocess_df$index[preprocess_df$cleantype=="blue"],preprocess_df$index[preprocess_df$cleantype=="red"],nodesize)
 }
 
 preprocessThinPlotPNG = function(path){

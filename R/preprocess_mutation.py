@@ -33,16 +33,18 @@ def compareBinaries(matrix1,matrix2):
     difs = pd.DataFrame(difs,columns=['row','col'])
     return difs
 
-def compareBinariesDif(matrix1,matrix2):
+def compareBinariesDif(matrixOg,matrixNew):
     difs = []
-    if(len(matrix1)!=len(matrix2) or len(matrix1[0])!=len(matrix2[0])):
+    if(len(matrixOg)!=len(matrixNew) or len(matrixOg[0])!=len(matrixNew[0])):
         print("issue with lengths, aborting")
         return
-    for row in range(len(matrix1)):
-        for col in range(len(matrix1[0])):
-            if(matrix1[row][col]!=matrix2[row][col]):
-                difs.append([row,col])
-    difs = pd.DataFrame(difs,columns=['row','col'])
+    for row in range(len(matrixOg)):
+        for col in range(len(matrixOg[0])):
+            if(matrixOg[row][col] == BLACK and matrixNew[row][col] != BLACK):
+                difs.append([row,col,"clean"])
+            elif(matrixOg[row][col] == WHITE and matrixNew[row][col] != WHITE):
+                difs.append([row,col,"fill"])
+    difs = pd.DataFrame(difs,columns=['row','col','type'])
     return difs
 
 def compareMask(mask, sr, sc, matrix):
