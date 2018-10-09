@@ -1,5 +1,0 @@
-png parse, crop
-preprocess
-thin
-plot_thinned
-

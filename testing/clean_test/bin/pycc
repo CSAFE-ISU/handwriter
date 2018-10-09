@@ -1,3 +1,0 @@
-#!/home/esc/git_repos/fall_18/work/handwriter/testing/clean_test/bin/python
-from numba.pycc import main
-main()
