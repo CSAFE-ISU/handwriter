@@ -10,7 +10,7 @@
 #' @return Returns image from path. 0 represents black, and 1 represents white by default.
 #' @export
 
-readPNGBinary = function(path, cutoffAdjust = 1, clean = TRUE, inversion = FALSE)
+readPNGBinary = function(path, cutoffAdjust = 1, clean = TRUE, inversion = FALSE, crop = TRUE)
 {
   img = png::readPNG(path)
   img = as.array(img)
@@ -39,6 +39,11 @@ readPNGBinary = function(path, cutoffAdjust = 1, clean = TRUE, inversion = FALSE
   if(clean)
   {
     img[whichToFill(img)] = 0;
+  }
+  
+  if(crop)
+  {
+    img = crop(img)
   }
   
   return(img + 0)
