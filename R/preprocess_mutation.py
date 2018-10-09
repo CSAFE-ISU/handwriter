@@ -303,6 +303,25 @@ def s6check(matrix,row,col,clean):
     neighbors.append(matrix[row+1][col-1])
     neighbors.append(matrix[row+1][col])
     neighbors.append(matrix[row+1][col+1])
+    
+    """
+    TODO: (Urgent)
+    
+    This calculation of connectivity doesn't seem right.
+    neighbors[x] can never be black and white.
+    Connectivity should never increase.
+    
+    How about:
+    
+    for x in range(0,len(neighbors)-2):
+        if(neighbors[x] == WHITE and neighbors[x+1] == BLACK):
+            connectivity += 1
+        
+        if(neighbors[x] == BLACK):
+            black_neighbors += 1
+        
+    """
+    
     for x in range(0,len(neighbors)-1):
         if(neighbors[x]== WHITE and neighbors[x] == BLACK):
             connectivity += 1
