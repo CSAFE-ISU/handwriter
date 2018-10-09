@@ -183,15 +183,15 @@ def check_corners(tl, tr, br, bl, clean, matrix):
         #print('appending to clean')
         clean.append((tl[0], tl[1] + 1))
         clean.append((tl[0] + 1, tl[1]))
-    if (matrix[tr[0]][tr[1]] == WHITE):
+    elif (matrix[tr[0]][tr[1]] == WHITE):
         #print('appending to clean')
         clean.append((tr[0], tr[1] - 1))
         clean.append((tr[0] + 1, tr[1]))
-    if (matrix[br[0]][br[1]] == WHITE):
+    elif (matrix[br[0]][br[1]] == WHITE):
         #print('appending to clean')
         clean.append((br[0] - 1, br[1]))
         clean.append((br[0], br[1] - 1))
-    if (matrix[bl[0]][bl[1]] == WHITE):
+    elif (matrix[bl[0]][bl[1]] == WHITE):
         #print('appending to clean')
         clean.append((bl[0] - 1, bl[1]))
         clean.append((bl[0], bl[1] + 1))
