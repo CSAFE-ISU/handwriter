@@ -277,6 +277,20 @@ def s6(matrix,fill,clean):
                 s6check(matrix,row,col,clean)
     clean_marked(clean,matrix)
 
+# TODO: (URGENT) The neighbors vector is in the wrong order.  You are not making a circle around (row, col), you jump around. 
+# Also, you must start and finish at the same point.. 
+# Should be:
+"""
+neighbors.append(matrix[row-1][col-1])
+neighbors.append(matrix[row-1][col])
+neighbors.append(matrix[row-1][col+1])
+neighbors.append(matrix[row][col+1])
+neighbors.append(matrix[row+1][col+1])
+neighbors.append(matrix[row+1][col])
+neighbors.append(matrix[row+1][col-1])
+neighbors.append(matrix[row][col-1])
+neighbors.append(matrix[row-1][col-1])
+"""
 def s6check(matrix,row,col,clean):
     neighbors = []
     black_neighbors = 0
