@@ -1,5 +1,4 @@
 #' readPNGBinary
-#'
 #' This function reads in and binarizes PNG images from the specified file path.
 #' @param path File path for image.
 #' @param cutoffAdjust Multiplicative adjustment to the K-means estimated binarization cutoff.
@@ -57,15 +56,29 @@ readPNGBinary = function(path, cutoffAdjust = 1, clean = TRUE, inversion = FALSE
 #' @return Returns plot of x.
 #' @import ggplot2
 #' @export
-
+coordsToIndex = function(rowVals,colVals,dimImageAt1){
+  #remove this
+  # (column-1)*dim(image)[1] + row
+}
 plotImage = function(x)
 {
   xm = melt(x)
+  print(head(xm))
   names(xm) = c("Var1", "Var2", "value")
+  print(head(xm))
   p = ggplot(xm, aes(Var2, rev(Var1))) + geom_raster(aes(fill = as.factor(value)), na.rm=TRUE) + scale_fill_manual(values = c("black", NA), guide = FALSE) + coord_fixed() + theme_void()
   return(p)
 }
 
+#' ben
+#' probably remove this ://
+#' hmm, takes in list of lists [ [x,y], [x,y], [x,y] .. ] of corrections to be made
+plotImagePoints = function(x){
+  xm = melt(x)
+  names(xm) = c("Var1", "Var2", "value")
+  p = ggplot(xm, aes(Var2, rev(Var1))) + geom_point(ppdf, aes(x = col, y = row)) + geom_raster(aes(fill = as.factor(value)), na.rm=TRUE) + scale_fill_manual(values = c("black", NA), guide = FALSE) + coord_fixed() + theme_void()
+  return(p)
+}
 # #' neighborChanges
 # #'
 # #' Internal function for thinImage. Counts switches from 1 to 0 around a point.
@@ -288,7 +301,10 @@ plotImage = function(x)
 plotImageThinned = function(img, thinned)
 {
   l.m = melt(img)
+  print(head(l.m))
+  names(l.m) = c("Var1", "Var2", "value")
   l.m$value[thinned] = 2
+  print(head(l.m))
   p = ggplot(l.m, aes(Var2, rev(Var1))) + geom_raster(aes(fill = as.factor(value), alpha = as.factor(value)), na.rm=TRUE) + scale_alpha_manual(values = c(.1, NA, 1), guide = FALSE) + scale_fill_manual(values = c("black", NA, "black"), guide = FALSE) + coord_fixed() + theme_void()
   return(p)
 }
