@@ -9,7 +9,7 @@ preprocess_mutations = function(path, nodesize = 1, init = FALSE){
     library(ggplot2)
     library(reshape)
     setwd("/home/esc/git_repos/fall_18/work/handwriter/R/")
-    source_python("./preprocess_mutation.py")
+    source_python("./preprocess_mutation_oct.py")
   }
   binImg = readPNGBinary(path)
   binImg = crop(binImg)
@@ -32,11 +32,20 @@ preprocess_mutations_dif = function(path, clean = TRUE, nodesize = 1, init = FAL
     library(ggplot2)
     library(reshape)
     setwd("/home/esc/git_repos/fall_18/work/handwriter/R/")
-    source_python("./preprocess_mutation.py")
+    source_python("./preprocess_mutation_oct.py")
   }
-  binImg = readPNGBinary(path,clean)
+  binImg = readPNGBinary(path,clean = clean)
+  print(summary(c(binImg)))
+  #print(plotImage(binImg))
+  plotImage(binImg)
   binImg = crop(binImg)
+  print("we done croppin")
   binImgthin = thinImage(binImg)
+  plotImageThinned(binImg,binImgthin)
+  print("image has been plot thind")
+  print(dim(binImg))
+  print(typeof(binImg))
+  #print(plotImageThinned(binImg,binImgthin))
   binImgpp = preprocess(binImg)
   binImgDif = compareBinariesDif(binImg,binImgpp)
   binImgpp_v = preprocessToIndexVector(dim(binImg),binImgDif)
@@ -45,6 +54,7 @@ preprocess_mutations_dif = function(path, clean = TRUE, nodesize = 1, init = FAL
   print(binImg_df)
   plotCleaningChanges(binImg,binImgthin,binImg_df$index[binImg_df$type=="fill"],binImg_df$index[binImg_df$type=="clean"],nodesize)
   #plotCleaningChanges(img,thinned,preprocess_df$index[preprocess_df$cleantype=="blue"],preprocess_df$index[preprocess_df$cleantype=="red"],nodesize)
+  return(binImgpp)
 }
 
 #'preprocess_mutations tester
@@ -54,6 +64,7 @@ preprocess_mutations_dif = function(path, clean = TRUE, nodesize = 1, init = FAL
 #'
 preprocess_mutations_test = function(path, clean = TRUE, nodesize = 1, init = FALSE){
   if(init){
+    install.packages(handwriter)
     library(handwriter)
     library(reticulate)
     library(ggplot2)
@@ -62,8 +73,10 @@ preprocess_mutations_test = function(path, clean = TRUE, nodesize = 1, init = FA
     source_python("./preprocess_mutation.py")
   }
   binImg = readPNGBinary(path,clean)
+  print(plotImage(binImg))
+  plotImage(binImg)
   binImg = crop(binImg)
-  
+  print("we made it") 
   binImgpp = preprocess(binImg)
   binImgthinog = thinImage(binImg)
   binImgthin = thinImage(binImgpp)

@@ -87,3 +87,7 @@ I'm noticing absolutely suspect behavior from thinning a preprocessed image. The
 
 Processing and performing thinning on the processing causes many individual holes to appear in areas they absolutely do not seem appropriate in. Take a look in preprocessing_examples/october for some examples. 
 
+9 10 18
+So I spent the better part of the morning struggling with Electron on my device. Turns out its a hardware issue and by specifiying --disable-gpu when running any electron app, the issue disappears!!!!!!
+
+I intend on using electron to build a wrapper for the current handwriting application. I'd like to see Flash ID to get a better sense of some of the features I should be focused on implementing..

@@ -86,17 +86,17 @@ def process(sr, sc, process_type, fill, clean, matrix):
     :param matrix: Binary representation of handwriting sample
     :return: None
     """
-    if (process_type == "3x3"):
+    if (process_type == "3x3" and matrix[sr+1][sc+1] == WHITE):
         #print('processing 3x3"')
         p3x3(sr, sc, fill, clean, matrix)
-    elif (process_type == "4x3"):
+    elif (process_type == "4x3" and matrix[sr+1][sc+1] == WHITE and matrix[sr+2][sc+1] == WHITE):
         #print('processing 4x3"')
         p4x3(sr, sc, fill, clean, matrix)
-    elif (process_type == "3x4"):
+    elif (process_type == "3x4" and matrix[sr+1][sc+1] == WHITE and matrix[sr+1][sc+2] == WHITE):
         #print('processing 4x3"')
         p3x4(sr, sc, fill, clean, matrix)
     else:
-        print("error in process_type")
+        print("nothing processed")
 
 def p3x3(sr, sc, fill, clean, matrix):
     """

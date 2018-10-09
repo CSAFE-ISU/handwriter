@@ -234,14 +234,14 @@ def s7_10(matrix,fill,clean):
 
 # improvements in logic can be made below most likely
 def s1_5(matrix,fill,clean):
-    for row in range(0, len(matrix) - 4):
-        for col in range(0, len(matrix[0]) - 4):
+    for row in range(0, len(matrix) - 3):
+        for col in range(0, len(matrix[0]) - 3):
             #print("row col of cur iteration:", row, col)
             if (row + 4 < len(matrix)):
                 process(row, col, "4x3", fill, clean, matrix)
             if (col + 4 < len(matrix[0])):
                 process(row, col, "3x4", fill, clean, matrix)
-            if (row + 3 < len(matrix) and col + 3 < len(matrix[0])):
+            #if (row + 3 < len(matrix) and col + 3 < len(matrix[0])):
                 process(row, col, "3x3", fill, clean, matrix)
     clean_marked(clean, matrix)
     fill_marked(fill, matrix)
