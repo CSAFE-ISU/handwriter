@@ -6,6 +6,17 @@
 
 using namespace Rcpp;
 
+// cleanBinaryImage
+arma::mat cleanBinaryImage(arma::mat img);
+RcppExport SEXP _handwriter_cleanBinaryImage(SEXP imgSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type img(imgSEXP);
+    rcpp_result_gen = Rcpp::wrap(cleanBinaryImage(img));
+    return rcpp_result_gen;
+END_RCPP
+}
 // rgba2rgb
 arma::cube rgba2rgb(arma::cube img);
 RcppExport SEXP _handwriter_rgba2rgb(SEXP imgSEXP) {
@@ -52,6 +63,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_handwriter_cleanBinaryImage", (DL_FUNC) &_handwriter_cleanBinaryImage, 1},
     {"_handwriter_rgba2rgb", (DL_FUNC) &_handwriter_rgba2rgb, 1},
     {"_handwriter_rgb2grayscale", (DL_FUNC) &_handwriter_rgb2grayscale, 1},
     {"_handwriter_whichToFill", (DL_FUNC) &_handwriter_whichToFill, 1},

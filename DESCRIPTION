@@ -4,7 +4,6 @@ Version: 0.0.0.9000
 Author: Nick Berry <berryni@iastate.edu>
 Maintainer: Nick Berry <berryni@iastate.edu>
 Description: We’ll get there when it does something.
-Imports: Rcpp (>= 0.12.15), ggplot2, igraph, png, reshape2, shiny
 Depends: R (>= 3.1)
 LinkingTo: Rcpp, RcppArmadillo
 License: GPL (>= 2)
