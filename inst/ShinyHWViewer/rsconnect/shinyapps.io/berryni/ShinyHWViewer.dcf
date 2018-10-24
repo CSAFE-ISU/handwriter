@@ -5,8 +5,8 @@ account: berryni
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 275134
-bundleId: 1234245
+bundleId: 1276844
 url: https://berryni.shinyapps.io/ShinyHWViewer/
-when: 1519256648.86782
+when: 1521483742.7461
 asMultiple: FALSE
 asStatic: FALSE

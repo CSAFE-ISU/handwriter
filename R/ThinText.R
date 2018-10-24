@@ -9,7 +9,7 @@
 #' @return Returns image from path. 0 represents black, and 1 represents white by default.
 #' @export
 
-readPNGBinary = function(path, cutoffAdjust = 1, clean = TRUE, inversion = FALSE, crop = TRUE)
+readPNGBinary = function(path, cutoffAdjust = 1, clean = TRUE, crop = TRUE, inversion = FALSE)
 {
   img = png::readPNG(path)
   img = as.array(img)
@@ -37,7 +37,7 @@ readPNGBinary = function(path, cutoffAdjust = 1, clean = TRUE, inversion = FALSE
   
   if(clean)
   {
-    img[whichToFill(img)] = 0;
+    img = cleanBinaryImage(img)
   }
   
   if(crop)
@@ -63,9 +63,7 @@ coordsToIndex = function(rowVals,colVals,dimImageAt1){
 plotImage = function(x)
 {
   xm = melt(x)
-  print(head(xm))
   names(xm) = c("Var1", "Var2", "value")
-  print(head(xm))
   p = ggplot(xm, aes(Var2, rev(Var1))) + geom_raster(aes(fill = as.factor(value)), na.rm=TRUE) + scale_fill_manual(values = c("black", NA), guide = FALSE) + coord_fixed() + theme_void()
   return(p)
 }
@@ -301,10 +299,8 @@ plotImagePoints = function(x){
 plotImageThinned = function(img, thinned)
 {
   l.m = melt(img)
-  print(head(l.m))
   names(l.m) = c("Var1", "Var2", "value")
   l.m$value[thinned] = 2
-  print(head(l.m))
   p = ggplot(l.m, aes(Var2, rev(Var1))) + geom_raster(aes(fill = as.factor(value), alpha = as.factor(value)), na.rm=TRUE) + scale_alpha_manual(values = c(.1, NA, 1), guide = FALSE) + scale_fill_manual(values = c("black", NA, "black"), guide = FALSE) + coord_fixed() + theme_void()
   return(p)
 }
