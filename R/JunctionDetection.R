@@ -182,7 +182,7 @@ getLoops = function(nodeList, graph, graph0, pathList, dims)
 
 makeGifImages = function(img, img_thin, allPaths, file_path, filenames)
 {
-  if(length(allPaths) < 1000)
+  if(length(allPaths) < 100)
   {
     digits = ceiling(log10(length(allPaths)))
     num = c(paste0("000", 1:9), paste0("00", 10:99), paste0("0", 100:999), as.character(1000:9999))
@@ -483,7 +483,7 @@ processHandwriting = function(img, dims)
 
   cat("Isolating letter paths...")
   
-  graphemesList = graphemePaths(allpaths, skel_graph0, preStackBreaks)
+  graphemesList = graphemePaths(allPaths, skel_graph0, preStackBreaks)
   graphemes = graphemesList[[1]]
   V(skel_graph0)$graphemeID = graphemesList[[2]]
 
@@ -503,12 +503,23 @@ processHandwriting = function(img, dims)
     pathList = unlist(pathList, recursive = FALSE)
   }
   
-  graphemesList = graphemePaths(allpaths, skel_graph0, finalBreaks)
+  graphemesList = graphemePaths(allPaths, skel_graph0, finalBreaks)
   graphemes = graphemesList[[1]]
   
   graphemes = graphemes[unlist(lapply(graphemes, length)) > 5]
+  nodesinGraph = lapply(graphemes, FUN = function(x){x[which(x %in% nodeList)]})
+  nodeOrder = orderNodes(graphemes = graphemes, nodesInGraph = nodesinGraph, dims = dims)
+  
+  graphemesList = replicate(length(graphemes), list(path = NA, nodesInGraph = NA, nodeOrder = NA), simplify=FALSE)
+  for(i in 1:length(graphemes))
+  {
+    graphemesList[[i]]$path = graphemes[[i]]
+    graphemesList[[i]]$nodesInGraph = nodesinGraph[[i]]
+    graphemesList[[i]]$nodeOrder = nodeOrder[[i]]
+  }
+  
   cat("and done.\n")
-  return(list(thin = indices, nodes = nodeList, breakPoints = finalBreaks, pathList = allPaths, graphemeList = graphemes))
+  return(list(thin = indices, nodes = nodeList, breakPoints = finalBreaks, pathList = allPaths, graphemeList = graphemesList))
 }
 
 #' Internal function for removing breakpoints that follow all of the rules, but separate two graphemes that are
@@ -619,4 +630,87 @@ plotNodes = function(img, thinned, nodeList, nodeSize = 3, nodeColor = "red")
   #l.m$value[nodeList] = 3
   #n.m2 = n.m[nodeList,]
   #p = ggplot(l.m, aes(Var2, rev(Var1))) + geom_raster(aes(fill = as.factor(value != 1), alpha = ifelse(value==0,.3,1))) + scale_alpha_continuous(guide = FALSE) + scale_fill_manual(values = c("white", "black"), guide = FALSE) + theme_void() + geom_point(data= n.m2, aes(x = Var2, y = dim(img)[1] - Var1 + 1), shape = I(17), size = I(nodeSize), color = I("red"))
+}
+
+#' Internal function for ordering the nodes in a letter.
+orderNodes = function(graphemes, nodesInGraph, dims)
+{
+  toRC = function(nodes, dims)
+  {
+    cs = (nodes-1)%/%dims[1] + 1
+    rs = (nodes-1)%%dims[1] + 1
+    return(matrix(c(rs,cs), ncol = 2))
+  }
+  connectivity = function(grapheme, nodes, dims)
+  {
+    res = rep(NA, length(nodes))
+    for(i in 1:length(nodes))
+    {
+      perimeter = c(nodes[i]-1, nodes[i]+dims[1]-1, nodes[i]+dims[1], nodes[i]+dims[1]+1, nodes[i]+1, nodes[i]-dims[1]+1, nodes[i]-dims[1], nodes[i]-dims[1]-1, nodes[i]-1) %in% grapheme
+      res[i] = sum((perimeter[1:8] - perimeter[2:9]) == -1)
+    }
+    return(res)
+  }
+  angleDiff = function(fromIndex, toIndex, dims)
+  {
+    vecs = toRC(c(fromIndex, toIndex), dims)
+    diff = c(vecs[1,1] - vecs[2,1], vecs[2,2] - vecs[1,2])
+    return(atan2(diff[1], diff[2]))
+  }
+  getOrder = function(grapheme, nodesInGraph, dims)
+  {
+    if(length(nodesInGraph) == 0)
+      return(nodesInGraph)
+    else
+    {
+      nodeOrder = rep(NA, length(nodesInGraph))
+      nodeConnectivity = connectivity(grapheme, nodesInGraph, dims)
+      
+      nodeCounter = 1
+      maxConnectivity = max(nodeConnectivity)
+      
+      for(i in maxConnectivity:1)
+      {
+        thisTier = which(nodeConnectivity == i)
+        if(length(thisTier) == 1)
+        {
+          nodeOrder[thisTier[1]] = nodeCounter
+          if(i == maxConnectivity)
+          {
+            baseNode = nodesInGraph[thisTier[1]]
+            nodeCounter = nodeCounter + 1
+          }
+        }
+        else
+        {
+          if(i == maxConnectivity)
+          {
+            #Left most node is first. If tie, then higher one.
+            nodeOrder[thisTier[1]] = nodeCounter
+            nodeCounter = nodeCounter + 1
+            baseNode = nodesInGraph[thisTier[1]]
+            thisTier = thisTier[-1]
+          }
+          count = 1
+          angles = rep(NA, length(thisTier))
+          for(point in nodesInGraph[thisTier])
+          {
+            angles[count] = angleDiff(baseNode, point, dims)
+            count = count + 1
+          }
+          angleOrder = order(angles, decreasing = TRUE)
+          nodeOrder[thisTier[angleOrder]] = nodeCounter:(nodeCounter + length(thisTier) - 1)
+          nodeCounter = nodeCounter + length(thisTier)
+        }
+      }
+      return(nodeOrder)
+    }
+  }
+  
+  res = rep(list(NA), length(graphemes))
+  for(jj in 1:length(graphemes))
+  {
+    res[[jj]] = getOrder(graphemes[[jj]], nodesInGraph[[jj]], dims)
+  }
+  return(res)
 }
