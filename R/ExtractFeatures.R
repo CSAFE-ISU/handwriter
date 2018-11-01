@@ -1,3 +1,6 @@
+#!!!! <- this means nick please look at this
+
+
 #eh not very useful doesn't work as well
 loopMeasure = function(loopList, dims){
   #y coord
@@ -85,7 +88,7 @@ get_aspect_ratio = function(grapheme_list, img_dim)
   cols_x = rowcol[,'x']
   row_dist = max(rows_y) - min(rows_y) #vertical distance
   col_dist = max(cols_x) - min(cols_x) #horizontal distance
-  aspect_info = list(aspect_ratio = row_dist/col_dist,height = row_dist, width = col_dist)
+  aspect_info = list(aspect_ratio = row_dist/col_dist,height = row_dist, width = col_dist,topmost_row = min(rows_y),bottom_row = max(rows_y),leftmost_col=min(cols_x),rightmost_col=max(cols_x))
   return(aspect_info)
 }
 #gets centroid, calculates what % of the way the centroid appears both vertically and horizontally
@@ -102,11 +105,28 @@ get_centroid = function(grapheme_list, img_dim)
   #bad?
   #centroid_horiz_location = (min(cols_x)+(centroid_col-min(cols_x))) / col_dist
   #centroid_vert_location = (min(rows_y)+(centroid_row-min(rows_y))) / row_dist
+  
   centroid_horiz_location = (centroid_col-min(cols_x)) / col_dist
   centroid_vert_location = (centroid_row-min(rows_y)) / row_dist
-  centroid_info = list(centroid_index = centroid_index, centroid_y = centroid_row, centroid_x = centroid_col, centroid_horiz_location = centroid_horiz_location,centroid_vert_location = centroid_vert_location)
+  #used for getting skew, assuming centroid is more middle than the median col_x
+  lHalf = list(rows_y = rows_y[which(cols_x<centroid_col)],cols_x = cols_x[which(cols_x<centroid_col)])
+  rHalf = list(rows_y = rows_y[which(cols_x>centroid_col)],cols_x = cols_x[which(cols_x>centroid_col)])
+  lHalfCentroidrc = list(y=mean(lHalf$rows_y),x=mean(lHalf$cols_x))
+  rHalfCentroidrc = list(y=mean(rHalf$rows_y),x=mean(rHalf$cols_x))
+  lHalfCentroidi = rc_to_i(mean(lHalf$rows_y),mean(lHalf$cols_x),img_dim)
+  rHalfCentroidi = rc_to_i(mean(rHalf$rows_y),mean(rHalf$cols_x),img_dim)
+  #indices of each half
+  lHi = rc_to_i(lHalf$rows_y,lHalf$cols_x,img_dim)
+  rHi = rc_to_i(rHalf$rows_y,rHalf$cols_x,img_dim)
+  #finding slope
+  slope = ((img_dim[1] - rHalfCentroidrc$y)-(img_dim[1] - lHalfCentroidrc$y))/(rHalfCentroidrc$x-lHalfCentroidrc$x)
+  lHalfCentroid = rc_to_i(mean(lHalf$rows_y),mean(lHalf$cols_x),img_dim)
+  centroid_info = list(centroid_index = centroid_index, centroid_y = centroid_row, centroid_x = centroid_col, centroid_horiz_location = centroid_horiz_location,centroid_vert_location = centroid_vert_location,lHalf = lHi,rHalf=rHi,disjoint_centroids = list(left = lHalfCentroidi,right = rHalfCentroidi),slope = slope)
   return(centroid_info)
 }
+#so x = processHandwriting(), x$graphemeList is what grapheme_lists should be
+#processes a list of graphemes, returns list of graphemes at a list of features
+#heres an idea, passing in all of x to associate stuff like loop quantity with graphemes too
 graphemes_to_features = function(grapheme_lists,img_dim){
   grapheme_feature_list = list()
   for(i in 1:length(grapheme_lists)){
@@ -121,3 +141,12 @@ grapheme_to_features = function(grapheme_list, img_dim){
   features = c(aspect_info,centroid_info)
   return(features)
 }
+
+
+#feature ideas etc:
+#quantity of loops
+
+#skew idea:
+#http://old.cescg.org/CESCG-2008/papers/BratislavaC-Bozekova-Miroslava.pdf
+#draw and tilt the letters relative to angles, inside of the box that the grapheme takes up count the # of black pixels in each column
+#take the tilt in degree (or value) on which ever one has the most amount of black pixels in each column
