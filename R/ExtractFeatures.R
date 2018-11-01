@@ -139,16 +139,17 @@ graphemes_to_features = function(grapheme_lists,img_dim){
   grapheme_feature_list = list()
   
   for(i in 1:length(grapheme_lists)){
-    cur_features = grapheme_to_features(grapheme_lists[[i]]$path,img_dim)
-    cur_features = c(cur_features,num_loops = loopGraphemeAssociate(grapheme_lists$loopList,grapheme_lists[[i]]))
+    cur_features = grapheme_to_features(grapheme_lists[[i]],img_dim)
+    #cur_features = c(cur_features,num_loops = loopGraphemeAssociate(grapheme_lists$loopList,grapheme_lists[[i]]))
     grapheme_feature_list = append(grapheme_feature_list,list(cur_features))
   }
   return(grapheme_feature_list)
 }
 grapheme_to_features = function(grapheme_list, img_dim){
-  aspect_info = get_aspect_ratio(grapheme_list,img_dim)
-  centroid_info = get_centroid(grapheme_list,img_dim)
-  features = c(aspect_info,centroid_info)
+  aspect_info = get_aspect_ratio(grapheme_list$path,img_dim)
+  centroid_info = get_centroid(grapheme_list$path,img_dim)
+  loop_info = get_loop_info(grapheme_list,img_dim)
+  features = c(aspect_info,centroid_info,loop_info)
   return(features)
 }
 #helper function finding viable candidates for node comparison (leftmost and rightmost of each grapheme)
@@ -161,16 +162,21 @@ lm_rm_nodes = function(grapheme_lists){
   return(lm_rm_nodelist)
 }
 
-#associatingLoops to graphemes, for now just maintains a count
-loopGraphemeAssociate = function(loopLists,grapheme){
-  loops = 0
-  for(i in 1:length(loopLists)){
-    if(is.subset(loopLists[i],grapheme$path)){
-      loops = loops + 1
-    }
-  }
-  return(loops)
+get_loop_info = function(grapheme_list,img_dim){
+  loop_info = list(loop_count = length(grapheme_list$loops))
+  return(loop_info)
 }
+
+#associatingLoops to graphemes, for now just maintains a count
+#loopGraphemeAssociate = function(loopLists,grapheme){
+#  loops = 0
+#  for(i in 1:length(loopLists)){
+#    if(is.subset(loopLists[i],grapheme$path)){
+#      loops = loops + 1
+#    }
+#  }
+#  return(loops)
+#}
 #neighboringGraphemes
 #so far just wanna check left and right, calculating the distances between the two
 #if i have an A_B, I take the distance to the next closest grapheme within the height of the current grapheme

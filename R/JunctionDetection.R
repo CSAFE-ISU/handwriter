@@ -516,10 +516,22 @@ processHandwriting = function(img, dims)
     graphemesList[[i]]$path = graphemes[[i]]
     graphemesList[[i]]$nodesInGraph = nodesinGraph[[i]]
     graphemesList[[i]]$nodeOrder = nodeOrder[[i]]
+    graphemesList[[i]]$loops = loopGraphemeAssociate(loopList,graphemes[[i]])
   }
   
   cat("and done.\n")
   return(list(thin = indices, nodes = nodeList, breakPoints = finalBreaks, pathList = allPaths, graphemeList = graphemesList))
+}
+
+#' Function associating entries in loopList to each grapheme
+loopGraphemeAssociate = function(loopLists,grapheme){
+  associatedLoops = list()
+  for(i in 1:length(loopLists)){
+    if(all(loopLists[[i]] %in% grapheme)){
+      associatedLoops = c(associatedLoops,list(loopLists[[i]]))
+    } 
+  }
+  return(associatedLoops)
 }
 
 #' Internal function for removing breakpoints that follow all of the rules, but separate two graphemes that are
