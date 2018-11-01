@@ -124,7 +124,7 @@ get_centroid = function(grapheme_list, img_dim)
   #indices of each half
   lHi = rc_to_i(lHalf$rows_y,lHalf$cols_x,img_dim)
   rHi = rc_to_i(rHalf$rows_y,rHalf$cols_x,img_dim)
-  #finding slope
+  #finding slope, in case of long letters like e in csafe maybe account length?
   slope = ((img_dim[1] - rHalfCentroidrc$y)-(img_dim[1] - lHalfCentroidrc$y))/(rHalfCentroidrc$x-lHalfCentroidrc$x)
   lHalfCentroid = rc_to_i(mean(lHalf$rows_y),mean(lHalf$cols_x),img_dim)
   centroid_info = list(centroid_index = centroid_index, centroid_y = centroid_row, centroid_x = centroid_col, centroid_horiz_location = centroid_horiz_location,centroid_vert_location = centroid_vert_location,lHalf = lHi,rHalf=rHi,disjoint_centroids = list(left = lHalfCentroidi,right = rHalfCentroidi),slope = slope, pixel_density = r_density,box_density = box_density )
@@ -178,6 +178,36 @@ get_loop_info = function(grapheme_list,img_dim){
 #  return(loops)
 #}
 #neighboringGraphemes
+#lots of improvements probably, assumes single line
+neighboringGraphemeDist = function(grapheme_feature_list){
+  graphemeDist = list()
+  for(i in 1:length(grapheme_feature_list)){
+    dist_left = NULL
+    dist_right = NULL
+    cur_lm = grapheme_feature_list[[i]]$leftmost_col
+    cur_rm = grapheme_feature_list[[i]]$rightmost_col
+    if(i == 1){
+      dist_left = -1
+    }
+    else{
+      prev_rm = grapheme_feature_list[[i]]$rightmost_col
+    }
+    if(i == length(grapheme_feature_list)){
+      dist_right = -1
+    }
+    else{
+      next_lm = grapheme_feature_list[[i+1]]$leftmost_col
+    }
+    if(is.null(dist_left)){
+      dist_left = cur_lm-prev_rm
+    }
+    if(is.null(dist_right)){
+      dist_right = next_lm - cur_rm
+    }
+    graphemeDist = c(graphemeDist,list(dist_left,dist_right))
+  }
+    return(graphemeDist)
+}
 #so far just wanna check left and right, calculating the distances between the two
 #if i have an A_B, I take the distance to the next closest grapheme within the height of the current grapheme
 
