@@ -102,6 +102,11 @@ get_centroid = function(grapheme_list, img_dim)
   row_dist = max(rows_y) - min(rows_y) #vertical distance
   col_dist = max(cols_x) - min(cols_x) #horizontal distance
   centroid_index = rc_to_i(centroid_row,centroid_col,img_dim)
+  
+  #relative density: draw a box around the letter, ratio of black to white pixels in the box
+  r_density = length(grapheme_list)/(row_dist*col_dist)
+  #box density: dimensions of box around letter / how much of the document it covers
+  box_density = (row_dist*col_dist) / (img_dim[1]*img_dim[2])
   #bad?
   #centroid_horiz_location = (min(cols_x)+(centroid_col-min(cols_x))) / col_dist
   #centroid_vert_location = (min(rows_y)+(centroid_row-min(rows_y))) / row_dist
@@ -109,6 +114,7 @@ get_centroid = function(grapheme_list, img_dim)
   centroid_horiz_location = (centroid_col-min(cols_x)) / col_dist
   centroid_vert_location = (centroid_row-min(rows_y)) / row_dist
   #used for getting skew, assuming centroid is more middle than the median col_x
+  #probably can be removed, I just want nic to be able to plot them to determine if its an appropriate 'split' in the grapheme
   lHalf = list(rows_y = rows_y[which(cols_x<centroid_col)],cols_x = cols_x[which(cols_x<centroid_col)])
   rHalf = list(rows_y = rows_y[which(cols_x>centroid_col)],cols_x = cols_x[which(cols_x>centroid_col)])
   lHalfCentroidrc = list(y=mean(lHalf$rows_y),x=mean(lHalf$cols_x))
@@ -121,16 +127,20 @@ get_centroid = function(grapheme_list, img_dim)
   #finding slope
   slope = ((img_dim[1] - rHalfCentroidrc$y)-(img_dim[1] - lHalfCentroidrc$y))/(rHalfCentroidrc$x-lHalfCentroidrc$x)
   lHalfCentroid = rc_to_i(mean(lHalf$rows_y),mean(lHalf$cols_x),img_dim)
-  centroid_info = list(centroid_index = centroid_index, centroid_y = centroid_row, centroid_x = centroid_col, centroid_horiz_location = centroid_horiz_location,centroid_vert_location = centroid_vert_location,lHalf = lHi,rHalf=rHi,disjoint_centroids = list(left = lHalfCentroidi,right = rHalfCentroidi),slope = slope)
+  centroid_info = list(centroid_index = centroid_index, centroid_y = centroid_row, centroid_x = centroid_col, centroid_horiz_location = centroid_horiz_location,centroid_vert_location = centroid_vert_location,lHalf = lHi,rHalf=rHi,disjoint_centroids = list(left = lHalfCentroidi,right = rHalfCentroidi),slope = slope, pixel_density = r_density,box_density = box_density )
   return(centroid_info)
 }
 #so x = processHandwriting(), x$graphemeList is what grapheme_lists should be
 #processes a list of graphemes, returns list of graphemes at a list of features
 #heres an idea, passing in all of x to associate stuff like loop quantity with graphemes too
 graphemes_to_features = function(grapheme_lists,img_dim){
+  #i strongly believe line based features are useful too
+  #nic take a look at this:http://old.cescg.org/CESCG-2008/papers/BratislavaC-Bozekova-Miroslava.pdf 
   grapheme_feature_list = list()
+  
   for(i in 1:length(grapheme_lists)){
     cur_features = grapheme_to_features(grapheme_lists[[i]]$path,img_dim)
+    cur_features = c(cur_features,num_loops = loopGraphemeAssociate(grapheme_lists$loopList,grapheme_lists[[i]]))
     grapheme_feature_list = append(grapheme_feature_list,list(cur_features))
   }
   return(grapheme_feature_list)
@@ -141,7 +151,29 @@ grapheme_to_features = function(grapheme_list, img_dim){
   features = c(aspect_info,centroid_info)
   return(features)
 }
+#helper function finding viable candidates for node comparison (leftmost and rightmost of each grapheme)
+lm_rm_nodes = function(grapheme_lists){
+  lm_rm_nodelist = list()
+  for(i in 1:length(grapheme_lists)){
+    cur = grapheme_lists[[i]]$nodesInGraph
+    lm_rm_nodelist = append(lm_rm_nodelist,list(list(leftMost = cur[[1]],rightMost = cur[[length(cur)]])))
+  }
+  return(lm_rm_nodelist)
+}
 
+#associatingLoops to graphemes, for now just maintains a count
+loopGraphemeAssociate = function(loopLists,grapheme){
+  loops = 0
+  for(i in 1:length(loopLists)){
+    if(is.subset(loopLists[i],grapheme$path)){
+      loops = loops + 1
+    }
+  }
+  return(loops)
+}
+#neighboringGraphemes
+#so far just wanna check left and right, calculating the distances between the two
+#if i have an A_B, I take the distance to the next closest grapheme within the height of the current grapheme
 
 #feature ideas etc:
 #quantity of loops
