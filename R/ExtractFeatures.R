@@ -83,7 +83,6 @@ rc_to_i = function(row_y,col_x,img_dim)
 #returns list of {aspect ratio, vertical dist, horiz dist}
 get_aspect_ratio = function(grapheme_list, img_dim)
 {
-  print(typeof(grapheme_list))
   rowcol = toRCi(grapheme_list,img_dim)
   rows_y = rowcol[,'y'] 
   cols_x = rowcol[,'x']
@@ -140,8 +139,6 @@ graphemes_to_features = function(grapheme_lists,img_dim){
   grapheme_feature_list = list()
   
   for(i in 1:length(grapheme_lists)){
-    print('printing graphemelists at i')
-    print(grapheme_lists[[i]])
     cur_features = grapheme_to_features(grapheme_lists[[i]],img_dim)
     #cur_features = c(cur_features,num_loops = loopGraphemeAssociate(grapheme_lists$loopList,grapheme_lists[[i]]))
     grapheme_feature_list = append(grapheme_feature_list,list(cur_features))
@@ -149,8 +146,6 @@ graphemes_to_features = function(grapheme_lists,img_dim){
   return(grapheme_feature_list)
 }
 grapheme_to_features = function(grapheme_list, img_dim){
-  print("printing grapheme_list")
-  print(grapheme_list)
   aspect_info = get_aspect_ratio(grapheme_list$path,img_dim)
   centroid_info = get_centroid(grapheme_list$path,img_dim)
   loop_info = get_loop_info(grapheme_list,img_dim)
@@ -168,7 +163,9 @@ lm_rm_nodes = function(grapheme_lists){
 }
 
 get_loop_info = function(grapheme_list,img_dim){
-  loop_info = list(loop_count = length(grapheme_list$loops))
+  
+  loops = loop_extract(grapheme_list$allPaths)
+  loop_info = list(loop_count = length(loops),loops = loops)
   return(loop_info)
 }
 
@@ -215,6 +212,16 @@ neighboringGraphemeDist = function(grapheme_feature_list){
     return(graphemeDist)
 }
 
+#takes allPaths, returns list of loops found
+loop_extract = function(allPaths){
+  loops = list()
+  for(i in 1:length(allPaths)){
+    if(allPaths[[i]][[1]]==allPaths[[i]][[length(allPaths[[i]])]]){
+      loops = c(loops,list(allPaths[[i]]))
+    }
+  }
+  return(loops)
+}
 #extractGraphemePaths = function 
 #so far just wanna check left and right, calculating the distances between the two
 #if i have an A_B, I take the distance to the next closest grapheme within the height of the current grapheme
