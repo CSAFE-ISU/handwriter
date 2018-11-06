@@ -216,12 +216,55 @@ neighboringGraphemeDist = function(grapheme_feature_list){
 loop_extract = function(allPaths){
   loops = list()
   for(i in 1:length(allPaths)){
+    if(length(allPaths)<1){
+      next
+    }
     if(allPaths[[i]][[1]]==allPaths[[i]][[length(allPaths[[i]])]]){
       loops = c(loops,list(allPaths[[i]]))
     }
   }
   return(loops)
 }
+
+#taking feature lists centroids and returning them all as indicies
+all_centroids = function(extracted_features){
+  centroids = list()
+  for(i in 1:length(extracted_features)){
+    centroids = c(centroids,extracted_features[[i]]$centroid_index)
+  }
+  return(centroids)
+}
+
+line_number = function(all_centroids,img_dim){
+  centroid_rci = toRCi(all_centroids,img_dim)
+  #sorting list based on y
+  centroid_rci = centroid_rci[order(centroid_rci[,'y']),]
+  lines = list()
+  cur_line = list()
+  #sentinel, -1 means empty cur_line list
+  threshold = -1
+  for(i in 1:dim(centroid_rci)[1]){
+    cur_index = centroid_rci[i,'index'][[1]]
+    cur_y = centroid_rci[i,'y'][[1]]
+    if(threshold == -1){
+      cur_line = c(cur_line,cur_index)
+    }
+    else if(abs(threshold-cur_y)<30){
+      cur_line = c(cur_line,cur_index)
+    }
+    else{
+      lines = c(lines,list(cur_line))
+      cur_line = list()
+      threshold = -1
+    }
+    threshold = mean(cur_line)
+  }
+}
+#useless v
+#only 1 col at a time not impacting others example[order(example[,1], decreasing = TRUE),] 
+#useful v
+#icr[order(icr[,'y']),]
+
 #extractGraphemePaths = function 
 #so far just wanna check left and right, calculating the distances between the two
 #if i have an A_B, I take the distance to the next closest grapheme within the height of the current grapheme
