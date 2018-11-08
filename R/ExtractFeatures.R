@@ -232,33 +232,45 @@ all_centroids = function(extracted_features){
   for(i in 1:length(extracted_features)){
     centroids = c(centroids,extracted_features[[i]]$centroid_index)
   }
-  return(centroids)
+  return(unlist(centroids))
 }
 
+#working alright so far, captured 107/113 lines properly just ignoring the rest
 line_number = function(all_centroids,img_dim){
+  
   centroid_rci = toRCi(all_centroids,img_dim)
   #sorting list based on y
   centroid_rci = centroid_rci[order(centroid_rci[,'y']),]
   lines = list()
-  cur_line = list()
-  #sentinel, -1 means empty cur_line list
-  threshold = -1
-  for(i in 1:dim(centroid_rci)[1]){
+  cur_line = vector(mode="double", length=0)
+  threshold = vector(mode="double", length=0)
+  i = 1
+  while(i <= dim(centroid_rci)[1]){
+    tm = mean(threshold)
     cur_index = centroid_rci[i,'index'][[1]]
+    #if(cur_index==168590){
+    #  print('bingo')
+    #}
     cur_y = centroid_rci[i,'y'][[1]]
-    if(threshold == -1){
+    if(length(threshold)==0){
       cur_line = c(cur_line,cur_index)
     }
-    else if(abs(threshold-cur_y)<30){
+    else if(abs(tm-cur_y)<50){
       cur_line = c(cur_line,cur_index)
     }
     else{
       lines = c(lines,list(cur_line))
-      cur_line = list()
-      threshold = -1
+      cur_line = vector(mode="double", length=0)
+      i = i-1
+      threshold = vector(mode="double", length=0)
     }
-    threshold = mean(cur_line)
+    if(i==dim(centroid_rci)[1]){
+      lines = c(lines,list(cur_line))
+    }
+    threshold = c(threshold,cur_y)
+    i = i + 1
   }
+  return(lines)
 }
 #useless v
 #only 1 col at a time not impacting others example[order(example[,1], decreasing = TRUE),] 
@@ -271,7 +283,7 @@ line_number = function(all_centroids,img_dim){
 
 #feature ideas etc:
 #quantity of loops
-
+line_numbers = line_number(all_centroids(features_img2),dim(img2))
 #skew idea:
 #http://old.cescg.org/CESCG-2008/papers/BratislavaC-Bozekova-Miroslava.pdf
 #draw and tilt the letters relative to angles, inside of the box that the grapheme takes up count the # of black pixels in each column
