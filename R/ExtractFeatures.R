@@ -142,7 +142,9 @@ graphemes_to_features = function(grapheme_lists,img_dim){
     cur_features = grapheme_to_features(grapheme_lists[[i]],img_dim)
     #cur_features = c(cur_features,num_loops = loopGraphemeAssociate(grapheme_lists$loopList,grapheme_lists[[i]]))
     grapheme_feature_list = append(grapheme_feature_list,list(cur_features))
+    #new line below 8 nov 18
   }
+  grapheme_feature_list = add_line_info(grapheme_feature_list,img_dim)
   return(grapheme_feature_list)
 }
 grapheme_to_features = function(grapheme_list, img_dim){
@@ -151,6 +153,20 @@ grapheme_to_features = function(grapheme_list, img_dim){
   loop_info = get_loop_info(grapheme_list,img_dim)
   features = c(aspect_info,centroid_info,loop_info)
   return(features)
+}
+
+#this is very bad and lazy, I have some questions for nick tuesday about removing the need for n^2
+add_line_info = function(grapheme_feature_list,img_dim){
+  line_info = line_number(all_centroids(grapheme_feature_list),img_dim)
+  for(i in 1:length(grapheme_feature_list)){
+    cur_grapheme_index = grapheme_feature_list[[i]]$centroid_index
+    for(j in 1:length(line_info)){
+      if(cur_grapheme_index %in% line_info[[j]]){
+        grapheme_feature_list[[i]] = c(grapheme_feature_list[[i]],list(line_number = j))
+      }
+    }
+  }
+  return(grapheme_feature_list)
 }
 #helper function finding viable candidates for node comparison (leftmost and rightmost of each grapheme)
 lm_rm_nodes = function(grapheme_lists){
@@ -237,7 +253,6 @@ all_centroids = function(extracted_features){
 
 #working alright so far, captured 107/113 lines properly just ignoring the rest
 line_number = function(all_centroids,img_dim){
-  
   centroid_rci = toRCi(all_centroids,img_dim)
   #sorting list based on y
   centroid_rci = centroid_rci[order(centroid_rci[,'y']),]
@@ -248,9 +263,6 @@ line_number = function(all_centroids,img_dim){
   while(i <= dim(centroid_rci)[1]){
     tm = mean(threshold)
     cur_index = centroid_rci[i,'index'][[1]]
-    #if(cur_index==168590){
-    #  print('bingo')
-    #}
     cur_y = centroid_rci[i,'y'][[1]]
     if(length(threshold)==0){
       cur_line = c(cur_line,cur_index)
@@ -280,10 +292,10 @@ line_number = function(all_centroids,img_dim){
 #extractGraphemePaths = function 
 #so far just wanna check left and right, calculating the distances between the two
 #if i have an A_B, I take the distance to the next closest grapheme within the height of the current grapheme
-
+features_img2 = graphemes_to_features(p_img2$graphemeList,dim(img2))
 #feature ideas etc:
 #quantity of loops
-line_numbers = line_number(all_centroids(features_img2),dim(img2))
+#line_numbers = line_number(all_centroids(features_img2),dim(img2))
 #skew idea:
 #http://old.cescg.org/CESCG-2008/papers/BratislavaC-Bozekova-Miroslava.pdf
 #draw and tilt the letters relative to angles, inside of the box that the grapheme takes up count the # of black pixels in each column
