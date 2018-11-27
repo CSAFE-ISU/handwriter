@@ -192,11 +192,12 @@ extract_character_features = function(character_lists,img_dim){
   character_features = list()
   
   for(i in 1:length(character_lists)){
-    print(str(character_lists[[i]]))
-    cur_features = char_to_feature(character_lists[[i]],img_dim)
+    cur_features = char_to_feature(character_lists[[i]],img_dim, i)
     character_features = append(character_features,list(cur_features))
   }
+  
   character_features = add_line_info(character_features,img_dim)
+  character_features = nov_neighboring_char_dist(character_features)
   return(character_features)
 }
 
@@ -206,15 +207,18 @@ extract_character_features = function(character_lists,img_dim){
 #' Extracts features from a single character
 #' @param character character to extract information from
 #' @param img_dim Dimensions of binary image
+#' @param uniqueid Unique numerical reference to character
 #' @keywords character, features
 #' @return List containing features of character
 #' @export
 
-char_to_feature = function(character, img_dim){
+char_to_feature = function(character, img_dim, uniqueid){
   aspect_info = get_aspect_info(character$path,img_dim)
   centroid_info = get_centroid_info(character$path,img_dim)
   loop_info = get_loop_info(character,img_dim)
   features = c(aspect_info,centroid_info,loop_info)
+  #just a persistent index for when we sort / rearrange the features list
+  features$uniqueid = uniqueid
   return(features)
 }
 
@@ -273,6 +277,7 @@ get_loop_info = function(character,img_dim){
   return(loop_info)
 }
 
+#probably garbage
 neighboring_char_dist = function(character_features){
   graphemeDist = list()
   for(i in 1:length(character_features)){
@@ -303,6 +308,63 @@ neighboring_char_dist = function(character_features){
     return(graphemeDist)
 }
 
+# Principle: Appending inside of a nested loop
+# character_features[[i]] = c(character_features[[i]],list(line_number = j))
+nov_neighboring_char_dist = function(character_features){
+  by_line = character_features_by_line(character_features)
+  for(line in 1:length(by_line)){
+    for(i in 1:length(by_line[[line]])){
+      cur_char = by_line[[line]][[i]]
+      l_neighbor_centroid_dist = NULL
+      r_neighbor_centroid_dist = NULL
+      #tempted to fancy x = if(condition) val else alt_val but want to understand this later
+      if(i != 1){
+        prev_char = by_line[[line]][[i-1]]
+        l_neighbor_centroid_dist = cur_char$centroid_x - prev_char$centroid_x
+      }
+      if(i != length(by_line[[line]])){
+        next_char = by_line[[line]][[i+1]]
+        r_neighbor_centroid_dist = next_char$centroid_x - cur_char$centroid_x
+      }
+      character_features[[cur_char$uniqueid]] = c(character_features[[cur_char$uniqueid]],list(l_neighbor_dist = l_neighbor_centroid_dist, r_neighbor_dist = r_neighbor_centroid_dist))
+    }
+  }
+  
+  return(character_features)
+}
+
+#sort character features indexed by their respective line
+character_features_by_line = function(character_features){
+  max_line = -Inf
+  for(i in 1:length(character_features)){
+    max_line = max(max_line, character_features[[i]]$line_number)
+  }
+  #is this the only way to initialize a buffer of static size?
+  characters_by_line = rep(list(list()),max_line)
+  
+  for(j in 1:length(character_features)){
+    
+    characters_by_line[[character_features[[j]]$line_number]] = append(characters_by_line[[character_features[[j]]$line_number]],list(character_features[[j]]))
+  }
+  #!!! I don't paticularly know why but
+  #These already seem to be sorted by x centroid in increasing order
+  return(characters_by_line)
+}
+
+#TODO:
+#Finish sort_by_centroid_x(character_features_by_line) if
+#character_features_by_line stops magically already doing it 
+#magical stack overflow 
+#https://stackoverflow.com/questions/24203361/r-sorting-list-by-values-in-nested-list
+#data_list = data_list[order(sapply(data_list, `[[`, i=1))]
+byline_x_print = function(characters_by_line){
+  for(i in 1:length(characters_by_line)){
+    for(j in 1:length(characters_by_line[[i]])){
+      print(characters_by_line[[i]][[j]]$centroid_x)
+    }
+    print("chris")
+  }
+}
 
 #' loop_extract
 #'
@@ -388,3 +450,7 @@ line_number_extract = function(all_centroids,img_dim){
 #Various papers for later reference
 #http://old.cescg.org/CESCG-2008/papers/BratislavaC-Bozekova-Miroslava.pdf
 #Below are unused / unneeded functions
+
+
+#Reserved Debug Function Call
+#End Debug
