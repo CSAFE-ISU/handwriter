@@ -482,33 +482,71 @@ processHandwriting = function(img, dims)
   ##################### Potential breakpoints (except for stacked graphemes) found. Break into grapheme paths.
 
   cat("Isolating letter paths...")
-  
+
   graphemesList = graphemePaths(allPaths, skel_graph0, preStackBreaks)
   graphemes = graphemesList[[1]]
   V(skel_graph0)$graphemeID = graphemesList[[2]]
-
+  
   finalBreaks = preStackBreaks[!(checkStacking(preStackBreaks, allPaths, graphemes, skel_graph0, dims))]
   
-  pathsWithBreaks = lapply(pathList, function(x){which(x %in% finalBreaks)})
+  breakAddedEndPoints = NULL
+  pathsWithBreaks = lapply(allPaths, function(x){which(x %in% finalBreaks)})
   for(i in which(lapply(pathsWithBreaks, length) > 0))
   {
-    newNodes = which(pathList[[i]] %in% finalBreaks)
-    newNodes = c(newNodes + 1, newNodes - 1)
-    nodeList = c(nodeList, pathList[[i]][newNodes])
-    pathList[[i]] = list(pathList[[i]][1:(newNodes[1]-1)], pathList[[i]][(newNodes[1]-1):length(pathList[[i]])])
+    newNodes = pathsWithBreaks[[i]]
+    E(skel_graph0, P = as.character(allPaths[[i]][c(newNodes - 2, newNodes - 1)]))$nodeOnlyDist = 1
+    E(skel_graph0, P = as.character(allPaths[[i]][c(newNodes + 1, newNodes + 2)]))$nodeOnlyDist = 1
+    newNodes = c(newNodes - 1, newNodes + 1)
+    breakAddedEndPoints = c(breakAddedEndPoints, allPaths[[i]][newNodes])
+    nodeList = c(nodeList, allPaths[[i]][newNodes])
+    allPaths[[i]] = list(allPaths[[i]], allPaths[[i]][1:(newNodes[1]-1)], allPaths[[i]][(newNodes[1]-1):length(allPaths[[i]])])
   }
   
-  if(any(unlist(lapply(pathsWithBreaks, length) > 0)))
-  {
-    pathList = unlist(pathList, recursive = FALSE)
-  }
+  allPaths = lapply(rapply(allPaths, enquote, how="unlist"), eval)
   
   graphemesList = graphemePaths(allPaths, skel_graph0, finalBreaks)
   graphemes = graphemesList[[1]]
   
-  graphemes = graphemes[unlist(lapply(graphemes, length)) > 5]
-  nodesinGraph = lapply(graphemes, FUN = function(x){x[which(x %in% nodeList)]})
+  # for(i in seq(1, length(breakAddedEndPoints), 2))
+  # {
+  #   pairToJoin = which(sapply(graphemes, function(x) any(x %in% breakAddedEndPoints[c(i,i+1)])))
+  #   graphemes[[pairToJoin[1]]] = list(graphemes[[pairToJoin[1]]], c(graphemes[[pairToJoin[1]]], graphemes[[pairToJoin[2]]]))
+  # }
+  # graphemes = lapply(rapply(graphemes, enquote, how="unlist"), eval)
+  # 
+  # for(i in 2:(length(graphemes)-1))
+  # {
+  #   if(all(graphemes[[i-1]] %in% graphemes[[i]]) & all(graphemes[[i+1]] %in% graphemes[[i]]))
+  #     isMerged[i] = TRUE
+  # }
+  # graphemes = graphemes[unlist(lapply(graphemes, length)) > 5]
+  # 
+  
+  isMerged = rep(FALSE, length(graphemes))
+  nodesinGraph = replicate(length(graphemes), list(NA))
+  for(i in 1:length(graphemes))
+  {
+    if(isMerged[i] == FALSE)
+    {
+      nodesinGraph[[i]] = graphemes[[i]][which(graphemes[[i]] %in% nodeList)]
+    }
+    else
+    {
+      nodesinGraph[[i]] = graphemes[[i]][which(graphemes[[i]] %in% nodeList[!(nodeList %in% breakAddedEndPoints)])]
+    }
+  }
+  
   nodeOrder = orderNodes(graphemes = graphemes, nodesInGraph = nodesinGraph, dims = dims)
+  letterAdj = list()
+  decCode = rep(NA, length(graphemes))
+  for(i in 1:length(graphemes))
+  {
+    letterDists = distances(graph = skel_graph0, v = as.character(nodesinGraph[[i]][order(nodeOrder[[i]])]), to = as.character(nodesinGraph[[i]][order(nodeOrder[[i]])]), weights = E(skel_graph0)$nodeOnlyDist)
+    letterAdj[[i]] = (letterDists == 1 | letterDists == 2) + 0
+    letterAdj[[i]][lower.tri(letterAdj[[i]])] = 0
+    binCode = t(letterAdj[[i]])[!upper.tri(letterAdj[[i]])]
+    decCode[i] = sum(binCode*2^((length(binCode):1) - 1))
+  }
   
   graphemesList = replicate(length(graphemes), list(path = NA, nodesInGraph = NA, nodeOrder = NA), simplify=FALSE)
   for(i in 1:length(graphemes))
@@ -517,6 +555,8 @@ processHandwriting = function(img, dims)
     graphemesList[[i]]$nodesInGraph = nodesinGraph[[i]]
     graphemesList[[i]]$nodeOrder = nodeOrder[[i]]
     graphemesList[[i]]$allPaths = pathGraphemeAssociate(allPaths,graphemes[[i]])
+    graphemesList[[i]]$adjMatrix = letterAdj[[i]]
+    graphemesList[[i]]$letterCode = decCode[i]
   }
   
   cat("and done.\n")

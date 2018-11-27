@@ -53,15 +53,32 @@ loopMeasures = function(loopListAll, dims){
   return(list(loopMeasure_points,loopMeasure_results))
 }
 
-#takes list of a grapheme, converts to row,col  
-toRC = function(nodes, dims)
+#' i_to_rc
+#'
+#' Convert indicies to respective row, col.
+#' @param nodes Nodes to be converted.
+#' @param img_dim Dimensions of binary image
+#' @keywords row, column, binary, image
+#' @return Returns matrix mapping nodes to respective row, col. 
+#' @export
+ 
+i_to_rc = function(nodes, dims)
 {
   cs = (nodes-1)%/%dims[1] + 1
   rs = (nodes-1)%%dims[1] + 1
   return(matrix(c(rs,cs), ncol = 2))
 }
-#same as toRC but associates indicies too
-toRCi = function(nodes, dims)
+
+#' toRC
+#'
+#' Convert indicies to respective row, col and associates the original index.
+#' @param nodes Nodes to be converted.
+#' @param img_dim Dimensions of binary image
+#' @keywords row, column, binary, image, index
+#' @return Returns matrix mapping nodes' indices to respective row, col. 
+#' @export
+
+i_to_rci = function(nodes, dims)
 {
   cs = (nodes-1)%/%dims[1] + 1
   rs = (nodes-1)%%dims[1] + 1
@@ -70,8 +87,17 @@ toRCi = function(nodes, dims)
   return(rowcolmatrix)
 }
 
-#(column-1)*dim(image)[1] + row.
-#ehh really weird behavior with non-ints
+#' rc_to_i
+#'
+#' Convert rows and columns to their respective indices.
+#' This is index sensitive, so row_y[[1]] should correspond to col_x[[1]]
+#' @param row_y Row(s) to be converted to an index
+#' @param col_x Columns(s) to be converted to an index
+#' @param img_dim Dimensions of binary image
+#' @keywords row, column, binary, image, index
+#' @return Returns index(icies) of all row_y's and col_x's
+#' @export
+
 rc_to_i = function(row_y,col_x,img_dim)
 {
   row_y = as.integer(row_y)
@@ -79,11 +105,20 @@ rc_to_i = function(row_y,col_x,img_dim)
   return((col_x-1)*img_dim[1]+row_y)
 }
 
+#' get_aspect_info
+#'
+#' Extracts aspect ratio & supporting information from a character
+#' @param character character to extract information from
+#' @param img_dim Dimensions of binary image
+#' @keywords aspect, ratio, character, width, height
+#' @return List containing aspect_ratio, 
+#' height, width, highest, lowest, leftmost,
+#' points of character. (row, col representation)
+#' @export
 
-#returns list of {aspect ratio, vertical dist, horiz dist}
-get_aspect_ratio = function(grapheme_list, img_dim)
+get_aspect_info = function(character, img_dim)
 {
-  rowcol = toRCi(grapheme_list,img_dim)
+  rowcol = i_to_rci(character,img_dim)
   rows_y = rowcol[,'y'] 
   cols_x = rowcol[,'x']
   row_dist = max(rows_y) - min(rows_y) #vertical distance
@@ -91,10 +126,20 @@ get_aspect_ratio = function(grapheme_list, img_dim)
   aspect_info = list(aspect_ratio = row_dist/col_dist,height = row_dist, width = col_dist,topmost_row = min(rows_y),bottom_row = max(rows_y),leftmost_col=min(cols_x),rightmost_col=max(cols_x))
   return(aspect_info)
 }
-#gets centroid, calculates what % of the way the centroid appears both vertically and horizontally
-get_centroid = function(grapheme_list, img_dim)
+
+#' get_centroid_info
+#'
+#' Extracts centroid & supporting information from a character
+#' @param character character to extract information from
+#' @param img_dim Dimensions of binary image
+#' @keywords centroid, skew, slant, lean, character
+#' @return List containing centroid, pixel density,
+#' letter 'lean', and all supporting information
+#' @export
+
+get_centroid_info = function(character, img_dim)
 {
-  rowcol = toRCi(grapheme_list,img_dim)
+  rowcol = i_to_rci(character,img_dim)
   rows_y = rowcol[,'y'] 
   cols_x = rowcol[,'x']
   centroid_row = mean(rows_y)
@@ -104,7 +149,7 @@ get_centroid = function(grapheme_list, img_dim)
   centroid_index = rc_to_i(centroid_row,centroid_col,img_dim)
   
   #relative density: draw a box around the letter, ratio of black to white pixels in the box
-  r_density = length(grapheme_list)/(row_dist*col_dist)
+  r_density = length(character)/(row_dist*col_dist)
   #box density: dimensions of box around letter / how much of the document it covers
   box_density = (row_dist*col_dist) / (img_dim[1]*img_dim[2])
   #bad?
@@ -130,92 +175,122 @@ get_centroid = function(grapheme_list, img_dim)
   centroid_info = list(centroid_index = centroid_index, centroid_y = centroid_row, centroid_x = centroid_col, centroid_horiz_location = centroid_horiz_location,centroid_vert_location = centroid_vert_location,lHalf = lHi,rHalf=rHi,disjoint_centroids = list(left = lHalfCentroidi,right = rHalfCentroidi),slope = slope, pixel_density = r_density,box_density = box_density )
   return(centroid_info)
 }
-#so x = processHandwriting(), x$graphemeList is what grapheme_lists should be
-#processes a list of graphemes, returns list of graphemes at a list of features
-#heres an idea, passing in all of x to associate stuff like loop quantity with graphemes too
-graphemes_to_features = function(grapheme_lists,img_dim){
+
+#' extract_character_features
+#'
+#' Primary driver of feature extraction. 
+#' Parses all characters from a processed image.
+#' @param character_lists Output from processHandwriting$graphemeLists
+#' @param img_dim Dimensions of binary image
+#' @keywords centroid, skew, slant, lean, character
+#' @return nested lists associating features to respective characters.
+#' @export
+
+extract_character_features = function(character_lists,img_dim){
   #i strongly believe line based features are useful too
   #nic take a look at this:http://old.cescg.org/CESCG-2008/papers/BratislavaC-Bozekova-Miroslava.pdf 
-  grapheme_feature_list = list()
+  character_features = list()
   
-  for(i in 1:length(grapheme_lists)){
-    cur_features = grapheme_to_features(grapheme_lists[[i]],img_dim)
-    #cur_features = c(cur_features,num_loops = loopGraphemeAssociate(grapheme_lists$loopList,grapheme_lists[[i]]))
-    grapheme_feature_list = append(grapheme_feature_list,list(cur_features))
-    #new line below 8 nov 18
+  for(i in 1:length(character_lists)){
+    print(str(character_lists[[i]]))
+    cur_features = char_to_feature(character_lists[[i]],img_dim)
+    character_features = append(character_features,list(cur_features))
   }
-  grapheme_feature_list = add_line_info(grapheme_feature_list,img_dim)
-  return(grapheme_feature_list)
+  character_features = add_line_info(character_features,img_dim)
+  return(character_features)
 }
-grapheme_to_features = function(grapheme_list, img_dim){
-  aspect_info = get_aspect_ratio(grapheme_list$path,img_dim)
-  centroid_info = get_centroid(grapheme_list$path,img_dim)
-  loop_info = get_loop_info(grapheme_list,img_dim)
+
+#' char_to_feature
+#'
+#' Secondary driver of feature extraction
+#' Extracts features from a single character
+#' @param character character to extract information from
+#' @param img_dim Dimensions of binary image
+#' @keywords character, features
+#' @return List containing features of character
+#' @export
+
+char_to_feature = function(character, img_dim){
+  aspect_info = get_aspect_info(character$path,img_dim)
+  centroid_info = get_centroid_info(character$path,img_dim)
+  loop_info = get_loop_info(character,img_dim)
   features = c(aspect_info,centroid_info,loop_info)
   return(features)
 }
 
-#this is very bad and lazy, I have some questions for nick tuesday about removing the need for n^2
-add_line_info = function(grapheme_feature_list,img_dim){
-  line_info = line_number(all_centroids(grapheme_feature_list),img_dim)
-  for(i in 1:length(grapheme_feature_list)){
-    cur_grapheme_index = grapheme_feature_list[[i]]$centroid_index
+#' add_line_info
+#'
+#' Associates characters to their respective line numbers
+#' Needs improvement if runtime becomes a problem
+#' @param character_features All extracted features 
+#' @param img_dim Dimensions of binary image
+#' @keywords character, features, line number
+#' @return Appends line information to character features
+#' @export
+
+add_line_info = function(character_features,img_dim){
+  line_info = line_number_extract(all_centroids(character_features),img_dim)
+  for(i in 1:length(character_features)){
+    cur_grapheme_index = character_features[[i]]$centroid_index
     for(j in 1:length(line_info)){
       if(cur_grapheme_index %in% line_info[[j]]){
-        grapheme_feature_list[[i]] = c(grapheme_feature_list[[i]],list(line_number = j))
+        character_features[[i]] = c(character_features[[i]],list(line_number = j))
       }
     }
   }
-  return(grapheme_feature_list)
+  return(character_features)
 }
-#helper function finding viable candidates for node comparison (leftmost and rightmost of each grapheme)
-lm_rm_nodes = function(grapheme_lists){
+
+
+#' lm_rm_nodes
+#'
+#' Helper function made before line information was available
+#' Likely obsolete 11 27 18
+#' N/A
+
+lm_rm_nodes = function(character){
   lm_rm_nodelist = list()
-  for(i in 1:length(grapheme_lists)){
-    cur = grapheme_lists[[i]]$nodesInGraph
+  for(i in 1:length(character)){
+    cur = character[[i]]$nodesInGraph
     lm_rm_nodelist = append(lm_rm_nodelist,list(list(leftMost = cur[[1]],rightMost = cur[[length(cur)]])))
   }
   return(lm_rm_nodelist)
 }
 
-get_loop_info = function(grapheme_list,img_dim){
+#' get_loop_info
+#'
+#' Primary driver of loop to character association
+#' @param character Target for loop association
+#' @param img_dim Dimensions of binary image
+#' @keywords character, loop, associate
+#' @return Loop information to respective character
+#' @export
+
+get_loop_info = function(character,img_dim){
   
-  loops = loop_extract(grapheme_list$allPaths)
+  loops = loop_extract(character$allPaths)
   loop_info = list(loop_count = length(loops),loops = loops)
   return(loop_info)
 }
 
-#associatingLoops to graphemes, for now just maintains a count
-#loopGraphemeAssociate = function(loopLists,grapheme){
-#  loops = 0
-#  for(i in 1:length(loopLists)){
-#    if(is.subset(loopLists[i],grapheme$path)){
-#      loops = loops + 1
-#    }
-#  }
-#  return(loops)
-#}
-#neighboringGraphemes
-#lots of improvements probably, assumes single line
-#damn why didn't i do lines before this, probably scrapping the function
-neighboringGraphemeDist = function(grapheme_feature_list){
+neighboring_char_dist = function(character_features){
   graphemeDist = list()
-  for(i in 1:length(grapheme_feature_list)){
+  for(i in 1:length(character_features)){
     dist_left = NULL
     dist_right = NULL
-    cur_lm = grapheme_feature_list[[i]]$leftmost_col
-    cur_rm = grapheme_feature_list[[i]]$rightmost_col
+    cur_lm = character_features[[i]]$leftmost_col
+    cur_rm = character_features[[i]]$rightmost_col
     if(i == 1){
       dist_left = -1
     }
     else{
-      prev_rm = grapheme_feature_list[[i]]$rightmost_col
+      prev_rm = character_features[[i]]$rightmost_col
     }
-    if(i == length(grapheme_feature_list)){
+    if(i == length(character_features)){
       dist_right = -1
     }
     else{
-      next_lm = grapheme_feature_list[[i+1]]$leftmost_col
+      next_lm = character_features[[i+1]]$leftmost_col
     }
     if(is.null(dist_left)){
       dist_left = cur_lm-prev_rm
@@ -228,7 +303,16 @@ neighboringGraphemeDist = function(grapheme_feature_list){
     return(graphemeDist)
 }
 
-#takes allPaths, returns list of loops found
+
+#' loop_extract
+#'
+#' Iterates through all avaiable paths from processHandwriting()
+#' Picks out loops for later character association.
+#' @param allPaths All character (formerly grapheme) paths from processHandwriting()
+#' @keywords character, loops, line
+#' @return List of all loops
+#' @export
+
 loop_extract = function(allPaths){
   loops = list()
   for(i in 1:length(allPaths)){
@@ -242,19 +326,34 @@ loop_extract = function(allPaths){
   return(loops)
 }
 
-#taking feature lists centroids and returning them all as indicies
-all_centroids = function(extracted_features){
+#' all_centroids
+#'
+#' Iterates through extracted character features, extracting
+#' all centroids found for later use in line numbering
+#' @param character_features Features extracted from any given document
+#' @keywords character, loops, line
+#' @return All centroids concatenated with one another (unlisted)
+#' @export
+
+all_centroids = function(character_features){
   centroids = list()
-  for(i in 1:length(extracted_features)){
-    centroids = c(centroids,extracted_features[[i]]$centroid_index)
+  for(i in 1:length(character_features)){
+    centroids = c(centroids,character_features[[i]]$centroid_index)
   }
   return(unlist(centroids))
 }
 
-#working alright so far, captured 107/113 lines properly just ignoring the rest
-#update post 2018 fall break: works consistently, have questions for nic about thresholds
-line_number = function(all_centroids,img_dim){
-  centroid_rci = toRCi(all_centroids,img_dim)
+#' line_number_extract
+#'
+#' Primary logic unit for line number to character association
+#' @param all_centroids List of centroids extracted from cumulative character_features
+#' @param img_dim Dimensions of binary image
+#' @keywords character, features, line, number
+#' @return List associating line numbers to characters
+#' @export
+
+line_number_extract = function(all_centroids,img_dim){
+  centroid_rci = i_to_rci(all_centroids,img_dim)
   #sorting list based on y
   centroid_rci = centroid_rci[order(centroid_rci[,'y']),]
   lines = list()
@@ -286,20 +385,6 @@ line_number = function(all_centroids,img_dim){
   return(lines)
 }
 
-#useless v
-#only 1 col at a time not impacting others example[order(example[,1], decreasing = TRUE),] 
-#useful v
-#icr[order(icr[,'y']),]
-
-#extractGraphemePaths = function 
-#so far just wanna check left and right, calculating the distances between the two
-#if i have an A_B, I take the distance to the next closest grapheme within the height of the current grapheme
-
-
-#feature ideas etc:
-#quantity of loops
-#line_numbers = line_number(all_centroids(features_img2),dim(img2))
-#skew idea:
+#Various papers for later reference
 #http://old.cescg.org/CESCG-2008/papers/BratislavaC-Bozekova-Miroslava.pdf
-#draw and tilt the letters relative to angles, inside of the box that the grapheme takes up count the # of black pixels in each column
-#take the tilt in degree (or value) on which ever one has the most amount of black pixels in each column
+#Below are unused / unneeded functions
