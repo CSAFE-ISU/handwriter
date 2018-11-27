@@ -19,11 +19,11 @@ loopMeasure = function(loopList, dims){
   i_index = NULL
   j_index = NULL
   for(i in 1:length(rowList)){
-    y1 = rowList[i]
+    y1 = dims[[1]] - rowList[i]
     x1 = colList[i]
     i_index = loopList[i]
     for(j in 1:length(rowList)){
-      y2 = rowList[j]
+      y2 = dims[[1]] - rowList[j]
       x2 = colList[j]
       euDist = sqrt((x2-x1)^2+(y2-y1)^2)
       if(euDist > longestPath){
@@ -36,6 +36,7 @@ loopMeasure = function(loopList, dims){
       }
     }
   }
+  #print indexes of longest point for testing purposes
   #heres an idea of returning stuff
   #return(data.frame(valNames = c("pathLen","x1","x2","y1","y2"),index = c("hmm",i_index,j_index,i_index,j_index) ,vals=c(longestPath,targ_x1,targ_x2,targ_y1,targ_y2)))
   #heres another one that seems more useful for returning usable elements
@@ -52,6 +53,26 @@ loopMeasures = function(loopListAll, dims){
   }
   return(list(loopMeasure_points,loopMeasure_results))
 }
+#trash above
+
+loop_major = function(loop_list,img_dim){
+  rowcol = i_to_rci(loop_list,img_dim)
+  rows_y = rowcol[,'y'] 
+  cols_x = rowcol[,'x']
+  major_dist = -Inf
+  y1 = rowcol[[1]]
+  x1 = rowcol[[1]]
+  furthest_index = NULL
+  for(i in 1:length(loop_list)){
+    cur_dist = sqrt((cols_x[[i]]-x1)^2+(rows_y[[i]]-y1)^2)
+    if(cur_dist > major_dist ){
+      major_dist = cur_dist
+      furthest_index = loop_list[[i]]
+    }
+  }
+  return(list(major_p1 = loop_list[[1]], major_p2 = furthest_index, major_dist = major_dist))
+}
+
 
 #' i_to_rc
 #'
@@ -263,7 +284,10 @@ lm_rm_nodes = function(character){
 
 #' get_loop_info
 #'
-#' Primary driver of loop to character association
+#' Associator of loop to character association
+#' Volatile, likely won't live for long
+#' as Nick and I transition to moving the primary 
+#' loop driver out of JunctionDetection.R
 #' @param character Target for loop association
 #' @param img_dim Dimensions of binary image
 #' @keywords character, loop, associate
@@ -272,8 +296,9 @@ lm_rm_nodes = function(character){
 
 get_loop_info = function(character,img_dim){
   
-  loops = loop_extract(character$allPaths)
-  loop_info = list(loop_count = length(loops),loops = loops)
+  #loops = loop_extract(character$allPaths)
+  #loop_info = list(loop_count = length(loops),loops = loops)
+  loop_info = list(loop_count = length(character$loops), loops = character$loops)
   return(loop_info)
 }
 
