@@ -252,6 +252,7 @@ all_centroids = function(extracted_features){
 }
 
 #working alright so far, captured 107/113 lines properly just ignoring the rest
+#update post 2018 fall break: works consistently, have questions for nic about thresholds
 line_number = function(all_centroids,img_dim){
   centroid_rci = toRCi(all_centroids,img_dim)
   #sorting list based on y
@@ -284,6 +285,7 @@ line_number = function(all_centroids,img_dim){
   }
   return(lines)
 }
+
 #useless v
 #only 1 col at a time not impacting others example[order(example[,1], decreasing = TRUE),] 
 #useful v
@@ -292,7 +294,8 @@ line_number = function(all_centroids,img_dim){
 #extractGraphemePaths = function 
 #so far just wanna check left and right, calculating the distances between the two
 #if i have an A_B, I take the distance to the next closest grapheme within the height of the current grapheme
-features_img2 = graphemes_to_features(p_img2$graphemeList,dim(img2))
+
+
 #feature ideas etc:
 #quantity of loops
 #line_numbers = line_number(all_centroids(features_img2),dim(img2))
