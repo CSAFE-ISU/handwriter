@@ -53,8 +53,14 @@ loopMeasures = function(loopListAll, dims){
   }
   return(list(loopMeasure_points,loopMeasure_results))
 }
-#trash above
-
+#trash above h4h4h4
+loop_info = function(loop_list, img_dim){
+  major = loop_major(loop_list, img_dim)
+  slope = find_i_slope(major$major_p1,major$major_p2,img_dim)
+  print(slope)
+  minor = loop_minor(loop_list,slope,img_dim)
+  return(list(major = major,minor = minor))
+}
 loop_major = function(loop_list,img_dim){
   rowcol = i_to_rci(loop_list,img_dim)
   rows_y = rowcol[,'y'] 
@@ -72,8 +78,106 @@ loop_major = function(loop_list,img_dim){
   }
   return(list(major_p1 = loop_list[[1]], major_p2 = furthest_index, major_dist = major_dist))
 }
+vector_to_mid(targ)
+loop_minor = function(loop_list, slope, img_dim){
+  #targ 29572, 30245
+  #29243 29914 new slope:  -0.8333333 
+  #30136 29353 new slope:  -0.8571429 
+  i1 = NULL
+  i2 = NULL
+  neg_recip = -1/(slope)
+  cat("neg recip: ",neg_recip,"\n")
+  min_dif = Inf
+  for(i in 1:length(loop_list)/2){
+    for(j in length(loop_list)/2:1){
+      if(i == j) next 
+      else {
+        new_slope = find_i_slope(loop_list[[i]],loop_list[[j]],img_dim)
+        slope_dif = abs(new_slope-neg_recip)
+        if(!is.nan(new_slope) & new_slope< -.8 & new_slope > -1){
+          #cat(loop_list[[i]],loop_list[[j]],"new slope: ",new_slope, "\n")
+          #cat("slope dif: ",slope_dif,"\n")
+        }
+      }
+      if(!is.nan(slope_dif) & slope_dif < min_dif){
+        cat(loop_list[[i]],loop_list[[j]],"new slope: ",new_slope, "\n")
+        i1 = loop_list[[i]]
+        i2 = loop_list[[j]]
+        min_dif = slope_dif
+        #cat(i1,i2," \n")
+        #if(i1 == 29572 & i2 == 30245){
+        #  print("bags")
+        #}
+      }
+    }
+  }
+  return(list(minor_p1 = i1, minor_p2 = i2))
+}
+#given two indices drawing a line, find slope
+# !!!!!!!! errrrrrrrrrrr does a + 1 need to be added in my letter lean ask nic
+#  slope = ((img_dim[1] - rHalfCentroidrc$y)-(img_dim[1] - lHalfCentroidrc$y))/(rHalfCentroidrc$x-lHalfCentroidrc$x)
+#1 261 53
+#2 280 73
+find_i_slope = function(starti, endi, img_dim, dbug = FALSE)
+{
+  rci = i_to_rci(c(starti,endi),img_dim)
+  #print(rci)
+  #standard for actual coordinate eq's
+  rows_y = img_dim[[1]] - rci[,'y'] + 1
+  cols_x = rci[,'x']
+  x1 = cols_x[[1]]
+  y1 = rows_y[[1]]
+  x2 = cols_x[[2]]
+  y2 = rows_y[[2]]
+  if(dbug){
+    cat("x1: ",x1[[1]]," y1: ", y1[[1]] ,"\n")
+    cat("x2: ",x2[[1]]," y2: ", y2[[1]], "\n")
+  }
+  slope = (y2-y1)/(x2-x1)
+  return(slope)
+}
 
+#driver for minor axis, rq'd feature by amy
+perp_bisector = function(x1,x2,y1,y2,slope,img_dim,dbug = FALSE){
+  midx = (x1+x2)/2
+  midy = (y1+y2)/2
+  neg_recip = -1/(slope)
+}
 
+#give two nodes, draw one line
+plotNodesLine = function(img, thinned, nodeList, nodeSize = 3, nodeColor = "red")
+{
+  p = plotImageThinned(img, thinned)
+  pointSet = data.frame(X = ((nodeList - 1) %/% dim(img)[1]) + 1, Y = dim(img)[1] - ((nodeList - 1) %% dim(img)[1]))
+  sx = pointSet[[1]][[1]]
+  sy = pointSet[[2]][[1]]
+  ex = pointSet[[1]][[2]]
+  ey = pointSet[[2]][[2]]
+  p = p + geom_point(data = pointSet, aes(X, Y), size = nodeSize, shape = I(16), color = I(nodeColor), alpha = I(.4)) + geom_segment(x = sx, y = sy, xend = ex, yend = ey)
+  return(p)
+  #l.m = melt(img)
+  #l.m$value[thinned] = 2
+  #l.m$value[nodeList] = 3
+  #n.m2 = n.m[nodeList,]
+  #p = ggplot(l.m, aes(Var2, rev(Var1))) + geom_raster(aes(fill = as.factor(value != 1), alpha = ifelse(value==0,.3,1))) + scale_alpha_continuous(guide = FALSE) + scale_fill_manual(values = c("white", "black"), guide = FALSE) + theme_void() + geom_point(data= n.m2, aes(x = Var2, y = dim(img)[1] - Var1 + 1), shape = I(17), size = I(nodeSize), color = I("red"))
+}
+
+plotNodesLine1 = function(img, thinned, nodeList, nodeSize = 3, nodeColor = "red")
+{
+  p = plotImageThinned(img, thinned)
+  pointSet = data.frame(X = ((nodeList - 1) %/% dim(img)[1]) + 1, Y = dim(img)[1] - ((nodeList - 1) %% dim(img)[1]))
+  sx = pointSet[[1]][[1]]
+  sy = pointSet[[2]][[1]]
+  ex = pointSet[[1]][[2]]
+  ey = pointSet[[2]][[2]]
+  p = p + geom_point(data = pointSet, aes(X, Y), size = nodeSize, shape = I(16), color = I(nodeColor), alpha = I(.4)) + geom_curve(x = sx, y = sy, xend = ex, yend = ey, curvature = 0, angle = 180)
+  return(p)
+  #l.m = melt(img)
+  #l.m$value[thinned] = 2
+  #l.m$value[nodeList] = 3
+  #n.m2 = n.m[nodeList,]
+  #p = ggplot(l.m, aes(Var2, rev(Var1))) + geom_raster(aes(fill = as.factor(value != 1), alpha = ifelse(value==0,.3,1))) + scale_alpha_continuous(guide = FALSE) + scale_fill_manual(values = c("white", "black"), guide = FALSE) + theme_void() + geom_point(data= n.m2, aes(x = Var2, y = dim(img)[1] - Var1 + 1), shape = I(17), size = I(nodeSize), color = I("red"))
+}
 #' i_to_rc
 #'
 #' Convert indicies to respective row, col.
@@ -90,7 +194,7 @@ i_to_rc = function(nodes, dims)
   return(matrix(c(rs,cs), ncol = 2))
 }
 
-#' toRC
+#' i_to_rci
 #'
 #' Convert indicies to respective row, col and associates the original index.
 #' @param nodes Nodes to be converted.
@@ -99,14 +203,16 @@ i_to_rc = function(nodes, dims)
 #' @return Returns matrix mapping nodes' indices to respective row, col. 
 #' @export
 
-i_to_rci = function(nodes, dims)
+i_to_rci = function(nodes, dims, fixed = FALSE)
 {
   cs = (nodes-1)%/%dims[1] + 1
   rs = (nodes-1)%%dims[1] + 1
+  if(fixed) rs = dims[[1]] - rs
   rowcolmatrix = matrix(c(rs,cs,nodes), ncol = 3)
   colnames(rowcolmatrix) = c('y','x','index')
   return(rowcolmatrix)
 }
+
 
 #' rc_to_i
 #'
@@ -119,9 +225,10 @@ i_to_rci = function(nodes, dims)
 #' @return Returns index(icies) of all row_y's and col_x's
 #' @export
 
-rc_to_i = function(row_y,col_x,img_dim)
+rc_to_i = function(row_y,col_x,img_dim, fixed = FALSE)
 {
   row_y = as.integer(row_y)
+  if(fixed) row_y = img_dim[[1]] - row_y
   col_x = as.integer(col_x)
   return((col_x-1)*img_dim[1]+row_y)
 }
@@ -191,6 +298,7 @@ get_centroid_info = function(character, img_dim)
   lHi = rc_to_i(lHalf$rows_y,lHalf$cols_x,img_dim)
   rHi = rc_to_i(rHalf$rows_y,rHalf$cols_x,img_dim)
   #finding slope, in case of long letters like e in csafe maybe account length?
+  #errrrr does the y need a +1
   slope = ((img_dim[1] - rHalfCentroidrc$y)-(img_dim[1] - lHalfCentroidrc$y))/(rHalfCentroidrc$x-lHalfCentroidrc$x)
   lHalfCentroid = rc_to_i(mean(lHalf$rows_y),mean(lHalf$cols_x),img_dim)
   centroid_info = list(centroid_index = centroid_index, centroid_y = centroid_row, centroid_x = centroid_col, centroid_horiz_location = centroid_horiz_location,centroid_vert_location = centroid_vert_location,lHalf = lHi,rHalf=rHi,disjoint_centroids = list(left = lHalfCentroidi,right = rHalfCentroidi),slope = slope, pixel_density = r_density,box_density = box_density )
@@ -476,6 +584,6 @@ line_number_extract = function(all_centroids,img_dim){
 #http://old.cescg.org/CESCG-2008/papers/BratislavaC-Bozekova-Miroslava.pdf
 #Below are unused / unneeded functions
 
-
 #Reserved Debug Function Call
+#loop_info(looptest,dim(img))
 #End Debug
