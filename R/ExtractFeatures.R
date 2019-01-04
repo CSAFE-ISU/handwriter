@@ -78,7 +78,7 @@ loop_major = function(loop_list,img_dim){
   }
   return(list(major_p1 = loop_list[[1]], major_p2 = furthest_index, major_dist = major_dist))
 }
-vector_to_mid(targ)
+vector_to_mid = function(targ)
 loop_minor = function(loop_list, slope, img_dim){
   #targ 29572, 30245
   #29243 29914 new slope:  -0.8333333 
