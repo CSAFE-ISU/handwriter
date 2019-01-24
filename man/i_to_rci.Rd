@@ -2,9 +2,9 @@
 % Please edit documentation in R/ExtractFeatures.R
 \name{i_to_rci}
 \alias{i_to_rci}
-\title{toRC}
+\title{i_to_rci}
 \usage{
-i_to_rci(nodes, dims)
+i_to_rci(nodes, dims, fixed = FALSE)
 }
 \arguments{
 \item{nodes}{Nodes to be converted.}

@@ -15,7 +15,10 @@ get_loop_info(character, img_dim)
 Loop information to respective character
 }
 \description{
-Primary driver of loop to character association
+Associator of loop to character association
+Volatile, likely won't live for long
+as Nick and I transition to moving the primary 
+loop driver out of JunctionDetection.R
 }
 \keyword{associate}
 \keyword{character,}

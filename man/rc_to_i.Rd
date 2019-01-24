@@ -4,7 +4,7 @@
 \alias{rc_to_i}
 \title{rc_to_i}
 \usage{
-rc_to_i(row_y, col_x, img_dim)
+rc_to_i(row_y, col_x, img_dim, fixed = FALSE)
 }
 \arguments{
 \item{row_y}{Row(s) to be converted to an index}

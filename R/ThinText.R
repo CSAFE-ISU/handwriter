@@ -56,10 +56,6 @@ readPNGBinary = function(path, cutoffAdjust = 1, clean = TRUE, crop = TRUE, inve
 #' @return Returns plot of x.
 #' @import ggplot2
 #' @export
-coordsToIndex = function(rowVals,colVals,dimImageAt1){
-  #remove this
-  # (column-1)*dim(image)[1] + row
-}
 plotImage = function(x)
 {
   xm = melt(x)
@@ -68,15 +64,6 @@ plotImage = function(x)
   return(p)
 }
 
-#' ben
-#' probably remove this ://
-#' hmm, takes in list of lists [ [x,y], [x,y], [x,y] .. ] of corrections to be made
-plotImagePoints = function(x){
-  xm = melt(x)
-  names(xm) = c("Var1", "Var2", "value")
-  p = ggplot(xm, aes(Var2, rev(Var1))) + geom_point(ppdf, aes(x = col, y = row)) + geom_raster(aes(fill = as.factor(value)), na.rm=TRUE) + scale_fill_manual(values = c("black", NA), guide = FALSE) + coord_fixed() + theme_void()
-  return(p)
-}
 # #' neighborChanges
 # #'
 # #' Internal function for thinImage. Counts switches from 1 to 0 around a point.
