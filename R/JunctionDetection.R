@@ -554,7 +554,7 @@ processHandwriting = function(img, dims)
     lettersList[[i]]$path = letters[[i]]
     lettersList[[i]]$nodesInGraph = nodesinGraph[[i]]
     lettersList[[i]]$nodeOrder = nodeOrder[[i]]
-    lettersList[[i]]$allPaths = pathletterAssociate(allPaths,letters[[i]])
+    lettersList[[i]]$allPaths = pathLetterAssociate(allPaths,letters[[i]])
     lettersList[[i]]$adjMatrix = letterAdj[[i]]
     lettersList[[i]]$letterCode = decCode[i]
   }
