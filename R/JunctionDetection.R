@@ -164,7 +164,7 @@ getLoops = function(nodeList, graph, graph0, pathList, dims)
 #' makeGifImages
 #'
 #' Saves a collection of plots, which sequentially display paths in a list, to the provided file path.
-#' Also prints some suggested code for imagemagick gif creation. Can be useful for visualizing path lists or grapheme path lists.
+#' Also prints some suggested code for imagemagick gif creation. Can be useful for visualizing path lists or letter path lists.
 #' @param image Binary image.
 #' @param image_thin Thinned binary image.
 #' @param allPaths List of paths (probably from processHandwriting returned list).
@@ -198,7 +198,7 @@ makeGifImages = function(img, img_thin, allPaths, file_path, filenames)
   print(paste0("convert -delay 30 -loop 0 ", filenames, "*.png Animate", filenames, ".gif"))
 }
 
-#' Internal function called by processHandwriting that eliminates breakpoints based on rules to try to coherently separate graphemes.
+#' Internal function called by processHandwriting that eliminates breakpoints based on rules to try to coherently separate letters
 checkBreakPoints = function(candidateNodes, allPaths, nodeGraph, dims)
 {
   #Check rules for candidate breakpoints
@@ -267,8 +267,8 @@ checkBreakPoints = function(candidateNodes, allPaths, nodeGraph, dims)
   return(breakFlag)
 }
 
-#' Internal function that uses existing breakPoint list to assign graphemes to the nodes in nodeGraph0.
-graphemePaths = function(allPaths, nodeGraph0, breakPoints)
+#' Internal function that uses existing breakPoint list to assign letters to the nodes in nodeGraph0.
+letterPaths = function(allPaths, nodeGraph0, breakPoints)
 {
   oldVerts = V(nodeGraph0)$name
   nodeGraph0 = delete_vertices(nodeGraph0, v = as.character(breakPoints))
@@ -351,15 +351,15 @@ getNodes = function(img, dims)
 #' processHandwriting
 #'
 #' Huge step in handwriting processing. Takes in thin image form and the breakpoints suggested by getNodes
-#' and parses the writing into graphemes. Returns final grapheme separation points, a list of the paths in the image,
-#' and a list of the grapheme paths in the image.
+#' and parses the writing into letters. Returns final letter separation points, a list of the paths in the image,
+#' and a list of the letter paths in the image.
 #'
 #' @param img Thinned binary image.
 #' @param nodes List of nodes from the getNodes function.
-#' return(list(breakPoints = finalBreaks, pathList = allPaths, graphemeList = graphemes))
-#' @return Returns a list of length 3. Object [[1]] (called breakPoints) is the set of final grapheme separation points.
+#' return(list(breakPoints = finalBreaks, pathList = allPaths, letterList = letters))
+#' @return Returns a list of length 3. Object [[1]] (called breakPoints) is the set of final letter separation points.
 #' Object [[2]] (called pathList) is a list of the paths between the input specified nodes.
-#' Object [[3]] (called graphemes) is a list of the pixels in the different graphemes in the handwriting sample.
+#' Object [[3]] (called letters) is a list of the pixels in the different letters in the handwriting sample.
 #'
 #' @importFrom reshape2 melt
 #' @import igraph
@@ -372,7 +372,7 @@ getNodes = function(img, dims)
 #' csafe_processList = processHandwriting(csafe_thin, csafe_nodes, dim(csafe))
 #' csafe_breaks = csafe_processList$breakPoints
 #' csafe_paths = csafe_processList$pathList
-#' csafe_graphemes = csafe_processList$graphemeList
+#' csafe_letterss = csafe_processList$letterList
 #'
 #' @export
 
@@ -479,15 +479,15 @@ processHandwriting = function(img, dims)
   goodBreaks = checkBreakPoints(candidateNodes = candidateNodes, allPaths = allPaths, nodeGraph = getNodeGraph(allPaths, nodeList), dims)
   preStackBreaks = candidateNodes[goodBreaks]
   
-  ##################### Potential breakpoints (except for stacked graphemes) found. Break into grapheme paths.
+  ##################### Potential breakpoints (except for stacked letters) found. Break into letter paths.
 
   cat("Isolating letter paths...")
 
-  graphemesList = graphemePaths(allPaths, skel_graph0, preStackBreaks)
-  graphemes = graphemesList[[1]]
-  V(skel_graph0)$graphemeID = graphemesList[[2]]
+  lettersList = letterPaths(allPaths, skel_graph0, preStackBreaks)
+  letters = lettersList[[1]]
+  V(skel_graph0)$letterID = lettersList[[2]]
   
-  finalBreaks = preStackBreaks[!(checkStacking(preStackBreaks, allPaths, graphemes, skel_graph0, dims))]
+  finalBreaks = preStackBreaks[!(checkStacking(preStackBreaks, allPaths, letters, skel_graph0, dims))]
   
   breakAddedEndPoints = NULL
   pathsWithBreaks = lapply(allPaths, function(x){which(x %in% finalBreaks)})
@@ -504,42 +504,42 @@ processHandwriting = function(img, dims)
   
   allPaths = lapply(rapply(allPaths, enquote, how="unlist"), eval)
   
-  graphemesList = graphemePaths(allPaths, skel_graph0, finalBreaks)
-  graphemes = graphemesList[[1]]
+  lettersList = letterPaths(allPaths, skel_graph0, finalBreaks)
+  letters = lettersList[[1]]
   
   # for(i in seq(1, length(breakAddedEndPoints), 2))
   # {
-  #   pairToJoin = which(sapply(graphemes, function(x) any(x %in% breakAddedEndPoints[c(i,i+1)])))
-  #   graphemes[[pairToJoin[1]]] = list(graphemes[[pairToJoin[1]]], c(graphemes[[pairToJoin[1]]], graphemes[[pairToJoin[2]]]))
+  #   pairToJoin = which(sapply(letters, function(x) any(x %in% breakAddedEndPoints[c(i,i+1)])))
+  #   letters[[pairToJoin[1]]] = list(letters[[pairToJoin[1]]], c(letters[[pairToJoin[1]]], letters[[pairToJoin[2]]]))
   # }
-  # graphemes = lapply(rapply(graphemes, enquote, how="unlist"), eval)
+  # letters = lapply(rapply(letters, enquote, how="unlist"), eval)
   # 
-  # for(i in 2:(length(graphemes)-1))
+  # for(i in 2:(length(letters)-1))
   # {
-  #   if(all(graphemes[[i-1]] %in% graphemes[[i]]) & all(graphemes[[i+1]] %in% graphemes[[i]]))
+  #   if(all(letters[[i-1]] %in% letters[[i]]) & all(letters[[i+1]] %in% letters[[i]]))
   #     isMerged[i] = TRUE
   # }
-  # graphemes = graphemes[unlist(lapply(graphemes, length)) > 5]
+  # letters = letters[unlist(lapply(letters, length)) > 5]
   # 
   
-  isMerged = rep(FALSE, length(graphemes))
-  nodesinGraph = replicate(length(graphemes), list(NA))
-  for(i in 1:length(graphemes))
+  isMerged = rep(FALSE, length(letters))
+  nodesinGraph = replicate(length(letters), list(NA))
+  for(i in 1:length(letters))
   {
     if(isMerged[i] == FALSE)
     {
-      nodesinGraph[[i]] = graphemes[[i]][which(graphemes[[i]] %in% nodeList)]
+      nodesinGraph[[i]] = letters[[i]][which(letters[[i]] %in% nodeList)]
     }
     else
     {
-      nodesinGraph[[i]] = graphemes[[i]][which(graphemes[[i]] %in% nodeList[!(nodeList %in% breakAddedEndPoints)])]
+      nodesinGraph[[i]] = letters[[i]][which(letters[[i]] %in% nodeList[!(nodeList %in% breakAddedEndPoints)])]
     }
   }
   
-  nodeOrder = orderNodes(graphemes = graphemes, nodesInGraph = nodesinGraph, dims = dims)
+  nodeOrder = orderNodes(letters = letters, nodesInGraph = nodesinGraph, dims = dims)
   letterAdj = list()
-  decCode = rep(NA, length(graphemes))
-  for(i in 1:length(graphemes))
+  decCode = rep(NA, length(letters))
+  for(i in 1:length(letters))
   {
     letterDists = distances(graph = skel_graph0, v = as.character(nodesinGraph[[i]][order(nodeOrder[[i]])]), to = as.character(nodesinGraph[[i]][order(nodeOrder[[i]])]), weights = E(skel_graph0)$nodeOnlyDist)
     letterAdj[[i]] = (letterDists == 1 | letterDists == 2) + 0
@@ -548,36 +548,36 @@ processHandwriting = function(img, dims)
     decCode[i] = sum(binCode*2^((length(binCode):1) - 1))
   }
   
-  graphemesList = replicate(length(graphemes), list(path = NA, nodesInGraph = NA, nodeOrder = NA), simplify=FALSE)
-  for(i in 1:length(graphemes))
+  lettersList = replicate(length(letters), list(path = NA, nodesInGraph = NA, nodeOrder = NA), simplify=FALSE)
+  for(i in 1:length(letters))
   {
-    graphemesList[[i]]$path = graphemes[[i]]
-    graphemesList[[i]]$nodesInGraph = nodesinGraph[[i]]
-    graphemesList[[i]]$nodeOrder = nodeOrder[[i]]
-    graphemesList[[i]]$allPaths = pathGraphemeAssociate(allPaths,graphemes[[i]])
-    graphemesList[[i]]$adjMatrix = letterAdj[[i]]
-    graphemesList[[i]]$letterCode = decCode[i]
+    lettersList[[i]]$path = letters[[i]]
+    lettersList[[i]]$nodesInGraph = nodesinGraph[[i]]
+    lettersList[[i]]$nodeOrder = nodeOrder[[i]]
+    lettersList[[i]]$allPaths = pathletterAssociate(allPaths,letters[[i]])
+    lettersList[[i]]$adjMatrix = letterAdj[[i]]
+    lettersList[[i]]$letterCode = decCode[i]
   }
   
   cat("and done.\n")
-  return(list(thin = indices, nodes = nodeList, breakPoints = finalBreaks, pathList = allPaths, graphemeList = graphemesList))
+  return(list(thin = indices, nodes = nodeList, breakPoints = finalBreaks, pathList = allPaths, letterList = lettersList))
 }
 
-#' Function associating entries in allPaths to each grapheme
-pathGraphemeAssociate = function(allPaths,grapheme){
+#' Function associating entries in allPaths to each letter
+pathLetterAssociate = function(allPaths,letter){
   associatedPaths = list()
   for(i in 1:length(allPaths)){
-    if(all(allPaths[[i]] %in% grapheme)){
+    if(all(allPaths[[i]] %in% letter)){
       associatedPaths = c(associatedPaths,list(allPaths[[i]]))
     } 
   }
   return(associatedPaths)
 }
 
-#' Internal function for removing breakpoints that follow all of the rules, but separate two graphemes that are
+#' Internal function for removing breakpoints that follow all of the rules, but separate two letters that are
 #' stacked on top of eachother. Currently, this is done in a very ad hoc, and untested manner. Will look for a better
 #' solution in the future.
-checkStacking = function(candidateBreaks, allPaths, graphemes, nodeGraph0, dims)
+checkStacking = function(candidateBreaks, allPaths, letters, nodeGraph0, dims)
 {
   #This is artificial, and I'm not a huge fan of it, but we'll let it be for now. May want to come back and do it better.
   stackPtFlag = rep(FALSE, length(candidateBreaks))
@@ -598,15 +598,15 @@ checkStacking = function(candidateBreaks, allPaths, graphemes, nodeGraph0, dims)
       {
         pathIndex = which(tempPath == candidateBreaks[nodeChecks])
 
-        borderGraphemes = c(V(nodeGraph0)$graphemeID[which(V(nodeGraph0)$name == tempPath[pathIndex - 1])],
-                            V(nodeGraph0)$graphemeID[which(V(nodeGraph0)$name == tempPath[pathIndex + 1])])
-        gr1 = graphemes[[borderGraphemes[1]]]
+        borderLetters = c(V(nodeGraph0)$letterID[which(V(nodeGraph0)$name == tempPath[pathIndex - 1])],
+                            V(nodeGraph0)$letterID[which(V(nodeGraph0)$name == tempPath[pathIndex + 1])])
+        gr1 = letters[[borderLetters[1]]]
         gr1Rows = ((gr1 - 1) %% dims[1]) + 1
-        gr2 = graphemes[[borderGraphemes[2]]]
+        gr2 = letters[[borderLetters[2]]]
         gr2Rows = ((gr2 - 1) %% dims[1]) + 1
 
-        # Call a break a stack point if the overlap between the bordering graphemes is
-        # less than 10% of the total range of the combined graphemes.
+        # Call a break a stack point if the overlap between the bordering letters is
+        # less than 10% of the total range of the combined letters.
         overlap = min(abs(max(gr1Rows) - min(gr2Rows)), abs(max(gr2Rows) - min(gr1Rows)))
         totalRange = (diff(range(c(gr1Rows,gr2Rows))))
         overlapPercentage = overlap/totalRange
@@ -616,7 +616,7 @@ checkStacking = function(candidateBreaks, allPaths, graphemes, nodeGraph0, dims)
         }
         else
         {
-          # Call a break point a stack point if one of the graphemes is completely dominated
+          # Call a break point a stack point if one of the letters is completely dominated
           # In the vertical sense. AKA if 1 is contained completely within the columns of another.
 
           gr1Cols = ((gr1 - 1) %/% dims[1]) + 1
@@ -635,9 +635,9 @@ checkStacking = function(candidateBreaks, allPaths, graphemes, nodeGraph0, dims)
 }
 
 #' @export
-countNodes = function(graphemeList, nodes)
+countNodes = function(letterList, nodes)
 {
-  unlist(lapply(graphemeList, function(x){sum(x %in% nodes)}))
+  unlist(lapply(letterList, function(x){sum(x %in% nodes)}))
 }
 
 #' Internal function for creating a graph from a path list and node list.
@@ -685,7 +685,7 @@ plotNodes = function(img, thinned, nodeList, nodeSize = 3, nodeColor = "red")
 }
 
 #' Internal function for ordering the nodes in a letter.
-orderNodes = function(graphemes, nodesInGraph, dims)
+orderNodes = function(letters, nodesInGraph, dims)
 {
   toRC = function(nodes, dims)
   {
@@ -693,12 +693,12 @@ orderNodes = function(graphemes, nodesInGraph, dims)
     rs = (nodes-1)%%dims[1] + 1
     return(matrix(c(rs,cs), ncol = 2))
   }
-  connectivity = function(grapheme, nodes, dims)
+  connectivity = function(letter, nodes, dims)
   {
     res = rep(NA, length(nodes))
     for(i in 1:length(nodes))
     {
-      perimeter = c(nodes[i]-1, nodes[i]+dims[1]-1, nodes[i]+dims[1], nodes[i]+dims[1]+1, nodes[i]+1, nodes[i]-dims[1]+1, nodes[i]-dims[1], nodes[i]-dims[1]-1, nodes[i]-1) %in% grapheme
+      perimeter = c(nodes[i]-1, nodes[i]+dims[1]-1, nodes[i]+dims[1], nodes[i]+dims[1]+1, nodes[i]+1, nodes[i]-dims[1]+1, nodes[i]-dims[1], nodes[i]-dims[1]-1, nodes[i]-1) %in% letter
       res[i] = sum((perimeter[1:8] - perimeter[2:9]) == -1)
     }
     return(res)
@@ -709,14 +709,14 @@ orderNodes = function(graphemes, nodesInGraph, dims)
     diff = c(vecs[1,1] - vecs[2,1], vecs[2,2] - vecs[1,2])
     return(atan2(diff[1], diff[2]))
   }
-  getOrder = function(grapheme, nodesInGraph, dims)
+  getOrder = function(letter, nodesInGraph, dims)
   {
     if(length(nodesInGraph) == 0)
       return(nodesInGraph)
     else
     {
       nodeOrder = rep(NA, length(nodesInGraph))
-      nodeConnectivity = connectivity(grapheme, nodesInGraph, dims)
+      nodeConnectivity = connectivity(letter, nodesInGraph, dims)
       
       nodeCounter = 1
       maxConnectivity = max(nodeConnectivity)
@@ -759,10 +759,10 @@ orderNodes = function(graphemes, nodesInGraph, dims)
     }
   }
   
-  res = rep(list(NA), length(graphemes))
-  for(jj in 1:length(graphemes))
+  res = rep(list(NA), length(letters))
+  for(jj in 1:length(letters))
   {
-    res[[jj]] = getOrder(graphemes[[jj]], nodesInGraph[[jj]], dims)
+    res[[jj]] = getOrder(letters[[jj]], nodesInGraph[[jj]], dims)
   }
   return(res)
 }

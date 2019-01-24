@@ -159,7 +159,7 @@ get_centroid_info = function(character, img_dim)
   centroid_horiz_location = (centroid_col-min(cols_x)) / col_dist
   centroid_vert_location = (centroid_row-min(rows_y)) / row_dist
   #used for getting skew, assuming centroid is more middle than the median col_x
-  #probably can be removed, I just want nic to be able to plot them to determine if its an appropriate 'split' in the grapheme
+  #probably can be removed, I just want nic to be able to plot them to determine if its an appropriate 'split' in the letter
   lHalf = list(rows_y = rows_y[which(cols_x<centroid_col)],cols_x = cols_x[which(cols_x<centroid_col)])
   rHalf = list(rows_y = rows_y[which(cols_x>centroid_col)],cols_x = cols_x[which(cols_x>centroid_col)])
   lHalfCentroidrc = list(y=mean(lHalf$rows_y),x=mean(lHalf$cols_x))
@@ -180,7 +180,7 @@ get_centroid_info = function(character, img_dim)
 #'
 #' Primary driver of feature extraction. 
 #' Parses all characters from a processed image.
-#' @param character_lists Output from processHandwriting$graphemeLists
+#' @param character_lists Output from processHandwriting$letterLists
 #' @param img_dim Dimensions of binary image
 #' @keywords centroid, skew, slant, lean, character
 #' @return nested lists associating features to respective characters.
@@ -231,9 +231,9 @@ char_to_feature = function(character, img_dim){
 add_line_info = function(character_features,img_dim){
   line_info = line_number_extract(all_centroids(character_features),img_dim)
   for(i in 1:length(character_features)){
-    cur_grapheme_index = character_features[[i]]$centroid_index
+    cur_letter_index = character_features[[i]]$centroid_index
     for(j in 1:length(line_info)){
-      if(cur_grapheme_index %in% line_info[[j]]){
+      if(cur_letter_index %in% line_info[[j]]){
         character_features[[i]] = c(character_features[[i]],list(line_number = j))
       }
     }
@@ -274,7 +274,7 @@ get_loop_info = function(character,img_dim){
 }
 
 neighboring_char_dist = function(character_features){
-  graphemeDist = list()
+  letterDist = list()
   for(i in 1:length(character_features)){
     dist_left = NULL
     dist_right = NULL
@@ -298,9 +298,9 @@ neighboring_char_dist = function(character_features){
     if(is.null(dist_right)){
       dist_right = next_lm - cur_rm
     }
-    graphemeDist = c(graphemeDist,list(dist_left,dist_right))
+    letterDist = c(letterDist,list(dist_left,dist_right))
   }
-    return(graphemeDist)
+    return(letterDist)
 }
 
 
@@ -308,7 +308,7 @@ neighboring_char_dist = function(character_features){
 #'
 #' Iterates through all avaiable paths from processHandwriting()
 #' Picks out loops for later character association.
-#' @param allPaths All character (formerly grapheme) paths from processHandwriting()
+#' @param allPaths All character (formerly letter) paths from processHandwriting()
 #' @keywords character, loops, line
 #' @return List of all loops
 #' @export

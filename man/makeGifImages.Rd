@@ -22,7 +22,7 @@ Nothing. Will print out a terminal command for creating your gif. Just navigate 
 }
 \description{
 Saves a collection of plots, which sequentially display paths in a list, to the provided file path.
-Also prints some suggested code for imagemagick gif creation. Can be useful for visualizing path lists or grapheme path lists.
+Also prints some suggested code for imagemagick gif creation. Can be useful for visualizing path lists or letter path lists.
 }
 \examples{
 #### Not Run

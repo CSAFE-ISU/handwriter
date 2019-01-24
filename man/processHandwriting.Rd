@@ -4,23 +4,23 @@
 \alias{processHandwriting}
 \title{processHandwriting}
 \usage{
-processHandwriting(img, nodes, dims)
+processHandwriting(img, dims)
 }
 \arguments{
 \item{img}{Thinned binary image.}
 
 \item{nodes}{List of nodes from the getNodes function.
-return(list(breakPoints = finalBreaks, pathList = allPaths, graphemeList = graphemes))}
+return(list(breakPoints = finalBreaks, pathList = allPaths, letterList = letters))}
 }
 \value{
-Returns a list of length 3. Object [[1]] (called breakPoints) is the set of final grapheme separation points.
+Returns a list of length 3. Object [[1]] (called breakPoints) is the set of final letter separation points.
 Object [[2]] (called pathList) is a list of the paths between the input specified nodes.
-Object [[3]] (called graphemes) is a list of the pixels in the different graphemes in the handwriting sample.
+Object [[3]] (called letters) is a list of the pixels in the different letters in the handwriting sample.
 }
 \description{
 Huge step in handwriting processing. Takes in thin image form and the breakpoints suggested by getNodes
-and parses the writing into graphemes. Returns final grapheme separation points, a list of the paths in the image,
-and a list of the grapheme paths in the image.
+and parses the writing into letters. Returns final letter separation points, a list of the paths in the image,
+and a list of the letter paths in the image.
 }
 \examples{
 data(csafe)
@@ -30,6 +30,6 @@ csafe_nodes = getNodes(csafe_thin, dim(csafe))
 csafe_processList = processHandwriting(csafe_thin, csafe_nodes, dim(csafe))
 csafe_breaks = csafe_processList$breakPoints
 csafe_paths = csafe_processList$pathList
-csafe_graphemes = csafe_processList$graphemeList
+csafe_letterss = csafe_processList$letterList
 
 }

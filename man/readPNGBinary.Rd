@@ -2,9 +2,11 @@
 % Please edit documentation in R/ThinText.R
 \name{readPNGBinary}
 \alias{readPNGBinary}
-\title{readPNGBinary}
+\title{readPNGBinary
+This function reads in and binarizes PNG images from the specified file path.}
 \usage{
-readPNGBinary(path, cutoffAdjust = 1, clean = TRUE, inversion = FALSE)
+readPNGBinary(path, cutoffAdjust = 1, clean = TRUE, crop = TRUE,
+  inversion = FALSE)
 }
 \arguments{
 \item{path}{File path for image.}
@@ -19,6 +21,7 @@ readPNGBinary(path, cutoffAdjust = 1, clean = TRUE, inversion = FALSE)
 Returns image from path. 0 represents black, and 1 represents white by default.
 }
 \description{
+readPNGBinary
 This function reads in and binarizes PNG images from the specified file path.
 }
 \keyword{binary}
