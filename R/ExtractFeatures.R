@@ -19,11 +19,11 @@ loopMeasure = function(loopList, dims){
   i_index = NULL
   j_index = NULL
   for(i in 1:length(rowList)){
-    y1 = rowList[i]
+    y1 = dims[[1]] - rowList[i]
     x1 = colList[i]
     i_index = loopList[i]
     for(j in 1:length(rowList)){
-      y2 = rowList[j]
+      y2 = dims[[1]] - rowList[j]
       x2 = colList[j]
       euDist = sqrt((x2-x1)^2+(y2-y1)^2)
       if(euDist > longestPath){
@@ -36,6 +36,7 @@ loopMeasure = function(loopList, dims){
       }
     }
   }
+  #print indexes of longest point for testing purposes
   #heres an idea of returning stuff
   #return(data.frame(valNames = c("pathLen","x1","x2","y1","y2"),index = c("hmm",i_index,j_index,i_index,j_index) ,vals=c(longestPath,targ_x1,targ_x2,targ_y1,targ_y2)))
   #heres another one that seems more useful for returning usable elements
@@ -52,7 +53,131 @@ loopMeasures = function(loopListAll, dims){
   }
   return(list(loopMeasure_points,loopMeasure_results))
 }
+#trash above h4h4h4
+loop_info = function(loop_list, img_dim){
+  major = loop_major(loop_list, img_dim)
+  slope = find_i_slope(major$major_p1,major$major_p2,img_dim)
+  print(slope)
+  minor = loop_minor(loop_list,slope,img_dim)
+  return(list(major = major,minor = minor))
+}
+loop_major = function(loop_list,img_dim){
+  rowcol = i_to_rci(loop_list,img_dim)
+  rows_y = rowcol[,'y'] 
+  cols_x = rowcol[,'x']
+  major_dist = -Inf
+  y1 = rowcol[[1]]
+  x1 = rowcol[[1]]
+  furthest_index = NULL
+  for(i in 1:length(loop_list)){
+    cur_dist = sqrt((cols_x[[i]]-x1)^2+(rows_y[[i]]-y1)^2)
+    if(cur_dist > major_dist ){
+      major_dist = cur_dist
+      furthest_index = loop_list[[i]]
+    }
+  }
+  return(list(major_p1 = loop_list[[1]], major_p2 = furthest_index, major_dist = major_dist))
+}
+vector_to_mid = function(targ)
+loop_minor = function(loop_list, slope, img_dim){
+  #targ 29572, 30245
+  #29243 29914 new slope:  -0.8333333 
+  #30136 29353 new slope:  -0.8571429 
+  i1 = NULL
+  i2 = NULL
+  neg_recip = -1/(slope)
+  cat("neg recip: ",neg_recip,"\n")
+  min_dif = Inf
+  for(i in 1:length(loop_list)/2){
+    for(j in length(loop_list)/2:1){
+      if(i == j) next 
+      else {
+        new_slope = find_i_slope(loop_list[[i]],loop_list[[j]],img_dim)
+        slope_dif = abs(new_slope-neg_recip)
+        if(!is.nan(new_slope) & new_slope< -.8 & new_slope > -1){
+          #cat(loop_list[[i]],loop_list[[j]],"new slope: ",new_slope, "\n")
+          #cat("slope dif: ",slope_dif,"\n")
+        }
+      }
+      if(!is.nan(slope_dif) & slope_dif < min_dif){
+        cat(loop_list[[i]],loop_list[[j]],"new slope: ",new_slope, "\n")
+        i1 = loop_list[[i]]
+        i2 = loop_list[[j]]
+        min_dif = slope_dif
+        #cat(i1,i2," \n")
+        #if(i1 == 29572 & i2 == 30245){
+        #  print("bags")
+        #}
+      }
+    }
+  }
+  return(list(minor_p1 = i1, minor_p2 = i2))
+}
+#given two indices drawing a line, find slope
+# !!!!!!!! errrrrrrrrrrr does a + 1 need to be added in my letter lean ask nic
+#  slope = ((img_dim[1] - rHalfCentroidrc$y)-(img_dim[1] - lHalfCentroidrc$y))/(rHalfCentroidrc$x-lHalfCentroidrc$x)
+#1 261 53
+#2 280 73
+find_i_slope = function(starti, endi, img_dim, dbug = FALSE)
+{
+  rci = i_to_rci(c(starti,endi),img_dim)
+  #print(rci)
+  #standard for actual coordinate eq's
+  rows_y = img_dim[[1]] - rci[,'y'] + 1
+  cols_x = rci[,'x']
+  x1 = cols_x[[1]]
+  y1 = rows_y[[1]]
+  x2 = cols_x[[2]]
+  y2 = rows_y[[2]]
+  if(dbug){
+    cat("x1: ",x1[[1]]," y1: ", y1[[1]] ,"\n")
+    cat("x2: ",x2[[1]]," y2: ", y2[[1]], "\n")
+  }
+  slope = (y2-y1)/(x2-x1)
+  return(slope)
+}
 
+#driver for minor axis, rq'd feature by amy
+perp_bisector = function(x1,x2,y1,y2,slope,img_dim,dbug = FALSE){
+  midx = (x1+x2)/2
+  midy = (y1+y2)/2
+  neg_recip = -1/(slope)
+}
+
+#give two nodes, draw one line
+plotNodesLine = function(img, thinned, nodeList, nodeSize = 3, nodeColor = "red")
+{
+  p = plotImageThinned(img, thinned)
+  pointSet = data.frame(X = ((nodeList - 1) %/% dim(img)[1]) + 1, Y = dim(img)[1] - ((nodeList - 1) %% dim(img)[1]))
+  sx = pointSet[[1]][[1]]
+  sy = pointSet[[2]][[1]]
+  ex = pointSet[[1]][[2]]
+  ey = pointSet[[2]][[2]]
+  p = p + geom_point(data = pointSet, aes(X, Y), size = nodeSize, shape = I(16), color = I(nodeColor), alpha = I(.4)) + geom_segment(x = sx, y = sy, xend = ex, yend = ey)
+  return(p)
+  #l.m = melt(img)
+  #l.m$value[thinned] = 2
+  #l.m$value[nodeList] = 3
+  #n.m2 = n.m[nodeList,]
+  #p = ggplot(l.m, aes(Var2, rev(Var1))) + geom_raster(aes(fill = as.factor(value != 1), alpha = ifelse(value==0,.3,1))) + scale_alpha_continuous(guide = FALSE) + scale_fill_manual(values = c("white", "black"), guide = FALSE) + theme_void() + geom_point(data= n.m2, aes(x = Var2, y = dim(img)[1] - Var1 + 1), shape = I(17), size = I(nodeSize), color = I("red"))
+}
+
+plotNodesLine1 = function(img, thinned, nodeList, nodeSize = 3, nodeColor = "red")
+{
+  p = plotImageThinned(img, thinned)
+  pointSet = data.frame(X = ((nodeList - 1) %/% dim(img)[1]) + 1, Y = dim(img)[1] - ((nodeList - 1) %% dim(img)[1]))
+  sx = pointSet[[1]][[1]]
+  sy = pointSet[[2]][[1]]
+  ex = pointSet[[1]][[2]]
+  ey = pointSet[[2]][[2]]
+  p = p + geom_point(data = pointSet, aes(X, Y), size = nodeSize, shape = I(16), color = I(nodeColor), alpha = I(.4)) + geom_curve(x = sx, y = sy, xend = ex, yend = ey, curvature = 0, angle = 180)
+  return(p)
+  #l.m = melt(img)
+  #l.m$value[thinned] = 2
+  #l.m$value[nodeList] = 3
+  #n.m2 = n.m[nodeList,]
+  #p = ggplot(l.m, aes(Var2, rev(Var1))) + geom_raster(aes(fill = as.factor(value != 1), alpha = ifelse(value==0,.3,1))) + scale_alpha_continuous(guide = FALSE) + scale_fill_manual(values = c("white", "black"), guide = FALSE) + theme_void() + geom_point(data= n.m2, aes(x = Var2, y = dim(img)[1] - Var1 + 1), shape = I(17), size = I(nodeSize), color = I("red"))
+}
 #' i_to_rc
 #'
 #' Convert indicies to respective row, col.
@@ -69,7 +194,7 @@ i_to_rc = function(nodes, dims)
   return(matrix(c(rs,cs), ncol = 2))
 }
 
-#' toRC
+#' i_to_rci
 #'
 #' Convert indicies to respective row, col and associates the original index.
 #' @param nodes Nodes to be converted.
@@ -78,14 +203,16 @@ i_to_rc = function(nodes, dims)
 #' @return Returns matrix mapping nodes' indices to respective row, col. 
 #' @export
 
-i_to_rci = function(nodes, dims)
+i_to_rci = function(nodes, dims, fixed = FALSE)
 {
   cs = (nodes-1)%/%dims[1] + 1
   rs = (nodes-1)%%dims[1] + 1
+  if(fixed) rs = dims[[1]] - rs
   rowcolmatrix = matrix(c(rs,cs,nodes), ncol = 3)
   colnames(rowcolmatrix) = c('y','x','index')
   return(rowcolmatrix)
 }
+
 
 #' rc_to_i
 #'
@@ -98,9 +225,10 @@ i_to_rci = function(nodes, dims)
 #' @return Returns index(icies) of all row_y's and col_x's
 #' @export
 
-rc_to_i = function(row_y,col_x,img_dim)
+rc_to_i = function(row_y,col_x,img_dim, fixed = FALSE)
 {
   row_y = as.integer(row_y)
+  if(fixed) row_y = img_dim[[1]] - row_y
   col_x = as.integer(col_x)
   return((col_x-1)*img_dim[1]+row_y)
 }
@@ -170,6 +298,7 @@ get_centroid_info = function(character, img_dim)
   lHi = rc_to_i(lHalf$rows_y,lHalf$cols_x,img_dim)
   rHi = rc_to_i(rHalf$rows_y,rHalf$cols_x,img_dim)
   #finding slope, in case of long letters like e in csafe maybe account length?
+  #errrrr does the y need a +1
   slope = ((img_dim[1] - rHalfCentroidrc$y)-(img_dim[1] - lHalfCentroidrc$y))/(rHalfCentroidrc$x-lHalfCentroidrc$x)
   lHalfCentroid = rc_to_i(mean(lHalf$rows_y),mean(lHalf$cols_x),img_dim)
   centroid_info = list(centroid_index = centroid_index, centroid_y = centroid_row, centroid_x = centroid_col, centroid_horiz_location = centroid_horiz_location,centroid_vert_location = centroid_vert_location,lHalf = lHi,rHalf=rHi,disjoint_centroids = list(left = lHalfCentroidi,right = rHalfCentroidi),slope = slope, pixel_density = r_density,box_density = box_density )
@@ -192,11 +321,12 @@ extract_character_features = function(character_lists,img_dim){
   character_features = list()
   
   for(i in 1:length(character_lists)){
-    print(str(character_lists[[i]]))
-    cur_features = char_to_feature(character_lists[[i]],img_dim)
+    cur_features = char_to_feature(character_lists[[i]],img_dim, i)
     character_features = append(character_features,list(cur_features))
   }
+  
   character_features = add_line_info(character_features,img_dim)
+  character_features = nov_neighboring_char_dist(character_features)
   return(character_features)
 }
 
@@ -206,15 +336,18 @@ extract_character_features = function(character_lists,img_dim){
 #' Extracts features from a single character
 #' @param character character to extract information from
 #' @param img_dim Dimensions of binary image
+#' @param uniqueid Unique numerical reference to character
 #' @keywords character, features
 #' @return List containing features of character
 #' @export
 
-char_to_feature = function(character, img_dim){
+char_to_feature = function(character, img_dim, uniqueid){
   aspect_info = get_aspect_info(character$path,img_dim)
   centroid_info = get_centroid_info(character$path,img_dim)
   loop_info = get_loop_info(character,img_dim)
   features = c(aspect_info,centroid_info,loop_info)
+  #just a persistent index for when we sort / rearrange the features list
+  features$uniqueid = uniqueid
   return(features)
 }
 
@@ -259,7 +392,10 @@ lm_rm_nodes = function(character){
 
 #' get_loop_info
 #'
-#' Primary driver of loop to character association
+#' Associator of loop to character association
+#' Volatile, likely won't live for long
+#' as Nick and I transition to moving the primary 
+#' loop driver out of JunctionDetection.R
 #' @param character Target for loop association
 #' @param img_dim Dimensions of binary image
 #' @keywords character, loop, associate
@@ -268,11 +404,13 @@ lm_rm_nodes = function(character){
 
 get_loop_info = function(character,img_dim){
   
-  loops = loop_extract(character$allPaths)
-  loop_info = list(loop_count = length(loops),loops = loops)
+  #loops = loop_extract(character$allPaths)
+  #loop_info = list(loop_count = length(loops),loops = loops)
+  loop_info = list(loop_count = length(character$loops), loops = character$loops)
   return(loop_info)
 }
 
+#probably garbage
 neighboring_char_dist = function(character_features){
   letterDist = list()
   for(i in 1:length(character_features)){
@@ -303,6 +441,63 @@ neighboring_char_dist = function(character_features){
     return(letterDist)
 }
 
+# Principle: Appending inside of a nested loop
+# character_features[[i]] = c(character_features[[i]],list(line_number = j))
+nov_neighboring_char_dist = function(character_features){
+  by_line = character_features_by_line(character_features)
+  for(line in 1:length(by_line)){
+    for(i in 1:length(by_line[[line]])){
+      cur_char = by_line[[line]][[i]]
+      l_neighbor_centroid_dist = NULL
+      r_neighbor_centroid_dist = NULL
+      #tempted to fancy x = if(condition) val else alt_val but want to understand this later
+      if(i != 1){
+        prev_char = by_line[[line]][[i-1]]
+        l_neighbor_centroid_dist = cur_char$centroid_x - prev_char$centroid_x
+      }
+      if(i != length(by_line[[line]])){
+        next_char = by_line[[line]][[i+1]]
+        r_neighbor_centroid_dist = next_char$centroid_x - cur_char$centroid_x
+      }
+      character_features[[cur_char$uniqueid]] = c(character_features[[cur_char$uniqueid]],list(l_neighbor_dist = l_neighbor_centroid_dist, r_neighbor_dist = r_neighbor_centroid_dist))
+    }
+  }
+  
+  return(character_features)
+}
+
+#sort character features indexed by their respective line
+character_features_by_line = function(character_features){
+  max_line = -Inf
+  for(i in 1:length(character_features)){
+    max_line = max(max_line, character_features[[i]]$line_number)
+  }
+  #is this the only way to initialize a buffer of static size?
+  characters_by_line = rep(list(list()),max_line)
+  
+  for(j in 1:length(character_features)){
+    
+    characters_by_line[[character_features[[j]]$line_number]] = append(characters_by_line[[character_features[[j]]$line_number]],list(character_features[[j]]))
+  }
+  #!!! I don't paticularly know why but
+  #These already seem to be sorted by x centroid in increasing order
+  return(characters_by_line)
+}
+
+#TODO:
+#Finish sort_by_centroid_x(character_features_by_line) if
+#character_features_by_line stops magically already doing it 
+#magical stack overflow 
+#https://stackoverflow.com/questions/24203361/r-sorting-list-by-values-in-nested-list
+#data_list = data_list[order(sapply(data_list, `[[`, i=1))]
+byline_x_print = function(characters_by_line){
+  for(i in 1:length(characters_by_line)){
+    for(j in 1:length(characters_by_line[[i]])){
+      print(characters_by_line[[i]][[j]]$centroid_x)
+    }
+    print("chris")
+  }
+}
 
 #' loop_extract
 #'
@@ -388,3 +583,7 @@ line_number_extract = function(all_centroids,img_dim){
 #Various papers for later reference
 #http://old.cescg.org/CESCG-2008/papers/BratislavaC-Bozekova-Miroslava.pdf
 #Below are unused / unneeded functions
+
+#Reserved Debug Function Call
+#loop_info(looptest,dim(img))
+#End Debug
