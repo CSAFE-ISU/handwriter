@@ -428,7 +428,7 @@ processHandwriting = function(img, dims)
   adj.m = subset(adj.m, value == 1)
   names(adj.m) = c("from", "to", "value")
 
-  cat("Finding direct paths..")
+  cat("Finding direct paths...")
   pathList = AllUniquePaths(adj.m, skel_graph, skel_graph0)
   cat("and loops...\n")
   loopList = getLoops(nodeList, skel_graph, skel_graph0, pathList, dim(img))
@@ -481,31 +481,41 @@ processHandwriting = function(img, dims)
   
   ##################### Potential breakpoints (except for stacked letters) found. Break into letter paths.
 
-  cat("Isolating letter paths...")
+  cat("Isolating letter paths...\n")
 
-  lettersList = letterPaths(allPaths, skel_graph0, preStackBreaks)
-  letters = lettersList[[1]]
-  V(skel_graph0)$letterID = lettersList[[2]]
+  letterList = letterPaths(allPaths, skel_graph0, preStackBreaks)
+  letters = letterList[[1]]
+  V(skel_graph0)$letterID = letterList[[2]]
   
   finalBreaks = preStackBreaks[!(checkStacking(preStackBreaks, allPaths, letters, skel_graph0, dims))]
   
   breakAddedEndPoints = NULL
   pathsWithBreaks = lapply(allPaths, function(x){which(x %in% finalBreaks)})
-  for(i in which(lapply(pathsWithBreaks, length) > 0))
+  breaksPerPath = lapply(pathsWithBreaks, length)
+  for(i in which(breaksPerPath > 0))
   {
     newNodes = pathsWithBreaks[[i]]
+    if(breaksPerPath[i] > 1)
+    {
+      newNodes = floor(mean(newNodes))
+      breaksPerPath[i] = 1
+      pathsWithBreaks[[i]] = c(newNodes)
+      finalBreaks = finalBreaks[which(!(finalBreaks %in% allPaths[[i]]))]
+      finalBreaks = c(finalBreaks, allPaths[[i]][newNodes])
+    }
     E(skel_graph0, P = as.character(allPaths[[i]][c(newNodes - 2, newNodes - 1)]))$nodeOnlyDist = 1
     E(skel_graph0, P = as.character(allPaths[[i]][c(newNodes + 1, newNodes + 2)]))$nodeOnlyDist = 1
     newNodes = c(newNodes - 1, newNodes + 1)
     breakAddedEndPoints = c(breakAddedEndPoints, allPaths[[i]][newNodes])
     nodeList = c(nodeList, allPaths[[i]][newNodes])
-    allPaths[[i]] = list(allPaths[[i]], allPaths[[i]][1:(newNodes[1]-1)], allPaths[[i]][(newNodes[1]-1):length(allPaths[[i]])])
+    allPaths[[i]] = list(allPaths[[i]][1:(newNodes[1]-1)], allPaths[[i]][(newNodes[1]-1):length(allPaths[[i]])])
+    #allPaths[[i]] = list(allPaths[[i]], allPaths[[i]][1:(newNodes[1]-1)], allPaths[[i]][(newNodes[1]-1):length(allPaths[[i]])])
   }
   
   allPaths = lapply(rapply(allPaths, enquote, how="unlist"), eval)
   
-  lettersList = letterPaths(allPaths, skel_graph0, finalBreaks)
-  letters = lettersList[[1]]
+  letterList = letterPaths(allPaths, skel_graph0, finalBreaks)
+  letters = letterList[[1]]
   
   # for(i in seq(1, length(breakAddedEndPoints), 2))
   # {
@@ -536,6 +546,7 @@ processHandwriting = function(img, dims)
     }
   }
   
+  cat("Organizing nodes...")
   nodeOrder = orderNodes(letters = letters, nodesInGraph = nodesinGraph, dims = dims)
   letterAdj = list()
   decCode = rep(NA, length(letters))
@@ -548,19 +559,19 @@ processHandwriting = function(img, dims)
     decCode[i] = sum(binCode*2^((length(binCode):1) - 1))
   }
   
-  lettersList = replicate(length(letters), list(path = NA, nodesInGraph = NA, nodeOrder = NA), simplify=FALSE)
+  letterList = replicate(length(letters), list(path = NA, nodesInGraph = NA, nodeOrder = NA), simplify=FALSE)
   for(i in 1:length(letters))
   {
-    lettersList[[i]]$path = letters[[i]]
-    lettersList[[i]]$nodesInGraph = nodesinGraph[[i]]
-    lettersList[[i]]$nodeOrder = nodeOrder[[i]]
-    lettersList[[i]]$allPaths = pathLetterAssociate(allPaths,letters[[i]])
-    lettersList[[i]]$adjMatrix = letterAdj[[i]]
-    lettersList[[i]]$letterCode = decCode[i]
+    letterList[[i]]$path = letters[[i]]
+    letterList[[i]]$nodesInGraph = nodesinGraph[[i]]
+    letterList[[i]]$nodeOrder = nodeOrder[[i]]
+    letterList[[i]]$allPaths = pathLetterAssociate(allPaths,letters[[i]])
+    letterList[[i]]$adjMatrix = letterAdj[[i]]
+    letterList[[i]]$letterCode = decCode[i]
   }
   
   cat("and done.\n")
-  return(list(thin = indices, nodes = nodeList, breakPoints = finalBreaks, pathList = allPaths, letterList = lettersList))
+  return(list(thin = indices, nodes = nodeList, breakPoints = finalBreaks, pathList = allPaths, letterList = letterList))
 }
 
 #' Function associating entries in allPaths to each letter
