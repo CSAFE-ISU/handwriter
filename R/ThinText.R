@@ -9,7 +9,7 @@
 #' @return Returns image from path. 0 represents black, and 1 represents white by default.
 #' @export
 
-readPNGBinary = function(path, cutoffAdjust = .75, clean = TRUE, crop = TRUE, inversion = FALSE)
+readPNGBinary = function(path, cutoffAdjust = 1, clean = TRUE, crop = TRUE, inversion = FALSE)
 {
   img = png::readPNG(path)
   img = as.array(img)
@@ -28,9 +28,7 @@ readPNGBinary = function(path, cutoffAdjust = .75, clean = TRUE, crop = TRUE, in
     img = 1-img
   
   # Threshold Image
-  km1 = kmeans(c(img), c(0,1))
-  m = which.min(km1$centers)
-  thresh = km1$centers[m]*(1-cutoffAdjust) + km1$centers[3-m]*cutoffAdjust
+  thresh = otsuBinarization(img, 512)*cutoffAdjust
   img = img > thresh
   
   if(clean)
@@ -45,6 +43,23 @@ readPNGBinary = function(path, cutoffAdjust = .75, clean = TRUE, crop = TRUE, in
   
   return(img + 0)
 }
+
+
+#' otsuBinarization
+otsuBinarization = function(img, breaks = 512)
+{
+  histVals = hist(img, breaks = breaks, plot = FALSE)
+  numBins = length(histVals$counts)
+  w1 = cumsum(histVals$counts)
+  w2 = w1[numBins] + histVals$counts - w1
+  mu1 = cumsum(histVals$counts * histVals$mids)
+  mu2 = mu1[numBins] + cm - mu1
+  var = log(w1) + log(w2) + 2*log((mu2/w2 - mu1/w1))
+  peak = which.max(var)
+
+  return(histVals$mids[peak])
+}
+
 
 #' plotImage
 #'
