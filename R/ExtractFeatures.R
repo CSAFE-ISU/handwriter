@@ -236,6 +236,10 @@ rc_to_i = function(row_y,col_x,img_dim, fixed = FALSE)
 #' get_aspect_info
 #'
 #' Extracts aspect ratio & supporting information from a character
+#' Relevant Features:
+#' Aspect Ratio: Row (Height) over (Column Width) //Determined after a meeting, can easily be switched around)
+#' Height, Width (Each measure of pixels)
+#' The rest are supporting features that are minor independently. 
 #' @param character character to extract information from
 #' @param img_dim Dimensions of binary image
 #' @keywords aspect, ratio, character, width, height
@@ -258,6 +262,15 @@ get_aspect_info = function(character, img_dim)
 #' get_centroid_info
 #'
 #' Extracts centroid & supporting information from a character
+#' Relevant Features:
+#' Centroid Index: R Index representation of centroid location
+#' Centroid x,y: X,Y representations of the centroid, see ?i_to_rci (Written by Nick)
+#' Centroid Horiz Location: How far along horizontally (Represented as a number between 0 and 1) the centroid is in its respective character.
+#' Centroid Vertical Location: How far along vertically (Represented as a number between 0 and 1) the centroid is in its respective character.
+#' Slope: 'Letter Lean', slope found between the centroids of each disjoint half in a single character.
+#' The letter is split in half, each halve's centroid is calculated independently, the slope is taken between the two. 
+#' Box Density: (Dimensions of box around letter width height) / (how much of the document it covers) //Might be a more document as opposed to letter based feature
+#' Pixel Density: Ratio of black to white pixels found in box drawn around the letter.
 #' @param character character to extract information from
 #' @param img_dim Dimensions of binary image
 #' @keywords centroid, skew, slant, lean, character
@@ -309,6 +322,10 @@ get_centroid_info = function(character, img_dim)
 #'
 #' Primary driver of feature extraction. 
 #' Parses all characters from a processed image.
+#' For information detailing each feature, please see
+#' ?get_aspect_info
+#' ?get_centroid_info
+#' ?get_loop_info
 #' @param character_lists Output from processHandwriting$letterLists
 #' @param img_dim Dimensions of binary image
 #' @keywords centroid, skew, slant, lean, character
@@ -394,9 +411,13 @@ lm_rm_nodes = function(character){
 #' get_loop_info
 #'
 #' Associator of loop to character association
-#' Volatile, likely won't live for long
-#' as Nick and I transition to moving the primary 
-#' loop driver out of JunctionDetection.R
+#' Relevant Features:
+#' Loop Count, how many loops are found in the letter
+#' Loop Major, length of farthest line that can be drawn inside of a loop
+#' Loop Minor, length of the perpindcular bisector of the loop major.
+#' ! I've removed loop minor / loop major features due to instability during testing.
+#' The outliers were frequent enough to deem my implementation unreliable for modeling.
+#' I need additional help in some of the syntactical challenges I've experienced with those features..
 #' @param character Target for loop association
 #' @param img_dim Dimensions of binary image
 #' @keywords character, loop, associate
