@@ -9,7 +9,7 @@
 #' @return Returns image from path. 0 represents black, and 1 represents white by default.
 #' @export
 
-readPNGBinary = function(path, cutoffAdjust = 1, clean = TRUE, crop = TRUE, inversion = FALSE)
+readPNGBinary = function(path, cutoffAdjust = .75, clean = TRUE, crop = TRUE, inversion = FALSE)
 {
   img = png::readPNG(path)
   img = as.array(img)
@@ -30,9 +30,7 @@ readPNGBinary = function(path, cutoffAdjust = 1, clean = TRUE, crop = TRUE, inve
   # Threshold Image
   km1 = kmeans(c(img), c(0,1))
   m = which.min(km1$centers)
-  m1 = max(img[km1$cluster == m])
-  m2 = min(img[km1$cluster == 3-m])
-  thresh = cutoffAdjust*mean(c(m1, m2))
+  thresh = km1$centers[m]*(1-cutoffAdjust) + km1$centers[3-m]*cutoffAdjust
   img = img > thresh
   
   if(clean)

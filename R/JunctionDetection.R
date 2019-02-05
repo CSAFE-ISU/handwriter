@@ -61,8 +61,8 @@ whichNeighbors0 = function(coords, img)
 LooplessPaths = function(nodes, graph, graph0)
 {
   paths = list()
-  fromNode = as.character(nodes[1])
-  toNode = as.character(nodes[2])
+  fromNode = as.character(format(nodes[1], scientific = FALSE, trim = TRUE))
+  toNode = as.character(format(nodes[2], scientific = FALSE, trim = TRUE))
 
   while(shortest.paths(graph0, v = fromNode, to = toNode, weights = E(graph0)$nodeOnlyDist) %in% c(1,2))
   {
@@ -104,8 +104,8 @@ getLoops = function(nodeList, graph, graph0, pathList, dims)
   used = unlist(lapply(pathList, function(x){x[-c(1, length(x))]}))
   unused = as.numeric(vertexNames)[which(!(as.numeric(vertexNames) %in% used))]
   unusedAdj = matrix(1, ncol = length(unused), nrow = length(unused))
-  colnames(unusedAdj) = as.character(unused)
-  rownames(unusedAdj) = as.character(unused)
+  colnames(unusedAdj) = as.character(format(unused, scientific = FALSE, trim = TRUE))
+  rownames(unusedAdj) = as.character(format(unused, scientific = FALSE, trim = TRUE))
   unusedAdj[which(unused %in% nodeList),][,which(unused %in% nodeList)] = 0 #[as.character(nodeList),][,as.character(nodeList)] = 0
   unusedGraph = graph_from_adjacency_matrix(unusedAdj, mode = "undirected")
 
@@ -271,7 +271,8 @@ checkBreakPoints = function(candidateNodes, allPaths, nodeGraph, dims)
 letterPaths = function(allPaths, nodeGraph0, breakPoints)
 {
   oldVerts = V(nodeGraph0)$name
-  nodeGraph0 = delete_vertices(nodeGraph0, v = as.character(breakPoints))
+  if(any(as.character(format(breakPoints, scientific = FALSE, trim = TRUE)) %in% names(V(nodeGraph0))))
+    nodeGraph0 = delete_vertices(nodeGraph0, v = as.character(format(breakPoints, scientific = FALSE, trim = TRUE)))
   grIDs = rep(NA, length(V(nodeGraph0)))
   dists = distances(nodeGraph0, v = V(nodeGraph0), to = V(nodeGraph0))
   vertList = V(nodeGraph0)$name
@@ -405,23 +406,23 @@ processHandwriting = function(img, dims)
   graphdf0$from = indices[graphdf0$Var1]
   graphdf0$to = graphdf0$from + c(-1, dims[1]-1, dims[1], dims[1] + 1, 1, 1-dims[1], -dims[1], -1-dims[1])[graphdf0$Var2]
   graphdf0$nodeOnlyDist = ifelse(graphdf0$from %in% nodeList | graphdf0$to %in% nodeList, 1, 0)
-  graphdf0$from = as.character(graphdf0$from)
-  graphdf0$to = as.character(graphdf0$to)
+  graphdf0$from = as.character(format(graphdf0$from, scientific = FALSE, trim = TRUE))
+  graphdf0$to = as.character(format(graphdf0$to, scientific = FALSE, trim = TRUE))
   graphdf0 = subset(graphdf0, select = c(from, to, nodeOnlyDist))
 
-  graphdf$from = as.character(graphdf$from)
-  graphdf$to = as.character(graphdf$to)
+  graphdf$from = as.character(format(graphdf$from, scientific = FALSE, trim = TRUE))
+  graphdf$to = as.character(format(graphdf$to, scientific = FALSE, trim = TRUE))
   graphdf = subset(graphdf, select = c(from, to, man_dist, euc_dist, pen_dist))
 
-  skel_graph = graph_from_data_frame(d = graphdf, vertices = as.character(indices), directed = FALSE)
-  skel_graph0 = graph_from_data_frame(d = graphdf0, vertices = as.character(indices), directed = FALSE)
+  skel_graph = graph_from_data_frame(d = graphdf, vertices = as.character(format(indices, scientific = FALSE, trim = TRUE)), directed = FALSE)
+  skel_graph0 = graph_from_data_frame(d = graphdf0, vertices = as.character(format(indices, scientific = FALSE, trim = TRUE)), directed = FALSE)
   skel_graph = simplify(skel_graph, remove.multiple = TRUE, edge.attr.comb="mean")
   skel_graph0 = simplify(skel_graph0, remove.multiple = TRUE, edge.attr.comb="mean")
 
   V(skel_graph)$color = ifelse(V(skel_graph)$name %in% nodeList, 1, 0)
   V(skel_graph0)$color = ifelse(V(skel_graph0)$name %in% nodeList, 1, 0)
 
-  dists0 = distances(skel_graph0, v = as.character(nodeList), to = as.character(nodeList), weights = E(skel_graph0)$nodeOnlyDist)
+  dists0 = distances(skel_graph0, v = as.character(format(nodeList, scientific = FALSE, trim = TRUE)), to = as.character(format(nodeList, scientific = FALSE, trim = TRUE)), weights = E(skel_graph0)$nodeOnlyDist)
   adj0 = ifelse(dists0 == 1 | dists0 == 2, 1, 0)
   adj0[lower.tri(adj0)] = 0
   adj.m = melt(adj0)
@@ -479,74 +480,74 @@ processHandwriting = function(img, dims)
   goodBreaks = checkBreakPoints(candidateNodes = candidateNodes, allPaths = allPaths, nodeGraph = getNodeGraph(allPaths, nodeList), dims)
   preStackBreaks = candidateNodes[goodBreaks]
   
+  pathsWithBreaks = lapply(allPaths, function(x){which(x %in% preStackBreaks)})
+  breaksPerPath = unlist(lapply(pathsWithBreaks, length))
+  for(i in which(breaksPerPath > 1))
+  {
+    newBreak = allPaths[[i]][floor(mean(which(allPaths[[i]] %in% preStackBreaks)))]
+    preStackBreaks = preStackBreaks[which(!(preStackBreaks %in% allPaths[[i]]))]
+    preStackBreaks = c(preStackBreaks, allPaths[[i]][newBreak])
+  }
+  
   ##################### Potential breakpoints (except for stacked letters) found. Break into letter paths.
 
   cat("Isolating letter paths...\n")
 
+  ## Break on breakpoints and group points by which letter they fall into. Adjust graph accordingly.
   letterList = letterPaths(allPaths, skel_graph0, preStackBreaks)
-  letters = letterList[[1]]
-  V(skel_graph0)$letterID = letterList[[2]]
+  letters = letterList[[1]][unlist(lapply(letterList[[1]], length)) > 5]
   
+  V(skel_graph0)$letterID = letterList[[2]]
+  skel_graph0 = delete.vertices(skel_graph0, V(skel_graph0)[which(V(skel_graph0)$letterID %in% which(unlist(lapply(letterList[[1]], length)) <= 5))])
+  V(skel_graph0)$letterID[!is.na(V(skel_graph0)$letterID)] = as.numeric(as.factor(na.omit(V(skel_graph0)$letterID)))
+  
+  # Remove breakpoints that shouldn't have broken.
   finalBreaks = preStackBreaks[!(checkStacking(preStackBreaks, allPaths, letters, skel_graph0, dims))]
   
   breakAddedEndPoints = NULL
-  pathsWithBreaks = lapply(allPaths, function(x){which(x %in% finalBreaks)})
-  breaksPerPath = lapply(pathsWithBreaks, length)
+ # pathsWithBreaks = lapply(allPaths, function(x){which(x %in% finalBreaks)})
+ # breaksPerPath = unlist(lapply(pathsWithBreaks, length))
   for(i in which(breaksPerPath > 0))
   {
     newNodes = pathsWithBreaks[[i]]
-    if(breaksPerPath[i] > 1)
+    if(allPaths[[i]][newNodes] %in% finalBreaks)
     {
-      newNodes = floor(mean(newNodes))
-      breaksPerPath[i] = 1
-      pathsWithBreaks[[i]] = c(newNodes)
-      finalBreaks = finalBreaks[which(!(finalBreaks %in% allPaths[[i]]))]
-      finalBreaks = c(finalBreaks, allPaths[[i]][newNodes])
+      E(skel_graph0, P = as.character(allPaths[[i]][c(newNodes - 2, newNodes - 1)]))$nodeOnlyDist = 1
+      E(skel_graph0, P = as.character(allPaths[[i]][c(newNodes + 1, newNodes + 2)]))$nodeOnlyDist = 1
+      newNodes = c(newNodes - 1, newNodes + 1)
+      breakAddedEndPoints = c(breakAddedEndPoints, allPaths[[i]][newNodes])
+      nodeList = c(nodeList, allPaths[[i]][newNodes])
+      allPaths[[i]] = list(allPaths[[i]][1:(newNodes[1])], allPaths[[i]][(newNodes[2]):length(allPaths[[i]])])
     }
-    E(skel_graph0, P = as.character(allPaths[[i]][c(newNodes - 2, newNodes - 1)]))$nodeOnlyDist = 1
-    E(skel_graph0, P = as.character(allPaths[[i]][c(newNodes + 1, newNodes + 2)]))$nodeOnlyDist = 1
-    newNodes = c(newNodes - 1, newNodes + 1)
-    breakAddedEndPoints = c(breakAddedEndPoints, allPaths[[i]][newNodes])
-    nodeList = c(nodeList, allPaths[[i]][newNodes])
-    allPaths[[i]] = list(allPaths[[i]][1:(newNodes[1]-1)], allPaths[[i]][(newNodes[1]-1):length(allPaths[[i]])])
-    #allPaths[[i]] = list(allPaths[[i]], allPaths[[i]][1:(newNodes[1]-1)], allPaths[[i]][(newNodes[1]-1):length(allPaths[[i]])])
+    else
+    {
+      letterIDs = c(V(skel_graph0)$letterID[names(V(skel_graph0)) %in% as.character(format(allPaths[[i]], scientific = FALSE, trim = TRUE))][1],V(skel_graph0)$letterID[names(V(skel_graph0)) %in% as.character(format(allPaths[[i]], scientific = FALSE, trim = TRUE))][length(allPaths[[i]])])
+      
+     V(skel_graph0)$letterID[which(V(skel_graph0)$letterID == letterIDs[2])] = letterIDs[1]
+     V(skel_graph0)$letterID[which(names(V(skel_graph0)) %in% as.character(format(allPaths[[i]][newNodes], scientific = FALSE, trim = TRUE)))] = letterIDs[1]
+    }
   }
   
   allPaths = lapply(rapply(allPaths, enquote, how="unlist"), eval)
   
-  letterList = letterPaths(allPaths, skel_graph0, finalBreaks)
-  letters = letterList[[1]]
   
-  # for(i in seq(1, length(breakAddedEndPoints), 2))
-  # {
-  #   pairToJoin = which(sapply(letters, function(x) any(x %in% breakAddedEndPoints[c(i,i+1)])))
-  #   letters[[pairToJoin[1]]] = list(letters[[pairToJoin[1]]], c(letters[[pairToJoin[1]]], letters[[pairToJoin[2]]]))
-  # }
-  # letters = lapply(rapply(letters, enquote, how="unlist"), eval)
-  # 
-  # for(i in 2:(length(letters)-1))
-  # {
-  #   if(all(letters[[i-1]] %in% letters[[i]]) & all(letters[[i+1]] %in% letters[[i]]))
-  #     isMerged[i] = TRUE
-  # }
-  # letters = letters[unlist(lapply(letters, length)) > 5]
-  # 
+  cat("Organizing everything...")
   
-  isMerged = rep(FALSE, length(letters))
+  
+  letters = replicate(n = length(na.omit(unique(V(skel_graph0)$letterID))), list())
+  strs = names(V(skel_graph0))
+  for(i in 1:length(na.omit(unique(V(skel_graph0)$letterID))))
+  {
+    tmp = as.numeric(as.factor(V(skel_graph0)$letterID))
+    letters[[i]] = as.numeric(strs[which(tmp == i)])
+  }
+  
   nodesinGraph = replicate(length(letters), list(NA))
   for(i in 1:length(letters))
   {
-    if(isMerged[i] == FALSE)
-    {
       nodesinGraph[[i]] = letters[[i]][which(letters[[i]] %in% nodeList)]
-    }
-    else
-    {
-      nodesinGraph[[i]] = letters[[i]][which(letters[[i]] %in% nodeList[!(nodeList %in% breakAddedEndPoints)])]
-    }
   }
   
-  cat("Organizing nodes...")
   nodeOrder = orderNodes(letters = letters, nodesInGraph = nodesinGraph, dims = dims)
   letterAdj = list()
   decCode = rep(NA, length(letters))
@@ -570,8 +571,19 @@ processHandwriting = function(img, dims)
     letterList[[i]]$letterCode = decCode[i]
   }
   
+  featureSets = try(extract_character_features(letterList, dims))
+
+  for(i in 1:length(letters))
+  {
+    letterList[[i]]$characterFeatures = featureSets[[i]]
+  }
+  
+  letterPlaces = matrix(unlist(lapply(featureSets, FUN = function(x) {c(x$line_number, x$order_within_line)})), ncol = 2, byrow = TRUE)
+  letterOrder = order(letterPlaces[,1], letterPlaces[,2])
+  letterList = letterList[letterOrder]
+  
   cat("and done.\n")
-  return(list(thin = indices, nodes = nodeList, breakPoints = finalBreaks, pathList = allPaths, letterList = letterList))
+  return(list(nodes = nodeList, breakPoints = finalBreaks, pathList = allPaths, letterList = letterList))
 }
 
 #' Function associating entries in allPaths to each letter
@@ -624,20 +636,6 @@ checkStacking = function(candidateBreaks, allPaths, letters, nodeGraph0, dims)
         if(overlapPercentage < .1)
         {
           stackPtFlag[nodeChecks] = TRUE
-        }
-        else
-        {
-          # Call a break point a stack point if one of the letters is completely dominated
-          # In the vertical sense. AKA if 1 is contained completely within the columns of another.
-
-          gr1Cols = ((gr1 - 1) %/% dims[1]) + 1
-          gr2Cols = ((gr2 - 1) %/% dims[1]) + 1
-          rg1 = range(gr1Cols)
-          rg2 = range(gr2Cols)
-     #     cat("rg1:", rg1, "\nrg2:", rg2)
-          #if(all(between(rg1, rg2[1], rg2[2])) | all(between(rg2, rg1[1], rg1[2])))
-          if(all(rg1 > rg2[1] & rg1 < rg2[2]) | all(rg2 > rg1[1] & rg2 < rg1[2]))
-            stackPtFlag[nodeChecks] = TRUE
         }
       }
     }

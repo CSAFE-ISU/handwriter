@@ -363,11 +363,12 @@ char_to_feature = function(character, img_dim, uniqueid){
 
 add_line_info = function(character_features,img_dim){
   line_info = line_number_extract(all_centroids(character_features),img_dim)
+  line_order = lapply(line_info, sort)
   for(i in 1:length(character_features)){
     cur_letter_index = character_features[[i]]$centroid_index
     for(j in 1:length(line_info)){
       if(cur_letter_index %in% line_info[[j]]){
-        character_features[[i]] = c(character_features[[i]],list(line_number = j))
+        character_features[[i]] = c(character_features[[i]],list(line_number = j, order_within_line = which(line_order[[j]] == cur_letter_index)))
       }
     }
   }
