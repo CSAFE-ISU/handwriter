@@ -53,7 +53,7 @@ otsuBinarization = function(img, breaks = 512)
   w1 = cumsum(histVals$counts)
   w2 = w1[numBins] + histVals$counts - w1
   mu1 = cumsum(histVals$counts * histVals$mids)
-  mu2 = mu1[numBins] + cm - mu1
+  mu2 = mu1[numBins] + histVals$counts * histVals$mids - mu1
   var = log(w1) + log(w2) + 2*log((mu2/w2 - mu1/w1))
   peak = which.max(var)
 
