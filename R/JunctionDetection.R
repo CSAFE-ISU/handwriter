@@ -484,7 +484,7 @@ processHandwriting = function(img, dims)
   breaksPerPath = unlist(lapply(pathsWithBreaks, length))
   for(i in which(breaksPerPath > 1))
   {
-    newBreak = allPaths[[i]][floor(mean(which(allPaths[[i]] %in% preStackBreaks)))]
+    newBreak = floor(mean(which(allPaths[[i]] %in% preStackBreaks)))
     preStackBreaks = preStackBreaks[which(!(preStackBreaks %in% allPaths[[i]]))]
     preStackBreaks = c(preStackBreaks, allPaths[[i]][newBreak])
   }
@@ -505,8 +505,8 @@ processHandwriting = function(img, dims)
   finalBreaks = preStackBreaks[!(checkStacking(preStackBreaks, allPaths, letters, skel_graph0, dims))]
   
   breakAddedEndPoints = NULL
- # pathsWithBreaks = lapply(allPaths, function(x){which(x %in% finalBreaks)})
- # breaksPerPath = unlist(lapply(pathsWithBreaks, length))
+  pathsWithBreaks = lapply(allPaths, function(x){which(x %in% finalBreaks)})
+  breaksPerPath = unlist(lapply(pathsWithBreaks, length))
   for(i in which(breaksPerPath > 0))
   {
     newNodes = pathsWithBreaks[[i]]
