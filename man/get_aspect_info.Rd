@@ -18,6 +18,10 @@ points of character. (row, col representation)
 }
 \description{
 Extracts aspect ratio & supporting information from a character
+Relevant Features:
+Aspect Ratio: Row (Height) over (Column Width) //Determined after a meeting, can easily be switched around)
+Height, Width (Each measure of pixels)
+The rest are supporting features that are minor independently.
 }
 \keyword{aspect,}
 \keyword{character,}

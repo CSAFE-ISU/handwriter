@@ -17,6 +17,10 @@ nested lists associating features to respective characters.
 \description{
 Primary driver of feature extraction. 
 Parses all characters from a processed image.
+For information detailing each feature, please see
+?get_aspect_info
+?get_centroid_info
+?get_loop_info
 }
 \keyword{centroid,}
 \keyword{character}
