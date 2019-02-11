@@ -160,7 +160,10 @@ getLoops = function(nodeList, graph, graph0, pathList, dims)
   neighbors = neighborhood(graph, nodes = as.character(check))
 
   if(any(unlist(lapply(neighbors, length)) > 3))
-    cat("At least 1 of the nodes in the potential loops has more than 2 neighbors after removal of the connections. Try again!")
+  {
+    cat("At least 1 of the nodes in the potential loops has more than 2 neighbors after removal of the connections. Try again! \nThe nodes in question are: \n", dput(which(unlist(lapply(neighbors, length)) > 3)))
+  }
+    
 
   for(i in 1:length(neighbors))
   {
@@ -458,9 +461,9 @@ processHandwriting = function(img, dims)
   #   
   # }
   
-  newNodes = findMergeNodes(skel_graph, mergeSets)
+  #newNodes = findMergeNodes(skel_graph, mergeSets)
   
-  nodeList = c(nodeList[!(nodeList %in% c(mergeSets[,c(1,2)]))], newNodes)
+  #nodeList = c(nodeList[!(nodeList %in% c(mergeSets[,c(1,2)]))], newNodes)
   
   dists0 = distances(skel_graph0, v = as.character(format(nodeList, scientific = FALSE, trim = TRUE)), to = as.character(format(nodeList, scientific = FALSE, trim = TRUE)), weights = E(skel_graph0)$nodeOnlyDist)
   adj0 = ifelse(dists0 == 1 | dists0 == 2, 1, 0)
