@@ -57,6 +57,21 @@ whichNeighbors0 = function(coords, img)
   return(res)
 }
 
+# #' Internal function to merge nodes that are very close together.
+# findMergeNodes = function(skel_graph, mergeMat)
+# {
+#   newNodes = rep(NA, dim(mergeMat)[1])
+#   for(i in 1:dim(mergeMat)[1])
+#   {
+#     fromNode = as.character(format(mergeMat[i,1], scientific = FALSE, trim = TRUE))
+#     toNode = as.character(format(mergeMat[i,2], scientific = FALSE, trim = TRUE))
+#     path = shortest_paths(skel_graph, from = fromNode, to = toNode, weights = E(skel_graph)$pen_dist)$vpath[[1]]
+#     len = length(path)
+#     newNodes[i] = as.numeric(names(path[ceiling(len/2)]))
+#   }
+#   return(newNodes)
+# }
+
 #' Internal function to get all non loop paths between two points. Called from AllUniquePaths.
 LooplessPaths = function(nodes, graph, graph0)
 {
@@ -111,7 +126,7 @@ getLoops = function(nodeList, graph, graph0, pathList, dims)
 
   graph0 = intersection(graph0, unusedGraph, keep.all.vertices = TRUE)
   graph = intersection(graph, graph0, byname = TRUE, keep.all.vertices = TRUE)
-  check = unused[degree(graph0, as.character(unused)) > 1]
+  check = unused[degree(graph0, as.character(format(unused, scientific = FALSE, trim = TRUE))) > 1]
   check = check[which(check %in% nodeList)]
 
   loopList = list()
@@ -274,7 +289,7 @@ letterPaths = function(allPaths, nodeGraph0, breakPoints)
   if(any(as.character(format(breakPoints, scientific = FALSE, trim = TRUE)) %in% names(V(nodeGraph0))))
     nodeGraph0 = delete_vertices(nodeGraph0, v = as.character(format(breakPoints, scientific = FALSE, trim = TRUE)))
   grIDs = rep(NA, length(V(nodeGraph0)))
-  dists = distances(nodeGraph0, v = V(nodeGraph0), to = V(nodeGraph0))
+  dists = distances(nodeGraph0, v = names(V(nodeGraph0)), to = names(V(nodeGraph0)), weights = E(nodeGraph0)$nodeOnlyDist)
   vertList = V(nodeGraph0)$name
 
   grPaths = list()
@@ -285,7 +300,7 @@ letterPaths = function(allPaths, nodeGraph0, breakPoints)
     grPaths = c(grPaths, list(as.numeric(V(nodeGraph0)$name[tempIDs])))
   #  grIDs[V(nodeGraph0)$name %in% as.character(grPaths[[i]])] = i
     grIDs[tempIDs] = i
-    vertList = vertList[vertList %in% setdiff(vertList, grPaths[[i]])]
+    vertList = vertList[vertList %in% setdiff(vertList, as.character(format(grPaths[[i]], scientific = FALSE, trim = TRUE)))]
     i = i+1
   }
   grIDs2 = rep(NA, length(oldVerts))
@@ -314,10 +329,9 @@ letterPaths = function(allPaths, nodeGraph0, breakPoints)
 #'
 #' @export
 
-getNodes = function(img, dims)
+getNodes = function(indices, dims)
 {
   ## First, we find endpoints and intersections of skeleton.
-  indices = img
   img = matrix(1, ncol = dims[2], nrow = dims[1])
   img[indices] = 0
   img.m = cbind(((indices-1) %% dims[1]) + 1, ((indices - 1) %/% dims[1]) + 1)
@@ -346,7 +360,8 @@ getNodes = function(img, dims)
   
   nodes2by2 = apply(img.m, 1, FUN = node2by2fill, img = img)
   nodes[nodes2by2[!is.na(nodes2by2)]] = 0
-  return(which(nodes == 0))
+  
+  return(list(which(nodes == 0), indices[changeCount >= 3]))
 }
 
 #' processHandwriting
@@ -380,15 +395,17 @@ getNodes = function(img, dims)
 processHandwriting = function(img, dims)
 {
   # Next, we have to follow certain rules to find non intersection breakpoints.
-
+  
   cat("Starting Processing...\n")
   indices = img
   img = matrix(1, nrow = dims[1], ncol = dims[2])
   img[indices] = 0
   cat("Getting Nodes...\n")
   nodeList = getNodes(indices, dims)
+  nodeConnections = nodeList[[2]]
+  nodeList = nodeList[[1]]
   img.m = cbind(((indices-1) %% dims[1]) + 1, ((indices - 1) %/% dims[1]) + 1)
-
+  
   neighborList = matrix(NA, nrow = indices, ncol = 8)
   neighborList = t(apply(as.matrix(img.m, ncol = 2), 1, whichNeighbors, img = img))
   graphdf = melt(neighborList)
@@ -398,7 +415,7 @@ processHandwriting = function(img, dims)
   graphdf$man_dist = rep(c(1,2), 4)[graphdf$Var2]
   graphdf$euc_dist = c(1,sqrt(2), 1, sqrt(2), 1, sqrt(2), 1, sqrt(2))[graphdf$Var2]
   graphdf$pen_dist = c(1,3,1,3,1,3,1,3)[graphdf$Var2]
-
+  
   neighborList0 = matrix(NA, nrow = indices, ncol = 8)
   neighborList0 = t(apply(as.matrix(img.m, ncol = 2), 1, whichNeighbors0, img = img))
   graphdf0 = melt(neighborList0)
@@ -409,19 +426,42 @@ processHandwriting = function(img, dims)
   graphdf0$from = as.character(format(graphdf0$from, scientific = FALSE, trim = TRUE))
   graphdf0$to = as.character(format(graphdf0$to, scientific = FALSE, trim = TRUE))
   graphdf0 = subset(graphdf0, select = c(from, to, nodeOnlyDist))
-
+  
   graphdf$from = as.character(format(graphdf$from, scientific = FALSE, trim = TRUE))
   graphdf$to = as.character(format(graphdf$to, scientific = FALSE, trim = TRUE))
   graphdf = subset(graphdf, select = c(from, to, man_dist, euc_dist, pen_dist))
-
+  
   skel_graph = graph_from_data_frame(d = graphdf, vertices = as.character(format(indices, scientific = FALSE, trim = TRUE)), directed = FALSE)
   skel_graph0 = graph_from_data_frame(d = graphdf0, vertices = as.character(format(indices, scientific = FALSE, trim = TRUE)), directed = FALSE)
   skel_graph = simplify(skel_graph, remove.multiple = TRUE, edge.attr.comb="mean")
   skel_graph0 = simplify(skel_graph0, remove.multiple = TRUE, edge.attr.comb="mean")
-
+  
   V(skel_graph)$color = ifelse(V(skel_graph)$name %in% nodeList, 1, 0)
   V(skel_graph0)$color = ifelse(V(skel_graph0)$name %in% nodeList, 1, 0)
-
+  
+ # connectedComponents = SDMTools::ConnCompLabel(1-img)
+ # connectedComponents = melt(connectedComponents)$value
+  
+  distsFull = distances(skel_graph, v = as.character(format(nodeList, scientific = FALSE, trim = TRUE)), to = as.character(format(nodeList, scientific = FALSE, trim = TRUE)), weights = E(skel_graph)$man_dist)
+  distsFull[!upper.tri(distsFull)] = 0
+  # nodesToMerge = which(distsFull <= 4 & distsFull > 0)
+  # rNodes = ((nodesToMerge-1) %% length(nodeList)) + 1
+  # cNodes = ((nodesToMerge-1) %/% length(nodeList)) + 1
+  # mergeSets = cbind(nodeList[rNodes], nodeList[cNodes])
+  # mergeSets = cbind(mergeSets, apply(mergeSets, 1, function(x){all(x %in% nodeConnections)}))
+  # mergeSets = mergeSets[mergeSets[,3] == 1,c(1,2)]
+  # if(anyDuplicated(c(mergeSets)) > 0)
+  # {
+  #   duplicates = which(mergeSets %in% mergeSets[apply(matrix(duplicated(c(mergeSets)), ncol = 2), 1, any)])
+  #   rduplicates = ((duplicates - 1) %% dim(mergeSets)[1]) + 1
+  #   duplicateDists = distsFull[matrix(as.character(format(mergeSets[rduplicates,], scientific = FALSE, trim = TRUE)), ncol = 2)]
+  #   
+  # }
+  
+  newNodes = findMergeNodes(skel_graph, mergeSets)
+  
+  nodeList = c(nodeList[!(nodeList %in% c(mergeSets[,c(1,2)]))], newNodes)
+  
   dists0 = distances(skel_graph0, v = as.character(format(nodeList, scientific = FALSE, trim = TRUE)), to = as.character(format(nodeList, scientific = FALSE, trim = TRUE)), weights = E(skel_graph0)$nodeOnlyDist)
   adj0 = ifelse(dists0 == 1 | dists0 == 2, 1, 0)
   adj0[lower.tri(adj0)] = 0
@@ -505,7 +545,7 @@ processHandwriting = function(img, dims)
   finalBreaks = preStackBreaks[!(checkStacking(preStackBreaks, allPaths, letters, skel_graph0, dims))]
   
   breakAddedEndPoints = NULL
-  pathsWithBreaks = lapply(allPaths, function(x){which(x %in% finalBreaks)})
+  pathsWithBreaks = lapply(allPaths, function(x){which(x %in% preStackBreaks)})
   breaksPerPath = unlist(lapply(pathsWithBreaks, length))
   for(i in which(breaksPerPath > 0))
   {
