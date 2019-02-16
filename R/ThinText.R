@@ -6,6 +6,8 @@
 #' @param inversion Boolean dictating whether or not to flip each pixel of binarized image. Flipping happens after binarization. FALSE by default.
 #' @keywords binary
 #' @importFrom png readPNG
+#' @useDynLib handwriter, .registration = TRUE
+#' @importFrom Rcpp sourceCpp
 #' @return Returns image from path. 0 represents black, and 1 represents white by default.
 #' @export
 
