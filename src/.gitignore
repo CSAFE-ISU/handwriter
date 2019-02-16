@@ -1,3 +1,6 @@
+*.o
+*.so
+*.dll
 RcppExports.o
 ThinImageCpp.o
 handwriter.so

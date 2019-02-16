@@ -8,7 +8,7 @@
 #' @param img A matrix of 1s and 0s.
 #' @export
 cleanBinaryImage <- function(img) {
-    .Call('_handwriter_cleanBinaryImage', PACKAGE = 'handwriter', img)
+    .Call(`_handwriter_cleanBinaryImage`, img)
 }
 
 #' rgba2rgb
@@ -18,7 +18,7 @@ cleanBinaryImage <- function(img) {
 #' @param img A 3-d array with slices R, G, B, and alpha.
 #' @export
 rgba2rgb <- function(img) {
-    .Call('_handwriter_rgba2rgb', PACKAGE = 'handwriter', img)
+    .Call(`_handwriter_rgba2rgb`, img)
 }
 
 #' rgba2rgb
@@ -28,7 +28,7 @@ rgba2rgb <- function(img) {
 #' @param img A 3-d array with slices R, G, B, and alpha.
 #' @export
 rgb2grayscale <- function(img) {
-    .Call('_handwriter_rgb2grayscale', PACKAGE = 'handwriter', img)
+    .Call(`_handwriter_rgb2grayscale`, img)
 }
 
 #' whichToFill
@@ -38,7 +38,7 @@ rgb2grayscale <- function(img) {
 #' @param img A binary matrix.
 #' @export
 whichToFill <- function(img) {
-    .Call('_handwriter_whichToFill', PACKAGE = 'handwriter', img)
+    .Call(`_handwriter_whichToFill`, img)
 }
 
 #' thinImage
@@ -49,6 +49,6 @@ whichToFill <- function(img) {
 #' @param img A binary matrix of the text that is to be thinned.
 #' @export
 thinImage <- function(img) {
-    .Call('_handwriter_thinImage', PACKAGE = 'handwriter', img)
+    .Call(`_handwriter_thinImage`, img)
 }
 
