@@ -4,7 +4,7 @@
 \alias{checkBreakPoints}
 \title{Internal function called by processHandwriting that eliminates breakpoints based on rules to try to coherently separate letters}
 \usage{
-checkBreakPoints(candidateNodes, allPaths, nodeGraph, dims)
+checkBreakPoints(candidateNodes, allPaths, nodeGraph, terminalNodes, dims)
 }
 \description{
 Internal function called by processHandwriting that eliminates breakpoints based on rules to try to coherently separate letters
