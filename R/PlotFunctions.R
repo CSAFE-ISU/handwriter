@@ -164,3 +164,4 @@ SaveAllLetterPlots = function(letterList, filePaths, documentDimensions, bg = "t
     image_write(path = paste0(filePaths, "letter", i, ".png"), image_read(as.raster(letterList[[i]]$image)))
   }
 }
+
