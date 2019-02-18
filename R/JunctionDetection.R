@@ -233,43 +233,6 @@ getLoops = function(nodeList, graph, graph0, pathList, dims)
   return(loopList)
 }
 
-#' makeGifImages
-#'
-#' Saves a collection of plots, which sequentially display paths in a list, to the provided file path.
-#' Also prints some suggested code for imagemagick gif creation. Can be useful for visualizing path lists or letter path lists.
-#' @param image Binary image.
-#' @param image_thin Thinned binary image.
-#' @param allPaths List of paths (probably from processHandwriting returned list).
-#' @param file_path Where the plots created should be saved to. Directory path, relative to current working directory.
-#' @param filenames Identifying prefix for saved plots. Will be appended with numeric suffixes.
-#' @return Nothing. Will print out a terminal command for creating your gif. Just navigate to the directory and copy and paste.
-#' @examples
-#' #### Not Run
-#' # Make csafe_pathList the resulting object from the pathList
-#' # item in the processHandwriting returned list
-#'
-#' # makeGifImages(csafe, csafe_thin, csafe_pathList, "../GifPlots/", "csafePaths")
-#'
-#' @export
-
-makeGifImages = function(img, img_thin, allPaths, file_path, filenames)
-{
-  if(length(allPaths) < 100)
-  {
-    digits = ceiling(log10(length(allPaths)))
-    num = c(paste0("000", 1:9), paste0("00", 10:99), paste0("0", 100:999), as.character(1000:9999))
-
-    for(i in 1:length(allPaths))
-    {
-      p = plotNodes(img, img_thin, allPaths[[i]])
-      ggsave(paste0(file_path, filenames, num[i], ".png"), p, device = "png")
-    }
-  }
-  else
-    stop("Too many paths. You don't want that many images. If you do, then write your own function.")
-  print(paste0("convert -delay 30 -loop 0 ", filenames, "*.png Animate", filenames, ".gif"))
-}
-
 #' Internal function called by processHandwriting that eliminates breakpoints based on rules to try to coherently separate letters
 checkBreakPoints = function(candidateNodes, allPaths, nodeGraph, terminalNodes, dims)
 {
@@ -765,9 +728,9 @@ pathLetterAssociate = function(allPaths,letter){
 checkSimplicityBreaks = function(candidateBreaks, pathList, loopList, letters, nodeGraph0, nodeList, terminalNodes, hasTrough, dims)
 {
   tooSimpleFlag = rep(FALSE, length(candidateBreaks))
-  for(i in 1:length(allPaths))
+  for(i in 1:length(pathList))
   {
-    tempPath = allPaths[[i]]
+    tempPath = pathList[[i]]
     nodestoCheck = which(candidateBreaks %in% tempPath)
     if(length(nodestoCheck) >= 1)
     {
@@ -862,86 +825,6 @@ getNodeGraph = function(allPaths, nodeList)
     nodeGraph = add.edges(nodeGraph, format(c(allPaths[[i]][1], allPaths[[i]][length(allPaths[[i]])]), scientific = FALSE, trim = TRUE))
   }
   return(nodeGraph)
-}
-
-#' plotNodes
-#'
-#' This function returns a plot with the full image plotted in light gray and the skeleton printed in black, with red triangles over the vertices.
-#' Also called from plotPath, which is a more useful function, in general.
-#' @param img Full image matrix, unthinned.
-#' @param thinned Thinned image matrix
-#' @param nodeList Nodelist returned from getNodes.
-#' @param nodeSize Size of triangles printed. 3 by default. Move down to 2 or 1 for small text images.
-#' @return Plot of full and thinned image with vertices overlaid.
-#' 
-#' @import ggplot2
-#' 
-#' @examples
-#' # See getNodes() examples first.
-#' # plotNodes(london, london_thin, london_nodes)
-#' # plotNodes(message, message_thin, message_nodes)
-#'
-#' @export
-
-plotNodes = function(img, thinned, nodeList, nodeSize = 3, nodeColor = "red")
-{
-  p = plotImageThinned(img, thinned)
-  pointSet = data.frame(X = ((nodeList - 1) %/% dim(img)[1]) + 1, Y = dim(img)[1] - ((nodeList - 1) %% dim(img)[1]))
-  p = p + geom_point(data = pointSet, aes(X, Y), size = nodeSize, shape = I(16), color = I(nodeColor), alpha = I(.4))
-  return(p)
-  #l.m = melt(img)
-  #l.m$value[thinned] = 2
-  #l.m$value[nodeList] = 3
-  #n.m2 = n.m[nodeList,]
-  #p = ggplot(l.m, aes(Var2, rev(Var1))) + geom_raster(aes(fill = as.factor(value != 1), alpha = ifelse(value==0,.3,1))) + scale_alpha_continuous(guide = FALSE) + scale_fill_manual(values = c("white", "black"), guide = FALSE) + theme_void() + geom_point(data= n.m2, aes(x = Var2, y = dim(img)[1] - Var1 + 1), shape = I(17), size = I(nodeSize), color = I("red"))
-}
-
-#' plotLetter
-#'
-#' This function returns a plot of a single letter extracted from a document. It uses the letterList parameter from the processHandwriting function and accepts a single value as whichLetter. Dims requires the dimensions of the entire document, since this isn't contained in processHandwriting.
-#' @param letterList Letter list from processHandwriting function
-#' @param whichLetter Single value in 1:length(letterList) denoting which letter to plot.
-#' @param dims Dimensions of the original document
-#' @param showPaths Whether the calculated paths on the letter should be shown with numbers.
-#' @return Plot of single letter.
-#' 
-#' @import ggplot2
-#' @export
-plotLetter = function(letterList, whichLetter, dims, showPaths = TRUE)
-{
-  path = letterList[[whichLetter]]$path
-  r = ((path-1) %% dims[1]) + 1
-  c = ((path-1) %/% dims[1]) + 1
-  
-  img = matrix(1, nrow = diff(range(r))+1, ncol = diff(range(c))+1)
-  
-  nodes = letterList[[whichLetter]]$nodes
-  nodesr = ((nodes-1) %% dims[1]) + 1
-  nodesc = ((nodes-1) %/% dims[1]) + 1
-  
-  nodesr = nodesr - min(r) + 1
-  nodesc = nodesc - min(c) + 1
-  rnew = r-min(r)+1
-  cnew = c-min(c)+1
-  nodes = ((nodesc - 1)*(diff(range(r))+1)) + nodesr
-  
-  
-  img[cbind(rnew,cnew)] = 0
-  
-  pathPoints = NULL
-  pathSets = letterList[[whichLetter]]$allPaths
-  for(i in 1:length(pathSets))
-  {
-    pathr = ((pathSets[[i]]-1) %% dims[1]) + 1
-    pathr = pathr - min(r) + 1
-    pathc = ((pathSets[[i]]-1) %/% dims[1]) + 1
-    pathc = pathc - min(c) + 1
-    
-    pathPoints = rbind(pathPoints, cbind(pathr, pathc, i))
-  }
-  p = plotNodes(img, which(img == 1), nodes)
-  if(showPaths == TRUE) p = p + geom_text(data = as.data.frame(pathPoints), aes(x = pathc, y = max(rnew) - pathr + 1, label = i))
-  return(p)
 }
 
 #' Internal function for ordering the nodes in a letter.
