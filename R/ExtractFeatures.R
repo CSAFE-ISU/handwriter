@@ -253,8 +253,8 @@ get_aspect_info = function(character, img_dim)
   rowcol = i_to_rci(character,img_dim)
   rows_y = rowcol[,'y'] 
   cols_x = rowcol[,'x']
-  row_dist = max(rows_y) - min(rows_y) #vertical distance
-  col_dist = max(cols_x) - min(cols_x) #horizontal distance
+  row_dist = max(rows_y) - min(rows_y) + 1#vertical distance
+  col_dist = max(cols_x) - min(cols_x) + 1 #horizontal distance
   aspect_info = list(aspect_ratio = row_dist/col_dist,height = row_dist, width = col_dist,topmost_row = min(rows_y),bottom_row = max(rows_y),leftmost_col=min(cols_x),rightmost_col=max(cols_x))
   return(aspect_info)
 }
@@ -285,8 +285,8 @@ get_centroid_info = function(character, img_dim)
   cols_x = rowcol[,'x']
   centroid_row = mean(rows_y)
   centroid_col = mean(cols_x)
-  row_dist = max(rows_y) - min(rows_y) #vertical distance
-  col_dist = max(cols_x) - min(cols_x) #horizontal distance
+  row_dist = max(rows_y) - min(rows_y) + 1 #vertical distance
+  col_dist = max(cols_x) - min(cols_x) + 1 #horizontal distance
   centroid_index = rc_to_i(centroid_row,centroid_col,img_dim)
   
   #relative density: draw a box around the letter, ratio of black to white pixels in the box

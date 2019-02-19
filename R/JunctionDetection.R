@@ -152,9 +152,9 @@ getLoops = function(nodeList, graph, graph0, pathList, dims)
   ## Eliminate loop paths that we have found and find ones that dont have vertex on the loop. This is caused by combining of nodes that are close together.
   used = as.numeric(unique(c(unlist(pathList), unlist(loopList))))
   unused = as.numeric(vertexNames)[which(!(as.numeric(vertexNames) %in% used))]
-  remaining0 = induced_subgraph(graph0, v = format(c(unused, nodeList), scientific = FALSE, trim = TRUE))
+  remaining0 = induced_subgraph(graph0, vids = format(c(unused, nodeList), scientific = FALSE, trim = TRUE))
   numNeighbors = lapply(neighborhood(remaining0, nodes = V(remaining0)), length)
-  remaining0 = induced_subgraph(remaining0, V(remaining0)[numNeighbors > 1])
+  remaining0 = induced_subgraph(remaining0, vids = V(remaining0)[numNeighbors > 1])
   
   roots = format(nodeList[which(nodeList %in% names(V(remaining0)))], scientific = FALSE, trim = TRUE)
   
@@ -169,7 +169,7 @@ getLoops = function(nodeList, graph, graph0, pathList, dims)
   }
   
   ## Now get loops that are more difficult. They are close to nodes, but separated by paths already found previously. Have to dig a little further.
-  remaining0 = induced_subgraph(graph0, v = format(unused, scientific = FALSE, trim = TRUE))
+  remaining0 = induced_subgraph(graph0, vids = format(unused, scientific = FALSE, trim = TRUE))
   used = as.numeric(unique(c(unlist(pathList), unlist(loopList))))
   unused = as.numeric(vertexNames)[which(!(as.numeric(vertexNames) %in% used))]
   if(length(unused) > 0)
@@ -194,7 +194,7 @@ getLoops = function(nodeList, graph, graph0, pathList, dims)
   
   
   ## And a little deeper
-  remaining0 = induced_subgraph(graph0, v = format(unused, scientific = FALSE, trim = TRUE))
+  remaining0 = induced_subgraph(graph0, vids = format(unused, scientific = FALSE, trim = TRUE))
   used = as.numeric(unique(c(unlist(pathList), unlist(loopList))))
   unused = as.numeric(vertexNames)[which(!(as.numeric(vertexNames) %in% used))]
   if(length(unused) > 0)
@@ -218,7 +218,7 @@ getLoops = function(nodeList, graph, graph0, pathList, dims)
   }
   
   ## All that remains now is perfect loops. Start and end at same point with no intersections or end points.
-  remaining0 = induced_subgraph(remaining0, V(remaining0)[!(names(V(remaining0)) %in% unlist(loopList))])
+  remaining0 = induced_subgraph(remaining0, vids = V(remaining0)[!(names(V(remaining0)) %in% unlist(loopList))])
   while(TRUE)
   {
     if(length(V(remaining0)) > 0)
@@ -349,15 +349,6 @@ getNodes = function(indices, dims)
   return(list(which(nodes == 0), c(indices[changeCount >= 3], c(nodes2by2[apply(nodes2by2, 1, function(x){all(!is.na(x))}),]))))
 }
 
-
-adjFromDist = function(graph0, adj.m)
-{
-  for(i in 1:dim(adj.m)[1])
-  {
-    
-  }
-}
-
 #' processHandwriting
 #'
 #' Huge step in handwriting processing. Takes in thin image form and the breakpoints suggested by getNodes
@@ -372,17 +363,12 @@ adjFromDist = function(graph0, adj.m)
 #' Object [[3]] (called letters) is a list of the pixels in the different letters in the handwriting sample.
 #'
 #' @importFrom reshape2 melt
+#' @importFrom grDevices as.raster
+#' @importFrom graphics hist
+#' @importFrom stats na.omit
+#' @importFrom utils install.packages
+#' 
 #' @import igraph
-#'
-#' @examples
-#' data(csafe)
-#' csafe = crop(csafe)
-#' csafe_thin = thinImage(csafe)
-#' csafe_nodes = getNodes(csafe_thin, dim(csafe))
-#' csafe_processList = processHandwriting(csafe_thin, csafe_nodes, dim(csafe))
-#' csafe_breaks = csafe_processList$breakPoints
-#' csafe_paths = csafe_processList$pathList
-#' csafe_letterss = csafe_processList$letterList
 #'
 #' @export
 

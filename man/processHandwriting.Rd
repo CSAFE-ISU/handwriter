@@ -22,14 +22,3 @@ Huge step in handwriting processing. Takes in thin image form and the breakpoint
 and parses the writing into letters. Returns final letter separation points, a list of the paths in the image,
 and a list of the letter paths in the image.
 }
-\examples{
-data(csafe)
-csafe = crop(csafe)
-csafe_thin = thinImage(csafe)
-csafe_nodes = getNodes(csafe_thin, dim(csafe))
-csafe_processList = processHandwriting(csafe_thin, csafe_nodes, dim(csafe))
-csafe_breaks = csafe_processList$breakPoints
-csafe_paths = csafe_processList$pathList
-csafe_letterss = csafe_processList$letterList
-
-}

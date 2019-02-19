@@ -1,9 +1,9 @@
 Package: handwriter
 Title: Handwriting Analysis in R
-Version: 0.0.0.9000
+Version: 1.0.0.0000
 Author: Nick Berry <berryni@iastate.edu>
 Maintainer: Nick Berry <berryni@iastate.edu>
-Description: We’ll get there when it does something.
+Description: Process handwriting document into letters and provide measurements.
 Depends: R (>= 3.1)
 LinkingTo: Rcpp, RcppArmadillo
 License: GPL (>= 2)
@@ -11,4 +11,4 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.1
 Imports: 
-    Rcpp
+    Rcpp, ggplot2, igraph, magick, png, reshape2, shiny
