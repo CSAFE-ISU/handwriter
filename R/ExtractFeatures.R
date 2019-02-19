@@ -207,7 +207,7 @@ i_to_rci = function(nodes, dims, fixed = FALSE)
 {
   cs = (nodes-1)%/%dims[1] + 1
   rs = (nodes-1)%%dims[1] + 1
-  if(fixed) rs = dims[[1]] - rs
+  if(fixed) rs = dims[1] - rs + 1
   rowcolmatrix = matrix(c(rs,cs,nodes), ncol = 3)
   colnames(rowcolmatrix) = c('y','x','index')
   return(rowcolmatrix)
@@ -228,7 +228,7 @@ i_to_rci = function(nodes, dims, fixed = FALSE)
 rc_to_i = function(row_y,col_x,img_dim, fixed = FALSE)
 {
   row_y = as.integer(row_y)
-  if(fixed) row_y = img_dim[[1]] - row_y
+  if(fixed) row_y = img_dim[1] - row_y + 1
   col_x = as.integer(col_x)
   return((col_x-1)*img_dim[1]+row_y)
 }
@@ -253,7 +253,7 @@ get_aspect_info = function(character, img_dim)
   rowcol = i_to_rci(character,img_dim)
   rows_y = rowcol[,'y'] 
   cols_x = rowcol[,'x']
-  row_dist = max(rows_y) - min(rows_y) + 1#vertical distance
+  row_dist = max(rows_y) - min(rows_y) + 1 #vertical distance
   col_dist = max(cols_x) - min(cols_x) + 1 #horizontal distance
   aspect_info = list(aspect_ratio = row_dist/col_dist,height = row_dist, width = col_dist,topmost_row = min(rows_y),bottom_row = max(rows_y),leftmost_col=min(cols_x),rightmost_col=max(cols_x))
   return(aspect_info)
@@ -297,8 +297,8 @@ get_centroid_info = function(character, img_dim)
   #centroid_horiz_location = (min(cols_x)+(centroid_col-min(cols_x))) / col_dist
   #centroid_vert_location = (min(rows_y)+(centroid_row-min(rows_y))) / row_dist
   
-  centroid_horiz_location = (centroid_col-min(cols_x)) / col_dist
-  centroid_vert_location = (centroid_row-min(rows_y)) / row_dist
+  centroid_horiz_location = (centroid_col-min(cols_x) + 1) / col_dist
+  centroid_vert_location = (centroid_row-min(rows_y) + 1) / row_dist
   #used for getting skew, assuming centroid is more middle than the median col_x
   #probably can be removed, I just want nic to be able to plot them to determine if its an appropriate 'split' in the letter
   lHalf = list(rows_y = rows_y[which(cols_x<centroid_col)],cols_x = cols_x[which(cols_x<centroid_col)])
@@ -312,9 +312,13 @@ get_centroid_info = function(character, img_dim)
   rHi = rc_to_i(rHalf$rows_y,rHalf$cols_x,img_dim)
   #finding slope, in case of long letters like e in csafe maybe account length?
   #errrrr does the y need a +1
-  slope = ((img_dim[1] - rHalfCentroidrc$y)-(img_dim[1] - lHalfCentroidrc$y))/(rHalfCentroidrc$x-lHalfCentroidrc$x)
+  slope = ((img_dim[1] - rHalfCentroidrc$y)-(img_dim[1] - lHalfCentroidrc$y))/(rHalfCentroidrc$x-lHalfCentroidrc$x+1)
+  if(length(lHalf[[1]]) == 0 & length(rHalf[[1]]) == 0)
+  {
+    slope = 0
+  }
   lHalfCentroid = rc_to_i(mean(lHalf$rows_y),mean(lHalf$cols_x),img_dim)
-  centroid_info = list(centroid_index = centroid_index, centroid_y = centroid_row, centroid_x = centroid_col, centroid_horiz_location = centroid_horiz_location,centroid_vert_location = centroid_vert_location,lHalf = lHi,rHalf=rHi,disjoint_centroids = list(left = lHalfCentroidi,right = rHalfCentroidi),slope = slope, pixel_density = r_density,box_density = box_density )
+  centroid_info = list(centroid_index = centroid_index, centroid_y = centroid_row, centroid_x = centroid_col, centroid_horiz_location = centroid_horiz_location,centroid_vert_location = centroid_vert_location,lHalf = lHi,rHalf=rHi,disjoint_centroids = list(left = lHalfCentroidi,right = rHalfCentroidi),slope = slope, pixel_density = r_density,box_density = box_density)
   return(centroid_info)
 }
 

@@ -86,7 +86,7 @@ plotNodes = function(img, thinned, nodeList, nodeSize = 3, nodeColor = "red")
 #' 
 #' @import ggplot2
 #' @export
-plotLetter = function(letterList, whichLetter, dims, showPaths = TRUE)
+plotLetter = function(letterList, whichLetter, dims, showPaths = TRUE, showCentroid = TRUE, showSlope = TRUE)
 {
   path = letterList[[whichLetter]]$path
   r = ((path-1) %% dims[1]) + 1
@@ -97,14 +97,37 @@ plotLetter = function(letterList, whichLetter, dims, showPaths = TRUE)
   nodes = letterList[[whichLetter]]$nodes
   nodesr = ((nodes-1) %% dims[1]) + 1
   nodesc = ((nodes-1) %/% dims[1]) + 1
-  
   nodesr = nodesr - min(r) + 1
   nodesc = nodesc - min(c) + 1
+  
   rnew = r-min(r)+1
   cnew = c-min(c)+1
   nodes = ((nodesc - 1)*(diff(range(r))+1)) + nodesr
   
+  centroid_y = letterList[[whichLetter]]$characterFeatures$centroid_y - min(r) + 1
+  centroid_x = letterList[[whichLetter]]$characterFeatures$centroid_x - min(c) + 1
   
+  lHalfr = ((letterList[[whichLetter]]$characterFeatures$lHalf - 1) %% dims[1]) + 1
+  lHalfc = ((letterList[[whichLetter]]$characterFeatures$lHalf - 1) %/% dims[1]) + 1
+  rHalfr = ((letterList[[whichLetter]]$characterFeatures$rHalf - 1) %% dims[1]) + 1
+  rHalfc = ((letterList[[whichLetter]]$characterFeatures$rHalf - 1) %/% dims[1]) + 1
+  
+  lHalfr = lHalfr - min(r) + 1
+  lHalfc = lHalfc - min(c) + 1
+  rHalfr = rHalfr - min(r) + 1
+  rHalfc = rHalfc - min(c) + 1
+  
+  lCentroid = c(mean(lHalfr), mean(lHalfc))
+  rCentroid = c(mean(rHalfr), mean(rHalfc))
+  
+  ranger = letterList[[whichLetter]]$characterFeatures$height
+  rangec = letterList[[whichLetter]]$characterFeatures$width
+  
+  centroidDat = data.frame(X = centroid_x, 
+                           Y = ranger - centroid_y + 1)
+  halfCentroidDat = data.frame(X = c(lCentroid[2], rCentroid[2]), 
+                               Y = c(ranger - c(lCentroid[1], rCentroid[1]) + 1))
+
   img[cbind(rnew,cnew)] = 0
   
   pathPoints = NULL
@@ -118,8 +141,12 @@ plotLetter = function(letterList, whichLetter, dims, showPaths = TRUE)
     
     pathPoints = rbind(pathPoints, cbind(pathr, pathc, i))
   }
+  
   p = plotNodes(img, which(img == 1), nodes)
-  if(showPaths == TRUE) p = p + geom_text(data = as.data.frame(pathPoints), aes(x = pathc, y = max(rnew) - pathr + 1, label = i))
+  if(showPaths) p = p + geom_text(data = as.data.frame(pathPoints), aes(x = pathc, y = max(rnew) - pathr + 1, label = i))
+  if(showCentroid) p = p + geom_point(data = centroidDat, aes(x = X, y = Y, color = I("red"), size = I(3), shape = I(7)))
+  if(showSlope) p = p + geom_point(data = halfCentroidDat, aes(x = X, y = Y, color = I("red"), shape = I(4))) + 
+    geom_line(data = halfCentroidDat, aes(x = X, y = Y, color = I("red")))
   return(p)
 }
 
