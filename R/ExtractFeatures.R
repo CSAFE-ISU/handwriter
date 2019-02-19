@@ -285,8 +285,8 @@ get_centroid_info = function(character, img_dim)
   cols_x = rowcol[,'x']
   centroid_row = mean(rows_y)
   centroid_col = mean(cols_x)
-  row_dist = max(rows_y) - min(rows_y) #vertical distance
-  col_dist = max(cols_x) - min(cols_x) #horizontal distance
+  row_dist = max(rows_y) - min(rows_y) + 1 #vertical distance
+  col_dist = max(cols_x) - min(cols_x) + 1 #horizontal distance
   centroid_index = rc_to_i(centroid_row,centroid_col,img_dim)
   
   #relative density: draw a box around the letter, ratio of black to white pixels in the box
