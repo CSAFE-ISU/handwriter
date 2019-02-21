@@ -2,10 +2,9 @@
 
 #' runHandwritingViewer
 #' @description This function opens and runs a shiny app that allows for viewing of an object 
-#' that comes from the `processHandwriting` function.`
+#' that comes from the `processHandwriting` function.` Requires \pkg{\link{shiny}}.
 #' 
-#' @importFrom shiny runApp
-#' 
+#' @seealso \pkg{\link{lattice}}
 #' @return None
 #' @export
 #' 

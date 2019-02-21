@@ -176,12 +176,12 @@ AddLetterImages = function(letterList, docDims)
 
 #' SaveAllLetterPlots
 #'
-#' This function returns a plot of a single letter extracted from a document. It uses the letterList parameter from the processHandwriting function and accepts a single value as whichLetter. Dims requires the dimensions of the entire document, since this isn't contained in processHandwriting.
+#' This function returns a plot of a single letter extracted from a document. It uses the letterList parameter from the processHandwriting function and accepts a single value as whichLetter. Dims requires the dimensions of the entire document, since this isn't contained in processHandwriting. Requires the \pkg{\link{magick}} package.
 #' @param letterList Letter list from processHandwriting function
 #' @param filePaths Folder path to save images to
 #' @param documentDimensions Dimensions of original document
 #' @return Nothing
-#' @importFrom magick image_write image_read image_transparent
+#' @seealso \pkg{\link{magick}}
 #' @export
 SaveAllLetterPlots = function(letterList, filePaths, documentDimensions, bgTransparent = TRUE)
 {
@@ -190,10 +190,10 @@ SaveAllLetterPlots = function(letterList, filePaths, documentDimensions, bgTrans
   
   for(i in 1:length(letterList))
   {
-    img= image_read(as.raster(letterList[[i]]$image))
+    img= magick::image_read(as.raster(letterList[[i]]$image))
     if(bgTransparent)
-      img  = image_transparent(img, "white")
-    image_write(path = paste0(filePaths, "letter", i, ".png"), img)
+      img  = magick::image_transparent(img, "white")
+    magick::image_write(path = paste0(filePaths, "letter", i, ".png"), img)
   }
 }
 

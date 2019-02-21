@@ -18,5 +18,8 @@ SaveAllLetterPlots(letterList, filePaths, documentDimensions,
 Nothing
 }
 \description{
-This function returns a plot of a single letter extracted from a document. It uses the letterList parameter from the processHandwriting function and accepts a single value as whichLetter. Dims requires the dimensions of the entire document, since this isn't contained in processHandwriting.
+This function returns a plot of a single letter extracted from a document. It uses the letterList parameter from the processHandwriting function and accepts a single value as whichLetter. Dims requires the dimensions of the entire document, since this isn't contained in processHandwriting. Requires the \pkg{\link{magick}} package.
+}
+\seealso{
+\pkg{\link{magick}}
 }
