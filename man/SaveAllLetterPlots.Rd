@@ -5,7 +5,7 @@
 \title{SaveAllLetterPlots}
 \usage{
 SaveAllLetterPlots(letterList, filePaths, documentDimensions,
-  bg = "transparent")
+  bgTransparent = TRUE)
 }
 \arguments{
 \item{letterList}{Letter list from processHandwriting function}

@@ -578,7 +578,7 @@ processHandwriting = function(img, dims)
     }
     else
     {
-      letterIDs = c(V(skel_graph0)$letterID[names(V(skel_graph0)) %in% format(allPaths[[i]], scientific = FALSE, trim = TRUE)][1],V(skel_graph0)$letterID[names(V(skel_graph0)) %in% as.character(format(allPaths[[i]], scientific = FALSE, trim = TRUE))][length(allPaths[[i]])])
+      letterIDs = range(V(skel_graph0)$letterID[names(V(skel_graph0)) %in% format(allPaths[[i]], scientific = FALSE, trim = TRUE)], na.rm = TRUE)
       
      V(skel_graph0)$letterID[which(V(skel_graph0)$letterID == letterIDs[2])] = letterIDs[1]
      V(skel_graph0)$letterID[which(names(V(skel_graph0)) %in% format(allPaths[[i]][newNodes], scientific = FALSE, trim = TRUE))] = letterIDs[1]

@@ -169,7 +169,7 @@ AddLetterImages = function(letterList, docDims)
     r[[i]] = r[[i]]-min(r[[i]])+1
     c[[i]] = c[[i]]-min(c[[i]])+1
     letterList[[i]]$image[cbind(r[[i]],c[[i]])] = 0
-    letterList[[i]]$image = cbind(1,rbind(1,letterList[[i]]$image,1),1)
+    #letterList[[i]]$image = cbind(1,rbind(1,letterList[[i]]$image,1),1)
   }
   return(letterList)
 }
@@ -181,14 +181,19 @@ AddLetterImages = function(letterList, docDims)
 #' @param filePaths Folder path to save images to
 #' @param documentDimensions Dimensions of original document
 #' @return Nothing
-#' @importFrom magick image_write image_read
+#' @importFrom magick image_write image_read image_transparent
 #' @export
-SaveAllLetterPlots = function(letterList, filePaths, documentDimensions, bg = "transparent")
+SaveAllLetterPlots = function(letterList, filePaths, documentDimensions, bgTransparent = TRUE)
 {
-  letterList = AddLetterImages(letterList, documentDimensions)
+  if(is.null(letterList[[1]]$image))
+    letterList = AddLetterImages(letterList, documentDimensions)
+  
   for(i in 1:length(letterList))
   {
-    image_write(path = paste0(filePaths, "letter", i, ".png"), image_read(as.raster(letterList[[i]]$image)))
+    img= image_read(as.raster(letterList[[i]]$image))
+    if(bgTransparent)
+      img  = image_transparent(img, "white")
+    image_write(path = paste0(filePaths, "letter", i, ".png"), img)
   }
 }
 

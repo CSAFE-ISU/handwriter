@@ -4,7 +4,8 @@
 \alias{plotLetter}
 \title{plotLetter}
 \usage{
-plotLetter(letterList, whichLetter, dims, showPaths = TRUE)
+plotLetter(letterList, whichLetter, dims, showPaths = TRUE,
+  showCentroid = TRUE, showSlope = TRUE)
 }
 \arguments{
 \item{letterList}{Letter list from processHandwriting function}
