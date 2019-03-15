@@ -78,6 +78,7 @@ AllUniquePaths = function(adj, graph, graph0)
   #Gets all paths that are not loops
   #paths = apply(adj, 1, LooplessPaths, graph = graph, graph0 = graph0)
   paths = list()
+  if(dim(adj)[1] == 0){return(NULL)}
   for(i in 1:dim(adj)[1])
   {
     fromNode = as.character(format(adj[i,1], scientific = FALSE, trim = TRUE))
@@ -119,7 +120,12 @@ getLoops = function(nodeList, graph, graph0, pathList, dims)
   unusedAdj = matrix(1, ncol = length(unused), nrow = length(unused))
   colnames(unusedAdj) = as.character(format(unused, scientific = FALSE, trim = TRUE))
   rownames(unusedAdj) = as.character(format(unused, scientific = FALSE, trim = TRUE))
-  unusedAdj[which(unused %in% nodeList),][,which(unused %in% nodeList)] = 0
+  if(length(nodeList) > 1)
+  {
+    unusedAdj[,which(unused %in% nodeList)][which(unused %in% nodeList),] = 0
+  }
+  else
+    unusedAdj[which(unused %in% nodeList),which(unused %in% nodeList)] = 0
   unusedGraph = graph_from_adjacency_matrix(unusedAdj, mode = "undirected")
 
   graph0 = intersection(graph0, unusedGraph, keep.all.vertices = TRUE)
@@ -137,16 +143,20 @@ getLoops = function(nodeList, graph, graph0, pathList, dims)
   }
 
   ## Get paths that start and end at the same point, where that point is a node in nodeList
-  for(i in 1:length(neighbors))
+  if(length(neighbors) > 0)
   {
-    neigh = as.numeric(names(neighbors[[i]]))
-    graph = delete.edges(graph, paste0(neigh[1], "|", neigh[2]))
-    if(distances(graph, v = as.character(neigh[1]), to = as.character(neigh[2])) < Inf)
+    for(i in 1:length(neighbors))
     {
-      newPath = as.numeric(names(unlist(shortest_paths(graph, from = format(neigh[1], scientific = FALSE), to = format(neigh[2], scientific = FALSE), weights = E(graph)$pen_dist)$vpath)))
-      loopList = append(loopList, list(c(newPath, newPath[1])))
+      neigh = as.numeric(names(neighbors[[i]]))
+      graph = delete.edges(graph, paste0(neigh[1], "|", neigh[2]))
+      if(distances(graph, v = as.character(neigh[1]), to = as.character(neigh[2])) < Inf)
+      {
+        newPath = as.numeric(names(unlist(shortest_paths(graph, from = format(neigh[1], scientific = FALSE), to = format(neigh[2], scientific = FALSE), weights = E(graph)$pen_dist)$vpath)))
+        loopList = append(loopList, list(c(newPath, newPath[1])))
+      }
     }
   }
+  
 
   
   ## Eliminate loop paths that we have found and find ones that dont have vertex on the loop. This is caused by combining of nodes that are close together.
@@ -468,7 +478,7 @@ processHandwriting = function(img, dims)
       rownames(adj0)[toAdd] = format(newNodes[i], scientific = FALSE, trim = TRUE)
     }
     if(length(toDelete) > 0)
-      adj0 = adj0[,-toDelete][-toDelete,]
+      adj0 = as.matrix(adj0[,-toDelete])[-toDelete,]
   }
   
   graphdf0 = as_data_frame(skel_graph0)
@@ -678,9 +688,7 @@ processHandwriting = function(img, dims)
       letterList[[i]]$adjMatrix = matrix(0,ncol = 0, nrow = 0)
       letterList[[i]]$nodes = nodesinGraph[[i]]
       letterList[[i]]$letterCode = "A"
-      
     }
-    
   }
   
   featureSets = extract_character_features(letterList, dims)

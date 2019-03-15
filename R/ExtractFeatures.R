@@ -208,7 +208,7 @@ i_to_rci = function(nodes, dims, fixed = FALSE)
   cs = (nodes-1)%/%dims[1] + 1
   rs = (nodes-1)%%dims[1] + 1
   if(fixed) rs = dims[1] - rs + 1
-  rowcolmatrix = matrix(c(rs,cs,nodes), ncol = 3)
+  rowcolmatrix = cbind(rs,cs,nodes)
   colnames(rowcolmatrix) = c('y','x','index')
   return(rowcolmatrix)
 }
@@ -574,17 +574,18 @@ all_centroids = function(character_features){
 #' @export
 
 line_number_extract = function(all_centroids,img_dim){
-  centroid_rci = i_to_rci(all_centroids,img_dim)
+  centroid_rci = matrix(i_to_rci(all_centroids,img_dim), ncol = 3)
   #sorting list based on y
-  centroid_rci = centroid_rci[order(centroid_rci[,'y']),]
+  centroid_rci = matrix(centroid_rci[order(centroid_rci[,1]),], ncol = 3)
+
   lines = list()
   cur_line = vector(mode="double", length=0)
   threshold = vector(mode="double", length=0)
   i = 1
-  while(i <= dim(centroid_rci)[1]){
+  while(i <= max(dim(centroid_rci)[1], 1)){
     tm = mean(threshold)
-    cur_index = centroid_rci[i,'index'][[1]]
-    cur_y = centroid_rci[i,'y'][[1]]
+    cur_index = centroid_rci[i,3][[1]]
+    cur_y = centroid_rci[i,1][[1]]
     if(length(threshold)==0){
       cur_line = c(cur_line,cur_index)
     }

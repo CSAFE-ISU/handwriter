@@ -62,7 +62,7 @@ arma::mat rgb2grayscale(arma::cube img)
   {
     for(int j = 0; j < img.n_cols; j++)
     {
-      grayImg.at(i, j) = 0.299*img.at(i,j,0) + 0.587*img.at(i,j,1) + 0.114*img.at(i,j,2);
+      grayImg.at(i, j) = 0.2126*img.at(i,j,0) + 0.7152*img.at(i,j,1) + 0.0722*img.at(i,j,2);
     }
   }
   
