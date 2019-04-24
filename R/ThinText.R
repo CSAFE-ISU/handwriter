@@ -11,7 +11,7 @@
 #' @return Returns image from path. 0 represents black, and 1 represents white by default.
 #' @export
 
-readPNGBinary = function(path, cutoffAdjust = 1, clean = TRUE, crop = TRUE, inversion = FALSE)
+readPNGBinary = function(path, cutoffAdjust = 0, clean = TRUE, crop = TRUE, inversion = FALSE)
 {
   img = png::readPNG(path)
   img = as.array(img)
@@ -30,7 +30,10 @@ readPNGBinary = function(path, cutoffAdjust = 1, clean = TRUE, crop = TRUE, inve
     img = 1-img
   
   # Threshold Image
-  thresh = otsuBinarization(img, 512)*cutoffAdjust
+  thresh = otsuBinarization(img, 512)
+  if(cutoffAdjust > 0) thresh = thresh*(1-cutoffAdjust) + cutoffAdjust
+  else if(cutoffAdjust < 0) thresh = thresh*(1+cutoffAdjust)
+  
   img = img > thresh
   
   if(clean)
