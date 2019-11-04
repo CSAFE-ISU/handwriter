@@ -371,7 +371,8 @@ getNodes = function(indices, dims)
 #' @return Returns a list of length 3. Object [[1]] (called breakPoints) is the set of final letter separation points.
 #' Object [[2]] (called pathList) is a list of the paths between the input specified nodes.
 #' Object [[3]] (called letters) is a list of the pixels in the different letters in the handwriting sample.
-#'
+#' @useDynLib handwriter, .registration = TRUE
+#' @importFrom Rcpp sourceCpp
 #' @importFrom reshape2 melt
 #' @importFrom grDevices as.raster
 #' @importFrom graphics hist
@@ -598,7 +599,7 @@ processHandwriting = function(img, dims)
   allPaths = lapply(rapply(allPaths, enquote, how="unlist"), eval)
   
   
-  cat("Organizing everything...")
+  cat("Organizing everything...\n")
   
   
   letters = replicate(n = length(na.omit(unique(V(skel_graph0)$letterID))), list())
@@ -692,7 +693,16 @@ processHandwriting = function(img, dims)
   }
   
   featureSets = extract_character_features(letterList, dims)
-
+  #take existing feature set (done in ExtractFeatures.R), and some other info
+  # and add more feature to the list with Rcpp (Measurements.cpp)
+  addToFeatureSets = addToFeatures(featureSets, letterList, dims)
+  
+  #Hard coded naming logic b/c of Rcpp but it works currently.
+  for(i in 1:length(featureSets))
+  {
+    featureSets[[i]]$centroidTightness = addToFeatureSets[[1]][[i]]
+  }
+  
   for(i in 1:length(letters))
   {
     letterList[[i]]$characterFeatures = featureSets[[i]]

@@ -86,7 +86,7 @@ plotNodes = function(img, thinned, nodeList, nodeSize = 3, nodeColor = "red")
 #' 
 #' @import ggplot2
 #' @export
-plotLetter = function(letterList, whichLetter, dims, showPaths = TRUE, showCentroid = TRUE, showSlope = TRUE)
+plotLetter = function(letterList, whichLetter, dims, showPaths = TRUE, showCentroid = TRUE, showSlope = TRUE, showTightness = TRUE)
 {
   path = letterList[[whichLetter]]$path
   r = ((path-1) %% dims[1]) + 1
@@ -127,7 +127,9 @@ plotLetter = function(letterList, whichLetter, dims, showPaths = TRUE, showCentr
                            Y = ranger - centroid_y + 1)
   halfCentroidDat = data.frame(X = c(lCentroid[2], rCentroid[2]), 
                                Y = c(ranger - c(lCentroid[1], rCentroid[1]) + 1))
-
+  tightnessDat = data.frame(x0 = centroid_x, y0 = ranger - centroid_y + 1)
+  tightness = letterList[[whichLetter]]$characterFeatures$centroidTightness
+  
   img[cbind(rnew,cnew)] = 0
   
   pathPoints = NULL
@@ -147,6 +149,7 @@ plotLetter = function(letterList, whichLetter, dims, showPaths = TRUE, showCentr
   if(showCentroid) p = p + geom_point(data = centroidDat, aes(x = X, y = Y, color = I("red"), size = I(3), shape = I(7)))
   if(showSlope) p = p + geom_point(data = halfCentroidDat, aes(x = X, y = Y, color = I("red"), shape = I(4))) + 
     geom_line(data = halfCentroidDat, aes(x = X, y = Y, color = I("red")))
+  if(showTightness) p = p + geom_point(data = tightnessDat, aes(x = x0, y=y0, size = tightness*1.5, pch = 1, color = I("red"), stroke = 2))
   return(p)
 }
 

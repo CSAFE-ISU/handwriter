@@ -5,7 +5,7 @@
 \title{readPNGBinary
 This function reads in and binarizes PNG images from the specified file path.}
 \usage{
-readPNGBinary(path, cutoffAdjust = 1, clean = TRUE, crop = TRUE,
+readPNGBinary(path, cutoffAdjust = 0, clean = TRUE, crop = TRUE,
   inversion = FALSE)
 }
 \arguments{
