@@ -12,8 +12,8 @@ cleanBinaryImage <- function(img) {
 }
 
 #' @export
-addToFeatures <- function(FeatureSet, LetterList, dims) {
-    .Call(`_handwriter_addToFeatures`, FeatureSet, LetterList, dims)
+addToFeatures <- function(FeatureSet, LetterList, vectorDims) {
+    .Call(`_handwriter_addToFeatures`, FeatureSet, LetterList, vectorDims)
 }
 
 #' rgba2rgb

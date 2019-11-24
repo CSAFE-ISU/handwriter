@@ -128,7 +128,7 @@ plotLetter = function(letterList, whichLetter, dims, showPaths = TRUE, showCentr
   halfCentroidDat = data.frame(X = c(lCentroid[2], rCentroid[2]), 
                                Y = c(ranger - c(lCentroid[1], rCentroid[1]) + 1))
   tightnessDat = data.frame(x0 = centroid_x, y0 = ranger - centroid_y + 1)
-  tightness = letterList[[whichLetter]]$characterFeatures$centroidTightness
+  tightness = letterList[[whichLetter]]$characterFeatures$compactness
   
   img[cbind(rnew,cnew)] = 0
   

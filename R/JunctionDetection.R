@@ -693,14 +693,15 @@ processHandwriting = function(img, dims)
   }
   
   featureSets = extract_character_features(letterList, dims)
-  #take existing feature set (done in ExtractFeatures.R), and some other info
+  # take existing feature set (done in ExtractFeatures.R), and some other info
   # and add more feature to the list with Rcpp (Measurements.cpp)
   addToFeatureSets = addToFeatures(featureSets, letterList, dims)
   
-  #Hard coded naming logic b/c of Rcpp but it works currently.
+  # Hard coded naming logic b/c of Rcpp but it works currently.
   for(i in 1:length(featureSets))
   {
-    featureSets[[i]]$centroidTightness = addToFeatureSets[[1]][[i]]
+    featureSets[[i]]$compactness = addToFeatureSets[[1]][[i]]
+    featureSets[[i]]$loopCount = addToFeatureSets[[2]][[i]]
   }
   
   for(i in 1:length(letters))

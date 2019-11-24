@@ -322,6 +322,32 @@ get_centroid_info = function(character, img_dim)
   return(centroid_info)
 }
 
+#' add_covariance_matrix
+#'
+#' 
+#' @param character_lists Output from processHandwriting$letterLists
+#' @param img_dim Dimensions of binary image
+#' @keywords centroid, skew, slant, lean, character
+#' @return nested lists associating features to respective characters.
+#' @export
+add_covariance_matrix = function(character_lists, character_features, img_dim){
+  
+  
+  for(i in 1:length(character_lists)){
+    matrix = i_to_rc(character_lists[[i]]$path, img_dim)
+    x = matrix[,2]
+    y = matrix[,1]
+    y = img_dim[1] - y #FLIPS Y VALUE SO IT REPS A REAL COORD PLANE
+    variance_of_x = var(x)
+    variance_of_y = var(y)
+    covariance_of_xy = cov(x,y)
+    #Add Covariance to the character features
+    #character_list[[i]]$characterFeatures$covariance = covariance_of_xy
+  }
+
+  return(character_features)
+}
+
 #' extract_character_features
 #'
 #' Primary driver of feature extraction. 
@@ -345,9 +371,10 @@ extract_character_features = function(character_lists,img_dim){
     cur_features = char_to_feature(character_lists[[i]],img_dim, i)
     character_features = append(character_features,list(cur_features))
   }
-  
+
   character_features = add_line_info(character_features,img_dim)
   character_features = nov_neighboring_char_dist(character_features)
+  #character_features = add_covariance_matrix(character_lists, character_features, img_dim)
   return(character_features)
 }
 

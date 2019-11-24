@@ -18,15 +18,15 @@ BEGIN_RCPP
 END_RCPP
 }
 // addToFeatures
-List addToFeatures(List FeatureSet, List LetterList, IntegerVector dims);
-RcppExport SEXP _handwriter_addToFeatures(SEXP FeatureSetSEXP, SEXP LetterListSEXP, SEXP dimsSEXP) {
+List addToFeatures(List FeatureSet, List LetterList, IntegerVector vectorDims);
+RcppExport SEXP _handwriter_addToFeatures(SEXP FeatureSetSEXP, SEXP LetterListSEXP, SEXP vectorDimsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< List >::type FeatureSet(FeatureSetSEXP);
     Rcpp::traits::input_parameter< List >::type LetterList(LetterListSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type dims(dimsSEXP);
-    rcpp_result_gen = Rcpp::wrap(addToFeatures(FeatureSet, LetterList, dims));
+    Rcpp::traits::input_parameter< IntegerVector >::type vectorDims(vectorDimsSEXP);
+    rcpp_result_gen = Rcpp::wrap(addToFeatures(FeatureSet, LetterList, vectorDims));
     return rcpp_result_gen;
 END_RCPP
 }
