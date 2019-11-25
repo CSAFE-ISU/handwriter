@@ -11,6 +11,11 @@ cleanBinaryImage <- function(img) {
     .Call(`_handwriter_cleanBinaryImage`, img)
 }
 
+#' @export
+addToFeatures <- function(FeatureSet, LetterList, vectorDims) {
+    .Call(`_handwriter_addToFeatures`, FeatureSet, LetterList, vectorDims)
+}
+
 #' rgba2rgb
 #' 
 #' Removes alpha channel from png image.

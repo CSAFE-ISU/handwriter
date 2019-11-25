@@ -1,58 +1,58 @@
 #!!!! <- this means nick please look at this
 
-
+#All loop measurements being done in C++ (MeasurementsCpp.cpp)
 #eh not very useful doesn't work as well
-loopMeasure = function(loopList, dims){
-  #y coord
-  #row modulo add 1
-  #subtract 1 from the index, perform operation, add 1
-  #col div add 1
-  rowList = loopList %/% dims[1]
-  #x coord
-  colList = loopList %% dims[2]
-  #whats the regular way to do this
-  longestPath = -9999999
-  targ_x1 = NULL
-  targ_y1 = NULL
-  targ_x2 = NULL
-  targ_y2 = NULL
-  i_index = NULL
-  j_index = NULL
-  for(i in 1:length(rowList)){
-    y1 = dims[[1]] - rowList[i]
-    x1 = colList[i]
-    i_index = loopList[i]
-    for(j in 1:length(rowList)){
-      y2 = dims[[1]] - rowList[j]
-      x2 = colList[j]
-      euDist = sqrt((x2-x1)^2+(y2-y1)^2)
-      if(euDist > longestPath){
-        longestPath = euDist
-        targ_x1 = x1
-        targ_y1 = y1
-        targ_x2 = x2
-        targ_y2 = y2
-        j_index = loopList[j]
-      }
-    }
-  }
-  #print indexes of longest point for testing purposes
-  #heres an idea of returning stuff
-  #return(data.frame(valNames = c("pathLen","x1","x2","y1","y2"),index = c("hmm",i_index,j_index,i_index,j_index) ,vals=c(longestPath,targ_x1,targ_x2,targ_y1,targ_y2)))
-  #heres another one that seems more useful for returning usable elements
-  return(list(list(i_index,j_index),longestPath))
-}
+# loopMeasure = function(loopList, dims){
+#   #y coord
+#   #row modulo add 1
+#   #subtract 1 from the index, perform operation, add 1
+#   #col div add 1
+#   rowList = loopList %/% dims[1]
+#   #x coord
+#   colList = loopList %% dims[2]
+#   #whats the regular way to do this
+#   longestPath = -9999999
+#   targ_x1 = NULL
+#   targ_y1 = NULL
+#   targ_x2 = NULL
+#   targ_y2 = NULL
+#   i_index = NULL
+#   j_index = NULL
+#   for(i in 1:length(rowList)){
+#     y1 = dims[[1]] - rowList[i]
+#     x1 = colList[i]
+#     i_index = loopList[i]
+#     for(j in 1:length(rowList)){
+#       y2 = dims[[1]] - rowList[j]
+#       x2 = colList[j]
+#       euDist = sqrt((x2-x1)^2+(y2-y1)^2)
+#       if(euDist > longestPath){
+#         longestPath = euDist
+#         targ_x1 = x1
+#         targ_y1 = y1
+#         targ_x2 = x2
+#         targ_y2 = y2
+#         j_index = loopList[j]
+#       }
+#     }
+#   }
+#   #print indexes of longest point for testing purposes
+#   #heres an idea of returning stuff
+#   #return(data.frame(valNames = c("pathLen","x1","x2","y1","y2"),index = c("hmm",i_index,j_index,i_index,j_index) ,vals=c(longestPath,targ_x1,targ_x2,targ_y1,targ_y2)))
+#   #heres another one that seems more useful for returning usable elements
+#   return(list(list(i_index,j_index),longestPath))
+# }
 
-loopMeasures = function(loopListAll, dims){
-  loopMeasure_results = list(1:length(loopListAll))
-  loopMeasure_points = list(1:length(loopListAll))
-  for(i in 1:length(loopListAll)){
-    result = loopMeasure(loopListAll[[i]],dims)
-    loopMeasure_results[[i]] = result
-    loopMeasure_points[[i]] = result[[1]]
-  }
-  return(list(loopMeasure_points,loopMeasure_results))
-}
+# loopMeasures = function(loopListAll, dims){
+#   loopMeasure_results = list(1:length(loopListAll))
+#   loopMeasure_points = list(1:length(loopListAll))
+#   for(i in 1:length(loopListAll)){
+#     result = loopMeasure(loopListAll[[i]],dims)
+#     loopMeasure_results[[i]] = result
+#     loopMeasure_points[[i]] = result[[1]]
+#   }
+#   return(list(loopMeasure_points,loopMeasure_results))
+# }
 #trash above h4h4h4
 loop_info = function(loop_list, img_dim){
   major = loop_major(loop_list, img_dim)
@@ -322,6 +322,32 @@ get_centroid_info = function(character, img_dim)
   return(centroid_info)
 }
 
+#' add_covariance_matrix
+#'
+#' 
+#' @param character_lists Output from processHandwriting$letterLists
+#' @param img_dim Dimensions of binary image
+#' @keywords centroid, skew, slant, lean, character
+#' @return nested lists associating features to respective characters.
+#' @export
+add_covariance_matrix = function(character_lists, character_features, img_dim){
+  
+  
+  for(i in 1:length(character_lists)){
+    matrix = i_to_rc(character_lists[[i]]$path, img_dim)
+    x = matrix[,2]
+    y = matrix[,1]
+    y = img_dim[1] - y #FLIPS Y VALUE SO IT REPS A REAL COORD PLANE
+    variance_of_x = var(x)
+    variance_of_y = var(y)
+    covariance_of_xy = cov(x,y)
+    #Add Covariance to the character features
+    #character_list[[i]]$characterFeatures$covariance = covariance_of_xy
+  }
+
+  return(character_features)
+}
+
 #' extract_character_features
 #'
 #' Primary driver of feature extraction. 
@@ -345,9 +371,10 @@ extract_character_features = function(character_lists,img_dim){
     cur_features = char_to_feature(character_lists[[i]],img_dim, i)
     character_features = append(character_features,list(cur_features))
   }
-  
+
   character_features = add_line_info(character_features,img_dim)
   character_features = nov_neighboring_char_dist(character_features)
+  #character_features = add_covariance_matrix(character_lists, character_features, img_dim)
   return(character_features)
 }
 
@@ -365,8 +392,8 @@ extract_character_features = function(character_lists,img_dim){
 char_to_feature = function(character, img_dim, uniqueid){
   aspect_info = get_aspect_info(character$path,img_dim)
   centroid_info = get_centroid_info(character$path,img_dim)
-  loop_info = get_loop_info(character,img_dim)
-  features = c(aspect_info,centroid_info,loop_info)
+  #loop_info = get_loop_info(character,img_dim)
+  features = c(aspect_info,centroid_info) #,loopinfo
   #just a persistent index for when we sort / rearrange the features list
   features$uniqueid = uniqueid
   return(features)
