@@ -696,7 +696,7 @@ processHandwriting = function(img, dims)
   # take existing feature set (done in ExtractFeatures.R), and some other info
   # and add more feature to the list with Rcpp (Measurements.cpp)
   addToFeatureSets = addToFeatures(featureSets, letterList, dims)
-  print(addToFeatureSets)
+  cat(addToFeatureSets)
                                
   # Hard coded naming logic b/c of Rcpp but it works currently.
   for(i in 1:length(featureSets))
