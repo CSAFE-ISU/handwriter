@@ -342,7 +342,9 @@ add_covariance_matrix = function(character_lists, character_features, img_dim){
     variance_of_y = var(y)
     covariance_of_xy = cov(x,y)
     #Add Covariance to the character features
-    #character_list[[i]]$characterFeatures$covariance = covariance_of_xy
+    character_features[[i]]$xvar = variance_of_x
+    character_features[[i]]$yvar = variance_of_y
+    character_features[[i]]$covar = covariance_of_xy
   }
 
   return(character_features)
@@ -374,7 +376,7 @@ extract_character_features = function(character_lists,img_dim){
 
   character_features = add_line_info(character_features,img_dim)
   character_features = nov_neighboring_char_dist(character_features)
-  #character_features = add_covariance_matrix(character_lists, character_features, img_dim)
+  character_features = add_covariance_matrix(character_lists, character_features, img_dim)
   return(character_features)
 }
 

@@ -149,7 +149,8 @@ plotLetter = function(letterList, whichLetter, dims, showPaths = TRUE, showCentr
   if(showCentroid) p = p + geom_point(data = centroidDat, aes(x = X, y = Y, color = I("red"), size = I(3), shape = I(7)))
   if(showSlope) p = p + geom_point(data = halfCentroidDat, aes(x = X, y = Y, color = I("red"), shape = I(4))) + 
     geom_line(data = halfCentroidDat, aes(x = X, y = Y, color = I("red")))
-  if(showTightness) p = p + geom_point(data = tightnessDat, aes(x = x0, y=y0, size = tightness*1.5, pch = 1, color = I("red"), stroke = 2))
+  #size is adjusted to scale the area of the circle, since 'size' is the radius
+  if(showTightness) p = p + geom_point(data = tightnessDat, aes(x = x0, y=y0, size = (sqrt(tightness/pi))*10, pch = 1, color = I("red"), stroke = 2))
   return(p)
 }
 
