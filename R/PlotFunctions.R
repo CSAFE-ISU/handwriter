@@ -86,7 +86,7 @@ plotNodes = function(img, thinned, nodeList, nodeSize = 3, nodeColor = "red")
 #' 
 #' @import ggplot2
 #' @export
-plotLetter = function(letterList, whichLetter, dims, showPaths = TRUE, showCentroid = TRUE, showSlope = TRUE, showTightness = TRUE)
+plotLetter = function(letterList, whichLetter, dims, showPaths = TRUE, showCentroid = TRUE, showSlope = TRUE, showTightness = TRUE, showLoopDims = TRUE)
 {
   path = letterList[[whichLetter]]$path
   r = ((path-1) %% dims[1]) + 1
@@ -145,12 +145,69 @@ plotLetter = function(letterList, whichLetter, dims, showPaths = TRUE, showCentr
   }
   
   p = plotNodes(img, which(img == 1), nodes)
+  
+  #Plot paths as numbers
   if(showPaths) p = p + geom_text(data = as.data.frame(pathPoints), aes(x = pathc, y = max(rnew) - pathr + 1, label = i))
+  
+  #Plot Centroid
   if(showCentroid) p = p + geom_point(data = centroidDat, aes(x = X, y = Y, color = I("red"), size = I(3), shape = I(7)))
+  
+  #Plot Slope of Letter
   if(showSlope) p = p + geom_point(data = halfCentroidDat, aes(x = X, y = Y, color = I("red"), shape = I(4))) + 
     geom_line(data = halfCentroidDat, aes(x = X, y = Y, color = I("red")))
-  #size is adjusted to scale the area of the circle, since 'size' is the radius
+  
+  #Plot tightness of letter, where tightness scales area (not radius)
   if(showTightness) p = p + geom_point(data = tightnessDat, aes(x = x0, y=y0, size = (sqrt(tightness/pi))*10, pch = 1, color = I("red"), stroke = 2))
+  
+  #Plot centroid and longest line through centroid (and its perpendicular line) of all loops
+  if(showLoopDims){
+    loops = letterList[[whichLetter]]$characterFeatures$loopDimensions
+    for(i in 1:length(loops)){
+      if(length(loops) == 0) break
+      loop = loops[[i]]
+      loopCentroid = loop[[1]]
+      longestLine = loop[[2]]
+      shortestLine = loop[[3]]
+      
+      
+      #Plot Centroid of loop
+      #loopCentroid_y = (dims[[1]] - loopCentroid[2]) - min(r)+1
+      loopCentroid_y = loopCentroid[2] - min(r)
+      loopCentroid_x = loopCentroid[1] - min(c)
+      loopCentroidDat = data.frame(X=loopCentroid_x+1, Y=ranger-loopCentroid_y)
+      p=p+geom_point(data = loopCentroidDat, aes(x=X, y=Y, color = I("blue"), size = I(2), shape = I(7)))
+      
+      #Plot long line of loop
+      longp1 = longestLine[[1]]
+      longp2 = longestLine[[2]]
+      
+      longx1 = longp1[[1]]-min(c)
+      #longy1 = (dims[[1]] - longp1[2]) - min(r)+1
+      longy1 = longp1[[2]] - min(r)
+      longx2 = longp2[[1]]-min(c)
+      #longy2 = (dims[[1]] - longp2[2]) - min(r)+1
+      longy2 = longp2[[2]] - min(r)
+      
+      loopLongestLine = data.frame(X = c(longx1, longx2)+1, 
+                                   Y = c(ranger - c(longy1, longy2)))
+      p=p+geom_line(data = loopLongestLine, aes(x = X, y = Y, color = I("blue")))
+      
+      #Plot short line of loop
+      shortp1 = shortestLine[[1]]
+      shortp2 = shortestLine[[2]]
+      
+      shortx1 = shortp1[1]-min(c)
+      #shorty1 = (dims[[1]] - shortp1[2]) - min(r)+1
+      shorty1 = shortp1[2] - min(r)
+      shortx2 = shortp2[1]-min(c)
+      #shorty2 = (dims[[1]] - shortp2[2]) - min(r)+1
+      shorty2 = shortp2[2] - min(r)
+      
+      loopShortestLine = data.frame(X = c(shortx1, shortx2)+1, 
+                                   Y = c(ranger - c(shorty1, shorty2)))
+      p=p+geom_line(data = loopShortestLine, aes(x = X, y = Y, color = I("blue")))
+    }
+  }
   return(p)
 }
 
