@@ -703,6 +703,7 @@ processHandwriting = function(img, dims)
   {
     featureSets[[i]]$compactness = addToFeatureSets[[1]][[i]]
     featureSets[[i]]$loopCount = addToFeatureSets[[2]][[i]]
+    featureSets[[i]]$loopDimensions = addToFeatureSets[[3]][[i]]
   }
   
   for(i in 1:length(letters))
