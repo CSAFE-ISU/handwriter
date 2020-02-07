@@ -12,6 +12,7 @@ int indexToRow(int index, int rows);
 int indexToCol(int index, int rows);
 List findLoops(List allpaths, NumericVector dims);
 List findLoopDims(List knownLoops, NumericVector dims);
+List findLoopRatios(List loopDimensions, NumericVector dims);
 NumericVector findCentroidofLoop(NumericVector loopPath, NumericVector dims);
 
 //' @export
@@ -20,6 +21,8 @@ List addToFeatures(List FeatureSet, List LetterList, IntegerVector vectorDims){
   NumericVector compactness;
   NumericVector loopCount;
   List loopDims;
+  //List loopInfo;
+  List loopInfoList;
   
   List listTest;
   for(int i = 0; i < FeatureSet.size(); i++){
@@ -38,19 +41,46 @@ List addToFeatures(List FeatureSet, List LetterList, IntegerVector vectorDims){
     List allPaths = Rcpp::as<Rcpp::List>(Rcpp::as<Rcpp::List>(LetterList[i])["allPaths"]);
     List loops = findLoops(allPaths, dims);
     
-
     List loopDimensions = findLoopDims(loops, dims);
-    loopDims.push_back(loopDimensions);
+    //loopDims.push_back(loopDimensions);
     
-    
+    List loopRatio = findLoopRatios(loopDimensions, dims);
+
     int loopCounter = loops.size();
-    loopCount.push_back(loopCounter);
+    //loopCount.push_back(loopCounter);
+    
+    List loopInfo = Rcpp::List::create(Rcpp::Named("loopRatio") = loopRatio, Rcpp::Named("loopPlottingInfo") = loopDimensions, Rcpp::Named("loopCount") = loopCounter);
+    loopInfoList.push_back(loopInfo);
   }
   
   //Currently returns compactness of a letter, loopCount of a letter, and dimensions of the loop.
-  return Rcpp::List::create(Rcpp::Named("compactness") = compactness, Rcpp::Named("loopCount") = loopCount, Rcpp::Named("loopDims") = loopDims);
+  return Rcpp::List::create(Rcpp::Named("compactness") = compactness, Rcpp::Named("loopInfo") = loopInfoList);
 }
 
+//Given a list of loop dimensions, return the list of ratios of height to width of each loop
+List findLoopRatios(List loopDimensions, NumericVector dims){
+  List loopRatios = Rcpp::List::create();
+  
+  for(int i = 0; i<loopDimensions.size(); i++){
+     List loopToProcess = loopDimensions[i];
+     List longestLine = loopToProcess[1];
+     NumericVector longestLineP1 = longestLine[0];
+     NumericVector longestLineP2 = longestLine[1];
+     double longestLineDist = sqrt(pow(longestLineP2[0]-longestLineP1[0],2) + pow(longestLineP2[1]-longestLineP1[1],2.0));
+     
+     List shortestLine = loopToProcess[2];
+     NumericVector shortestLineP1 = shortestLine[0];
+     NumericVector shortestLineP2 = shortestLine[1];
+     double shortestLineDist = sqrt(pow(shortestLineP2[0]-shortestLineP1[0],2) + pow(shortestLineP2[1]-shortestLineP1[1],2.0));
+     
+     double ratio = longestLineDist/shortestLineDist;
+     String loopNum = "Loop ";
+     loopRatios.push_back(ratio, loopNum += std::to_string(i+1));
+   }
+  
+  
+  return loopRatios;
+}
 //Given a list of loops, return a list of vectors that has the points of the longest line 
 //through the centroid and the line perpendicular to it
 List findLoopDims(List knownLoops, NumericVector dims){
@@ -70,7 +100,6 @@ List findLoopDims(List knownLoops, NumericVector dims){
     
     //For every point on the loop
     for(int j = 0; j < pathConsidering.size(); j++){
-      Rcout<< convertIndextoXY(pathConsidering[j], dims) << " -- ";
       NumericVector pointXY = convertIndextoXY(pathConsidering[j], dims, 1);
       if (pointXY[0] == centroid[0] || pointXY[1] == centroid[1]) continue;
 
@@ -78,7 +107,6 @@ List findLoopDims(List knownLoops, NumericVector dims){
       double slopeFromXYToCentroid = ((centroid[1]-pointXY[1])/(centroid[0]-pointXY[0]));
       double yIntercept = pointXY[1] - (slopeFromXYToCentroid * pointXY[0]);
 
-      double smallestDistanceFromLine = INFINITY;
       //Go through every other point
       for(int k = 0; k<pathConsidering.size(); k++){
         NumericVector checkPointXY = convertIndextoXY(pathConsidering[k], dims, 1);
@@ -99,14 +127,12 @@ List findLoopDims(List knownLoops, NumericVector dims){
     
     NumericVector lengthPoint1 = longestLine[0];
     NumericVector lengthPoint2 = longestLine[1];
-    //Rcout << "\nLongestline of this loop is --- pointXY: " << lengthPoint1 << " checkPointXY:" << lengthPoint2 << "\n";
     
     //FIND A PERPENDICULAR LINE -------------------------------------------------------------------------
     
     //once you found the longest find its perpendicular line and use that as the shortest line
     double longestLineSlope = ((lengthPoint2[1] - lengthPoint1[1])/(lengthPoint2[0]-lengthPoint1[0]));
     double shortestLineSlope = -1.0/longestLineSlope;
-    Rcout << "Long Slope: " << longestLineSlope << " Short Slope: " << shortestLineSlope << "\n";
     double yIntercept = centroid[1] - (shortestLineSlope * centroid[0]);
     
     //These variables will keep track of the closest matches as we go around
@@ -142,8 +168,7 @@ List findLoopDims(List knownLoops, NumericVector dims){
     
     NumericVector widthPoint1 = shortestLine[0];
     NumericVector widthPoint2 = shortestLine[1];
-    //Rcout << "shortestLine of this loop is --- Point1: " << widthPoint1 << " Point2:" << widthPoint2 << "\n";
-    
+
     //save longest line and shortest line vector in a list
     //Before we return, need to convert all column values back to inverted
     centroid[1] = dims[0] - centroid[1];
@@ -157,16 +182,13 @@ List findLoopDims(List knownLoops, NumericVector dims){
     invertedSP1[1] = dims[0] - invertedSP1[1];
     invertedSP2[1] = dims[0] - invertedSP2[1];
     
-    longestLine = Rcpp::List::create(invertedLP1, invertedLP2);
-    shortestLine = Rcpp::List::create(invertedSP1, invertedSP2);
+    longestLine = Rcpp::List::create(Rcpp::Named("P1")=invertedLP1, Rcpp::Named("P2")=invertedLP2);
+    shortestLine = Rcpp::List::create(Rcpp::Named("P1")=invertedSP1, Rcpp::Named("P2")=invertedSP2);
     
-    Rcout << "Longestline of this loop is: " << invertedLP1 << " & " << invertedLP2 << "\n";
-    Rcout << "shortestLine of this loop is: " << invertedSP1 << " & " << invertedSP2 << "\n\n";
-    
-    List loopInfoToAdd = Rcpp::List::create(centroid, longestLine, shortestLine);
-    loopDims.push_back(loopInfoToAdd);
+    List loopInfoToAdd = Rcpp::List::create(Rcpp::Named("centroid") = centroid, Rcpp::Named("longestLine")=longestLine, Rcpp::Named("shortestLine")= shortestLine);
+    String loopName = "Loop ";
+    loopDims.push_back(loopInfoToAdd, loopName += std::to_string(i+1));
   }
-  Rcout<<"Right Before return ---" << "Known loops size: " << knownLoops.size() << "\n\n";
   return loopDims;
 }
 

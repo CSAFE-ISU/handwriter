@@ -161,7 +161,7 @@ plotLetter = function(letterList, whichLetter, dims, showPaths = TRUE, showCentr
   
   #Plot centroid and longest line through centroid (and its perpendicular line) of all loops
   if(showLoopDims){
-    loops = letterList[[whichLetter]]$characterFeatures$loopDimensions
+    loops = letterList[[whichLetter]]$characterFeatures$loopInfo$loopPlottingInfo
     for(i in 1:length(loops)){
       if(length(loops) == 0) break
       loop = loops[[i]]
