@@ -2,6 +2,8 @@
 
 export(AddLetterImages)
 export(SaveAllLetterPlots)
+export(addToFeatures)
+export(add_covariance_matrix)
 export(add_line_info)
 export(all_centroids)
 export(char_to_feature)
