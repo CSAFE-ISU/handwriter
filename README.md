@@ -1,9 +1,5 @@
 # handwriter
 
-```{r}
-devtools::install_github("CSAFE-ISU/handwriter")
-library(handwriter)
+Website homepage located on our [Github pages](https://csafe-isu.github.io/handwriter/)
+Step by step located [here](https://csafe-isu.github.io/handwriter/howto)
 
-
-Github pages located at: https://csafe-isu.github.io/handwriter/
-```
