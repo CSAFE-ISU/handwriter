@@ -81,7 +81,19 @@
             library(igraph)
             library(ggplot2)</code>
         </pre>
-
+            <p> Once you have a PNG image of some handwriting: </p>
+            <pre>
+          <code>
+            csafe = list()
+            csafe$image = readPNGBinary("path/to/the/picture.png")</code>
+        </pre>
+            <h2>Preparing the image for processing</h2>
+            <p> crop the image and plot it: </p>
+            <pre>
+          <code>
+            csafe$image = crop(csafe$image)
+            plotImage(csafe$image)</code>
+        </pre>
       </div>
     </div>
   </div>
