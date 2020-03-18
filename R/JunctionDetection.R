@@ -21,7 +21,6 @@ countChanges = function(coords, img)
     stop("Please use `crop` to crop your image. Not padded around outside.")
   }
 }
-
 #' Internal function for identifying which neighbors are black.
 whichNeighbors = function(coords, img)
 {
@@ -435,6 +434,8 @@ processHandwriting = function(img, dims)
   dists0 = distances(skel_graph0, v = as.character(format(nodeList, scientific = FALSE, trim = TRUE)), to = as.character(format(nodeList, scientific = FALSE, trim = TRUE)), weights = E(skel_graph0)$nodeOnlyDist)
   adj0 = ifelse(dists0 == 1 | dists0 == 2, 1, 0)
   
+  cat("and merging them\nmergeSets left:")
+  emergencyBreak = 20;
   while(TRUE)
   {
     originalNodeList = nodeList
@@ -450,6 +451,8 @@ processHandwriting = function(img, dims)
     mergeSets = matrix(mergeSets, ncol = 2)
     
     if(dim(mergeSets)[1] == 0) break
+    cat(dim(mergeSets)[1])
+    cat("-->")
     
     if(anyDuplicated(c(mergeSets)) > 0)
     {
@@ -480,7 +483,15 @@ processHandwriting = function(img, dims)
     }
     if(length(toDelete) > 0)
       adj0 = as.matrix(adj0[,-toDelete])[-toDelete,]
+    
+    emergencyBreak = emergencyBreak - 1
+    if(emergencyBreak == 0){
+      cat("Could not merge nodes... stopping execution")
+      stop()
+    }
+        
   }
+  cat("\n")
   
   graphdf0 = as_data_frame(skel_graph0)
   graphdf0$nodeOnlyDist = ifelse(graphdf0$from %in% nodeList | graphdf0$to %in% nodeList, 1, 0.00001)
@@ -691,12 +702,13 @@ processHandwriting = function(img, dims)
       letterList[[i]]$letterCode = "A"
     }
   }
-  
+  cat("Extracting character features...")
   featureSets = extract_character_features(letterList, dims)
   # take existing feature set (done in ExtractFeatures.R), and some other info
   # and add more feature to the list with Rcpp (Measurements.cpp)
+  cat("and a few more...\n")
   addToFeatureSets = addToFeatures(featureSets, letterList, dims)
-                               
+
   # Hard coded naming logic b/c of Rcpp but it works currently.
   for(i in 1:length(featureSets))
   {

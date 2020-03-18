@@ -21,7 +21,6 @@ List addToFeatures(List FeatureSet, List LetterList, IntegerVector vectorDims){
   NumericVector compactness;
   NumericVector loopCount;
   List loopDims;
-  //List loopInfo;
   List loopInfoList;
   
   List listTest;
@@ -40,14 +39,13 @@ List addToFeatures(List FeatureSet, List LetterList, IntegerVector vectorDims){
     //FIND LOOPS
     List allPaths = Rcpp::as<Rcpp::List>(Rcpp::as<Rcpp::List>(LetterList[i])["allPaths"]);
     List loops = findLoops(allPaths, dims);
-    
-    List loopDimensions = findLoopDims(loops, dims);
-    //loopDims.push_back(loopDimensions);
-    
-    List loopRatio = findLoopRatios(loopDimensions, dims);
 
+    List loopDimensions = findLoopDims(loops, dims);
+    loopDims.push_back(loopDimensions);
+    List loopRatio = findLoopRatios(loopDimensions, dims);
+    
     int loopCounter = loops.size();
-    //loopCount.push_back(loopCounter);
+    loopCount.push_back(loopCounter);
     
     List loopInfo = Rcpp::List::create(Rcpp::Named("loopRatio") = loopRatio, Rcpp::Named("loopPlottingInfo") = loopDimensions, Rcpp::Named("loopCount") = loopCounter);
     loopInfoList.push_back(loopInfo);
@@ -113,8 +111,8 @@ List findLoopDims(List knownLoops, NumericVector dims){
 
       //Does it fall on the line?
       double distanceFromLine = abs(checkPointXY[1] - ((slopeFromXYToCentroid * checkPointXY[0]) + yIntercept));
-        
-      if(distanceFromLine < 1){//only check distance if it is more on the line that a previous one.
+
+      if(distanceFromLine < 2){//only check distance if it is more on the line that a previous one.
           //get distance between two points, if it is bigger than max then update max
           int distance = findDistanceBetweenTwoPoints(pointXY, checkPointXY);
           if (distance > longestLineDistance){
@@ -127,21 +125,21 @@ List findLoopDims(List knownLoops, NumericVector dims){
     
     NumericVector lengthPoint1 = longestLine[0];
     NumericVector lengthPoint2 = longestLine[1];
-    
+
     //FIND A PERPENDICULAR LINE -------------------------------------------------------------------------
-    
+
     //once you found the longest find its perpendicular line and use that as the shortest line
     double longestLineSlope = ((lengthPoint2[1] - lengthPoint1[1])/(lengthPoint2[0]-lengthPoint1[0]));
     double shortestLineSlope = -1.0/longestLineSlope;
     double yIntercept = centroid[1] - (shortestLineSlope * centroid[0]);
-    
+
     //These variables will keep track of the closest matches as we go around
     //USE AFTER GET BASE WORKING --- THEN JUST FIND CLOSEST POINTS ON BOTH SIDES
     NumericVector closestPerpPoint1;
     double closestPerpPoint1Val = INFINITY;
     NumericVector closestPerpPoint2;
     double closestPerpPoint2Val = INFINITY;
-    
+
     List shortestLine = Rcpp::List::create();
     //go through every point to find two points that fall on perp through centroid
     for(int j = 0; j < pathConsidering.size()/2; j++){
@@ -153,11 +151,11 @@ List findLoopDims(List knownLoops, NumericVector dims){
         closestPerpPoint1 = checkPointXY;
         }
     }
-    
+
     //look for second point
     for(int k = pathConsidering.size()/2; k < pathConsidering.size(); k++){
       NumericVector checkPointXY = convertIndextoXY(pathConsidering[k], dims, 1);
-      
+
       double distanceFromPerpLine = abs(checkPointXY[1] - ((shortestLineSlope * checkPointXY[0]) + yIntercept));
       if(distanceFromPerpLine < closestPerpPoint2Val){
         closestPerpPoint2Val = distanceFromPerpLine;
@@ -165,7 +163,7 @@ List findLoopDims(List knownLoops, NumericVector dims){
       }
     }
     shortestLine = Rcpp::List::create(closestPerpPoint1, closestPerpPoint2);
-    
+
     NumericVector widthPoint1 = shortestLine[0];
     NumericVector widthPoint2 = shortestLine[1];
 
@@ -176,7 +174,7 @@ List findLoopDims(List knownLoops, NumericVector dims){
     NumericVector invertedLP2 = longestLine[1];
     NumericVector invertedSP1 = shortestLine[0];
     NumericVector invertedSP2 = shortestLine[1];
-    
+
     invertedLP1[1] = dims[0] - invertedLP1[1];
     invertedLP2[1] = dims[0] - invertedLP2[1];
     invertedSP1[1] = dims[0] - invertedSP1[1];
@@ -184,7 +182,7 @@ List findLoopDims(List knownLoops, NumericVector dims){
     
     longestLine = Rcpp::List::create(Rcpp::Named("P1")=invertedLP1, Rcpp::Named("P2")=invertedLP2);
     shortestLine = Rcpp::List::create(Rcpp::Named("P1")=invertedSP1, Rcpp::Named("P2")=invertedSP2);
-    
+
     List loopInfoToAdd = Rcpp::List::create(Rcpp::Named("centroid") = centroid, Rcpp::Named("longestLine")=longestLine, Rcpp::Named("shortestLine")= shortestLine);
     String loopName = "Loop ";
     loopDims.push_back(loopInfoToAdd, loopName += std::to_string(i+1));

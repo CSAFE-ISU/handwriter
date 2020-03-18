@@ -157,7 +157,7 @@ plotLetter = function(letterList, whichLetter, dims, showPaths = TRUE, showCentr
     geom_line(data = halfCentroidDat, aes(x = X, y = Y, color = I("red")))
   
   #Plot tightness of letter, where tightness scales area (not radius)
-  if(showTightness) p = p + geom_point(data = tightnessDat, aes(x = x0, y=y0, size = (sqrt(tightness/pi))*10, pch = 1, color = I("red"), stroke = 2))
+  if(showTightness) p = p + geom_point(data = tightnessDat, aes(x = x0, y=y0, size = (sqrt(tightness/pi))*25, pch = 1, color = I("red"), stroke = 2))
   
   #Plot centroid and longest line through centroid (and its perpendicular line) of all loops
   if(showLoopDims){
