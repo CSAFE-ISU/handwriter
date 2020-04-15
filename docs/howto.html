@@ -68,32 +68,53 @@
         </ul>
         <br>
         <h2>Getting started</h2>
-        <p> Once you have R installed, you'll want to install our package from Github using:
+        <p> Once you have R installed, you'll want to install and load our package from Github using:
           <pre>
           <code>
-            devtools::install_github("CSAFE-ISU/handwriter")</code>
+            install.packages("devtools")
+            devtools::install_github("CSAFE-ISU/handwriter")
+            library(handwriter)</code>
         </pre>
-          <p> You'll also need to install a few libraries:
+          <p> And load these packages for plotting as well:
             <pre>
           <code>
-            library(handwriter)
             library(reshape2)
             library(igraph)
-            library(ggplot2)</code>
+            library(ggplot2)
+            dev_tools::load_all(".")</code>
         </pre>
-            <p> Once you have a PNG image of some handwriting: </p>
-            <pre>
+            <p> Get your image as a .png (we'll use this one, available <a href="writingsamples.html">here</a>):
+
+              <body>
+                <img src="Pictures/Writing_csafe_single.png" alt="Writing_csafe_single">
+              </body>
+              <p> Once you have that, read in the image: </p>
+              <pre>
           <code>
             csafe = list()
             csafe$image = readPNGBinary("path/to/the/picture.png")</code>
         </pre>
-            <h2>Preparing the image for processing</h2>
-            <p> crop the image and plot it: </p>
-            <pre>
+              <h2>Preparing the image for processing</h2>
+              <p> crop the image and plot it: </p>
+              <pre>
           <code>
             csafe$image = crop(csafe$image)
             plotImage(csafe$image)</code>
         </pre>
+
+              <body>
+                <img src="Pictures/csafe_cropped.png" alt="Writing_csafe_single">
+              </body>
+              <p> thin the image and you can plot it again: </p>
+              <pre>
+              <code>
+                csafe$thin = thinImage(csafe$image)
+                plotImageThinned(csafe$image, csafe$thin)</code>
+        </pre>
+
+              <body>
+                <img src="Pictures/csafe_thinned.png" alt="Writing_csafe_single">
+              </body>
       </div>
     </div>
   </div>
