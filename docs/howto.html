@@ -1,194 +1,242 @@
 <!DOCTYPE html>
 <html lang="en">
 
-  <head>
-    <title>handwriter</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
-    <style>
-      .fakeimg {
-        height: 200px;
-        background: #aaa;
-      }
-      pre {
-        background-color: #D3D3D3;
-      }
-    </style>
-  </head>
+<head>
+  <title>handwriter</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+  <style>
+    .fakeimg {
+      height: 200px;
+      background: #aaa;
+    }
 
-  <body>
+    pre {
+      background-color: #D3D3D3;
+    }
+  </style>
+</head>
 
-    <div class="jumbotron text-center" style="margin-bottom:0">
-      <h1>handwriter project</h1>
-      <p>Homepage for handwriter project for CSAFE</p>
+<body>
+
+  <div class="jumbotron text-center" style="margin-bottom:0">
+    <h1>handwriter project</h1>
+    <p>Homepage for handwriter project for CSAFE</p>
+  </div>
+
+  <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+    <a class="navbar-brand" href="index.html">Home</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="collapsibleNavbar">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" href="statisticalmethods.html">Methods</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" href="howto.html">How To</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="aboutus.html">About Us</a>
+        </li>
+      </ul>
     </div>
+  </nav>
 
-    <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
-      <a class="navbar-brand" href="index.html">Home</a>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="collapsibleNavbar">
-        <ul class="navbar-nav">
-          <li class="nav-item">
-            <a class="nav-link" href="statisticalmethods.html">Methods</a>
+  <div class="container" style="margin-top:30px">
+    <div class="row">
+      <div class="col-sm-16">
+        <h1>How to use the handwriter package</h1>
+        <h5>Interested in trying it out yourself?</h5>
+        <p>While we work on something interactive and web-based, you can download the package yourself and give it a try. The following is a step by step tutorial to help you along the way.</p>
+        <br>
+        <h2>Things you'll need</h2>
+        <ul>
+          <li>The R software enviroment, downloadable from
+            <a href="https://www.r-project.org/">The R Project</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link active" href="howto.html">How To</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="aboutus.html">About Us</a>
+          <li>
+            <a href="https://rstudio.com/">RStudio</a>, an IDE that should simplify the experience</li>
+          <li>A sample of handwriting in .png format, you can:
+            <ul>
+              Write something up (black and white works best) and scan it digitally</ul>
+            <ul>
+              Use an online tool like
+              <a href="https://sketch.io/sketchpad/">Sketch.io</a>
+              create and export some handwriting easily</ul>
+            <ul>
+              Use one of
+              <a href="writingsamples.html">our images</a>
+              to get started
+            </ul>
           </li>
         </ul>
-      </div>
-    </nav>
-
-    <div class="container" style="margin-top:30px">
-      <div class="row">
-        <div class="col-sm-16">
-          <h1>How to use the handwriter package</h1>
-          <h5>Interested in trying it out yourself?</h5>
-          <p>While we work on something interactive and web-based, you can download the package yourself and give it a try. The following is a step by step tutorial to help you along the way.</p>
-          <br>
-          <h2>Things you'll need</h2>
-          <ul>
-            <li>The R software enviroment, downloadable from
-              <a href="https://www.r-project.org/">The R Project</a>
-            </li>
-            <li>
-              <a href="https://rstudio.com/">RStudio</a>, an IDE that should simplify the experience</li>
-            <li>A sample of handwriting in .png format, you can:
-              <ul>
-                Write something up (black and white works best) and scan it digitally</ul>
-              <ul>
-                Use an online tool like
-                <a href="https://sketch.io/sketchpad/">Sketch.io</a>
-                create and export some handwriting easily</ul>
-              <ul>
-                Use one of
-                <a href="writingsamples.html">our images</a>
-                to get started
-              </ul>
-            </li>
-          </ul>
-          <br>
-          <h2>Getting started</h2>
+        <br>
+        <h2>Getting started</h2>
+        <p>
+          Once you have R installed, you'll want to install and load our package from Github using:
+          <pre>
+            <code>
+              install.packages("devtools")
+              devtools::install_github("csafe-isu/handwriter")
+              library(handwriter)</code>
+          </pre>
           <p>
-            Once you have R installed, you'll want to install and load our package from Github using:
-            <pre>
-          <code>
-            install.packages("devtools")
-            devtools::install_github("csafe-isu/handwriter")
-            library(handwriter)</code>
-        </pre>
+            And load these packages for plotting as well:
+          </p>
+          <pre>
+            <code>
+              library(reshape2)
+              library(igraph)
+              library(ggplot2)</code>
+          </pre>
+          <p>
+            Get your image as a .png (we'll use this one, available
+            <a href="writingsamples.html">here</a>):
+
+            <body>
+              <img src="Pictures/Writing_csafe_single.png" alt="Writing_csafe_single">
+            </body>
             <p>
-              And load these packages for plotting as well:
+              Once you have that, read in the image:
             </p>
             <pre>
-          <code>
-            library(reshape2)
-            library(igraph)
-            library(ggplot2)
-            dev_tools::load_all(".")</code>
-        </pre>
+              <code>
+                csafe = list()
+                csafe$image = readpngbinary("path/to/the/picture.png")</code>
+            </pre>
+            <h2>Preparing the image for processing</h2>
             <p>
-              Get your image as a .png (we'll use this one, available
-              <a href="writingsamples.html">here</a>):
+              crop the image and plot it:
+            </p>
+            <pre>
+              <code>
+                csafe$image = crop(csafe$image)
+                plotimage(csafe$image)</code>
+            </pre>
 
-              <body>
-                <img src="Pictures/Writing_csafe_single.png" alt="Writing_csafe_single">
-              </body>
-              <p>
-                Once you have that, read in the image:
-              </p>
-              <pre>
-          <code>
-            csafe = list()
-            csafe$image = readpngbinary("path/to/the/picture.png")</code>
-        </pre>
-              <h2>Preparing the image for processing</h2>
-              <p>
-                crop the image and plot it:
-              </p>
-              <pre>
-          <code>
-            csafe$image = crop(csafe$image)
-            plotimage(csafe$image)</code>
-        </pre>
+            <body>
+              <img src="Pictures/csafe_cropped.png" alt="Writing_csafe_single">
+            </body>
 
-              <body>
-                <img src="Pictures/csafe_cropped.png" alt="Writing_csafe_single">
-              </body>
-
-              <p>
-                <br>thin the image and you can plot it again:
-              </p>
-              <pre>
+            <p>
+              <br>thin the image and you can plot it again:
+            </p>
+            <pre>
               <code>
                 csafe$thin = thinimage(csafe$image)
                 plotimagethinned(csafe$image, csafe$thin)</code>
-        </pre>
+            </pre>
 
-              <body>
-                <img src="Pictures/csafe_thinned.png" alt="Writing_csafe_single">
-              </body>
-              <h2><br>Processing the image and save off information</h2>
-              <p>
-                Process the image</p>
-              <pre>
+            <body>
+              <img src="Pictures/csafe_thinned.png" alt="Writing_csafe_single">
+            </body>
+            <h2><br>Processing the image and save off information</h2>
+            <p>
+              Process the image</p>
+            <pre>
               <code>
                 csafe_processlist = processhandwriting(csafe$thin, dim(csafe$image))</code>
-    </pre>
-              <p>Save information for plotting</p>
-              <pre>
+            </pre>
+            <p>Save information for plotting</p>
+            <pre>
               <code>
                 csafe$nodes = csafe_processlist$nodes
                 csafe$breaks = csafe_processlist$breakpoints
                 csafe$paths = csafe_processlist$pathlist
                 csafe$graphemes = csafe_processlist$graphemelist
                 dims = dim(csafe$image)</code>
-    </pre>
-              <h2><br>Plotting processed writing</h2>
-              <p>
-                Plot all nodes found during processing</p>
-              <pre>
-                <code>
+            </pre>
+            <h2><br>Plotting processed writing</h2>
+            <p>
+              Plot all nodes found during processing</p>
+            <pre>
+              <code>
                 plotnodes(csafe$image, csafe$thin, csafe$nodes)</code>
-    </pre>
-              <body>
-                <img src="Pictures/csafe_nodes.png" alt="Writing_csafe_single">
-              </body>
-              <p>Plot all glyph breaks found during processing</p>
-              <pre>
-                <code>
+            </pre>
+
+            <body>
+              <img src="Pictures/csafe_nodes.png" alt="Writing_csafe_single">
+            </body>
+            <p>Plot all glyph breaks found during processing</p>
+            <pre>
+              <code>
                 plotnodes(csafe$image, csafe$thin, csafe$breaks)</code>
-    </pre>
+            </pre>
 
-              <body>
-                <img src="Pictures/csafe_breaks.png" alt="Writing_csafe_single">
-              </body>
-              <p>Also included is the ability to plot individual glyphs from the sample of writing, using
-                <code>plotLetter()</code>. First lets look at the parameters and options, and then run through a few examples.</p>
-              <pre>
-                <code>
-                plotnodes(csafe$image, csafe$thin, csafe$breaks)</code>
-              </pre>
-            </div>
-          </div>
-        </div>
+            <body>
+              <img src="Pictures/csafe_breaks.png" alt="Writing_csafe_single">
+            </body>
+            <p>Also included is the ability to plot individual glyphs from the sample of writing, using
+              <code>plotLetter()</code>. First lets look at the parameters and options, and then run through a few examples.</p>
+            <p>The parameters include:</p>
+            <ul>
+              <li>
+                letterList Object
+              </li>
+              <li>
+                The index of the glyph you wish to plot
+              </li>
+              <li>
+                dims Object
+              </li>
+              <li>
+                OPTIONAL: Boolean - Number the paths within the glyph
+              </li>
+              <li>
+                OPTIONAL: Boolean - Plot the centroid of the glyph
+              </li>
+              <li>
+                OPTIONAL: Boolean - Plot the slope of the glyph
+              </li>
+              <li>
+                OPTIONAL: Boolean - Plot the compactness based on the distance of each pixel of the glph from the centroid.
+              </li>
+            </ul>
+            <p><br>The following will result in the first glyph being plotted with all optional paramters:</p>
+            <pre>
+              <code>
+                plotletter(csafe_processlist$letterlist, 1, dims)
 
-        <div class="jumbotron text-center" style="margin-bottom:0">
-          <p>
-            <a href="https://forensicstats.org/">
-              CSAFE
-            </a>
-          </p>
-        </div>
+                #Note: No optional parameters specified is the same as:
+                #plotletter(csafe_processlist$letterlist, 1, dims, TRUE, TRUE, TRUE, TRUE)</code>
+            </pre>
 
-      </body>
+            <body>
+              <img src="Pictures/c_all_features.png" alt="c_all_features">
+            </body>
+            <p><br>This will plot the fifth glyph with just the slope and centroid:</p>
+            <pre>
+              <code>
+                plotLetter(csafe_processList$letterList, 5, dims, FALSE, TRUE, TRUE, FALSE)</code>
+            </pre>
 
-    </html>
+            <body>
+              <img src="Pictures/f_slope_and_centroid.png" alt="c_all_features">
+            </body>
+            <h2><br>If things go wrong</h2>
+            <p> If you run into trouble with the steps above, there are a few things you can try to debug the issue</p>
+            <ul>
+              <li> In R Studio, click the "Install and Restart" button in the "Build" tab</li>
+              <li> If that doesn't work, in the "More" menu of the "Build" tab, click "Clean and Rebuild". This could take a while.</li>
+            </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="jumbotron text-center" style="margin-bottom:0">
+    <p>
+      <a href="https://forensicstats.org/">
+        CSAFE
+      </a>
+    </p>
+  </div>
+
+</body>
+
+</html>
