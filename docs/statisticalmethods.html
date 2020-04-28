@@ -84,16 +84,60 @@
           Once recieved, we scan all surveys and writing samples. Scans are loaded,
           cropped, and saved using a Shiny app. The app also facilitates survey data entry,
           saving that participant data to lines in an excel spreadsheet. </p>
-        <p> A public database of handwriting samples we have collected can be found
-          <a href="https://forensicstats.org/handwritingdatabase/"> here </a>.</p>
+        <p> A public database of handwriting samples we have collected can be found at
+          <a href="https://forensicstats.org/handwritingdatabase/">forensicstats.org/handwritingdatabase</a>.</p>
         <p> A data article regarding these samples was accepted at <a href="https://www.sciencedirect.com/science/article/pii/S2352340919314155?via%3Dihub"> Data in Brief </a><br>
           Crawford, A., Ray, A., & Carriquiry, A. (2020). A database of handwriting samples for applications in forensic statistics. Data in brief, 28, 105059.</p>
 
         <h2>Computational Tools</h2>
-        <p> ... </p>
-        <h2>Statistical Analysis</h2>
-        <p> ... </p>
-        <h3><a href="resources.html">Compiled List of Resources</a></h2>
+        <p> <code> handwriter </code> is a developmental R package hosted at <a href="https://github.com/CSAFE-ISU/handwriter">github.com/CSAFE-ISU/handwriter</a>. It is our major computational tool for the project. The package takes in scanned
+          handwritten documents and the following are performed.</p>
+        <ol>
+          <li><b>Binarize</b> - Turn the image into pure black and white</li>
+          <li><b>Skeltonize</b> - Reduce writing to a 1 pixel wide skelton</li>
+          <li><b>Break</b> - Connected writing is decomposed into small manageable pieces called <b>glyphs</b>.
+            <br><b>Glyphs</b> are graphical structures with nodes and edges that often, but not always, correspond to
+            Roman letters, and are the smallest unit of observation we consider for statistcal modelling.</li>
+          <li><b>Measure</b> - Measure are taken on each glyph</li>
+        </ol>
+        <p>Below is an example we commonly use, the word 'csafe' in cursive. In this example you can see the gray background of the writing,
+          a result of <b>binarization</b>. The colored lines is the single pixel <b>skelton</b>. The change from green to blue marks
+          the changes after the piece of writing is <b>broken</b> into glpyhs. The red dots are the endpoints and intersections
+          of each glyph.</p>
+
+        <body>
+          <img src="Pictures/csafe_all_features.png" class="img-fluid" alt="csafe_all_features">
+        </body>
+        <p><br> From this point, measurements are taken on each glyph individually... </p>
+        <h4>Rotational Angle</h4>
+        <p></p>
+        <h5>Compactness</h5>
+        <p> While we didn't as much success in any other measurement compared to rotational angle,
+          we feel these two are still worth mentioning </p>
+        <p>Compactness is computed as:</p>
+
+        <body>
+          <img src="Pictures/compactness_equation.png" class="img-fluid" alt="compactness_equation">
+        </body>
+        <p>It can be thought of as the tightness of black pixels in each glyph based on distance from the centroid</p>
+        <p>A number is found, and the measure can be plotted around the centroid as such:</p>
+
+        <body>
+          <img src="Pictures/compactness_examples.png" class="img-fluid" alt="compactness_examples">
+        </body>
+        <p> Unfortunatley, While informative for comparing like-sized graphs, this measurement suffers from the inherit
+          spacial dependence between pixels and (unfortunately) does not scale well for modelling.</p>
+
+        <h5>Loop</h5>
+        <p>The number of loops are found, as well as the height to width ratio of each</p>
+        <p>This information can then be plotted as such: <p>
+
+            <p> Unfortunatley, we found that most loops in handwriting are generally about the same shape, and couldn'<table>
+                glean any useful information in differentiating between wrtiers </p>
+            </table>
+            <h2>Statistical Analysis</h2>
+            <p> ... </p>
+            <h3><a href="resources.html">Compiled List of Resources</a></h2>
       </div>
     </div>
   </div>
