@@ -90,7 +90,8 @@
           Crawford, A., Ray, A., & Carriquiry, A. (2020). A database of handwriting samples for applications in forensic statistics. Data in brief, 28, 105059.</p>
         <br>
         <h2>Computational Tools</h2>
-        <p> <code> handwriter </code> is a developmental R package hosted at <a href="https://github.com/CSAFE-ISU/handwriter">github.com/CSAFE-ISU/handwriter</a>. It is our major computational tool for the project. The package takes in scanned
+        <p> <code> handwriter </code> is a developmental R package hosted at <a href="https://github.com/CSAFE-ISU/handwriter">github.com/CSAFE-ISU/handwriter</a>.
+          It is our major computational tool for the project. The package takes in scanned
           handwritten documents and the following are performed.</p>
         <ol>
           <li><b>Binarize</b> - Turn the image into pure black and white</li>
@@ -119,8 +120,40 @@
           vector on the upper half plane. The angle is measured in radians and is considered a feature of the graph defined on the interval (0,π). </p>
 
         <p><b>Let's walk through an example of how rotational angle can help differentiate between two writers.</b></p>
-        <p> Here is the scanned writing of "Our London business is good" from our first writer: </p>
+        <p> Here is the scanned writing of "Our London business is good," from our first writer, writer A: </p>
 
+        <body>
+          <img src="Pictures/London_writing_1.png" class="img-fluid" alt="London_writing_1">
+        </body>
+        <p>These measurements are used to differntiate inside of each cluster, so we will look at the cluster of glyphs most similar to the letter 'u' in the roman alphabet.</p>
+        On the left is the cluster for this glyph. On the right is 4 individual glyphs from the writing, as well as a graph with each glyphs direction of greatest variability </p>
+
+        <body>
+          <img src="Pictures/London_u_1.png" class="img-fluid" alt="London_u_1">
+        </body>
+        <p> Now, the directions determined above are compiled for each cluster from each writer. The compiled graph for the glyph closed to the letter u from our writer A is shown on the left below.
+          This data is then normalized to respect the polar coordinate system, and a curve is fit to approximate the distribuition of the rotation angle, show on the right </p>
+
+        <body>
+          <img src="Pictures/London_Graph_1.png" class="img-fluid" alt="London_Graph_1">
+        </body>
+        <br>
+        <p> The same can be done for a writer B: </p>
+
+        <body>
+          <img src="Pictures/London_writing_2.png" class="img-fluid" alt="London_writing_2">
+        </body>
+
+        <body>
+          <img src="Pictures/London_u_2.png" class="img-fluid" alt="London_u_2">
+        </body>
+
+        <body>
+          <img src="Pictures/London_Graph_2.png" class="img-fluid" alt="London_Graph_2">
+        </body>
+
+        <p> There is great dispartiy in the distribuition of the rotation angle between writer A and B when dealing with this cluster. We have found this measurement to be the most influential
+          in correctly identifying a writer </p>
         <h5>Compactness</h5>
         <p>Compactness is computed as:</p>
 
