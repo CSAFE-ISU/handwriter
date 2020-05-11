@@ -186,9 +186,37 @@
         </ol>
 
         <h5> Glyph Distance Measurement </h5>
-        <p> ... </p>
+        <p> We begin by defining edge to edge distances. Edge to edge distances are subsequently combined for an overall glyph to glyph distance. </p>
+        <p> Consider the following single edge glyphs e1 and e2. Make 3 edits to e1 to match e2. Then combine the magnitude of each edit. </p>
+
+        <body>
+          <img src="Pictures/edge_to_edge_1.png" class="img-fluid" alt="edge_to_edge_1">
+        </body>
+
+        <p> Measure 1 (Left) - <b>Shift</b>: Anchor to the nearest endpoint by shifting. In our example, the shift value is 1.4.</p>
+        <p> Measure 2 (Center) - <b>Stretch</b>: Make the end points the same distance apart. Stretch value of 9.9.</p>
+        <p> Measure 3 (Right and Bottom) - <b>Shape</b>: Bend and twist the edge using 7 shape points. Shape points are 'matched' and the distance
+          between them is averaged to obtain the shape value. Shape value of 8.4 after averaging </p>
+
+        <body>
+          <img src="Pictures/edge_to_edge_6.png" class="img-fluid" alt="edge_to_edge_6">
+        </body>
+
+        <center> <br>Shape measurements averaged <br></center>
+
+        <body>
+          <img src="Pictures/edge_to_edge_5.png" class="img-fluid" alt="edge_to_edge_2">
+        </body>
+
+        <p> <br>So, our edge to edge distance: <b>D(e1, e2) = 1.4 + 9.9 + 8.4 = 19.7</b><br></p>
+
         <h5> Measure of Glyph Centers </h5>
-        <p> ... </p>
+        <p> For this measurement, we take the weighted average of endpoints, 7 shape points, and edge length</p>
+
+        <body>
+          <img src="Pictures/measure_center_1.png" class="img-fluid" alt="measure_center_1">
+        </body>
+
         <h5> K-means clustering algorithim for glyphs </h5>
         <p> ... </p>
         <br>
