@@ -223,7 +223,6 @@
         <p> <b>1. Assign each glyph to the exemplar it is nearest to given the distance measure taken before </b></p>
         <p> <b>2. Calculate each cluster mean as defined. Find the exemplar nearest the cluster center. </b></p>
 
-
         <body>
           <img src="Pictures/k_means_1.png" class="img-fluid" alt="k_means_1">
         </body>
@@ -237,18 +236,46 @@
         <h4> Statistical Modeling </h4>
         <p> The most appropriate approach to modeling is found through the wrapped model for rotational angles</p>
         <h5> Wrapped Model for Rotation Angles </h5>
-        <p> ... </p>
+        <p> We consider the rotational angles found in measurements before in the polar coordinate syste and treat them
+          as spanning the full circle. So we map the upper half plane values to (0, 2π), where the values above the x-axis
+          indicate a right leaning graph and below the x-axis indicate left leaning graphs. Graphs that are relatively straight
+          up and down will have values near 0/2π if they are wider than tall, and near π if they are taller than wide. </p>
 
-        <p><br>Other models explored include: </p>
+        <p> We consider two distributions to approach this circular data: </p>
+        <p> The <b> von Mises </b> distribution is a close approximate to the wrapped normal distribution,
+          circular analog of the normal distribution. This is the go-to model for unimodal wrapped distribution.
+          It is specified through the mean, μ, and concentration, κ (1/k analogous to σ<sup>2</sup>).</p>
+
+        <p>The <b> wrapped Cauchy</b> distribution is the wrapped version of the Cauchy distribution.
+          Similar to Cauchy, this distribution is symmetric, unimodel, and specified by a location paramter,
+          μ, and concetration parameter ρ. This is a heavily-tailed distribution in the sense that it will place
+          more density on the "back" of the circle opposite the peak of distribution. </p>
+        <p> Now consider: </p>
+
+        <body>
+          <img src="Pictures/wrapped_cauchy_1.png" class="img-fluid" alt="wrapped_cauchy_1">
+        </body>
+        <p><br>Where RA<sub>w,k,i</sub>, i = 1,...,n<sub>w,k</sub>, are roation angles from cluster k, and writer w, on
+          the full circle (0, 2π). For a given writer and cluster, μ<sub>w,k</sub> and ϕ<sub>w,k</sub> are the location
+          and concentration parameters, respectivley. We place non-informative uniform priors on each. Again, there is no borrowing
+          set up in the model for rotation angles. Each writer/cluster combination ets its own estimated rotation angle distribution.</p>
+        <h5><br>Other models explored include: </h5>
+        <ul>
+          <li> Naive Model for Rotation Angles </li>
+          <li> Model #1, Straw Man </li>
+          <li> Model #2, Mixed </li>
+          <li> Model #3, Normal Slopes </li>
+        </ul>
+
         <h5> Naive Model for Rotation Angles </h5>
-        <p> .... </p>
+        <p> ... </p>
         <h5> Model #1, Straw Man </h5>
         <p> ... </p>
         <h5> Model #2, Mixed </h5>
         <p> ... </p>
         <h5> Model #3, Normal Slopes </h5>
         <p> ... </p>
-        <p>
+        <p><br><br>
           <h3><a href="resources.html">Compiled List of Resources</a></h2>
       </div>
     </div>
