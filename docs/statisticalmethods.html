@@ -210,24 +210,46 @@
 
         <p> <br>So, our edge to edge distance: <b>D(e1, e2) = 1.4 + 9.9 + 8.4 = 19.7</b><br></p>
 
-        <h5> Measure of Glyph Centers </h5>
+        <h5>
+          <br>Measure of Glyph Centers </h5>
         <p> For this measurement, we take the weighted average of endpoints, 7 shape points, and edge length</p>
 
         <body>
           <img src="Pictures/measure_center_1.png" class="img-fluid" alt="measure_center_1">
         </body>
 
-        <h5> K-means clustering algorithim for glyphs </h5>
-        <p> ... </p>
+        <h5> <br>K-means clustering algorithim for glyphs </h5>
+        <p> We implement a standard K-means. We begin with a fixed K and set of exemplars. Iterate between the following steps until cluster assignments don't change: </p>
+        <p> <b>1. Assign each glyph to the exemplar it is nearest to given the distance measure taken before </b></p>
+        <p> <b>2. Calculate each cluster mean as defined. Find the exemplar nearest the cluster center. </b></p>
+
+
+        <body>
+          <img src="Pictures/k_means_1.png" class="img-fluid" alt="k_means_1">
+        </body>
+
+        <p> <br>An example cluster when K = 40 is shown below. Examplar is shown on the left in red, with the members shown
+          as in black behind it. On the right is the cluster mean. </p>
+        <p> During clustering, outliers are considered glyphs that are a certain distance from the exemplar. The algorithim sets
+          a ceiling on the allowable number of clusters. </p>
+
         <br>
         <h4> Statistical Modeling </h4>
+        <p> The most appropriate approach to modeling is found through the wrapped model for rotational angles</p>
+        <h5> Wrapped Model for Rotation Angles </h5>
+        <p> ... </p>
+
+        <p><br>Other models explored include: </p>
+        <h5> Naive Model for Rotation Angles </h5>
+        <p> .... </p>
         <h5> Model #1, Straw Man </h5>
         <p> ... </p>
         <h5> Model #2, Mixed </h5>
         <p> ... </p>
         <h5> Model #3, Normal Slopes </h5>
         <p> ... </p>
-        <h3><a href="resources.html">Compiled List of Resources</a></h2>
+        <p>
+          <h3><a href="resources.html">Compiled List of Resources</a></h2>
       </div>
     </div>
   </div>
