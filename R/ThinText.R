@@ -13,14 +13,19 @@
 
 readPNGBinary = function(path, cutoffAdjust = 0, clean = TRUE, crop = TRUE, inversion = FALSE)
 {
+  #Read PNG in as an array
   img = png::readPNG(path)
   img = as.array(img)
+
+  #Want only a grayscale image - so if more than 2 dimensions (Grayscale Alpha, RGB, or RGB Alpha)... reduce
   if(length(dim(img)) > 2)
   {
+    #If there are 4 channels (RGB-Alpha) reduce to 3 (RGB)
     if(dim(img)[3] == 4)
     {
       img = rgba2rgb(img)
     }
+    #If there is more than 1 channel (RGB or Grayscale Alpha) reduce to Grayscale
     if(dim(img)[3] > 1)
     {
       img = rgb2grayscale(img)
@@ -30,12 +35,18 @@ readPNGBinary = function(path, cutoffAdjust = 0, clean = TRUE, crop = TRUE, inve
     img = 1-img
   
   # Threshold Image
+  # Otsu's Method (https://en.wikipedia.org/wiki/Otsu%27s_method) is used to return an intensity threshold,
+  # which separates the image into foreground and background
   thresh = otsuBinarization(img, 512)
+  
+  #Adjust the threshhold for cutoffAdjust parameter
   if(cutoffAdjust > 0) thresh = thresh*(1-cutoffAdjust) + cutoffAdjust
   else if(cutoffAdjust < 0) thresh = thresh*(1+cutoffAdjust)
   
+  #Turn the grayscale image to just black and white
   img = img > thresh
   
+  #if clean param is True, cleanBinaryImage removes the alpha parameter from the image.
   if(clean)
   {
     img = cleanBinaryImage(img)
@@ -45,7 +56,6 @@ readPNGBinary = function(path, cutoffAdjust = 0, clean = TRUE, crop = TRUE, inve
   {
     img = crop(img)
   }
-  
   return(img + 0)
 }
 
