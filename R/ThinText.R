@@ -47,6 +47,7 @@ readPNGBinary = function(path, cutoffAdjust = 0, clean = TRUE, crop = TRUE, inve
   img = img > thresh
   
   #if clean param is True, cleanBinaryImage removes the alpha parameter from the image.
+  #NOTE: I thought the alpha parameter was removed above but it appears this will double check?
   if(clean)
   {
     img = cleanBinaryImage(img)
