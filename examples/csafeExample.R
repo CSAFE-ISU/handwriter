@@ -2,7 +2,6 @@
 #install.packages("devtools")
 #devtools::install_github("CSAFE-ISU/handwriter")
 
-
 #Load libraries
 library(handwriter)
 library(reshape2)
@@ -32,11 +31,11 @@ plotImageThinned(csafe$image, csafe$thin)
 #and a list of the letter paths in the image.
 csafe_processList = processHandwriting(csafe$thin, dim(csafe$image))
 
-#Save off nodes, breaks, paths, and graphemes
+#Save off nodes, breaks, (oudated: paths, and graphemes)
 csafe$nodes = csafe_processList$nodes
 csafe$breaks = csafe_processList$breakPoints
-csafe$paths = csafe_processList$pathList
-csafe$graphemes = csafe_processList$graphemeList
+#csafe$paths = csafe_processList$pathList #outdated
+#csafe$graphemes = csafe_processList$graphemeList #outdated
 
 #plotNodes(csafe$image, csafe$thin, csafe$nodes)
 #plotNodes(csafe$image, csafe$thin, csafe$breaks)
