@@ -1,8 +1,7 @@
-#Install the devtools package
+#Install the devtools package anad the then the handwriter package directly from Github
 #install.packages("devtools")
-
-#Install handwriter package directly from Github
 #devtools::install_github("CSAFE-ISU/handwriter")
+
 
 #Load libraries
 library(handwriter)
@@ -19,14 +18,21 @@ csafe$image = readPNGBinary("examples/Writing_csafe_single.png") #one word 'csaf
 #Use ggplot to plot a binary image
 plotImage(csafe$image)
 
-csafe$image = crop(csafe$image) #Single pixel padding around outermost black pixels.
+#Crop single pixel padding around outermost black pixels.
+csafe$image = crop(csafe$image) 
 plotImage(csafe$image)
 
+#Use the Zhang - Suen algorithim to thin the image (1 pixel wide) - then plot it.
 csafe$thin = thinImage(csafe$image)
 plotImageThinned(csafe$image, csafe$thin)
 
-# Get paths and graphemes, as well as breakpoints and extra nodes
+
+#Huge step in handwriting processing. Takes in thin image form and the breakpoints suggested by getNodes
+#and parses the writing into letters. Returns final letter separation points, a list of the paths in the image,
+#and a list of the letter paths in the image.
 csafe_processList = processHandwriting(csafe$thin, dim(csafe$image))
+
+#Save off nodes, breaks, paths, and graphemes
 csafe$nodes = csafe_processList$nodes
 csafe$breaks = csafe_processList$breakPoints
 csafe$paths = csafe_processList$pathList

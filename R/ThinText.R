@@ -53,6 +53,7 @@ readPNGBinary = function(path, cutoffAdjust = 0, clean = TRUE, crop = TRUE, inve
     img = cleanBinaryImage(img)
   }
   
+  #crops the white out (except a 1 pixel padding) around the image
   if(crop)
   {
     img = crop(img)
