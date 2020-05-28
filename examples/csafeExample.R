@@ -2,6 +2,7 @@
 #install.packages("devtools")
 #devtools::install_github("CSAFE-ISU/handwriter")
 
+
 #Load libraries
 library(handwriter)
 library(reshape2)
@@ -17,9 +18,9 @@ csafe$image = readPNGBinary("examples/Writing_csafe_single.png") #one word 'csaf
 #Use ggplot to plot a binary image
 plotImage(csafe$image)
 
-#Crop single pixel padding around outermost black pixels.
-csafe$image = crop(csafe$image) 
-plotImage(csafe$image)
+#Crop single pixel padding around outermost black pixels. -- alreay cropped in readPNGBinary
+#csafe$image = crop(csafe$image)
+#plotImage(csafe$image)
 
 #Use the Zhang - Suen algorithim to thin the image (1 pixel wide) - then plot it.
 csafe$thin = thinImage(csafe$image)
@@ -31,11 +32,11 @@ plotImageThinned(csafe$image, csafe$thin)
 #and a list of the letter paths in the image.
 csafe_processList = processHandwriting(csafe$thin, dim(csafe$image))
 
-#Save off nodes, breaks, (oudated: paths, and graphemes)
+#Save off nodes, breaks, paths, and graphemes
 csafe$nodes = csafe_processList$nodes
 csafe$breaks = csafe_processList$breakPoints
-#csafe$paths = csafe_processList$pathList #outdated
-#csafe$graphemes = csafe_processList$graphemeList #outdated
+#csafe$paths = csafe_processList$pathList
+#csafe$graphemes = csafe_processList$graphemeList
 
 #plotNodes(csafe$image, csafe$thin, csafe$nodes)
 #plotNodes(csafe$image, csafe$thin, csafe$breaks)
