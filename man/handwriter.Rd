@@ -3,7 +3,6 @@
 \docType{package}
 \name{handwriter}
 \alias{handwriter}
-\alias{handwriter-package}
 \title{handwriter}
 \description{
 This package provides a pipeline for the processing of handwritten documents to be used in

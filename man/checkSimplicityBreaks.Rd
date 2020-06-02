@@ -5,8 +5,17 @@
 \title{Internal function for removing breakpoints that separate graphs that are too simple to be split. Remove break if graph on 
 left and right of the break have 4 or fewer nodes and no loops or double paths. Never remove break on a trough.}
 \usage{
-checkSimplicityBreaks(candidateBreaks, pathList, loopList, letters,
-  nodeGraph0, nodeList, terminalNodes, hasTrough, dims)
+checkSimplicityBreaks(
+  candidateBreaks,
+  pathList,
+  loopList,
+  letters,
+  nodeGraph0,
+  nodeList,
+  terminalNodes,
+  hasTrough,
+  dims
+)
 }
 \description{
 Internal function for removing breakpoints that separate graphs that are too simple to be split. Remove break if graph on 

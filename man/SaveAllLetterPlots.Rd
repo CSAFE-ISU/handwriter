@@ -4,8 +4,12 @@
 \alias{SaveAllLetterPlots}
 \title{SaveAllLetterPlots}
 \usage{
-SaveAllLetterPlots(letterList, filePaths, documentDimensions,
-  bgTransparent = TRUE)
+SaveAllLetterPlots(
+  letterList,
+  filePaths,
+  documentDimensions,
+  bgTransparent = TRUE
+)
 }
 \arguments{
 \item{letterList}{Letter list from processHandwriting function}
