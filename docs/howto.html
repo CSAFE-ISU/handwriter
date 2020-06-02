@@ -83,6 +83,7 @@
           <pre>
             <code>
               install.packages("devtools")
+              install.packages("Rcpp")
               devtools::install_github("csafe-isu/handwriter")
               library(handwriter)</code>
           </pre>
@@ -108,7 +109,7 @@
             <pre>
               <code>
                 csafe = list()
-                csafe$image = readpngbinary("path/to/the/picture.png")</code>
+                csafe$image = readPNGBinary("path/to/the/picture.png")</code>
             </pre>
             <h2>Preparing the image for processing</h2>
             <p>
@@ -117,7 +118,7 @@
             <pre>
               <code>
                 csafe$image = crop(csafe$image)
-                plotimage(csafe$image)</code>
+                plotImage(csafe$image)</code>
             </pre>
 
             <body>
