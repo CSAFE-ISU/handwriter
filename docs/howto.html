@@ -131,8 +131,8 @@
             </p>
             <pre>
               <code>
-                csafe$thin = thinimage(csafe$image)
-                plotimagethinned(csafe$image, csafe$thin)</code>
+                csafe$thin = thinImage(csafe$image)
+                plotImageThinned(csafe$image, csafe$thin)</code>
             </pre>
 
             <body>
@@ -143,15 +143,13 @@
               Process the image</p>
             <pre>
               <code>
-                csafe_processlist = processhandwriting(csafe$thin, dim(csafe$image))</code>
+                csafe_processlist = processHandwriting(csafe$thin, dim(csafe$image))</code>
             </pre>
             <p>Save information for plotting</p>
             <pre>
               <code>
-                csafe$nodes = csafe_processlist$nodes
-                csafe$breaks = csafe_processlist$breakpoints
-                csafe$paths = csafe_processlist$pathlist
-                csafe$graphemes = csafe_processlist$graphemelist
+                csafe$nodes = csafe_processList$nodes
+                csafe$breaks = csafe_processList$breakpoints
                 dims = dim(csafe$image)</code>
             </pre>
             <h2><br>Plotting processed writing</h2>
@@ -159,7 +157,7 @@
               Plot all nodes found during processing</p>
             <pre>
               <code>
-                plotnodes(csafe$image, csafe$thin, csafe$nodes)</code>
+                plotNodes(csafe$image, csafe$thin, csafe$nodes)</code>
             </pre>
 
             <body>
@@ -168,7 +166,7 @@
             <p>Plot all glyph breaks found during processing</p>
             <pre>
               <code>
-                plotnodes(csafe$image, csafe$thin, csafe$breaks)</code>
+                plotNodes(csafe$image, csafe$thin, csafe$breaks)</code>
             </pre>
 
             <body>
@@ -203,10 +201,10 @@
             <p><br>The following will result in the first glyph being plotted with all optional paramters:</p>
             <pre>
               <code>
-                plotletter(csafe_processlist$letterlist, 1, dims)
+                plotLetter(csafe_processlist$letterlist, 1, dims)
 
                 #Note: No optional parameters specified is the same as:
-                #plotletter(csafe_processlist$letterlist, 1, dims, TRUE, TRUE, TRUE, TRUE)</code>
+                #plotLetter(csafe_processlist$letterlist, 1, dims, TRUE, TRUE, TRUE, TRUE)</code>
             </pre>
 
             <body>
