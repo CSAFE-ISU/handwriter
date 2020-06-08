@@ -95,6 +95,10 @@ plotLine = function(letterList, whichLine, dims)
   }
   
   #if nothing was found on that line, just exit out because it is too big (or small)
+  if (length(pathList) == 0){
+    #print("ERROR: no letters found on that path - valid lines are 1:max")
+    stop("ERROR: no letters found on that path - valid lines are 1:max")
+  }
   
   pathVec <- unlist(pathList)
   countVec <- unlist(letterListIndex)
