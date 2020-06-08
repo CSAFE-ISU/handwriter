@@ -704,6 +704,7 @@ processHandwriting = function(img, dims)
   }
   cat("Extracting character features...")
   featureSets = extract_character_features(letterList, dims)
+  
   # take existing feature set (done in ExtractFeatures.R), and some other info
   # and add more feature to the list with Rcpp (Measurements.cpp)
   

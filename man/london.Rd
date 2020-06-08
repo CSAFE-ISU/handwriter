@@ -4,7 +4,9 @@
 \name{london}
 \alias{london}
 \title{Cursive written word: London}
-\format{Binary image matrix. 148 rows and 481 columns.}
+\format{
+Binary image matrix. 148 rows and 481 columns.
+}
 \usage{
 london
 }

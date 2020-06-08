@@ -4,7 +4,9 @@
 \name{message}
 \alias{message}
 \title{Full page image of the handwritten London letter.}
-\format{Binary image matrix. 1262 rows and 1162 columns.}
+\format{
+Binary image matrix. 1262 rows and 1162 columns.
+}
 \usage{
 message
 }

@@ -14,7 +14,6 @@ plotImage = function(x)
   return(p)
 }
 
-
 #' plotImageThinned
 #'
 #' This function returns a plot with the full image plotted in light gray and the skeleton printed in black on top.
@@ -31,7 +30,6 @@ plotImage = function(x)
 #' # plotImageThinned(message, message_thin)
 #'
 #' @export
-
 plotImageThinned = function(img, thinned)
 {
   l.m = melt(img)
@@ -40,7 +38,6 @@ plotImageThinned = function(img, thinned)
   p = ggplot(l.m, aes(Var2, rev(Var1))) + geom_raster(aes(fill = as.factor(value), alpha = as.factor(value)), na.rm=TRUE) + scale_alpha_manual(values = c(.1, NA, 1), guide = FALSE) + scale_fill_manual(values = c("black", NA, "black"), guide = FALSE) + coord_fixed() + theme_void()
   return(p)
 }
-
 
 #' plotNodes
 #'
@@ -67,13 +64,78 @@ plotNodes = function(img, thinned, nodeList, nodeSize = 3, nodeColor = "red")
   pointSet = data.frame(X = ((nodeList - 1) %/% dim(img)[1]) + 1, Y = dim(img)[1] - ((nodeList - 1) %% dim(img)[1]))
   p = p + geom_point(data = pointSet, aes(X, Y), size = nodeSize, shape = I(16), color = I(nodeColor), alpha = I(.4))
   return(p)
-  #l.m = melt(img)
-  #l.m$value[thinned] = 2
-  #l.m$value[nodeList] = 3
-  #n.m2 = n.m[nodeList,]
-  #p = ggplot(l.m, aes(Var2, rev(Var1))) + geom_raster(aes(fill = as.factor(value != 1), alpha = ifelse(value==0,.3,1))) + scale_alpha_continuous(guide = FALSE) + scale_fill_manual(values = c("white", "black"), guide = FALSE) + theme_void() + geom_point(data= n.m2, aes(x = Var2, y = dim(img)[1] - Var1 + 1), shape = I(17), size = I(nodeSize), color = I("red"))
 }
 
+#' plotLine
+#'
+#' This function returns a plot of a single line extracted from a document. It uses the letterList parameter from the processHandwriting function and accepts a single value as whichLetter. Dims requires the dimensions of the entire document, since this isn't contained in processHandwriting.
+#' @param letterList Letter list from processHandwriting function
+#' @param whichLine Single value denoting which line to plot - checked if too big inside function.
+#' @param dims Dimensions of the original document
+#' @return Plot of single line.
+#' 
+#' @import ggplot2
+#' @export
+plotLine = function(letterList, whichLine, dims)
+{
+  pathList = list()
+  letterListIndex = list()
+  #stitch all paths together
+  count = 1
+  for(i in letterList){
+  
+    lineNumber = i$characterFeatures$line_number
+     if(lineNumber == whichLine)
+     {
+       pathList <- append(pathList, i$path)
+       letterListIndex <- append(letterListIndex, count)
+     }
+    
+    count = count + 1
+  }
+  
+  #if nothing was found on that line, just exit out because it is too big (or small)
+  
+  pathVec <- unlist(pathList)
+  countVec <- unlist(letterListIndex)
+  
+  print(countVec)
+  
+  r = ((pathVec-1) %% dims[1]) + 1
+  c = ((pathVec-1) %/% dims[1]) + 1
+  
+  img = matrix(1, nrow = diff(range(r))+1, ncol = diff(range(c))+1)
+  
+  nodeList = list()
+  for(i in letterList[c(countVec)]){
+    nodes = i$nodes
+    nodesr = ((nodes-1) %% dims[1]) + 1
+    nodesc = ((nodes-1) %/% dims[1]) + 1
+    nodesr = nodesr - min(r) + 1
+    nodesc = nodesc - min(c) + 1
+    
+    nodes = ((nodesc - 1)*(diff(range(r))+1)) + nodesr
+    nodeList <- append(nodeList, nodes)
+  }
+  
+  nodeList <- unlist(nodeList)
+  
+  rnew = r-min(r)+1
+  cnew = c-min(c)+1
+  
+  img[cbind(rnew,cnew)] = 0
+  
+  #Plot line
+  p = plotImage(img)
+  
+  #plot nodes
+  nodeSize = 3 
+  nodeColor = "red"
+  pointSet = data.frame(X = ((nodeList - 1) %/% dim(img)[1]) + 1, Y = dim(img)[1] - ((nodeList - 1) %% dim(img)[1]))
+  p = p + geom_point(data = pointSet, aes(X, Y), size = nodeSize, shape = I(16), color = I(nodeColor), alpha = I(.4))
+  
+  return(p)
+}
 
 #' plotLetter
 #'
@@ -86,8 +148,9 @@ plotNodes = function(img, thinned, nodeList, nodeSize = 3, nodeColor = "red")
 #' 
 #' @import ggplot2
 #' @export
-plotLetter = function(letterList, whichLetter, dims, showPaths = TRUE, showCentroid = TRUE, showSlope = TRUE, showTightness = TRUE, showLoopDims = TRUE)
+plotLetter = function(letterList, whichLetter, dims, showPaths = TRUE, showCentroid = TRUE, showSlope = TRUE)#, showTightness = TRUE, showLoopDims = TRUE)
 {
+  
   path = letterList[[whichLetter]]$path
   r = ((path-1) %% dims[1]) + 1
   c = ((path-1) %/% dims[1]) + 1
@@ -103,7 +166,11 @@ plotLetter = function(letterList, whichLetter, dims, showPaths = TRUE, showCentr
   rnew = r-min(r)+1
   cnew = c-min(c)+1
   nodes = ((nodesc - 1)*(diff(range(r))+1)) + nodesr
+  img[cbind(rnew,cnew)] = 0
+  p = plotNodes(img, which(img == 1), nodes)
   
+  #End of plotting the Nodes, 
+  #Start finding info for optional features to display
   centroid_y = letterList[[whichLetter]]$characterFeatures$centroid_y - min(r) + 1
   centroid_x = letterList[[whichLetter]]$characterFeatures$centroid_x - min(c) + 1
   
@@ -130,7 +197,6 @@ plotLetter = function(letterList, whichLetter, dims, showPaths = TRUE, showCentr
   tightnessDat = data.frame(x0 = centroid_x, y0 = ranger - centroid_y + 1)
   tightness = letterList[[whichLetter]]$characterFeatures$compactness
   
-  img[cbind(rnew,cnew)] = 0
   
   pathPoints = NULL
   pathSets = letterList[[whichLetter]]$allPaths
@@ -144,7 +210,6 @@ plotLetter = function(letterList, whichLetter, dims, showPaths = TRUE, showCentr
     pathPoints = rbind(pathPoints, cbind(pathr, pathc, i))
   }
   
-  p = plotNodes(img, which(img == 1), nodes)
   
   #Plot paths as numbers
   if(showPaths) p = p + geom_text(data = as.data.frame(pathPoints), aes(x = pathc, y = max(rnew) - pathr + 1, label = i))
@@ -156,58 +221,58 @@ plotLetter = function(letterList, whichLetter, dims, showPaths = TRUE, showCentr
   if(showSlope) p = p + geom_point(data = halfCentroidDat, aes(x = X, y = Y, color = I("red"), shape = I(4))) + 
     geom_line(data = halfCentroidDat, aes(x = X, y = Y, color = I("red")))
   
-  #Plot tightness of letter, where tightness scales area (not radius)
-  if(showTightness) p = p + geom_point(data = tightnessDat, aes(x = x0, y=y0, size = (sqrt(tightness/pi))*25, pch = 1, color = I("red"), stroke = 2))
-  
-  #Plot centroid and longest line through centroid (and its perpendicular line) of all loops
-  if(showLoopDims){
-    loops = letterList[[whichLetter]]$characterFeatures$loopInfo$loopPlottingInfo
-    for(i in 1:length(loops)){
-      if(length(loops) == 0) break
-      loop = loops[[i]]
-      loopCentroid = loop[[1]]
-      longestLine = loop[[2]]
-      shortestLine = loop[[3]]
-      
-      
-      #Plot Centroid of loop
-      #loopCentroid_y = (dims[[1]] - loopCentroid[2]) - min(r)+1
-      loopCentroid_y = loopCentroid[2] - min(r)
-      loopCentroid_x = loopCentroid[1] - min(c)
-      loopCentroidDat = data.frame(X=loopCentroid_x+1, Y=ranger-loopCentroid_y)
-      p=p+geom_point(data = loopCentroidDat, aes(x=X, y=Y, color = I("blue"), size = I(2), shape = I(7)))
-      
-      #Plot long line of loop
-      longp1 = longestLine[[1]]
-      longp2 = longestLine[[2]]
-      
-      longx1 = longp1[[1]]-min(c)
-      #longy1 = (dims[[1]] - longp1[2]) - min(r)+1
-      longy1 = longp1[[2]] - min(r)
-      longx2 = longp2[[1]]-min(c)
-      #longy2 = (dims[[1]] - longp2[2]) - min(r)+1
-      longy2 = longp2[[2]] - min(r)
-      
-      loopLongestLine = data.frame(X = c(longx1, longx2)+1, 
-                                   Y = c(ranger - c(longy1, longy2)))
-      p=p+geom_line(data = loopLongestLine, aes(x = X, y = Y, color = I("blue")))
-      
-      #Plot short line of loop
-      shortp1 = shortestLine[[1]]
-      shortp2 = shortestLine[[2]]
-      
-      shortx1 = shortp1[1]-min(c)
-      #shorty1 = (dims[[1]] - shortp1[2]) - min(r)+1
-      shorty1 = shortp1[2] - min(r)
-      shortx2 = shortp2[1]-min(c)
-      #shorty2 = (dims[[1]] - shortp2[2]) - min(r)+1
-      shorty2 = shortp2[2] - min(r)
-      
-      loopShortestLine = data.frame(X = c(shortx1, shortx2)+1, 
-                                   Y = c(ranger - c(shorty1, shorty2)))
-      p=p+geom_line(data = loopShortestLine, aes(x = X, y = Y, color = I("blue")))
-    }
-  }
+  # #Plot tightness of letter, where tightness scales area (not radius)
+  # if(showTightness) p = p + geom_point(data = tightnessDat, aes(x = x0, y=y0, size = (sqrt(tightness/pi))*25, pch = 1, color = I("red"), stroke = 2))
+  # 
+  # #Plot centroid and longest line through centroid (and its perpendicular line) of all loops
+  # if(showLoopDims){
+  #   loops = letterList[[whichLetter]]$characterFeatures$loopInfo$loopPlottingInfo
+  #   for(i in 1:length(loops)){
+  #     if(length(loops) == 0) break
+  #     loop = loops[[i]]
+  #     loopCentroid = loop[[1]]
+  #     longestLine = loop[[2]]
+  #     shortestLine = loop[[3]]
+  #     
+  #     
+  #     #Plot Centroid of loop
+  #     #loopCentroid_y = (dims[[1]] - loopCentroid[2]) - min(r)+1
+  #     loopCentroid_y = loopCentroid[2] - min(r)
+  #     loopCentroid_x = loopCentroid[1] - min(c)
+  #     loopCentroidDat = data.frame(X=loopCentroid_x+1, Y=ranger-loopCentroid_y)
+  #     p=p+geom_point(data = loopCentroidDat, aes(x=X, y=Y, color = I("blue"), size = I(2), shape = I(7)))
+  #     
+  #     #Plot long line of loop
+  #     longp1 = longestLine[[1]]
+  #     longp2 = longestLine[[2]]
+  #     
+  #     longx1 = longp1[[1]]-min(c)
+  #     #longy1 = (dims[[1]] - longp1[2]) - min(r)+1
+  #     longy1 = longp1[[2]] - min(r)
+  #     longx2 = longp2[[1]]-min(c)
+  #     #longy2 = (dims[[1]] - longp2[2]) - min(r)+1
+  #     longy2 = longp2[[2]] - min(r)
+  #     
+  #     loopLongestLine = data.frame(X = c(longx1, longx2)+1, 
+  #                                  Y = c(ranger - c(longy1, longy2)))
+  #     p=p+geom_line(data = loopLongestLine, aes(x = X, y = Y, color = I("blue")))
+  #     
+  #     #Plot short line of loop
+  #     shortp1 = shortestLine[[1]]
+  #     shortp2 = shortestLine[[2]]
+  #     
+  #     shortx1 = shortp1[1]-min(c)
+  #     #shorty1 = (dims[[1]] - shortp1[2]) - min(r)+1
+  #     shorty1 = shortp1[2] - min(r)
+  #     shortx2 = shortp2[1]-min(c)
+  #     #shorty2 = (dims[[1]] - shortp2[2]) - min(r)+1
+  #     shorty2 = shortp2[2] - min(r)
+  #     
+  #     loopShortestLine = data.frame(X = c(shortx1, shortx2)+1, 
+  #                                  Y = c(ranger - c(shorty1, shorty2)))
+  #     p=p+geom_line(data = loopShortestLine, aes(x = X, y = Y, color = I("blue")))
+  #   }
+  # }
   return(p)
 }
 

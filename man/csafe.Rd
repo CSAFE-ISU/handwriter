@@ -4,7 +4,9 @@
 \name{csafe}
 \alias{csafe}
 \title{Cursive written word: csafe}
-\format{Binary image matrix. 111 rows and 410 columns.}
+\format{
+Binary image matrix. 111 rows and 410 columns.
+}
 \usage{
 csafe
 }
