@@ -36,7 +36,7 @@ csafe$breaks = csafe_processList$breakPoints
 #csafe$paths = csafe_processList$pathList
 #csafe$graphemes = csafe_processList$graphemeList
 
-#plotNodes(csafe$image, csafe$thin, csafe$nodes)
+plotNodes(csafe$image, csafe$thin, csafe$nodes)
 #plotNodes(csafe$image, csafe$thin, csafe$breaks)
 
 ###Some stuff for plotting letters, words, and lines:###
@@ -44,8 +44,12 @@ dims = dim(csafe$image)
 
 plotLetter(csafe_processList$letterList, 12, dims)
 
-plotWord(csafe_processList$letterList, 13, dims)
+plotWord(csafe_processList$letterList, 1, dims)
 
 plotLine(csafe_processList$letterList, 1, dims)
 
-
+wordIndexList = list()
+for(i in csafe_processList$letterList){
+  wordIndexList <- append(wordIndexList, i$characterFeatures$wordIndex)
+}
+print(unlist(wordIndexList))

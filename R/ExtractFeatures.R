@@ -257,7 +257,7 @@ add_line_info = function(character_features,img_dim){
   return(character_features)
 }
 
-#' add_words_info
+#' add_word_info
 #'
 #' Associates characters to their respective word numbers
 #' Needs improvement if runtime becomes a problem
@@ -290,6 +290,62 @@ add_word_info = function(letterList){#character_features){
       wordCount = wordCount + 1
     }
   }
+  return(letterList)
+}
+
+#' add_word_info2
+#'
+#' Associates characters to their respective word numbers by distance between right edge of char and left edge of next
+#' Needs improvement if runtime becomes a problem
+#' @param character_features All extracted features 
+#' @param img_dim Dimensions of binary image
+#' @keywords character, features, line number
+#' @return Appends line information to character features
+#' @export
+add_word_info2 = function(letterList, dims){#character_features){
+  
+  #loop that goes through and records distances between rightmost_col and leftmost_col of next
+  dist_between_list = list()
+  right_col = letterList[[1]]$characterFeatures$rightmost_col
+  for(i in 2:length(letterList)){
+    left_col = letterList[[i]]$characterFeatures$leftmost_col
+    dist_between = left_col - right_col
+    dist_between_list <- append(dist_between_list, dist_between)
+    right_col = letterList[[i]]$characterFeatures$rightmost_col
+  }   
+  dist_between_vec <- unlist(dist_between_list)
+  new_line_threshold = -(dims[2]/2)
+  
+  #find the average of these measurements - here a few ideas on how to calcualte it
+  dist_between_vec <- append(dist_between_vec, c(0))
+  dist_vec_zeroed <- dist_between_vec #save off a zeroed one to find our threshold, keep the real one for processing
+  dist_vec_zeroed[dist_vec_zeroed < 0] <- 0
+  dist_between_mean = mean(dist_vec_zeroed)
+  dist_between_median = median(dist_vec_zeroed)
+  
+  splitThreshold = dist_between_mean
+  
+  #split up the words according to this measurement
+  #CAN PROLLY REUSE THIS LOOP - JUST GET A DIFFERENT MEASUREMENT
+  wordCount = 1
+  for(i in 1:(length(letterList))){
+    letterList[[i]]$characterFeatures = c(letterList[[i]]$characterFeatures, list(wordIndex = wordCount))
+    
+    if(dist_between_vec[[i]] < new_line_threshold){
+      wordCount = wordCount + 1
+    }
+    
+    if(dist_between_vec[[i]] >= splitThreshold){
+      wordCount = wordCount + 1
+    }
+  }
+  
+  wordIndexList = list()
+  for(i in csafe_processList$letterList){
+    wordIndexList <- append(wordIndexList, i$characterFeatures$wordIndex)
+  }
+  print(unlist(wordIndexList))
+  
   return(letterList)
 }
 

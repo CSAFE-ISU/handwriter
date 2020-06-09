@@ -705,11 +705,10 @@ processHandwriting = function(img, dims)
   cat("Extracting character features...")
   featureSets = extract_character_features(letterList, dims)
   
+  # COMMENTED OUT AS CPP LOOK CODE BROKE R RARELY (6/9/2020)
+  # cat("and a few more...\n")
   # take existing feature set (done in ExtractFeatures.R), and some other info
   # and add more feature to the list with Rcpp (Measurements.cpp)
-  
-  #TEMPORARILY COMMENTED OUT CPP CODE - NEED TO RUN WHILE DEBUGGING 3/18/20 (James)
-  # cat("and a few more...\n")
   # addToFeatureSets = addToFeatures(featureSets, letterList, dims)
   # 
   # # Hard coded naming logic b/c of Rcpp but it works currently.
@@ -728,7 +727,10 @@ processHandwriting = function(img, dims)
   letterOrder = order(letterPlaces[,1], letterPlaces[,2])
   letterList = letterList[letterOrder]
   
-  letterList = add_word_info(letterList)
+  #have to add word info AFTER glyphs are sorted by line
+  #letterList = add_word_info(letterList)
+  letterList = add_word_info2(letterList, dims)
+  
   cat("and done.\n")
   return(list(nodes = nodeList, breakPoints = finalBreaks, letterList = letterList))
 }
