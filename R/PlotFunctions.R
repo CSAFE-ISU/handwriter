@@ -66,6 +66,79 @@ plotNodes = function(img, thinned, nodeList, nodeSize = 3, nodeColor = "red")
   return(p)
 }
 
+#' plotWord
+#'
+#' This function returns a plot of a single Word extracted from a document. It uses the letterList parameter from the processHandwriting function and accepts a single value as whichLetter. Dims requires the dimensions of the entire document, since this isn't contained in processHandwriting.
+#' @param letterList Letter list from processHandwriting function
+#' @param whichWord Single word value denoting which line to plot - checked if too big inside function.
+#' @param dims Dimensions of the original document
+#' @return Plot of single word.
+#' 
+#' @import ggplot2
+#' @export
+plotWord = function(letterList, whichWord, dims)
+{
+  pathList = list()
+  wordListIndex = list()
+  #stitch all paths together
+  count = 1
+  for(i in letterList){
+    
+    wordIndex = i$characterFeatures$wordIndex
+    #print(wordIndex)
+    if(wordIndex == whichWord)
+    {
+      pathList <- append(pathList, i$path)
+      wordListIndex <- append(wordListIndex, count)
+    }
+    
+    count = count + 1
+  }
+  
+  #if nothing was found on that line, just exit out because it is too big (or small)
+  if (length(pathList) == 0){
+    stop("ERROR: no letters found on that path - valid lines are 1:max")
+  }
+  
+  pathVec <- unlist(pathList)
+  countVec <- unlist(wordListIndex)
+  
+  r = ((pathVec-1) %% dims[1]) + 1
+  c = ((pathVec-1) %/% dims[1]) + 1
+  
+  img = matrix(1, nrow = diff(range(r))+1, ncol = diff(range(c))+1)
+  
+  nodeList = list()
+  for(i in letterList[c(countVec)]){
+    nodes = i$nodes
+    nodesr = ((nodes-1) %% dims[1]) + 1
+    nodesc = ((nodes-1) %/% dims[1]) + 1
+    nodesr = nodesr - min(r) + 1
+    nodesc = nodesc - min(c) + 1
+    
+    nodes = ((nodesc - 1)*(diff(range(r))+1)) + nodesr
+    nodeList <- append(nodeList, nodes)
+  }
+  
+  nodeList <- unlist(nodeList)
+  
+  rnew = r-min(r)+1
+  cnew = c-min(c)+1
+  
+  img[cbind(rnew,cnew)] = 0
+  
+  #Plot line
+  p = plotImage(img)
+  
+  #plot nodes
+  nodeSize = 3 
+  nodeColor = "red"
+  pointSet = data.frame(X = ((nodeList - 1) %/% dim(img)[1]) + 1, Y = dim(img)[1] - ((nodeList - 1) %% dim(img)[1]))
+  p = p + geom_point(data = pointSet, aes(X, Y), size = nodeSize, shape = I(16), color = I(nodeColor), alpha = I(.4))
+  
+  return(p)
+}
+
 #' plotLine
 #'
 #' This function returns a plot of a single line extracted from a document. It uses the letterList parameter from the processHandwriting function and accepts a single value as whichLetter. Dims requires the dimensions of the entire document, since this isn't contained in processHandwriting.
@@ -102,8 +175,6 @@ plotLine = function(letterList, whichLine, dims)
   
   pathVec <- unlist(pathList)
   countVec <- unlist(letterListIndex)
-  
-  print(countVec)
   
   r = ((pathVec-1) %% dims[1]) + 1
   c = ((pathVec-1) %/% dims[1]) + 1
@@ -299,7 +370,6 @@ AddLetterImages = function(letterList, docDims)
     r[[i]] = r[[i]]-min(r[[i]])+1
     c[[i]] = c[[i]]-min(c[[i]])+1
     letterList[[i]]$image[cbind(r[[i]],c[[i]])] = 0
-    #letterList[[i]]$image = cbind(1,rbind(1,letterList[[i]]$image,1),1)
   }
   return(letterList)
 }

@@ -728,6 +728,7 @@ processHandwriting = function(img, dims)
   letterOrder = order(letterPlaces[,1], letterPlaces[,2])
   letterList = letterList[letterOrder]
   
+  letterList = add_word_info(letterList)
   cat("and done.\n")
   return(list(nodes = nodeList, breakPoints = finalBreaks, letterList = letterList))
 }

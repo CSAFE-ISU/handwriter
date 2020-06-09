@@ -2,7 +2,6 @@
 #install.packages("devtools")
 #devtools::install_github("CSAFE-ISU/handwriter")
 
-
 #Load libraries
 library(handwriter)
 library(reshape2)
@@ -12,8 +11,8 @@ library(ggplot2)
 #Create empty list, and load an image with READPNGBinary
 csafe = list()
 #CSAFE IMAGE
-csafe$image = readPNGBinary("examples/Writing_csafe_single.png") #one word 'csafe'
-#csafe$image = readPNGBinary("examples/0004_4.png") #full paragraph
+#csafe$image = readPNGBinary("examples/Writing_csafe_single.png") #one word 'csafe'
+csafe$image = readPNGBinary("examples/0001_4.png") #full paragraph
 
 #Use ggplot to plot a binary image
 plotImage(csafe$image)
@@ -37,12 +36,16 @@ csafe$breaks = csafe_processList$breakPoints
 #csafe$paths = csafe_processList$pathList
 #csafe$graphemes = csafe_processList$graphemeList
 
-plotNodes(csafe$image, csafe$thin, csafe$nodes)
+#plotNodes(csafe$image, csafe$thin, csafe$nodes)
 #plotNodes(csafe$image, csafe$thin, csafe$breaks)
 
-###Some stuff for plotting letter:###
+###Some stuff for plotting letters, words, and lines:###
 dims = dim(csafe$image)
-plotLetter(csafe_processList$letterList, 37, dims)
+
+plotLetter(csafe_processList$letterList, 12, dims)
+
+plotWord(csafe_processList$letterList, 13, dims)
 
 plotLine(csafe_processList$letterList, 1, dims)
-    
+
+
