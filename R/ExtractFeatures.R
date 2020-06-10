@@ -324,7 +324,7 @@ add_word_info2 = function(letterList, dims){#character_features){
   dist_between_mean = mean(dist_vec_zeroed)
   dist_between_median = median(dist_vec_zeroed)
   
-  splitThreshold = dist_between_mean
+  splitThreshold = dist_between_mean * 1.5
   cat("\nsplitThreshold: ", splitThreshold)
   #split up the words according to this measurement
   #CAN PROLLY REUSE THIS LOOP - JUST GET A DIFFERENT MEASUREMENT
@@ -336,7 +336,7 @@ add_word_info2 = function(letterList, dims){#character_features){
       wordCount = wordCount + 1
     }
     
-    if(dist_between_vec[[i]] >= splitThreshold * 2){
+    if(dist_between_vec[[i]] >= splitThreshold){
       wordCount = wordCount + 1
     }
   }
