@@ -315,6 +315,7 @@ add_word_info2 = function(letterList, dims){#character_features){
   }   
   dist_between_vec <- unlist(dist_between_list)
   new_line_threshold = -(dims[2]/2)
+  cat("\ndist_between_vec: ", dist_between_vec)
   
   #find the average of these measurements - here a few ideas on how to calcualte it
   dist_between_vec <- append(dist_between_vec, c(0))
@@ -324,7 +325,7 @@ add_word_info2 = function(letterList, dims){#character_features){
   dist_between_median = median(dist_vec_zeroed)
   
   splitThreshold = dist_between_mean
-  
+  cat("\nsplitThreshold: ", splitThreshold)
   #split up the words according to this measurement
   #CAN PROLLY REUSE THIS LOOP - JUST GET A DIFFERENT MEASUREMENT
   wordCount = 1
@@ -335,7 +336,7 @@ add_word_info2 = function(letterList, dims){#character_features){
       wordCount = wordCount + 1
     }
     
-    if(dist_between_vec[[i]] >= splitThreshold){
+    if(dist_between_vec[[i]] >= splitThreshold * 2){
       wordCount = wordCount + 1
     }
   }
@@ -344,7 +345,7 @@ add_word_info2 = function(letterList, dims){#character_features){
   for(i in csafe_processList$letterList){
     wordIndexList <- append(wordIndexList, i$characterFeatures$wordIndex)
   }
-  print(unlist(wordIndexList))
+  cat("\nwordIndexList: ", unlist(wordIndexList))
   
   return(letterList)
 }
