@@ -341,12 +341,6 @@ add_word_info2 = function(letterList, dims){#character_features){
     }
   }
   
-  wordIndexList = list()
-  for(i in csafe_processList$letterList){
-    wordIndexList <- append(wordIndexList, i$characterFeatures$wordIndex)
-  }
-  cat("\nwordIndexList: ", unlist(wordIndexList))
-  
   return(letterList)
 }
 
