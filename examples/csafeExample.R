@@ -12,7 +12,7 @@ library(ggplot2)
 csafe = list()
 #CSAFE IMAGE
 #csafe$image = readPNGBinary("examples/Writing_csafe_single.png") #one word 'csafe'
-csafe$image = readPNGBinary("examples/0004_4.png") #full paragraph
+csafe$image = readPNGBinary("examples/0001_4.png") #full paragraph
 
 #Use ggplot to plot a binary image
 plotImage(csafe$image)
@@ -44,7 +44,7 @@ dims = dim(csafe$image)
 
 plotLetter(csafe_processList$letterList, 1, dims)
 
-plotWord(csafe_processList$letterList, 2, dims)
+plotWord(csafe_processList$letterList, 1, dims)
 
 plotLine(csafe_processList$letterList, 1, dims)
 

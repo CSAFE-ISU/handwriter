@@ -463,6 +463,8 @@ processHandwriting = function(img, dims)
     newNodes = findMergeNodes(skel_graph, mergeSets)
     nodeList = unique(c(nodeList[!(nodeList %in% c(mergeSets[,c(1,2)]))], newNodes))
     
+    #At this point have the updated nodeList, if we wanted to break it letter by letter we would do that here 
+    
     ### Migrate connections from original nodes to new nodes
     toDelete = NULL
     nRowCol = dim(adj0)[1]
@@ -492,6 +494,7 @@ processHandwriting = function(img, dims)
         
   }
   cat("\n")
+  
   
   graphdf0 = as_data_frame(skel_graph0)
   graphdf0$nodeOnlyDist = ifelse(graphdf0$from %in% nodeList | graphdf0$to %in% nodeList, 1, 0.00001)
@@ -552,7 +555,6 @@ processHandwriting = function(img, dims)
   breaks = c(1, breaks, length(troughNodes))
   candidateNodes = c(candidateNodes, troughNodes[ceiling((breaks[-1] + breaks[-length(breaks)])/2)])
 
- # print(plotPath(candidateNodes, img, img, zoomBorder = NA))
   cat("and discarding bad ones...\n")
   
   goodBreaks = checkBreakPoints(candidateNodes = candidateNodes, allPaths = pathList, nodeGraph = getNodeGraph(pathList, nodeList), terminalNodes = terminalNodes, dims)
@@ -566,8 +568,6 @@ processHandwriting = function(img, dims)
     preStackBreaks = preStackBreaks[which(!(preStackBreaks %in% allPaths[[i]]))]
     preStackBreaks = c(preStackBreaks, allPaths[[i]][newBreak])
   }
-  
-  ##################### Potential breakpoints (except for stacked letters) found. Break into letter paths.
 
   cat("Isolating letter paths...\n")
 
@@ -620,7 +620,8 @@ processHandwriting = function(img, dims)
     tmp = as.numeric(as.factor(V(skel_graph0)$letterID))
     letters[[i]] = as.numeric(strs[which(tmp == i)])
   }
-  
+
+  #Assign nodes to each letter
   nodesinGraph = replicate(length(letters), list(NA))
   for(i in 1:length(letters))
   {
@@ -691,14 +692,14 @@ processHandwriting = function(img, dims)
         decCode[i] = paste0(decCode[i], LETTERS[sum(binCode[(4*(j-1)+1):(4*j)]*2^((4:1) - 1))+1])
       }
       letterList[[i]]$letterCode = decCode[i]
-      letterList[[i]]$nodes = nodesinGraph[[i]][order(nodeOrder[[i]])]
+      letterList[[i]]$nodes = sort(nodesinGraph[[i]][order(nodeOrder[[i]])])
       colnames(letterList[[i]]$adjMatrix) = format(letterList[[i]]$nodes, scientific = FALSE, trim = TRUE)
       rownames(letterList[[i]]$adjMatrix) = format(letterList[[i]]$nodes, scientific = FALSE, trim = TRUE)
     }
     else
     {
       letterList[[i]]$adjMatrix = matrix(0,ncol = 0, nrow = 0)
-      letterList[[i]]$nodes = nodesinGraph[[i]]
+      letterList[[i]]$nodes = sort(nodesinGraph[[i]])
       letterList[[i]]$letterCode = "A"
     }
   }
