@@ -257,41 +257,6 @@ add_line_info = function(character_features,img_dim){
   return(character_features)
 }
 
-#' add_word_info
-#'
-#' Associates characters to their respective word numbers
-#' Needs improvement if runtime becomes a problem
-#' @param character_features All extracted features 
-#' @param img_dim Dimensions of binary image
-#' @keywords character, features, line number
-#' @return Appends line information to character features
-#' @export
-add_word_info = function(letterList){#character_features){
-  rightDistList = list()  
-
-  for(i in 1:length(letterList)){
-    rightDistList <- append(rightDistList, letterList[[i]]$characterFeatures$r_neighbor_dist)
-  }
-  print(unlist(rightDistList))
-  
-  rightDistMean = mean(unlist(rightDistList))
-  splitThreshold = rightDistMean * 1.5
-  
-  wordCount = 1
-  for(i in 1:length(letterList)){
-    letterList[[i]]$characterFeatures = c(letterList[[i]]$characterFeatures,list(wordIndex = wordCount))
-    
-    if(length(letterList[[i]]$characterFeatures$r_neighbor_dist) == 0 | is.null(letterList[[i]]$characterFeatures$r_neighbor_dist)){
-      wordCount = wordCount + 1
-      next
-    } 
-    
-    if(letterList[[i]]$characterFeatures$r_neighbor_dist >= splitThreshold){
-      wordCount = wordCount + 1
-    }
-  }
-  return(letterList)
-}
 
 #' add_word_info2
 #'
@@ -320,16 +285,10 @@ add_word_info2 = function(letterList, dims){#character_features){
   dist_between_vec <- append(dist_between_vec, c(0))
   
   #1: ZERO OUT, TAKE MEAN * 1.5
-  # dist_vec_zeroed <- dist_between_vec #save off a zeroed one to find our threshold, keep the real one for processing
-  # dist_vec_zeroed[dist_vec_zeroed < 0] <- 0
-  # dist_between_mean = mean(dist_vec_zeroed)
-  # splitThreshold = dist_between_mean * 1.5
-  
-  #2: TAKE MEDIAN
-  dist_between_median = median(dist_between_vec)
-  splitThreshold = dist_between_median * 1.5
-  
-  cat("\nsplitThreshold: ", splitThreshold)
+  dist_vec_zeroed <- dist_between_vec #save off a zeroed one to find our threshold, keep the real one for processing
+  dist_vec_zeroed[dist_vec_zeroed < 0] <- 0
+  dist_between_mean = mean(dist_vec_zeroed)
+  splitThreshold = dist_between_mean * 1.5
   
   #split up the words according to this measurement
   wordCount = 1
