@@ -315,19 +315,23 @@ add_word_info2 = function(letterList, dims){#character_features){
   }   
   dist_between_vec <- unlist(dist_between_list)
   new_line_threshold = -(dims[2]/2)
-  cat("\ndist_between_vec: ", dist_between_vec)
   
   #find the average of these measurements - here a few ideas on how to calcualte it
   dist_between_vec <- append(dist_between_vec, c(0))
-  dist_vec_zeroed <- dist_between_vec #save off a zeroed one to find our threshold, keep the real one for processing
-  dist_vec_zeroed[dist_vec_zeroed < 0] <- 0
-  dist_between_mean = mean(dist_vec_zeroed)
-  dist_between_median = median(dist_vec_zeroed)
   
-  splitThreshold = dist_between_mean * 1.5
+  #1: ZERO OUT, TAKE MEAN * 1.5
+  # dist_vec_zeroed <- dist_between_vec #save off a zeroed one to find our threshold, keep the real one for processing
+  # dist_vec_zeroed[dist_vec_zeroed < 0] <- 0
+  # dist_between_mean = mean(dist_vec_zeroed)
+  # splitThreshold = dist_between_mean * 1.5
+  
+  #2: TAKE MEDIAN
+  dist_between_median = median(dist_between_vec)
+  splitThreshold = dist_between_median * 1.5
+  
   cat("\nsplitThreshold: ", splitThreshold)
+  
   #split up the words according to this measurement
-  #CAN PROLLY REUSE THIS LOOP - JUST GET A DIFFERENT MEASUREMENT
   wordCount = 1
   for(i in 1:(length(letterList))){
     letterList[[i]]$characterFeatures = c(letterList[[i]]$characterFeatures, list(wordIndex = wordCount))
