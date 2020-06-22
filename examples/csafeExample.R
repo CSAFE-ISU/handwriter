@@ -40,7 +40,7 @@ plotNodes(csafe$image, csafe$thin, csafe$nodes)
 ###Some stuff for plotting letters, words, and lines:###
 dims = dim(csafe$image)
 
-#plotLetter(csafe_processList$letterList, 1, dims)
+plotLetter(csafe_processList$letterList, 1, dims)
 
 #plotWord(csafe_processList$letterList, 2, dims)
 
@@ -54,11 +54,4 @@ for(i in csafe_processList$letterList){
 }
 print(unlist(wordIndexList))
 
-#FASTEST EXAMPLE
-csafe = list()
-#csafe$image = readPNGBinary("examples/Writing_csafe_single.png") #one word 'csafe'
-csafe$image = readPNGBinary("examples/0004_4.png") #full paragraph
-csafe$thin = thinImage(csafe$image)
-csafe_processList = processHandwriting(csafe$thin, dim(csafe$image))
-dims = dim(csafe$image)
-plotWord(csafe_processList$letterList, 57, dims)
+words = create_words(csafe_processList)
