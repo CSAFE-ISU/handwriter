@@ -28,5 +28,19 @@ create_words = function(processList){
     }
   }
   
+  wordsInfo <- list(wordIndex = wordIndex, allNodes = allNodes, wordPath = wordPath)
+  words[[wordIndex]] <- wordsInfo
+  
+  nameList = list()
+  
+  #Just naming them here
+  for (i in 1:length(words)){
+    name = paste("wordIndex:",i,sep=" ")
+    nameList <- append(nameList, name)
+  }
+  names(words) <- nameList
+  
   return(words)
 }
+
+#

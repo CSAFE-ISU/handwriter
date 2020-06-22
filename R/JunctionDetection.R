@@ -583,7 +583,6 @@ processHandwriting = function(img, dims)
   finalBreaks = preStackBreaks[!(checkStacking(preStackBreaks, allPaths, letters, skel_graph0, dims))]
   finalBreaks = finalBreaks[!(checkSimplicityBreaks(finalBreaks, pathList, loopList, letters, skel_graph0, nodeList, terminalNodes, hasTrough, dims))]
   
-  breakAddedEndPoints = NULL
   pathsWithBreaks = lapply(allPaths, function(x){which(x %in% preStackBreaks)})
   breaksPerPath = unlist(lapply(pathsWithBreaks, length))
   for(i in which(breaksPerPath > 0))
@@ -594,7 +593,6 @@ processHandwriting = function(img, dims)
       E(skel_graph0, P = format(allPaths[[i]][c(newNodes - 2, newNodes - 1)], scientific = FALSE, trim = TRUE))$nodeOnlyDist = 1
       E(skel_graph0, P = format(allPaths[[i]][c(newNodes + 1, newNodes + 2)], scientific = FALSE, trim = TRUE))$nodeOnlyDist = 1
       newNodes = c(newNodes - 1, newNodes + 1)
-      breakAddedEndPoints = c(breakAddedEndPoints, allPaths[[i]][newNodes])
       nodeList = c(nodeList, allPaths[[i]][newNodes])
       allPaths[[i]] = list(allPaths[[i]][1:(newNodes[1])], allPaths[[i]][(newNodes[2]):length(allPaths[[i]])])
     }
