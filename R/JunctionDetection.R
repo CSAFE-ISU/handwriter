@@ -582,7 +582,7 @@ processHandwriting = function(img, dims)
   # Remove breakpoints that shouldn't have broken.
   finalBreaks = preStackBreaks[!(checkStacking(preStackBreaks, allPaths, letters, skel_graph0, dims))]
   finalBreaks = finalBreaks[!(checkSimplicityBreaks(finalBreaks, pathList, loopList, letters, skel_graph0, nodeList, terminalNodes, hasTrough, dims))]
-  
+
   pathsWithBreaks = lapply(allPaths, function(x){which(x %in% preStackBreaks)})
   breaksPerPath = unlist(lapply(pathsWithBreaks, length))
   for(i in which(breaksPerPath > 0))
@@ -621,9 +621,14 @@ processHandwriting = function(img, dims)
 
   #Assign nodes to each letter
   nodesinGraph = replicate(length(letters), list(NA))
+  connectingNodesinGraph = replicate(length(letters), list(NA))
+  terminalNodesinGraph = replicate(length(letters), list(NA))
+  
   for(i in 1:length(letters))
   {
       nodesinGraph[[i]] = letters[[i]][which(letters[[i]] %in% nodeList)]
+      connectingNodesinGraph[[i]] = letters[[i]][which(letters[[i]] %in% nodeConnections)]
+      terminalNodesinGraph[[i]] = letters[[i]][which(letters[[i]] %in% terminalNodes)]
   }
   
   
@@ -691,6 +696,8 @@ processHandwriting = function(img, dims)
       }
       letterList[[i]]$letterCode = decCode[i]
       letterList[[i]]$nodes = sort(nodesinGraph[[i]][order(nodeOrder[[i]])])
+      letterList[[i]]$connectingNodes = sort(connectingNodesinGraph[[i]][order(nodeOrder[[i]])])
+      letterList[[i]]$terminalNodes = sort(terminalNodesinGraph[[i]][order(nodeOrder[[i]])])
       colnames(letterList[[i]]$adjMatrix) = format(letterList[[i]]$nodes, scientific = FALSE, trim = TRUE)
       rownames(letterList[[i]]$adjMatrix) = format(letterList[[i]]$nodes, scientific = FALSE, trim = TRUE)
     }
@@ -698,6 +705,8 @@ processHandwriting = function(img, dims)
     {
       letterList[[i]]$adjMatrix = matrix(0,ncol = 0, nrow = 0)
       letterList[[i]]$nodes = sort(nodesinGraph[[i]])
+      letterList[[i]]$connectingNodes = sort(connectingNodesinGraph[[i]])
+      letterList[[i]]$terminalNodes = sort(terminalNodesinGraph[[i]])
       letterList[[i]]$letterCode = "A"
     }
   }
@@ -729,8 +738,9 @@ processHandwriting = function(img, dims)
   #have to add word info AFTER glyphs are sorted by line
   letterList = add_word_info2(letterList, dims)
   
+  
   cat("and done.\n")
-  return(list(nodes = nodeList, breakPoints = finalBreaks, letterList = letterList))
+  return(list(nodes = nodeList, connectingNodes = nodeConnections, terminalNodes = terminalNodes, breakPoints = sort(finalBreaks), letterList = letterList))
 }
 
 #' Function associating entries in allPaths to each letter

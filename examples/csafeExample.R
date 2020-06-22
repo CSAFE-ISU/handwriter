@@ -29,21 +29,18 @@ csafe_processList = processHandwriting(csafe$thin, dim(csafe$image))
 #Save off nodes, breaks, paths, and graphemes
 csafe$nodes = csafe_processList$nodes
 csafe$breaks = csafe_processList$breakPoints
-csafe$nodesthatarebreaks = intersect(csafe$nodes, csafe$breaks)
 
 plotNodes(csafe$image, csafe$thin, csafe$nodes)
 plotNodes(csafe$image, csafe$thin, csafe$breaks)
 
 ###Some stuff for plotting letters, words, and lines:###
 dims = dim(csafe$image)
-
 plotLetter(csafe_processList$letterList, 1, dims)
 
 
+##EVERYTHING UNDERHERE IS NEW WORD STUFF##
 
 #plotLine(csafe_processList$letterList, 1, dims)
-
-##DELETE EVERYTHING BELOW HERE --------
 
 wordIndexList = list()
 for(i in csafe_processList$letterList){
@@ -51,6 +48,9 @@ for(i in csafe_processList$letterList){
 }
 print(unlist(wordIndexList))
 
-words = create_words(csafe_processList)
+#if process_words needs something else,
+#should move it in create_words, dont want to move a bunch of info from processList we don't need
+words = create_words(csafe_processList) 
+wordInfo = process_words(words, dim(csafe$image))
 
-plotWord(csafe_processList$letterList, 2, dims)
+plotWord(csafe_processList$letterList, 1, dims)
