@@ -49,7 +49,7 @@ find_colorpoints = function(words, dims){
   colordf <- rbind(colordf, orange_point)
 
 
-  #Add Node at highest GREEN Point in total path
+  #Add Node at highest GREEN point in total path
   rcs = i_to_rci(words$wordPath, dims)
   highest_point_index = rcs[[which.min(rcs[ ,1]), 3]]
   green_point <- data.frame(highest_point_index, i_to_rc(highest_point_index, dims), 4, "green")
@@ -63,7 +63,7 @@ find_colorpoints = function(words, dims){
   colnames(purple_point) <- c("point", "row", "col", "colorIndex", "color")
   colordf <- rbind(colordf, purple_point)
        
-  #Compute and add the dots for i or j
+  #Add the YELLOW points for dots on i or j
   #JAMES NOTES - For some reason these dont appear when plotting word normally - more exploration needed
   #Not in plot letter either (which I didnt write)
   #So, here is a fake one for now - currenty says there is a . in half of the words
