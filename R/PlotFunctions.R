@@ -114,13 +114,13 @@ plotWord = function(letterList, whichWord, dims)
     nodesc = ((nodes-1) %/% dims[1]) + 1
     nodesr = nodesr - min(r) + 1
     nodesc = nodesc - min(c) + 1
-    
+
     nodes = ((nodesc - 1)*(diff(range(r))+1)) + nodesr
     nodeList <- append(nodeList, nodes)
   }
-  
+
   nodeList <- unlist(nodeList)
-  
+
   rnew = r-min(r)+1
   cnew = c-min(c)+1
   
@@ -130,10 +130,10 @@ plotWord = function(letterList, whichWord, dims)
   p = plotImage(img)
   
   #plot nodes
-  nodeSize = 3 
+  nodeSize = 4
   nodeColor = "red"
   pointSet = data.frame(X = ((nodeList - 1) %/% dim(img)[1]) + 1, Y = dim(img)[1] - ((nodeList - 1) %% dim(img)[1]))
-  p = p + geom_point(data = pointSet, aes(X, Y), size = nodeSize, shape = I(16), color = I(nodeColor), alpha = I(.4))
+  p = p + geom_point(data = pointSet, aes(X, Y), size = nodeSize, shape = I(16), color = I(nodeColor), alpha = I(.6))
   
   return(p)
 }
