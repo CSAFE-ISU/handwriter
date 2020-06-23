@@ -74,7 +74,7 @@ find_colorpoints = function(words, dims){
   if(has_i_or_j){
     yellowrow = mean(colordf[,2])
     yellowcol = mean(colordf[,3])
-    yellowindex = rc_to_i(yellowrow, yellowcol, dims)
+    yellowindex = rc_to_i(yellowrow, yellowcol-10, dims)
     yellow_point <- data.frame(yellowindex, i_to_rc(yellowindex, dims), 6, "yellow")
     colnames(yellow_point) <- c("point", "row", "col", "colorIndex", "color")
     colordf <- rbind(colordf, yellow_point)
