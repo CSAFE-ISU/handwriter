@@ -68,7 +68,7 @@ find_colorpoints = function(words, dims){
   #Not in plot letter either (which I didnt write)
   #So, here is a fake one for now - currenty says there is a . in half of the words
   has_i_or_j = FALSE
-  flip <- sample(1:2, 1)
+  flip <- sample(1:3, 1)
   if(flip == 1) has_i_or_j = TRUE
   
   if(has_i_or_j){

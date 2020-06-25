@@ -32,7 +32,7 @@ csafe_processList = processHandwriting(csafe$thin, dim(csafe$image))
 csafe$nodes = csafe_processList$nodes
 csafe$breaks = csafe_processList$breakPoints
 
-#plotNodes(csafe$image, csafe$thin, csafe$nodes)
+plotNodes(csafe$image, csafe$thin, csafe$nodes)
 #plotNodes(csafe$image, csafe$thin, csafe$breaks)
 
 ###Some stuff for plotting letters, words, and lines:###
