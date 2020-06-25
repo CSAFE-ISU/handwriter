@@ -11,7 +11,7 @@
 #' @export
 plotColorNodes = function(letterList, whichWord, dims, wordInfo) #TODO - CLEAN THIS UP: DONT NEED LETTERLIST
 {
-  library(stringr)
+  
   
   pathList = list()
   wordListIndex = list()
