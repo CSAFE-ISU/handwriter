@@ -32,7 +32,7 @@ csafe_processList = processHandwriting(csafe$thin, dim(csafe$image))
 csafe$nodes = csafe_processList$nodes
 csafe$breaks = csafe_processList$breakPoints
 
-#plotNodes(csafe$image, csafe$thin, csafe$nodes)
+plotNodes(csafe$image, csafe$thin, csafe$nodes)
 #plotNodes(csafe$image, csafe$thin, csafe$breaks)
 
 ###Some stuff for plotting letters, words, and lines:###
@@ -50,8 +50,7 @@ for(i in csafe_processList$letterList){
 }
 print(unlist(wordIndexList))
 
-#if process_words needs something else,
-#should move it in create_words, dont want to move a bunch of info from processList we don't need
+#Create list of word objects, process the words for more information, plot the word with colored Nodes
 words = create_words(csafe_processList) 
 words_after_processing = process_words(words, dim(csafe$image), TRUE)
 plotColorNodes(csafe_processList$letterList, 6, dims, words_after_processing)
