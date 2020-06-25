@@ -7,6 +7,7 @@ library(handwriter)
 library(reshape2)
 library(igraph)
 library(ggplot2)
+library(stringr)
 
 #Create empty list, and load an image with READPNGBinary
 csafe = list()
@@ -31,8 +32,8 @@ csafe_processList = processHandwriting(csafe$thin, dim(csafe$image))
 csafe$nodes = csafe_processList$nodes
 csafe$breaks = csafe_processList$breakPoints
 
-plotNodes(csafe$image, csafe$thin, csafe$nodes)
-plotNodes(csafe$image, csafe$thin, csafe$breaks)
+#plotNodes(csafe$image, csafe$thin, csafe$nodes)
+#plotNodes(csafe$image, csafe$thin, csafe$breaks)
 
 ###Some stuff for plotting letters, words, and lines:###
 dims = dim(csafe$image)
