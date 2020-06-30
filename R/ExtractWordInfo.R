@@ -70,7 +70,7 @@ find_colorpoints = function(words, dims){
   has_i_or_j = FALSE
   flip <- sample(1:3, 1)
   if(flip == 1) has_i_or_j = TRUE
-  
+
   if(has_i_or_j){
     yellowrow = mean(colordf[,2])
     yellowcol = mean(colordf[,3])

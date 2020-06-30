@@ -37,10 +37,10 @@ plotNodes(csafe$image, csafe$thin, csafe$nodes)
 
 ###Some stuff for plotting letters, words, and lines:###
 dims = dim(csafe$image)
-plotLetter(csafe_processList$letterList, 24, dims)
+plotLetter(csafe_processList$letterList, 1, dims)
+plotLine(csafe_processList$letterList, 1, dims)
 
-
-##EVERYTHING UNDERHERE IS NEW WORD STUFF##
+##EVERYTHING UNDER HERE IS NEW WORD STUFF##
 
 #plotLine(csafe_processList$letterList, 1, dims)
 
@@ -56,3 +56,14 @@ words_after_processing = process_words(words, dim(csafe$image), TRUE)
 plotColorNodes(csafe_processList$letterList, 6, dims, words_after_processing)
 
 plotWord(csafe_processList$letterList, 6, dims)
+
+#IMPORTANT/FASTEST FLOW (only plotting colornodes on words)
+# csafe = list()
+# csafe$image = readPNGBinary("examples/0006_4.png") #full paragraph
+# csafe$thin = thinImage(csafe$image)
+# csafe_processList = processHandwriting(csafe$thin, dim(csafe$image))
+# dims = dim(csafe$image)
+# 
+# words = create_words(csafe_processList) 
+# words_after_processing = process_words(words, dim(csafe$image), TRUE)
+# plotColorNodes(csafe_processList$letterList, 6, dims, words_after_processing)
