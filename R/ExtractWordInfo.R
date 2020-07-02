@@ -9,7 +9,7 @@ process_words = function(words, dims, triangulate = FALSE){
   #Will do different things depending on what is passed in, pass in TRUE to start the triangulation process
   if(triangulate){ 
     colorpoints_df <- lapply(words, find_colorpoints, dims=dims);
-    #tri = triangulation(colorpoints_df, dims)
+    #triangulate(colorpoints_df, dims)
   }
   
   #add word information to the word list that was passed in
@@ -83,3 +83,10 @@ find_colorpoints = function(words, dims){
   return(colordf);
 }
 
+# triangulate = function(colorpoints_df, dims){
+#   for(i in 1:length(colorpoints_df)){
+#     word = colorpoints_df[[i]]
+#     bluepoint = word[word$color=="blue"]
+#   }
+    
+# }

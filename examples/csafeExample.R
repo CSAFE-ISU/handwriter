@@ -55,7 +55,7 @@ words = create_words(csafe_processList)
 words_after_processing = process_words(words, dim(csafe$image), TRUE)
 plotColorNodes(csafe_processList$letterList, 6, dims, words_after_processing)
 
-plotWord(csafe_processList$letterList, 6, dims)
+plotWord(csafe_processList$letterList, 1, dims)
 
 #IMPORTANT/FASTEST FLOW (only plotting colornodes on words)
 # csafe = list()
