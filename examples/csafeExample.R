@@ -13,8 +13,8 @@ library(stringr)
 csafe = list()
 #CSAFE IMAGE
 #csafe$image = readPNGBinary("examples/Writing_csafe_single.png") #one word 'csafe'
-#csafe$image = readPNGBinary("examples/hijimmi2.png") #2 words (Hi jimmi) used to test i/j
-csafe$image = readPNGBinary("examples/0006_4.png") #full paragraph
+csafe$image = readPNGBinary("examples/hijimmi2.png") #2 words (Hi jimmi) used to test i/j
+#csafe$image = readPNGBinary("examples/0006_4.png") #full paragraph
 
 #Use ggplot to plot a binary image
 plotImage(csafe$image)
