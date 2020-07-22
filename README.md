@@ -11,7 +11,7 @@ handwriter is an R package that analyzes handwriting samples for the sake of ide
 
 
 #### How does it work?
-Through a step by step processes explained [here](https://csafe-isu.github.io/handwriter/statisticalmethods)
+Through a step by step processes explained [here](https://csafe-isu.github.io/handwriter/methods)
 
 
 #### How do I use it
