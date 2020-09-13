@@ -258,7 +258,7 @@ add_line_info = function(character_features,img_dim){
 }
 
 
-#' add_word_info2
+#' add_word_info
 #'
 #' Associates characters to their respective word numbers by distance between right edge of char and left edge of next
 #' Needs improvement if runtime becomes a problem
@@ -267,7 +267,7 @@ add_line_info = function(character_features,img_dim){
 #' @keywords character, features, line number
 #' @return Appends line information to character features
 #' @export
-add_word_info2 = function(letterList, dims){#character_features){
+add_word_info = function(letterList, dims){#character_features){
   
   #loop that goes through and records distances between rightmost_col and leftmost_col of next
   dist_between_list = list()
@@ -276,10 +276,11 @@ add_word_info2 = function(letterList, dims){#character_features){
     left_col = letterList[[i]]$characterFeatures$leftmost_col
     dist_between = left_col - right_col
     dist_between_list <- append(dist_between_list, dist_between)
-    right_col = letterList[[i]]$characterFeatures$rightmost_col
-  }   
+    right_col = letterList[[i]]$characterFeatures$rightmost_col                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+  }    
   dist_between_vec <- unlist(dist_between_list)
   new_line_threshold = -(dims[2]/2)
+  
   
   #find the average of these measurements - here a few ideas on how to calcualte it
   dist_between_vec <- append(dist_between_vec, c(0))
@@ -295,7 +296,7 @@ add_word_info2 = function(letterList, dims){#character_features){
   for(i in 1:(length(letterList))){
     letterList[[i]]$characterFeatures = c(letterList[[i]]$characterFeatures, list(wordIndex = wordCount))
     
-    if(dist_between_vec[[i]] < new_line_threshold){
+    if(dist_between_vec[[i]] < new_line_threshold){ #CONSULT THE MODEL HERE
       wordCount = wordCount + 1
     }
     
@@ -307,6 +308,28 @@ add_word_info2 = function(letterList, dims){#character_features){
   return(letterList)
 }
 
+#' add_word_info2
+#'
+#' Associates characters to their respective word numbers by ML on labeled data
+#' @param character_features All extracted features 
+#' @param img_dim Dimensions of binary image
+#' @keywords character, features, line number
+#' @return Appends line information to character features
+#' @export
+add_word_info = function(letterList, dims){
+  
+  cur_word = list()
+  #Organize word info                        
+  
+  #Create ML model
+  
+  #for loop
+  letterList[[i]]$characterFeatures = c(letterList[[i]]$characterFeatures, list(wordIndex = wordCount))
+  #if word, increase word Count and reset cur_word
+  
+  #if not word, add word and reconfigure the cur_word
+  
+}
 #' get_loop_info
 #'
 #' Associator of loop to character association
