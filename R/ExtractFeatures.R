@@ -316,15 +316,23 @@ add_word_info = function(letterList, dims){#character_features){
 #' @keywords character, features, line number
 #' @return Appends line information to character features
 #' @export
-add_word_info = function(letterList, dims){
+add_word_info2 = function(letterList, dims){
+  
+  #Load in .RDS Model
   
   cur_word = list()
-  #Organize word info                        
+  for(i in 2:length(letterList)){
+    
+    #Reconfigure into proportion so can ask model
+    
+    #Ask model logic
+  }
   
-  #Create ML model
+  
+  
   
   #for loop
-  letterList[[i]]$characterFeatures = c(letterList[[i]]$characterFeatures, list(wordIndex = wordCount))
+  #letterList[[i]]$characterFeatures = c(letterList[[i]]$characterFeatures, list(wordIndex = wordCount))
   #if word, increase word Count and reset cur_word
   
   #if not word, add word and reconfigure the cur_word
