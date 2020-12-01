@@ -2,8 +2,8 @@
 #library(rjson)
 
 
-AsJSON <- fromJSON(file = "data/result.json")
-print(result)
+#AsJSON <- fromJSON(file = "data/result.json")
+#print(result)
 
 
 #Use function to convert to Nice proportional list objects

@@ -1,6 +1,7 @@
 #Install the devtools package anad the then the handwriter package directly from Github
-#install.packages("devtools")
-#devtools::install_github("CSAFE-ISU/handwriter")
+install.packages("devtools")
+devtools::install_github("CSAFE-ISU/handwriter")
+install.packages("handwriter")
 
 #Load libraries
 library(handwriter)
