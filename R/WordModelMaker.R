@@ -1,6 +1,8 @@
 #install.packages("rjson")
+#install.packages("randomForest")
 library(rjson)
 library(data.table)
+library(randomForest)
 
 #Load JSON file
 AsJSON <- fromJSON(file = "data/2L1W.json")
@@ -18,20 +20,50 @@ for (i in 1:length(AsJSON)){
   }
 }
 
+
 #Sort DF By first line number, and then x value
 dataDF=dataDF[order( dataDF[,1], dataDF[,6] ),]
 
+#Add proportionalized data
+dataDF['height_prop'] <- NA
+dataDF['width_prop'] <- NA
+dataDF['to_right_prop'] <- NA
+dataDF['to_left_prop'] <- NA
 
-#Map to function to do line by line math and get ratios
+for(r in 1:nrow(dataDF)){
+  row = dataDF[r,]
+  prev_row = dataDF[r-1,]
+  next_row = dataDF[r+1,]
+  
+  dataDF[r, 'height_prop'] = row$height/row$original_height
+  dataDF[r, 'width_prop'] = row$width/row$original_width
+  
+  to_right = next_row$x - (row$x + row$width)
+  dataDF[r, 'to_right_prop'] = to_right/row$original_width
+  
+  if(r==1){next}
+  to_left = row$x - (prev_row$x + prev_row$width)
+  dataDF[r, 'to_left_prop'] = to_left/row$original_width
+} 
 
-
-#Put into DF for model training
-
-
+dataDF = dataDF[c("label", "height_prop", "width_prop", "to_right_prop", "to_left_prop")]
+#Reconfigure DF for to be put into model
+dataDF$label = factor(dataDF$label)
 
 #Train a model
+set.seed(100)
+train <- sample(nrow(dataDF), 0.7*nrow(dataDF), replace = FALSE)
+TrainSet <- dataDF[train,]
+ValidSet <- dataDF[-train,]
+summary(TrainSet)
+summary(ValidSet)
 
-
-
+a=c()
+for (i in 1:4) {
+  model3 <- randomForest(label ~ ., data = TrainSet, ntree = 500, mtry = i, importance = TRUE, na.action=na.exclude)
+  predValid <- predict(model3, ValidSet, type = "class")
+  a[i] = mean(predValid == ValidSet$label)
+}
+print(a)
 
 #Now that model is trained, save it so it can be loaded
