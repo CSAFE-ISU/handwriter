@@ -5,7 +5,7 @@ library(data.table)
 library(randomForest)
 
 #Load JSON file
-AsJSON <- fromJSON(file = "data/2L1W.json")
+AsJSON <- fromJSON(file = "data/7L1W.json")
 
 #Create a new DF and fill it up from each character entry
 dataDF <- data.frame(line=numeric(0),original_height=numeric(0),original_width=numeric(0),height=numeric(0),width=numeric(0),x=numeric(0),y=numeric(0),label=character(0))
@@ -46,6 +46,7 @@ for(r in 1:nrow(dataDF)){
   dataDF[r, 'to_left_prop'] = to_left/row$original_width
 } 
 
+
 dataDF = dataDF[c("label", "height_prop", "width_prop", "to_right_prop", "to_left_prop")]
 #Reconfigure DF for to be put into model
 dataDF$label = factor(dataDF$label)
@@ -55,8 +56,8 @@ set.seed(100)
 train <- sample(nrow(dataDF), 0.7*nrow(dataDF), replace = FALSE)
 TrainSet <- dataDF[train,]
 ValidSet <- dataDF[-train,]
-summary(TrainSet)
-summary(ValidSet)
+#summary(TrainSet)
+#summary(ValidSet)
 
 a=c()
 for (i in 1:4) {
@@ -64,6 +65,8 @@ for (i in 1:4) {
   predValid <- predict(model3, ValidSet, type = "class")
   a[i] = mean(predValid == ValidSet$label)
 }
+print(nrow(dataDF))
 print(a)
+
 
 #Now that model is trained, save it so it can be loaded
