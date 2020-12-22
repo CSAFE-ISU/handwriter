@@ -318,16 +318,44 @@ add_word_info = function(letterList, dims){#character_features){
 #' @export
 add_word_info2 = function(letterList, dims){
   
-  #Load in .RDS Model
+  #Create a new DF and fill it up from each character entry
+  dataDF <- data.frame(line=numeric(0),line_height=numeric(0),line_width=numeric(0),height=numeric(0),width=numeric(0),x=numeric(0))
+  lastLine = 0
+  for (i in 1:length(letterList)){
+
+    dataDF[nrow(dataDF) + 1,] =
+      list(line,
+          NA,NA,
+          letterList[i]$height,letterList[i]$value$width,
+          letterList[i]$leftmost_col)
+    
+    
+    
+  }
   
+  #Now with the dataframe completely done, get all the info
+  #Load in .RDS Model
+  wordModel <- readRDS("data/wordModel.rds")
+  
+  #Now use the predictions to figure out the word boundaries
   cur_word = list()
-  for(i in 2:length(letterList)){
+  for(i in 1:length(letterList)){
     
     #Reconfigure into proportion so can ask model
     
     #Ask model logic
   }
   
+ 
+  
+  #split up the words according to this measurement
+  wordCount = 1
+  for(i in 1:(length(letterList))){
+    letterList[[i]]$characterFeatures = c(letterList[[i]]$characterFeatures, list(wordIndex = wordCount))
+    
+  }
+  
+  return(letterList)
   
   
   

@@ -736,7 +736,8 @@ processHandwriting = function(img, dims)
   letterList = letterList[letterOrder]
   
   #have to add word info AFTER glyphs are sorted by line
-  letterList = add_word_info(letterList, dims)
+  #letterList = add_word_info(letterList, dims)
+  letterList = add_word_info2(letterList,dims)
   
   
   cat("and done.\n")
