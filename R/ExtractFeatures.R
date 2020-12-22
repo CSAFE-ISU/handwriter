@@ -318,32 +318,79 @@ add_word_info = function(letterList, dims){#character_features){
 #' @export
 add_word_info2 = function(letterList, dims){
   
-  #Create a new DF and fill it up from each character entry
-  dataDF <- data.frame(line=numeric(0),line_height=numeric(0),line_width=numeric(0),height=numeric(0),width=numeric(0),x=numeric(0))
-  lastLine = 0
+  #Compute the approximate width and hieght of each line
+  dimsList <- list()
+  currentLine = 1
+  
+  left_most = Inf
+  right_most = 0
+  tallest = 0
   for (i in 1:length(letterList)){
-
-    dataDF[nrow(dataDF) + 1,] =
-      list(line,
-          NA,NA,
-          letterList[i]$height,letterList[i]$value$width,
-          letterList[i]$leftmost_col)
+    if(letterList[[i]]$characterFeatures$leftmost_col < left_most){
+      left_most = letterList[[i]]$characterFeatures$leftmost_col
+    }
     
+    if(letterList[[i]]$characterFeatures$rightmost_col > right_most){
+      right_most = letterList[[i]]$characterFeatures$rightmost_col
+    }
     
+    if(letterList[[i]]$characterFeatures$height > tallest){
+      tallest = letterList[[i]]$characterFeatures$height
+    }
     
+    if(letterList[[i]]$characterFeatures$line_number != currentLine | i == length(letterList)) {
+      
+      dimsList[[currentLine]] <- list(right_most-left_most, tallest)
+      
+      currentLine = currentLine + 1
+      left_most = Inf
+      right_most = 0
+      tallest = 0
+    }
   }
   
-  #Now with the dataframe completely done, get all the info
+  #Create a new DF and fill it up from each character entry
+  dataDF <- data.frame(line=numeric(0),line_height=numeric(0),line_width=numeric(0),height=numeric(0),width=numeric(0),x=numeric(0),label=character(0))
+  for (i in 1:length(letterList)){
+    line = letterList[[i]]$characterFeatures$line_number
+    dataDF[nrow(dataDF) + 1,] =
+          list(line,
+          dimsList[[line]][[2]], dimsList[[line]][[1]],
+          letterList[[i]]$characterFeatures$height, letterList[[i]]$characterFeatures$width,
+          letterList[[i]]$characterFeatures$leftmost_col)
+  }
+  
+  #Add in proportional info
+  for(r in 1:nrow(dataDF)){
+    row = dataDF[r,]
+    prev_row = dataDF[r-1,]
+    next_row = dataDF[r+1,]
+    
+    dataDF[r, 'height_prop'] = row$height/row$line_height
+    dataDF[r, 'width_prop'] = row$width/row$line_width
+    
+    to_right = next_row$x - (row$x + row$width)
+    dataDF[r, 'to_right_prop'] = to_right/row$line_width
+    
+    if(r==1){next}
+    to_left = row$x - (prev_row$x + prev_row$width)
+    dataDF[r, 'to_left_prop'] = to_left/row$line_width
+  } 
+  
+  testDF = dataDF[c("height_prop", "width_prop", "to_right_prop", "to_left_prop")]
+  
   #Load in .RDS Model
   wordModel <- readRDS("data/wordModel.rds")
+  
+  #Make prediction and add to other
+  wordPredictions <- cbind(testDF, predict(wordModel, testDF, type = "class"))
   
   #Now use the predictions to figure out the word boundaries
   cur_word = list()
   for(i in 1:length(letterList)){
     
-    #Reconfigure into proportion so can ask model
     
-    #Ask model logic
+   
   }
   
  

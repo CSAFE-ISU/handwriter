@@ -50,7 +50,7 @@ whichNeighbors0 = function(coords, img)
   if(res[3] == 1 | res[5] == 1)
     res[4] = 0
   if(res[5] == 1 | res[7] == 1)
-    res[6] = 0
+    res[6] = 0 
   if(res[7] == 1 | res[1] == 1)
     res[8] = 0
   return(res)

@@ -38,7 +38,7 @@ plotNodes(csafe$image, csafe$thin, csafe$nodes)
 
 ###Some stuff for plotting letters, words, and lines:###
 dims = dim(csafe$image)
-plotLetter(csafe_processList$letterList, 1, dims)
+plotLetter(csafe_processList$letterList, 5, dims)
 plotLine(csafe_processList$letterList, 1, dims)
 
 ##EVERYTHING UNDER HERE IS NEW WORD STUFF##
