@@ -392,18 +392,21 @@ add_word_info2 = function(letterList, dims){
   wordCount = 1
   lineCount = 1
   holding = NULL
+  prediction = NA
   for(i in 1:length(letterList)){
     letterList[[i]]$characterFeatures = c(letterList[[i]]$characterFeatures, list(wordIndex = wordCount))
-    
+    holding = prediction
     prediction = wordPredictions[i, 'prediction']
     
     if(i == length(letterList)){break}
+    nextPrediction = wordPredictions[i+1, 'prediction']
     if(letterList[[i+1]]$characterFeatures$line_number > letterList[[i]]$characterFeatures$line_number){
       wordCount = wordCount + 1
       next
     }
     
-    if(prediction == "end"){
+    if(prediction == "end" & nextPrediction != "end"){
+      print(i)
       wordCount = wordCount + 1
       next
     }
