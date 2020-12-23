@@ -390,14 +390,22 @@ add_word_info2 = function(letterList, dims){
   
   #Now use the predictions to figure out the word boundaries
   wordCount = 1
+  lineCount = 1
   holding = NULL
   for(i in 1:length(letterList)){
     letterList[[i]]$characterFeatures = c(letterList[[i]]$characterFeatures, list(wordIndex = wordCount))
     
     prediction = wordPredictions[i, 'prediction']
     
+    if(i == length(letterList)){break}
+    if(letterList[[i+1]]$characterFeatures$line_number > letterList[[i]]$characterFeatures$line_number){
+      wordCount = wordCount + 1
+      next
+    }
+    
     if(prediction == "end"){
       wordCount = wordCount + 1
+      next
     }
   }
   
