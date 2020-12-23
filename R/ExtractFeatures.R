@@ -384,23 +384,23 @@ add_word_info2 = function(letterList, dims){
   
   #Make prediction and add to other
   wordPredictions <- cbind(testDF, predict(wordModel, testDF, type = "class"))
+  names(wordPredictions)[names(wordPredictions) == "predict(wordModel, testDF, type = \"class\")"] <- "prediction"
+  wordPredictions[1, 'prediction']="beginning"
+  wordPredictions[nrow(wordPredictions), 'prediction']="end"
   
   #Now use the predictions to figure out the word boundaries
-  cur_word = list()
-  for(i in 1:length(letterList)){
-    
-    
-   
-  }
-  
- 
-  
-  #split up the words according to this measurement
   wordCount = 1
-  for(i in 1:(length(letterList))){
+  holding = NULL
+  for(i in 1:length(letterList)){
     letterList[[i]]$characterFeatures = c(letterList[[i]]$characterFeatures, list(wordIndex = wordCount))
     
+    prediction = wordPredictions[i, 'prediction']
+    
+    if(prediction == "end"){
+      wordCount = wordCount + 1
+    }
   }
+  
   
   return(letterList)
   
