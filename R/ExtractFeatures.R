@@ -377,6 +377,7 @@ add_word_info2 = function(letterList, dims){
     dataDF[r, 'to_left_prop'] = to_left/row$line_width
   } 
   
+  #just take the proportional data since that is what our model is based off of
   testDF = dataDF[c("height_prop", "width_prop", "to_right_prop", "to_left_prop")]
   
   #Load in .RDS Model
@@ -398,15 +399,20 @@ add_word_info2 = function(letterList, dims){
     holding = prediction
     prediction = wordPredictions[i, 'prediction']
     
+    #If we are on the last letter don't do any of this (out of bounds)
     if(i == length(letterList)){break}
+    
+    #keep track of next prediction
     nextPrediction = wordPredictions[i+1, 'prediction']
+    
+    #if next char is on a new line, index the word and go to next iteration
     if(letterList[[i+1]]$characterFeatures$line_number > letterList[[i]]$characterFeatures$line_number){
       wordCount = wordCount + 1
       next
     }
     
+    #if we see an end and the next is NOT an end, move on
     if(prediction == "end" & nextPrediction != "end"){
-      print(i)
       wordCount = wordCount + 1
       next
     }
