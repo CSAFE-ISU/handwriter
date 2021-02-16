@@ -15,7 +15,7 @@ csafe = list()
 #CSAFE IMAGE
 #csafe$image = readPNGBinary("examples/Writing_csafe_single.png") #one word 'csafe'
 #csafe$image = readPNGBinary("examples/hijimmi2.png") #2 words (Hi jimmi) used to test i/j
-csafe$image = readPNGBinary("examples/korean1.png") #full paragraph
+csafe$image = readPNGBinary("examples/0004_4.png") #full paragraph
 
 #Use ggplot to plot a binary image
 plotImage(csafe$image)
@@ -38,7 +38,7 @@ plotNodes(csafe$image, csafe$thin, csafe$nodes)
 
 ###Some stuff for plotting letters, words, and lines:###
 dims = dim(csafe$image)
-plotLetter(csafe_processList$letterList, 5, dims)
+plotLetter(csafe_processList$letterList, 1, dims)
 plotLine(csafe_processList$letterList, 1, dims)
 
 ##EVERYTHING UNDER HERE IS NEW WORD STUFF##
@@ -56,7 +56,7 @@ words = create_words(csafe_processList)
 words_after_processing = process_words(words, dim(csafe$image), TRUE)
 plotColorNodes(csafe_processList$letterList, 6, dims, words_after_processing)
 
-plotWord(csafe_processList$letterList, 1, dims)
+plotWord(csafe_processList$letterList, 7, dims)
 
 #IMPORTANT/FASTEST FLOW (only plotting colornodes on words)
 # csafe = list()

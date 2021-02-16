@@ -20,7 +20,6 @@ for (i in 1:length(AsJSON)){
   }
 }
 
-
 #Sort DF By first line number, and then x value
 dataDF=dataDF[order( dataDF[,1], dataDF[,6] ),]
 

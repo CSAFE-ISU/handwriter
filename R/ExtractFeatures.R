@@ -422,13 +422,6 @@ add_word_info2 = function(letterList, dims){
   return(letterList)
   
   
-  
-  #for loop
-  #letterList[[i]]$characterFeatures = c(letterList[[i]]$characterFeatures, list(wordIndex = wordCount))
-  #if word, increase word Count and reset cur_word
-  
-  #if not word, add word and reconfigure the cur_word
-  
 }
 #' get_loop_info
 #'
@@ -551,6 +544,7 @@ line_number_extract = function(all_centroids,img_dim){
   cur_line = vector(mode="double", length=0)
   threshold = vector(mode="double", length=0)
   i = 1
+  print(img_dim)
   while(i <= max(dim(centroid_rci)[1], 1)){
     tm = mean(threshold)
     cur_index = centroid_rci[i,3][[1]]
@@ -558,7 +552,7 @@ line_number_extract = function(all_centroids,img_dim){
     if(length(threshold)==0){
       cur_line = c(cur_line,cur_index)
     }
-    else if(abs(tm-cur_y)<50){
+    else if(abs(tm-cur_y)<40){#Originally set at 50
       cur_line = c(cur_line,cur_index)
     }
     else{
