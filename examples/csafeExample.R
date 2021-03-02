@@ -1,14 +1,15 @@
 # #Install the devtools package anad the then the handwriter package directly from Github
 # #install.packages("devtools")
-# #devtools::install_github("CSAFE-ISU/handwriter")
-# #install.packages("handwriter")
+devtools::install_github("CSAFE-ISU/handwriter")
+install.packages("handwriter")
 # 
-# #Load libraries
-# library(handwriter)
-# library(reshape2)
-# library(igraph)
-# library(ggplot2)
-# library(stringr)
+#Load libraries
+library(handwriter)
+library(reshape2)
+library(igraph)
+library(ggplot2)
+library(stringr)
+library(randomForest)
 # 
 # #Create empty list, and load an image with READPNGBinary
 # csafe = list()
