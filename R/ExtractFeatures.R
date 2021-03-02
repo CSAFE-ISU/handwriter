@@ -244,7 +244,7 @@ add_covariance_matrix = function(character_lists, character_features, img_dim){
 #' @return Appends line information to character features
 #' @export
 add_line_info = function(character_features,img_dim){
-  updown_distances
+  updown_distances = 0
   line_info = line_number_extract(all_centroids(character_features),img_dim)
   line_order = lapply(line_info, sort)
   for(i in 1:length(character_features)){

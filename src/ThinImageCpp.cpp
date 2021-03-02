@@ -295,11 +295,11 @@ void countWBTransitions(const arma::mat &img, uvec checkList, vec &toWhite)
 #message$thin = thinImage(message$image)
 #plotImageThinned(message$image, message$thin)
 
-test = png::readPNG("/Users/Nick/Documents/Projects/CSAFE/Handwriting/data/Writing_csafe_all.png")
-dim(test)
-oldTest = test[,,1:3]
-test = rgba2rgb(test)
-dim(test)
-all(test[,,1:3] == oldTest[,,1:3])
+#test = png::readPNG("/Users/Nick/Documents/Projects/CSAFE/Handwriting/data/Writing_csafe_all.png")
+#dim(test)
+#oldTest = test[,,1:3]
+#test = rgba2rgb(test)
+#dim(test)
+#all(test[,,1:3] == oldTest[,,1:3])
 */
 
