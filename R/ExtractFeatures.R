@@ -11,7 +11,7 @@
 #' @keywords centroid, skew, slant, lean, character
 #' @return nested lists associating features to respective characters.
 #' @export
-extract_character_features = function(character_lists,img_dim){
+extract_character_features = function(img, character_lists,img_dim){
   character_features = list()
   
   for(i in 1:length(character_lists)){
@@ -19,6 +19,7 @@ extract_character_features = function(character_lists,img_dim){
     character_features = append(character_features,list(cur_features))
   }
   
+  character_features = add_updown_neighboring_char_dist(character_features, character_lists, img, img_dim)
   character_features = add_line_info(character_features,img_dim)
   character_features = nov_neighboring_char_dist(character_features)
   character_features = add_covariance_matrix(character_lists, character_features, img_dim)
@@ -69,7 +70,6 @@ plotNodesLine1 = function(img, thinned, nodeList, nodeSize = 3, nodeColor = "red
   ey = pointSet[[2]][[2]]
   p = p + geom_point(data = pointSet, aes(X, Y), size = nodeSize, shape = I(16), color = I(nodeColor), alpha = I(.4)) + geom_curve(x = sx, y = sy, xend = ex, yend = ey, curvature = 0, angle = 180)
   return(p)
-  
 }
 
 #' i_to_rc
@@ -225,6 +225,7 @@ add_covariance_matrix = function(character_lists, character_features, img_dim){
     variance_of_x = var(x)
     variance_of_y = var(y)
     covariance_of_xy = cov(x,y)
+    
     #Add Covariance to the character features
     character_features[[i]]$xvar = variance_of_x
     character_features[[i]]$yvar = variance_of_y
@@ -244,8 +245,7 @@ add_covariance_matrix = function(character_lists, character_features, img_dim){
 #' @return Appends line information to character features
 #' @export
 add_line_info = function(character_features,img_dim){
-  updown_distances = 0
-  line_info = line_number_extract(all_centroids(character_features),img_dim)
+  line_info = line_number_extract(all_down_dists(character_features), all_centroids(character_features), img_dim)
   line_order = lapply(line_info, sort)
   for(i in 1:length(character_features)){
     cur_letter_index = character_features[[i]]$centroid_index
@@ -255,6 +255,41 @@ add_line_info = function(character_features,img_dim){
       }
     }
   }
+  return(character_features)
+}
+
+
+#Return a list of the distances from the top of a character to the first thing above it
+add_updown_neighboring_char_dist = function(character_features, character_lists, img, img_dim){
+
+  #For each character
+  for(i in 1:length(character_lists)){
+    down_distance = Inf
+    #Get the lowest point as an index point
+    lowest_point = character_lists[[i]]$path[[1]]
+    rci = i_to_rci(character_lists[[i]]$path, img_dim)
+    min_y_sorted = rci[order(rci[,1],decreasing=TRUE),]
+    lowest_index = min_y_sorted[[1,3]]
+    row = min_y_sorted[[1,1]]
+    col = min_y_sorted[[1,2]]
+    
+    #go down until hit another index (don't go past the bottom)
+    cur_row = row + 1
+    while(cur_row <= img_dim[1]){
+      index_to_check = rc_to_i(cur_row, col, img_dim)
+      
+      if(img[[cur_row, col]] == 0){
+        down_distance = cur_row-row
+        break;
+      }
+      
+      cur_row = cur_row + 1
+    }
+    #Do the math on the difference
+    character_features[[i]]$down_dist = down_distance
+
+  }
+  
   return(character_features)
 }
 
@@ -319,7 +354,7 @@ add_word_info = function(letterList, dims){#character_features){
 #' @export
 add_word_info2 = function(letterList, dims){
   
-  #Compute the approximate width and hieght of each line
+  #Compute the approximate width and height of each line
   dimsList <- list()
   currentLine = 1
   
@@ -528,6 +563,22 @@ all_centroids = function(character_features){
   return(unlist(centroids))
 }
 
+#' all_down_dists
+#'
+#' Iterates through extracted character features, extracting
+#' all downward distances found for later use in line separating
+#' @param character_features Features extracted from any given document
+#' @keywords character, neighbor, line
+#' @return All downdistance concatenated with one another (unlisted)
+#' @export
+all_down_dists = function(character_features){
+  down_dists = list()
+  for(i in 1:length(character_features)){
+    down_dists = c(down_dists,character_features[[i]]$down_dist)
+  }
+  return(unlist(down_dists))
+}
+
 #' line_number_extract
 #'
 #' Primary logic unit for line number to character association
@@ -536,16 +587,30 @@ all_centroids = function(character_features){
 #' @keywords character, features, line, number
 #' @return List associating line numbers to characters
 #' @export
-line_number_extract = function(all_centroids,img_dim){
+line_number_extract = function(down_dists, all_centroids, img_dim){
   centroid_rci = matrix(i_to_rci(all_centroids,img_dim), ncol = 3)
   #sorting list based on y
   centroid_rci = matrix(centroid_rci[order(centroid_rci[,1]),], ncol = 3)
 
+  #Do some down_distance math
+  sorted_down_dists = sort(down_dists)
+  print(sorted_down_dists)
+  
+  print("Just sorted: Mean, Median")
+  print(mean(sorted_down_dists))
+  print(median(down_dists))
+  
+  inf_removed = sorted_down_dists[!is.na(sorted_down_dists) & !is.infinite(sorted_down_dists)]
+  print("Inf removed: Mean, Median")
+  print(mean(inf_removed))
+  print(median(inf_removed))
+  
+  
+  
   lines = list()
   cur_line = vector(mode="double", length=0)
   threshold = vector(mode="double", length=0)
   i = 1
-  print(img_dim)
   while(i <= max(dim(centroid_rci)[1], 1)){
     tm = mean(threshold)
     cur_index = centroid_rci[i,3][[1]]

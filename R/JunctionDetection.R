@@ -711,7 +711,7 @@ processHandwriting = function(img, dims)
     }
   }
   cat("Extracting character features...")
-  featureSets = extract_character_features(letterList, dims)
+  featureSets = extract_character_features(img, letterList, dims)
   
   # COMMENTED OUT AS CPP LOOK CODE BROKE R RARELY (6/9/2020)
   # cat("and a few more...\n")
