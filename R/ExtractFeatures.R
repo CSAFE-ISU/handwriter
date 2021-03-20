@@ -594,18 +594,20 @@ line_number_extract = function(down_dists, all_centroids, img_dim){
 
   #Do some down_distance math
   sorted_down_dists = sort(down_dists)
-  print(sorted_down_dists)
-  
-  print("Just sorted: Mean, Median")
-  print(mean(sorted_down_dists))
-  print(median(down_dists))
   
   inf_removed = sorted_down_dists[!is.na(sorted_down_dists) & !is.infinite(sorted_down_dists)]
-  print("Inf removed: Mean, Median")
   print(mean(inf_removed))
   print(median(inf_removed))
   
+  length_of_vector = length(inf_removed)
+  items_to_remove = length_of_vector/5 #Removing top 20% right now
+  trimmed = head(inf_removed, -items_to_remove)
   
+  print(mean(trimmed))
+  print(median(trimmed))
+  
+  threshold_num = as.numeric(median(trimmed)/2)
+  print(threshold_num)
   
   lines = list()
   cur_line = vector(mode="double", length=0)
@@ -618,7 +620,7 @@ line_number_extract = function(down_dists, all_centroids, img_dim){
     if(length(threshold)==0){
       cur_line = c(cur_line,cur_index)
     }
-    else if(abs(tm-cur_y)<40){#Originally set at 50
+    else if(abs(tm-cur_y) < threshold_num){
       cur_line = c(cur_line,cur_index)
     }
     else{
