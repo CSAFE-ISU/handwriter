@@ -423,7 +423,7 @@ add_word_info2 = function(letterList, dims){
   wordPredictions <- cbind(testDF, predict(wordModel, testDF, type = "class"))
   names(wordPredictions)[names(wordPredictions) == "predict(wordModel, testDF, type = \"class\")"] <- "prediction"
   wordPredictions[1, 'prediction']="beginning"
-  wordPredictions[nrow(wordPredictions), 'prediction']="end"
+  wordPredictions[nrow(wordPredictions), 'prediction']="ending"
   
   #Now use the predictions to figure out the word boundaries
   wordCount = 1
@@ -448,7 +448,7 @@ add_word_info2 = function(letterList, dims){
     }
     
     #if we see an end and the next is NOT an end, move on
-    if(prediction == "end" & nextPrediction != "end"){
+    if(prediction == "ending" & nextPrediction != "ending"){
       wordCount = wordCount + 1
       next
     }
@@ -596,18 +596,12 @@ line_number_extract = function(down_dists, all_centroids, img_dim){
   sorted_down_dists = sort(down_dists)
   
   inf_removed = sorted_down_dists[!is.na(sorted_down_dists) & !is.infinite(sorted_down_dists)]
-  print(mean(inf_removed))
-  print(median(inf_removed))
   
   length_of_vector = length(inf_removed)
   items_to_remove = length_of_vector/5 #Removing top 20% right now
   trimmed = head(inf_removed, -items_to_remove)
   
-  print(mean(trimmed))
-  print(median(trimmed))
-  
   threshold_num = as.numeric(median(trimmed)/2)
-  print(threshold_num)
   
   lines = list()
   cur_line = vector(mode="double", length=0)

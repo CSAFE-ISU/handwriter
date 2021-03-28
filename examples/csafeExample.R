@@ -2,15 +2,10 @@
 #install.packages("devtools")
 #devtools::install_github("CSAFE-ISU/handwriter")
 #install.packages("handwriter")
-# 
-#Load libraries
-library(handwriter)
-library(reshape2)
-library(igraph)
-library(ggplot2)
-library(stringr)
-library(randomForest)
-# 
+
+Packages <- c("handwriter", "reshape", "igraph", "ggplot2", "stringr", "randomForest")
+invisible(lapply(Packages, library, character.only = TRUE))
+
 #Create empty list, and load an image with READPNGBinary
 csafe = list()
 #CSAFE IMAGE
