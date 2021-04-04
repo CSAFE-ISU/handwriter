@@ -1,4 +1,4 @@
-# #Install the devtools package anad the then the handwriter package directly from Github
+# #Install the devtools package and the then the handwriter package directly from Github
 #install.packages("devtools")
 #devtools::install_github("CSAFE-ISU/handwriter")
 #install.packages("handwriter")
@@ -11,12 +11,11 @@ csafe = list()
 #CSAFE IMAGE
 csafe$image = readPNGBinary("examples/0006_4.png") #full paragraph
 
-#Use ggplot to plot a binary image
-plotImage(csafe$image)
+#plotImage(csafe$image)
 
 #Use the Zhang - Suen algorithim to thin the image (1 pixel wide) - then plot it.
 csafe$thin = thinImage(csafe$image)
-plotImageThinned(csafe$image, csafe$thin)
+#plotImageThinned(csafe$image, csafe$thin)
 
 #Huge step in handwriting processing. Takes in thin image form and the breakpoints suggested by getNodes
 #and parses the writing into letters. Returns final letter separation points, a list of the paths in the image,
@@ -37,21 +36,11 @@ plotLine(csafe_processList$letterList, 1, dims)
 
 ######### WORD STUFF #######
  
-
-# #Create list of word objects, process the words for more information, plot the word with colored Nodes
+#Create list of word objects, process the words for more information, plot the word with colored Nodes
 words = create_words(csafe_processList) 
 words_after_processing = process_words(words, dim(csafe$image), TRUE)
 plotColorNodes(csafe_processList$letterList, 1, dims, words_after_processing)
 plotWord(csafe_processList$letterList, 1, dims)
 
-
-##### COLOR NODE STUFF #######
-# csafe = list()
-# csafe$image = readPNGBinary("examples/0006_4.png") #full paragraph
-# csafe$thin = thinImage(csafe$image)
-# csafe_processList = processHandwriting(csafe$thin, dim(csafe$image))
-# dims = dim(csafe$image)
-# 
-# words = create_words(csafe_processList)
-# words_after_processing = process_words(words, dim(csafe$image), TRUE)
-# plotColorNodes(csafe_processList$letterList, 6, dims, words_after_processing)
+###COLOR NODES (must have processed words)
+plotColorNodes(csafe_processList$letterList, 6, dims, words_after_processing)

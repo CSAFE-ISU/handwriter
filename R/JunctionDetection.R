@@ -575,7 +575,6 @@ processHandwriting = function(img, dims){
     preStackBreaks = c(preStackBreaks, allPaths[[i]][newBreak])
   }
   
-  preStackBreaks = 
   
   cat("Isolating letter paths...\n")
 
@@ -615,10 +614,21 @@ processHandwriting = function(img, dims){
   
   allPaths = lapply(rapply(allPaths, enquote, how="unlist"), eval)
   
+  cat("Organizing letters...\n")
+  letters = organize_letters(skel_graph0)
   
-  cat("Organizing everything...\n")
+  cat("Creating letter lists...\n")
+  letterList = create_letter_lists(allPaths, letters, nodeList, nodeConnections, terminalNodes)
+
+  cat("Adding character features...")
+  letterList = add_character_features(img, letterList, letters, dims)
   
+  cat("Document processing complete.\n")
   
+  return(list(nodes = nodeList, connectingNodes = nodeConnections, terminalNodes = terminalNodes, breakPoints = sort(finalBreaks), letterList = letterList))
+}
+
+organize_letters = function(skel_graph0){
   letters = replicate(n = length(na.omit(unique(V(skel_graph0)$letterID))), list())
   strs = names(V(skel_graph0))
   for(i in 1:length(na.omit(unique(V(skel_graph0)$letterID))))
@@ -626,6 +636,10 @@ processHandwriting = function(img, dims){
     tmp = as.numeric(as.factor(V(skel_graph0)$letterID))
     letters[[i]] = as.numeric(strs[which(tmp == i)])
   }
+  return(letters)
+}
+
+create_letter_lists = function(allPaths, letters, nodeList, nodeConnections, terminalNodes){
 
   #Assign nodes to each letter
   nodesinGraph = replicate(length(letters), list(NA))
@@ -634,9 +648,9 @@ processHandwriting = function(img, dims){
   
   for(i in 1:length(letters))
   {
-      nodesinGraph[[i]] = letters[[i]][which(letters[[i]] %in% nodeList)]
-      connectingNodesinGraph[[i]] = letters[[i]][which(letters[[i]] %in% nodeConnections)]
-      terminalNodesinGraph[[i]] = letters[[i]][which(letters[[i]] %in% terminalNodes)]
+    nodesinGraph[[i]] = letters[[i]][which(letters[[i]] %in% nodeList)]
+    connectingNodesinGraph[[i]] = letters[[i]][which(letters[[i]] %in% nodeConnections)]
+    terminalNodesinGraph[[i]] = letters[[i]][which(letters[[i]] %in% terminalNodes)]
   }
   
   
@@ -647,7 +661,7 @@ processHandwriting = function(img, dims){
     #letterList[[i]]$nodes = nodesinGraph[[i]][nodeOrder[[i]]]
     letterList[[i]]$allPaths = pathLetterAssociate(allPaths,letters[[i]])
   }
-    
+  
   letterAdj = list()
   nodeOrder = replicate(list(), n = length(letters))
   decCode = rep("", length(letters))
@@ -675,7 +689,7 @@ processHandwriting = function(img, dims){
       connectivityScores[[i]] = getConnectivity(pathEndings = c(pathStarts, pathEnds), nodesSingle = nodesinGraph[[i]])
       
       nodeOrder[[i]] = getNodeOrder(letters[[i]], nodesinGraph[[i]], connectivityScores[[i]], dims)
-
+      
       nodeSet = nodesinGraph[[i]][order(nodeOrder[[i]])]
       for(j in 1:length(pathStarts))
       {
@@ -719,14 +733,10 @@ processHandwriting = function(img, dims){
     }
   }
   
-  cat("Adding character features...")
-  letterList = add_character_features(img, letterList, letters, dims, featureSets)
-  cat("Features added, document processing complete.\n")
-  
-  return(list(nodes = nodeList, connectingNodes = nodeConnections, terminalNodes = terminalNodes, breakPoints = sort(finalBreaks), letterList = letterList))
+  return(letterList)
 }
 
-add_character_features = function(img, letterList, letters, dims, featureSets){
+add_character_features = function(img, letterList, letters, dims){
   featureSets = extract_character_features(img, letterList, dims)
   
   for(i in 1:length(letters))
