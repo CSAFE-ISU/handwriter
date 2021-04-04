@@ -34,25 +34,18 @@ plotNodes(csafe$image, csafe$thin, csafe$nodes)
 dims = dim(csafe$image)
 plotLetter(csafe_processList$letterList, 1, dims)
 plotLine(csafe_processList$letterList, 1, dims)
-# 
-# ##EVERYTHING UNDER HERE IS NEW WORD STUFF##
-# 
-# #plotLine(csafe_processList$letterList, 1, dims)
-# 
-# wordIndexList = list()
-# for(i in csafe_processList$letterList){
-#   wordIndexList <- append(wordIndexList, i$characterFeatures$wordIndex)
-# }
-# print(unlist(wordIndexList))
-# 
-# #Create list of word objects, process the words for more information, plot the word with colored Nodes
-# words = create_words(csafe_processList) 
-# words_after_processing = process_words(words, dim(csafe$image), TRUE)
-# plotColorNodes(csafe_processList$letterList, 6, dims, words_after_processing)
-# 
-# plotWord(csafe_processList$letterList, 7, dims)
 
-#IMPORTANT/FASTEST FLOW (only plotting colornodes on words)
+######### WORD STUFF #######
+ 
+
+# #Create list of word objects, process the words for more information, plot the word with colored Nodes
+words = create_words(csafe_processList) 
+words_after_processing = process_words(words, dim(csafe$image), TRUE)
+plotColorNodes(csafe_processList$letterList, 1, dims, words_after_processing)
+plotWord(csafe_processList$letterList, 1, dims)
+
+
+##### COLOR NODE STUFF #######
 # csafe = list()
 # csafe$image = readPNGBinary("examples/0006_4.png") #full paragraph
 # csafe$thin = thinImage(csafe$image)

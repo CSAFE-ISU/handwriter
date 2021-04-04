@@ -382,14 +382,21 @@ getNodes = function(indices, dims)
 #'
 #' @export
 
-processHandwriting = function(img, dims)
-{
+
+findNonIntersectionBreakpoints = function(img, dims){
+  
+}
+
+processHandwriting = function(img, dims){
+  
+  #findNonIntersectionBreakpoints(img, dims)
   # Next, we have to follow certain rules to find non intersection breakpoints.
   
   cat("Starting Processing...\n")
   indices = img
   img = matrix(1, nrow = dims[1], ncol = dims[2])
   img[indices] = 0
+  
   cat("Getting Nodes...\n")
   nodeList = getNodes(indices, dims)
   nodeConnections = nodeList[[2]]
@@ -507,6 +514,7 @@ processHandwriting = function(img, dims)
   
   cat("Finding direct paths...")
   pathList = AllUniquePaths(adj.m, skel_graph, skel_graph0)
+  
   cat("and loops...\n")
   loopList = getLoops(nodeList, skel_graph, skel_graph0, pathList, dim(img))
 
@@ -516,8 +524,6 @@ processHandwriting = function(img, dims)
   graphdf0$nodeOnlyDist = ifelse(graphdf0$from %in% nodeList | graphdf0$to %in% nodeList, 1, 0)
   skel_graph0 = graph_from_data_frame(graphdf0, directed = FALSE)
   
-  
-  ####################### This is after path finding. Find breakpoints and check rules for removal.
   #Nominate and check candidate breakpoints
   cat("Looking for letter break points...")
   hasTrough = rep(FALSE, length(pathList))
@@ -568,7 +574,9 @@ processHandwriting = function(img, dims)
     preStackBreaks = preStackBreaks[which(!(preStackBreaks %in% allPaths[[i]]))]
     preStackBreaks = c(preStackBreaks, allPaths[[i]][newBreak])
   }
-
+  
+  preStackBreaks = 
+  
   cat("Isolating letter paths...\n")
 
   ## Break on breakpoints and group points by which letter they fall into. Adjust graph accordingly.
@@ -710,21 +718,16 @@ processHandwriting = function(img, dims)
       letterList[[i]]$letterCode = "A"
     }
   }
-  cat("Extracting character features...")
-  featureSets = extract_character_features(img, letterList, dims)
   
-  # COMMENTED OUT AS CPP LOOK CODE BROKE R RARELY (6/9/2020)
-  # cat("and a few more...\n")
-  # take existing feature set (done in ExtractFeatures.R), and some other info
-  # and add more feature to the list with Rcpp (Measurements.cpp)
-  # addToFeatureSets = addToFeatures(featureSets, letterList, dims)
-  # 
-  # # Hard coded naming logic b/c of Rcpp but it works currently.
-  # for(i in 1:length(featureSets))
-  # {
-  #   featureSets[[i]]$compactness = addToFeatureSets[[1]][[i]]
-  #   featureSets[[i]]$loopInfo = addToFeatureSets[[2]][[i]]
-  # }
+  cat("Adding character features...")
+  letterList = add_character_features(img, letterList, letters, dims, featureSets)
+  cat("Features added, document processing complete.\n")
+  
+  return(list(nodes = nodeList, connectingNodes = nodeConnections, terminalNodes = terminalNodes, breakPoints = sort(finalBreaks), letterList = letterList))
+}
+
+add_character_features = function(img, letterList, letters, dims, featureSets){
+  featureSets = extract_character_features(img, letterList, dims)
   
   for(i in 1:length(letters))
   {
@@ -734,14 +737,9 @@ processHandwriting = function(img, dims)
   letterPlaces = matrix(unlist(lapply(featureSets, FUN = function(x) {c(x$line_number, x$order_within_line)})), ncol = 2, byrow = TRUE)
   letterOrder = order(letterPlaces[,1], letterPlaces[,2])
   letterList = letterList[letterOrder]
+  letterList = add_word_info(letterList, dims)
   
-  #have to add word info AFTER glyphs are sorted by line
-  #letterList = add_word_info(letterList, dims)
-  letterList = add_word_info2(letterList,dims)
-  
-  
-  cat("and done.\n")
-  return(list(nodes = nodeList, connectingNodes = nodeConnections, terminalNodes = terminalNodes, breakPoints = sort(finalBreaks), letterList = letterList))
+  return(letterList)
 }
 
 #' Function associating entries in allPaths to each letter
