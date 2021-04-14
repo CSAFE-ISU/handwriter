@@ -3,6 +3,7 @@
 #devtools::install_github("CSAFE-ISU/handwriter")
 #install.packages("handwriter")
 
+devtools::load_all(".")
 Packages <- c("handwriter", "reshape", "igraph", "ggplot2", "stringr", "randomForest")
 invisible(lapply(Packages, library, character.only = TRUE))
 

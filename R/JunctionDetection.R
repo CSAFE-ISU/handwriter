@@ -618,7 +618,7 @@ processHandwriting = function(img, dims){
   letters = organize_letters(skel_graph0)
   
   cat("Creating letter lists...\n")
-  letterList = create_letter_lists(allPaths, letters, nodeList, nodeConnections, terminalNodes)
+  letterList = create_letter_lists(allPaths, letters, nodeList, nodeConnections, terminalNodes, dims)
 
   cat("Adding character features...")
   letterList = add_character_features(img, letterList, letters, dims)
@@ -639,7 +639,7 @@ organize_letters = function(skel_graph0){
   return(letters)
 }
 
-create_letter_lists = function(allPaths, letters, nodeList, nodeConnections, terminalNodes){
+create_letter_lists = function(allPaths, letters, nodeList, nodeConnections, terminalNodes, dims){
 
   #Assign nodes to each letter
   nodesinGraph = replicate(length(letters), list(NA))
