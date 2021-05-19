@@ -2,7 +2,7 @@
 % Please edit documentation in R/ExtractFeatures.R
 \name{get_loop_info}
 \alias{get_loop_info}
-\title{}
+\title{get_loop_info}
 \usage{
 get_loop_info(character, img_dim)
 }
