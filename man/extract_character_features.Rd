@@ -4,7 +4,7 @@
 \alias{extract_character_features}
 \title{extract_character_features}
 \usage{
-extract_character_features(character_lists, img_dim)
+extract_character_features(img, character_lists, img_dim)
 }
 \arguments{
 \item{character_lists}{Output from processHandwriting$letterLists}
@@ -17,10 +17,6 @@ nested lists associating features to respective characters.
 \description{
 Primary driver of feature extraction. 
 Parses all characters from a processed image.
-For information detailing each feature, please see
-?get_aspect_info
-?get_centroid_info
-?get_loop_info
 }
 \keyword{centroid,}
 \keyword{character}

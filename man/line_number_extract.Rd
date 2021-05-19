@@ -4,7 +4,7 @@
 \alias{line_number_extract}
 \title{line_number_extract}
 \usage{
-line_number_extract(all_centroids, img_dim)
+line_number_extract(down_dists, all_centroids, img_dim)
 }
 \arguments{
 \item{all_centroids}{List of centroids extracted from cumulative character_features}

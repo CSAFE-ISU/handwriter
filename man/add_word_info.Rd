@@ -15,8 +15,7 @@ add_word_info(letterList, dims)
 Appends line information to character features
 }
 \description{
-Associates characters to their respective word numbers by distance between right edge of char and left edge of next
-Needs improvement if runtime becomes a problem
+Associates characters to their respective word numbers by ML on labeled data
 }
 \keyword{character,}
 \keyword{features,}
