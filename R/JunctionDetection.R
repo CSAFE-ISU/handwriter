@@ -381,15 +381,8 @@ getNodes = function(indices, dims)
 #' @import igraph
 #'
 #' @export
-
-
-findNonIntersectionBreakpoints = function(img, dims){
-  
-}
-
 processHandwriting = function(img, dims){
   
-  #findNonIntersectionBreakpoints(img, dims)
   # Next, we have to follow certain rules to find non intersection breakpoints.
   
   cat("Starting Processing...\n")
