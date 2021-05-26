@@ -11,7 +11,7 @@ invisible(lapply(Packages, library, character.only = TRUE))
 csafe = list()
 #CSAFE IMAGE
 csafe$image = readPNGBinary("examples/0006_4.png") #full paragraph
-
+#csafe$image = readPNGBinary("examples/Writing_csafe_single.png")
 #plotImage(csafe$image)
 
 #Use the Zhang - Suen algorithim to thin the image (1 pixel wide) - then plot it.

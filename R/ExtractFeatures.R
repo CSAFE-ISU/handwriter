@@ -595,6 +595,7 @@ line_number_extract = function(down_dists, all_centroids, img_dim){
   trimmed = head(inf_removed, -items_to_remove)
   
   threshold_num = as.numeric(median(trimmed)/2)
+
   
   lines = list()
   cur_line = vector(mode="double", length=0)
@@ -605,6 +606,9 @@ line_number_extract = function(down_dists, all_centroids, img_dim){
     cur_index = centroid_rci[i,3][[1]]
     cur_y = centroid_rci[i,1][[1]] #centroid of current
     if(length(threshold)==0){
+      cur_line = c(cur_line,cur_index)
+    }
+    else if (is.na(threshold_num)){
       cur_line = c(cur_line,cur_index)
     }
     else if(abs(tm-cur_y) < threshold_num){
