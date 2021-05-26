@@ -361,7 +361,7 @@ add_word_info = function(letterList, dims){
   testDF = dataDF[c("height_prop", "width_prop", "to_right_prop", "to_left_prop")]
   
   #Load in .RDS Model
-  wordModel <- readRDS("data/wordModel.rds")
+  load("data/wordModel.rda")
   
   #Make prediction and add to other
   wordPredictions <- cbind(testDF, predict(wordModel, testDF, type = "class"))

@@ -41,7 +41,7 @@ plotLine(csafe_processList$letterList, 1, dims)
 words = create_words(csafe_processList) 
 words_after_processing = process_words(words, dim(csafe$image), TRUE)
 plotColorNodes(csafe_processList$letterList, 1, dims, words_after_processing)
-plotWord(csafe_processList$letterList, 1, dims)
+plotWord(csafe_processList$letterList, 3, dims)
 
 ###COLOR NODES (must have processed words)
 plotColorNodes(csafe_processList$letterList, 6, dims, words_after_processing)
