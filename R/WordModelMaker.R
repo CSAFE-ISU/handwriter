@@ -1,8 +1,8 @@
-#install.packages("rjson")
-#install.packages("randomForest")
-#library(rjson)
-#library(data.table)
-#library(randomForest)
+install.packages("rjson")
+install.packages("randomForest")
+library(rjson)
+library(data.table)
+library(randomForest)
 
 #' makeModel
 #'
@@ -73,6 +73,6 @@ makeModel = function(){
   
   #Now that model is trained, save it so it can be loaded
   modelFinal <- randomForest(label ~ ., data = TrainSet, ntree = 500, mtry = 4, importance = TRUE, na.action=na.exclude)
-  saveRDS(modelFinal, "data/wordModel.rds")
+  save(modelFinal, file = "data/wordModel.rda")
 }
 
