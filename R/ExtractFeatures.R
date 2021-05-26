@@ -361,7 +361,7 @@ add_word_info = function(letterList, dims){
   testDF = dataDF[c("height_prop", "width_prop", "to_right_prop", "to_left_prop")]
   
   #Load in .RDS Model
-  if(!exists(wordModel)){
+  if(!exists("wordModel")){
     load(file = "data/wordModel.rda")
   }
   
