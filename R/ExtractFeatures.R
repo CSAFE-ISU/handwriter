@@ -366,6 +366,7 @@ add_word_info = function(letterList, dims){
   }
   
   #Make prediction and add to other
+  library(randomForest)
   wordPredictions <- cbind(testDF, predict(wordModel, testDF, type = "class"))
   names(wordPredictions)[names(wordPredictions) == "predict(wordModel, testDF, type = \"class\")"] <- "prediction"
   wordPredictions[1, 'prediction']="beginning"
