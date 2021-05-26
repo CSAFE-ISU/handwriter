@@ -295,6 +295,9 @@ add_updown_neighboring_char_dist = function(character_features, character_lists,
 #' @param img_dim Dimensions of binary image
 #' @keywords character, features, line number
 #' @return Appends line information to character features
+#' 
+#' @importFrom randomForest randomForest
+#' 
 #' @export
 add_word_info = function(letterList, dims){
   
