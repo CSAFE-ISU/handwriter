@@ -1,8 +1,8 @@
 Package: handwriter
 Title: Handwriting Analysis in R
 Version: 1.0.0.0000
-Authors: (2015 - 2019) Nick Berry <berryni@iastate.edu> , 
-         (2019 - 2021) James Taylor <jamesetay1@gmail.com> 
+Author: (2015 - 2019) Nick Berry <berryni@iastate.edu> , 
+        (2019 - 2021) James Taylor <jamesetay1@gmail.com> 
 Maintainer: (2021 - Current) Felix Baez-Santiago <felbasa@iastate.edu> 
 Description: Process handwriting document into letters and provide measurements.
 Depends: R (>= 3.1)
