@@ -1,4 +1,4 @@
-#include "Masks.hpp"
+#include "Masks.h"
 #include "RcppArmadillo.h"
 using namespace arma;
 
@@ -274,13 +274,3 @@ bool checkStep6(const arma::mat &img, int row, int col)
   else
     return(false);
 }
-
-
-/*** R
-test = readPNGBinary("/Users/Nick/Documents/Projects/CSAFE/Handwriting/data/message.png", clean = FALSE)
-benPreprocessed = readRDS("/Users/Nick/Desktop/messageobject")
-test_thin = thinImage(test)
-processed = cleanBinaryImage(test)
-processed_thin = thinImage(processed)
-plotCleaningChanges(test, test_thin, which(benPreprocessed - test == -1), removed = which(benPreprocessed - test == 1), nodesize = 3)
-*/

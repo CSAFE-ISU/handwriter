@@ -2,11 +2,12 @@
 % Please edit documentation in R/JunctionDetection.R
 \name{checkStacking}
 \alias{checkStacking}
-\title{Internal function for removing breakpoints that follow all of the rules, but separate two letters that are
-stacked on top of eachother. Currently, this is done in a very ad hoc, and untested manner. Will look for a better
-solution in the future.}
+\title{CheckStacking}
 \usage{
 checkStacking(candidateBreaks, allPaths, letters, nodeGraph0, dims)
+}
+\arguments{
+\item{candidateBreaks}{possible breaks for letterpath}
 }
 \description{
 Internal function for removing breakpoints that follow all of the rules, but separate two letters that are
