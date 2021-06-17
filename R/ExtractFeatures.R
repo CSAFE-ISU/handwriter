@@ -217,9 +217,9 @@ add_covariance_matrix = function(character_lists, character_features, img_dim){
     x = matrix[,2]
     y = matrix[,1]
     y = img_dim[1] - y #FLIPS Y VALUE SO IT REPS A REAL COORD PLANE
-    variance_of_x = var(x)
-    variance_of_y = var(y)
-    covariance_of_xy = cov(x,y)
+    variance_of_x = stats::var(x)
+    variance_of_y = stats::var(y)
+    covariance_of_xy = stats::cov(x,y)
     
     #Add Covariance to the character features
     character_features[[i]]$xvar = variance_of_x
@@ -288,6 +288,14 @@ add_updown_neighboring_char_dist = function(character_features, character_lists,
   return(character_features)
 }
 
+#' wordModel is the RandomForest model to decide if a word separation has happened
+#' 
+#'
+#' @name wordModel
+#' @docType data
+#' @keywords data
+NULL
+
 #' add_word_info
 #'
 #' Associates characters to their respective word numbers by ML on labeled data
@@ -295,8 +303,6 @@ add_updown_neighboring_char_dist = function(character_features, character_lists,
 #' @param img_dim Dimensions of binary image
 #' @keywords character, features, line number
 #' @return Appends line information to character features
-#' 
-#' @importFrom randomForest randomForest
 #' 
 #' @export
 add_word_info = function(letterList, dims){
@@ -363,13 +369,14 @@ add_word_info = function(letterList, dims){
   #just take the proportional data since that is what our model is based off of
   testDF = dataDF[c("height_prop", "width_prop", "to_right_prop", "to_left_prop")]
   
+  wordModel = NULL
+  
   #Load in .RDS Model
   if(!exists("wordModel")){
     load(file = "data/wordModel.rda")
   }
   
   #Make prediction and add to other
-  library(randomForest)
   wordPredictions <- cbind(testDF, predict(wordModel, testDF, type = "class"))
   names(wordPredictions)[names(wordPredictions) == "predict(wordModel, testDF, type = \"class\")"] <- "prediction"
   wordPredictions[1, 'prediction']="beginning"

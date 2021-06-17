@@ -845,6 +845,8 @@ checkStacking = function(candidateBreaks, allPaths, letters, nodeGraph0, dims)
   return(stackPtFlag)
 }
 
+#' countNodes
+#' 
 #' @export
 countNodes = function(letterList, nodes)
 {

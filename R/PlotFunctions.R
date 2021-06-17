@@ -380,7 +380,11 @@ AddLetterImages = function(letterList, docDims)
 #' @param filePaths Folder path to save images to
 #' @param documentDimensions Dimensions of original document
 #' @return Nothing
-#' @seealso \pkg{\link{magick}}
+#' 
+#' @seealso \code{\link[magick]{image_transparent}}  
+#' @seealso \code{\link[magick]{image_write}}  
+#' @seealso \code{\link[magick]{image_read}}
+#' 
 #' @export
 SaveAllLetterPlots = function(letterList, filePaths, documentDimensions, bgTransparent = TRUE)
 {

@@ -15,6 +15,8 @@ List findLoopDims(List knownLoops, NumericVector dims);
 List findLoopRatios(List loopDimensions, NumericVector dims);
 NumericVector findCentroidofLoop(NumericVector loopPath, NumericVector dims);
 
+//' addToFeatures
+//' 
 //' @export
 // [[Rcpp::export]]
 List addToFeatures(List FeatureSet, List LetterList, IntegerVector vectorDims){

@@ -25,5 +25,9 @@ Nothing
 This function returns a plot of a single letter extracted from a document. It uses the letterList parameter from the processHandwriting function and accepts a single value as whichLetter. Dims requires the dimensions of the entire document, since this isn't contained in processHandwriting. Requires the \pkg{\link{magick}} package.
 }
 \seealso{
-\pkg{\link{magick}}
+\code{\link[magick]{image_transparent}}
+
+\code{\link[magick]{image_write}}
+
+\code{\link[magick]{image_read}}
 }

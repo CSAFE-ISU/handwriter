@@ -14,7 +14,7 @@
 #' @export
 makeModel = function(){
   #Load JSON file
-  AsJSON <- fromJSON(file = "data/5W_5D_34L.json")
+  AsJSON <- rjson::fromJSON(file = "inst/extdata/5W_5D_34L.json")
   
   #Create a new DF and fill it up from each character entry
   dataDF <- data.frame(line=numeric(0),line_height=numeric(0),line_width=numeric(0),height=numeric(0),width=numeric(0),x=numeric(0),label=character(0))
@@ -70,13 +70,13 @@ makeModel = function(){
   a=c()
   for (i in 1:4) {
     model1 <- randomForest(label ~ ., data = TrainSet, ntree = 500, mtry = i, importance = TRUE, na.action=na.exclude)
-    predValid <- predict(model1, ValidSet, type = "class")
+    predValid <- randomForest::predict(model1, ValidSet, type = "class")
     a[i] = mean(predValid == ValidSet$label, na.rm = TRUE)
   }
   
   #Now that model is trained, save it so it can be loaded
+  wordModel = NULL
   wordModel <- randomForest(label ~ ., data = TrainSet, ntree = 500, mtry = 4, importance = TRUE, na.action=na.exclude)
-  #save(modelFinal, file = "data/wordModel.rda")
   use_data(wordModel)
 }
 
