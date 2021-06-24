@@ -10,6 +10,8 @@ process_words(words, dims, triangulate = FALSE)
 \item{words}{List of words and some glyph level information}
 
 \item{dims}{The dimensions of the image (important for r/c features)}
+
+\item{triangulate}{Logical value that begins the triangulation process when set to TRUE.}
 }
 \value{
 A new list with word level information for each word.

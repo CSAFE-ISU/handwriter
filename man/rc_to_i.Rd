@@ -12,6 +12,8 @@ rc_to_i(row_y, col_x, img_dim, fixed = FALSE)
 \item{col_x}{Columns(s) to be converted to an index}
 
 \item{img_dim}{Dimensions of binary image}
+
+\item{fixed}{Logical value asking if row_y is fixed to a point.}
 }
 \value{
 Returns index(icies) of all row_y's and col_x's

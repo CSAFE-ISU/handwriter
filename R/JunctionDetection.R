@@ -71,13 +71,21 @@ findMergeNodes = function(skel_graph, mergeMat)
   return(newNodes)
 }
 
+#' AllUniquePaths
+#'
 #' Internal function for getting a list of all non loop paths in a writing sample.
+#'
+#' @param adj 
+#' @param graph 
+#' @param graph0
+#' @return 
 AllUniquePaths = function(adj, graph, graph0)
 {
   #Gets all paths that are not loops
   #paths = apply(adj, 1, LooplessPaths, graph = graph, graph0 = graph0)
   paths = list()
   if(dim(adj)[1] == 0){return(NULL)}
+  #
   for(i in 1:dim(adj)[1])
   {
     fromNode = as.character(format(adj[i,1], scientific = FALSE, trim = TRUE))

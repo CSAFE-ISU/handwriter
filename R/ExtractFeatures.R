@@ -108,6 +108,7 @@ i_to_rci = function(nodes, dims, fixed = FALSE)
 #' @param row_y Row(s) to be converted to an index
 #' @param col_x Columns(s) to be converted to an index
 #' @param img_dim Dimensions of binary image
+#' @param fixed Logical value asking if row_y is fixed to a point.
 #' @keywords row, column, binary, image, index
 #' @return Returns index(icies) of all row_y's and col_x's
 #' @export
@@ -207,6 +208,7 @@ get_centroid_info = function(character, img_dim)
 #'
 #' 
 #' @param character_lists Output from processHandwriting$letterLists
+#' @param character_features Nested lists associating features to respective characters.
 #' @param img_dim Dimensions of binary image
 #' @keywords centroid, skew, slant, lean, character
 #' @return nested lists associating features to respective characters.

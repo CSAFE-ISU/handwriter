@@ -3,6 +3,7 @@
 #' gets information on a word level
 #' @param words List of words and some glyph level information
 #' @param dims The dimensions of the image (important for r/c features)
+#' @param triangulate Logical value that begins the triangulation process when set to TRUE. 
 #' @return A new list with word level information for each word.
 #' @export
 process_words = function(words, dims, triangulate = FALSE){

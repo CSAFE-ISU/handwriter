@@ -379,6 +379,7 @@ AddLetterImages = function(letterList, docDims)
 #' @param letterList Letter list from processHandwriting function
 #' @param filePaths Folder path to save images to
 #' @param documentDimensions Dimensions of original document
+#' @param bgTransparent Logical determines if the image is transparent
 #' @return Nothing
 #' 
 #' @seealso \code{\link[magick]{image_transparent}}  
@@ -394,9 +395,10 @@ SaveAllLetterPlots = function(letterList, filePaths, documentDimensions, bgTrans
   for(i in 1:length(letterList))
   {
     img= magick::image_read(as.raster(letterList[[i]]$image))
-    if(bgTransparent)
+    if(bgTransparent){
       img  = magick::image_transparent(img, "white")
-    magick::image_write(path = paste0(filePaths, "letter", i, ".png"), img)
+      magick::image_write(path = paste0(filePaths, "letter", i, ".png"), img)
+    }
   }
 }
 
