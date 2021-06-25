@@ -371,10 +371,6 @@ add_word_info = function(letterList, dims){
   #just take the proportional data since that is what our model is based off of
   testDF = dataDF[c("height_prop", "width_prop", "to_right_prop", "to_left_prop")]
   
-  wordModel = NULL
-  load(file = "data/wordModel.rda")
-  
-  
   # Make prediction and add to other
   wordPredictions <- cbind(testDF, predict(wordModel, testDF, type = "class"))
   names(wordPredictions)[names(wordPredictions) == "predict(wordModel, testDF, type = \"class\")"] <- "prediction"
