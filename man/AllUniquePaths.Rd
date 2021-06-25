@@ -2,9 +2,17 @@
 % Please edit documentation in R/JunctionDetection.R
 \name{AllUniquePaths}
 \alias{AllUniquePaths}
-\title{Internal function for getting a list of all non loop paths in a writing sample.}
+\title{AllUniquePaths}
 \usage{
 AllUniquePaths(adj, graph, graph0)
+}
+\arguments{
+\item{adj}{}
+
+\item{graph}{}
+}
+\value{
+
 }
 \description{
 Internal function for getting a list of all non loop paths in a writing sample.

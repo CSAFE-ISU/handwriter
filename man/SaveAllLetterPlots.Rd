@@ -17,6 +17,8 @@ SaveAllLetterPlots(
 \item{filePaths}{Folder path to save images to}
 
 \item{documentDimensions}{Dimensions of original document}
+
+\item{bgTransparent}{Logical determines if the image is transparent}
 }
 \value{
 Nothing

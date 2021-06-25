@@ -372,13 +372,10 @@ add_word_info = function(letterList, dims){
   testDF = dataDF[c("height_prop", "width_prop", "to_right_prop", "to_left_prop")]
   
   wordModel = NULL
+  load(file = "data/wordModel.rda")
   
-  #Load in .RDS Model
-  if(!exists("wordModel")){
-    load(file = "data/wordModel.rda")
-  }
   
-  #Make prediction and add to other
+  # Make prediction and add to other
   wordPredictions <- cbind(testDF, predict(wordModel, testDF, type = "class"))
   names(wordPredictions)[names(wordPredictions) == "predict(wordModel, testDF, type = \"class\")"] <- "prediction"
   wordPredictions[1, 'prediction']="beginning"

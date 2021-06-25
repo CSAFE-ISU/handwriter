@@ -1,4 +1,4 @@
-# #Install the devtools package and the then the handwriter package directly from Github
+#Install the devtools package and the then the handwriter package directly from Github
 #install.packages("devtools")
 #devtools::install_github("CSAFE-ISU/handwriter")
 #install.packages("handwriter")
@@ -37,7 +37,6 @@ plotLine(csafe_processList$letterList, 1, dims)
 words = create_words(csafe_processList) 
 words_after_processing = process_words(words, dim(csafe$image), TRUE)
 plotColorNodes(csafe_processList$letterList, 1, dims, words_after_processing)
-plotWord(csafe_processList$letterList, 3, dims)
 
 ###COLOR NODES (must have processed words)
 plotColorNodes(csafe_processList$letterList, 6, dims, words_after_processing)

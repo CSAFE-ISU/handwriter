@@ -70,13 +70,13 @@ makeModel = function(){
   a=c()
   for (i in 1:4) {
     model1 <- randomForest(label ~ ., data = TrainSet, ntree = 500, mtry = i, importance = TRUE, na.action=na.exclude)
-    predValid <- randomForest::predict(model1, ValidSet, type = "class")
+    predValid <- predict(model1, ValidSet, type = "class")
     a[i] = mean(predValid == ValidSet$label, na.rm = TRUE)
   }
   
   #Now that model is trained, save it so it can be loaded
   wordModel = NULL
   wordModel <- randomForest(label ~ ., data = TrainSet, ntree = 500, mtry = 4, importance = TRUE, na.action=na.exclude)
-  use_data(wordModel)
+  usethis::use_data(wordModel, overwrite = TRUE)
 }
 

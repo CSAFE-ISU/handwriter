@@ -10,7 +10,7 @@ plotImage = function(x)
 {
   xm = melt(x)
   names(xm) = c("Var1", "Var2", "value")
-  p = ggplot(xm, aes(Var2, rev(Var1))) + geom_raster(aes(fill = as.factor(value)), na.rm=TRUE) + scale_fill_manual(values = c("black", NA), guide = FALSE) + coord_fixed() + theme_void()
+  p = ggplot(xm, aes(Var2, rev(Var1))) + geom_raster(aes(fill = as.factor(value)), na.rm=TRUE) + scale_fill_manual(values = c("black", "white"), guide = "none") + coord_fixed() + theme_void()
   return(p)
 }
 
@@ -35,7 +35,7 @@ plotImageThinned = function(img, thinned)
   l.m = melt(img)
   names(l.m) = c("Var1", "Var2", "value")
   l.m$value[thinned] = 2
-  p = ggplot(l.m, aes(Var2, rev(Var1))) + geom_raster(aes(fill = as.factor(value), alpha = as.factor(value)), na.rm=TRUE) + scale_alpha_manual(values = c(.1, NA, 1), guide = FALSE) + scale_fill_manual(values = c("black", NA, "black"), guide = FALSE) + coord_fixed() + theme_void()
+  p = ggplot(l.m, aes(Var2, rev(Var1))) + geom_raster(aes(fill = as.factor(value), alpha = as.factor(value)), na.rm=TRUE) + scale_alpha_manual(values = c(.1, NA, 1), guide = "none") + scale_fill_manual(values = c("black", "white", "black"), guide = "none") + coord_fixed() + theme_void()
   return(p)
 }
 

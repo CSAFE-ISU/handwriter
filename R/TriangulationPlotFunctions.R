@@ -8,6 +8,7 @@
 #' @return Plot of single word.
 #' 
 #' @import ggplot2
+#' @import stringr
 #' @export
 plotColorNodes = function(letterList, whichWord, dims, wordInfo) #TODO - CLEAN THIS UP: DONT NEED LETTERLIST
 {

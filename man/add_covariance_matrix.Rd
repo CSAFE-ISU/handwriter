@@ -9,6 +9,8 @@ add_covariance_matrix(character_lists, character_features, img_dim)
 \arguments{
 \item{character_lists}{Output from processHandwriting$letterLists}
 
+\item{character_features}{Nested lists associating features to respective characters.}
+
 \item{img_dim}{Dimensions of binary image}
 }
 \value{
