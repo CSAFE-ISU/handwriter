@@ -306,7 +306,6 @@ NULL
 #' @keywords character, features, line number
 #' @return Appends line information to character features
 #' 
-#' 
 #' @export
 add_word_info = function(letterList, dims){
   
@@ -373,6 +372,9 @@ add_word_info = function(letterList, dims){
   testDF = dataDF[c("height_prop", "width_prop", "to_right_prop", "to_left_prop")]
   
   # Make prediction and add to other
+  print("\n")
+  print("loading Random Forest...")
+  library(randomForest)
   wordPredictions <- cbind(testDF, predict(wordModel, testDF, type = "class"))
   names(wordPredictions)[names(wordPredictions) == "predict(wordModel, testDF, type = \"class\")"] <- "prediction"
   wordPredictions[1, 'prediction']="beginning"
