@@ -14,7 +14,7 @@ extract_character_features = function(img, character_lists,img_dim){
     cur_features = char_to_feature(character_lists[[i]],img_dim, i)
     character_features = append(character_features,list(cur_features))
   }
-  print("junk line")
+ 
   character_features = add_updown_neighboring_char_dist(character_features, character_lists, img, img_dim)
   character_features = add_line_info(character_features,img_dim)
   character_features = nov_neighboring_char_dist(character_features)
@@ -305,6 +305,7 @@ NULL
 #' @param img_dim Dimensions of binary image
 #' @keywords character, features, line number
 #' @return Appends line information to character features
+#' 
 #' 
 #' @export
 add_word_info = function(letterList, dims){
