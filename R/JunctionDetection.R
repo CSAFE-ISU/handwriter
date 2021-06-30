@@ -75,10 +75,10 @@ findMergeNodes = function(skel_graph, mergeMat)
 #'
 #' Internal function for getting a list of all non loop paths in a writing sample.
 #'
-#' @param adj 
-#' @param graph 
-#' @param graph0
-#' @return 
+#' @param adj adjacent matrix
+#' @param graph first skeletonized graph 
+#' @param graph0 second skeletonized graph
+#' @return a list of all non loop paths
 AllUniquePaths = function(adj, graph, graph0)
 {
   #Gets all paths that are not loops
