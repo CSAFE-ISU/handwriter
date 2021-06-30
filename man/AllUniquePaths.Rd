@@ -7,12 +7,14 @@
 AllUniquePaths(adj, graph, graph0)
 }
 \arguments{
-\item{adj}{}
+\item{adj}{adjacent matrix}
 
-\item{graph}{}
+\item{graph}{first skeletonized graph}
+
+\item{graph0}{second skeletonized graph}
 }
 \value{
-
+a list of all non loop paths
 }
 \description{
 Internal function for getting a list of all non loop paths in a writing sample.
