@@ -7,9 +7,9 @@
 add_word_info(letterList, dims)
 }
 \arguments{
-\item{character_features}{All extracted features}
+\item{letterList}{List containing characters}
 
-\item{img_dim}{Dimensions of binary image}
+\item{dims}{Dimensions of binary image}
 }
 \value{
 Appends line information to character features

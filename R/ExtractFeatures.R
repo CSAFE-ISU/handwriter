@@ -301,8 +301,9 @@ NULL
 #' add_word_info
 #'
 #' Associates characters to their respective word numbers by ML on labeled data
-#' @param character_features All extracted features 
-#' @param img_dim Dimensions of binary image
+#' 
+#' @param letterList List containing characters
+#' @param dims Dimensions of binary image
 #' @keywords character, features, line number
 #' @return Appends line information to character features
 #' 
@@ -405,7 +406,6 @@ add_word_info = function(letterList, dims){
       next
     }
   }
-  
   
   return(letterList)
 }
