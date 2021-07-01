@@ -10,7 +10,6 @@
 #' @importFrom Rcpp sourceCpp
 #' @return Returns image from path. 0 represents black, and 1 represents white by default.
 #' @export
-
 readPNGBinary = function(path, cutoffAdjust = 0, clean = TRUE, crop = TRUE, inversion = FALSE)
 {
   #Read PNG in as an array
@@ -61,8 +60,14 @@ readPNGBinary = function(path, cutoffAdjust = 0, clean = TRUE, crop = TRUE, inve
   return(img + 0)
 }
 
-
 #' otsuBinarization
+#' 
+#' Uses Otsu's Method to binarize given image, performing automatic image thresholding. 
+#' 
+#' @param img image object to be processed
+#' @param breaks a single number giving the number of cells for the histogram
+#' 
+#' @return separated image into foreground and background
 otsuBinarization = function(img, breaks = 512)
 {
   histVals = hist(img, breaks = breaks, plot = FALSE)

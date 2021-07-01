@@ -6,6 +6,14 @@
 \usage{
 otsuBinarization(img, breaks = 512)
 }
+\arguments{
+\item{img}{image object to be processed}
+
+\item{breaks}{a single number giving the number of cells for the histogram}
+}
+\value{
+separated image into foreground and background
+}
 \description{
-otsuBinarization
+Uses Otsu's Method to binarize given image, performing automatic image thresholding.
 }
