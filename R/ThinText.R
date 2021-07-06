@@ -4,7 +4,7 @@
 #' @param cutoffAdjust Multiplicative adjustment to the K-means estimated binarization cutoff.
 #' @param clean Whether to fill in white pixels with 7 or 8 neighbors. This will help a lot when thinning -- keeps from getting little white bubbles in text.
 #' @param inversion Logical value dictating whether or not to flip each pixel of binarized image. Flipping happens after binarization. FALSE by default.
-#' @param crop Logical value dictating whether or not to crop the white out around the image
+#' @param crop Logical value dictating whether or not to crop the white out around the image. TRUE by default. 
 #' @keywords binary
 #' @importFrom png readPNG
 #' @useDynLib handwriter, .registration = TRUE
