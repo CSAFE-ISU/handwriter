@@ -762,7 +762,14 @@ add_character_features = function(img, letterList, letters, dims){
   return(letterList)
 }
 
+#' pathLetterAssociate
+#' 
 #' Function associating entries in allPaths to each letter
+#' 
+#' @param allPaths list of paths
+#' @param letter individual character
+#' @return associated path to each letter
+#' 
 pathLetterAssociate = function(allPaths,letter){
   associatedPaths = list()
   for(i in 1:length(allPaths)){
