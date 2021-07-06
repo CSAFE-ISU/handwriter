@@ -810,6 +810,10 @@ checkSimplicityBreaks = function(candidateBreaks, pathList, loopList, letters, n
 #' stacked on top of eachother. Currently, this is done in a very ad hoc, and untested manner. Will look for a better
 #' solution in the future.
 #' @param candidateBreaks possible breaks for letterpath
+#' @param allPaths list of paths
+#' @param letters list of letters
+#' @param nodeGraph0 skeletonized graph
+#' @param dims graph dimensions
 checkStacking = function(candidateBreaks, allPaths, letters, nodeGraph0, dims)
 {
   stackPtFlag = rep(FALSE, length(candidateBreaks))

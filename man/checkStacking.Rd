@@ -8,6 +8,14 @@ checkStacking(candidateBreaks, allPaths, letters, nodeGraph0, dims)
 }
 \arguments{
 \item{candidateBreaks}{possible breaks for letterpath}
+
+\item{allPaths}{list of paths}
+
+\item{letters}{list of letters}
+
+\item{nodeGraph0}{skeletonized graph}
+
+\item{dims}{graph dimensions}
 }
 \description{
 Internal function for removing breakpoints that follow all of the rules, but separate two letters that are
