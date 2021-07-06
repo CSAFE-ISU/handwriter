@@ -20,7 +20,9 @@ readPNGBinary(
 
 \item{clean}{Whether to fill in white pixels with 7 or 8 neighbors. This will help a lot when thinning -- keeps from getting little white bubbles in text.}
 
-\item{inversion}{Boolean dictating whether or not to flip each pixel of binarized image. Flipping happens after binarization. FALSE by default.}
+\item{crop}{Logical value dictating whether or not to crop the white out around the image}
+
+\item{inversion}{Logical value dictating whether or not to flip each pixel of binarized image. Flipping happens after binarization. FALSE by default.}
 }
 \value{
 Returns image from path. 0 represents black, and 1 represents white by default.
