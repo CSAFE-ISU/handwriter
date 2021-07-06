@@ -328,7 +328,6 @@ letterPaths = function(allPaths, nodeGraph0, breakPoints)
 #' #message_nodes = getNodes(message_thin, dim(message))
 #'
 #' @export
-
 getNodes = function(indices, dims)
 {
   ## First, we find endpoints and intersections of skeleton.
@@ -737,6 +736,16 @@ create_letter_lists = function(allPaths, letters, nodeList, nodeConnections, ter
   return(letterList)
 }
 
+#' add_character_features
+#'
+#' Internal method that adds features to characters
+#'
+#' @param img thinned binary image
+#' @param letterList list containing letter characters
+#' @param letters individual characters from letterList
+#' @param dims image graph dimensions 
+#' @return a list of letters with features applied
+#' 
 add_character_features = function(img, letterList, letters, dims){
   featureSets = extract_character_features(img, letterList, dims)
   
