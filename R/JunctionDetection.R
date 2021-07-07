@@ -820,16 +820,16 @@ checkSimplicityBreaks = function(candidateBreaks, pathList, loopList, letters, n
   return(tooSimpleFlag)
 }
 
-#' CheckStacking
+#' checkStacking
 #' 
-#' Internal function for removing breakpoints that follow all of the rules, but separate two letters that are
-#' stacked on top of eachother. Currently, this is done in a very ad hoc, and untested manner. Will look for a better
-#' solution in the future.
+#' Internal function for removing breakpoints that follow all of the rules, but separate two letters that are stacked on top of each other. 
+#' 
 #' @param candidateBreaks possible breaks for letterpath
 #' @param allPaths list of paths
-#' @param letters list of letters
+#' @param letters list of individual letter characters
 #' @param nodeGraph0 skeletonized graph
 #' @param dims graph dimensions
+#' @return stackPtFlag
 checkStacking = function(candidateBreaks, allPaths, letters, nodeGraph0, dims)
 {
   stackPtFlag = rep(FALSE, length(candidateBreaks))

@@ -2,7 +2,7 @@
 % Please edit documentation in R/JunctionDetection.R
 \name{checkStacking}
 \alias{checkStacking}
-\title{CheckStacking}
+\title{checkStacking}
 \usage{
 checkStacking(candidateBreaks, allPaths, letters, nodeGraph0, dims)
 }
@@ -11,14 +11,15 @@ checkStacking(candidateBreaks, allPaths, letters, nodeGraph0, dims)
 
 \item{allPaths}{list of paths}
 
-\item{letters}{list of letters}
+\item{letters}{list of individual letter characters}
 
 \item{nodeGraph0}{skeletonized graph}
 
 \item{dims}{graph dimensions}
 }
+\value{
+stackPtFlag
+}
 \description{
-Internal function for removing breakpoints that follow all of the rules, but separate two letters that are
-stacked on top of eachother. Currently, this is done in a very ad hoc, and untested manner. Will look for a better
-solution in the future.
+Internal function for removing breakpoints that follow all of the rules, but separate two letters that are stacked on top of each other.
 }
