@@ -250,7 +250,16 @@ getLoops = function(nodeList, graph, graph0, pathList, dims)
   return(loopList)
 }
 
-#' Internal function called by processHandwriting that eliminates breakpoints based on rules to try to coherently separate letters
+#' checkBreakPoints
+#'
+#'  Internal function called by processHandwriting that eliminates breakpoints based on rules to try to coherently separate letters.
+#' 
+#' @param candidateNodes possible breakpoints
+#' @param allPaths list of paths
+#' @param nodeGraphs graph of nodes; call the getNodeGraph() function
+#' @param terminalNodes nodes at the endpoints of the graph
+#' @param dims graph dimensions
+#' @return a graph without breakpoints and separated letters
 checkBreakPoints = function(candidateNodes, allPaths, nodeGraph, terminalNodes, dims)
 {
   #Check rules for candidate breakpoints
