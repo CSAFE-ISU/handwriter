@@ -786,8 +786,20 @@ pathLetterAssociate = function(allPaths,letter){
   return(associatedPaths)
 }
 
-#' Internal function for removing breakpoints that separate graphs that are too simple to be split. Remove break if graph on 
-#' left and right of the break have 4 or fewer nodes and no loops or double paths. Never remove break on a trough.
+#'  checkSimplicityBreaks
+#' 
+#' Internal function for removing breakpoints that separate graphs that are too simple to be split. Remove break if graph on left and right of the break have 4 or fewer nodes and no loops or double paths. Never remove break on a trough.
+#' 
+#' @param candidateBreaks possible breakpoints
+#' @param pathList list of paths
+#' @param loopList list of loops
+#' @param letters list of individual letter characters
+#' @param nodeGraph0 skeletonized graph
+#' @param nodeList list of nodes
+#' @param terminalNodes nodes at the ends of letters
+#' @param hasTrough wether or not break has a trough
+#' @param dims graph dimensions
+#' @return removes breakpoints on simple graphs
 checkSimplicityBreaks = function(candidateBreaks, pathList, loopList, letters, nodeGraph0, nodeList, terminalNodes, hasTrough, dims)
 {
   tooSimpleFlag = rep(FALSE, length(candidateBreaks))
