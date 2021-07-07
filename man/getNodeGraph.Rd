@@ -2,9 +2,17 @@
 % Please edit documentation in R/JunctionDetection.R
 \name{getNodeGraph}
 \alias{getNodeGraph}
-\title{Internal function for creating a graph from a path list and node list.}
+\title{getNodeGraph}
 \usage{
 getNodeGraph(allPaths, nodeList)
+}
+\arguments{
+\item{allPaths}{list of paths}
+
+\item{nodeList}{list of nodes}
+}
+\value{
+a graph of nodes
 }
 \description{
 Internal function for creating a graph from a path list and node list.

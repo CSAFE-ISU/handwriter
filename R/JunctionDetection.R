@@ -887,7 +887,14 @@ countNodes = function(letterList, nodes)
   unlist(lapply(letterList, function(x){sum(x %in% nodes)}))
 }
 
+#' getNodeGraph
+#' 
 #' Internal function for creating a graph from a path list and node list.
+#' 
+#' @param allPaths list of paths
+#' @param nodeList list of nodes
+#' 
+#' @return a graph of nodes
 getNodeGraph = function(allPaths, nodeList)
 {
   nodeGraph = make_empty_graph(directed = FALSE)
