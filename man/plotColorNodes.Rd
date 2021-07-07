@@ -18,5 +18,5 @@ Plot of single word.
 }
 \description{
 This function returns a plot of a single Word extracted from a document.
-It plots the color as well
+It plots the color as well.
 }

@@ -1,7 +1,8 @@
 #' plotColorNodes
 #'
 #' This function returns a plot of a single Word extracted from a document.
-#' It plots the color as well
+#' It plots the color as well.
+#' 
 #' @param letterList Letter list from processHandwriting function
 #' @param whichWord Single word value denoting which line to plot - checked if too big inside function.
 #' @param dims Dimensions of the original document
@@ -12,8 +13,6 @@
 #' @export
 plotColorNodes = function(letterList, whichWord, dims, wordInfo) #TODO - CLEAN THIS UP: DONT NEED LETTERLIST
 {
-  
-  
   pathList = list()
   wordListIndex = list()
   #stitch all paths together
@@ -75,6 +74,10 @@ plotColorNodes = function(letterList, whichWord, dims, wordInfo) #TODO - CLEAN T
   colorpoints_df$color = str_replace(colorpoints_df$color,"orange","darkorange2")
   
   nodeSize = 4
+  
+  #Initializing X and Y to bind them for the dev check
+  X <- 0
+  Y <- 0
   pointSet = data.frame(X = ((nodeList - 1) %/% dim(img)[1]) + 1, Y = dim(img)[1] - ((nodeList - 1) %% dim(img)[1]))
   p = p + geom_point(data = pointSet, aes(X, Y), size = nodeSize, shape = I(16), color = I(colorpoints_df$color), alpha = I(.7))
   
