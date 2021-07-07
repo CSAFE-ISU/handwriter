@@ -923,7 +923,15 @@ getNodeGraph = function(allPaths, nodeList)
   return(nodeGraph)
 }
 
-#' Internal function for ordering the nodes in a letter.
+#' getNodeOrder
+#' 
+#' Internal function for ordering nodes in a letter.
+#' 
+#' @param letter letter graph containing nodes to be ordered
+#' @param nodesInGraph how many nodes are in the letter
+#' @param nodeConnectivity how nodes are connected to each other
+#' @param dims graph dimensions
+#' @return order of the nodes
 getNodeOrder = function(letter, nodesInGraph, nodeConnectivity, dims)
 {
   toRC = function(nodes, dims)

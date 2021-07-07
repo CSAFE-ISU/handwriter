@@ -2,10 +2,22 @@
 % Please edit documentation in R/JunctionDetection.R
 \name{getNodeOrder}
 \alias{getNodeOrder}
-\title{Internal function for ordering the nodes in a letter.}
+\title{getNodeOrder}
 \usage{
 getNodeOrder(letter, nodesInGraph, nodeConnectivity, dims)
 }
+\arguments{
+\item{letter}{letter graph containing nodes to be ordered}
+
+\item{nodesInGraph}{how many nodes are in the letter}
+
+\item{nodeConnectivity}{how nodes are connected to each other}
+
+\item{dims}{graph dimensions}
+}
+\value{
+order of the nodes
+}
 \description{
-Internal function for ordering the nodes in a letter.
+Internal function for ordering nodes in a letter.
 }
