@@ -291,7 +291,14 @@ checkBreakPoints = function(candidateNodes, allPaths, nodeGraph, terminalNodes, 
   return(breakFlag)
 }
 
+#' letterPaths
+#' 
 #' Internal function that uses existing breakPoint list to assign letters to the nodes in nodeGraph0.
+#' 
+#' @param allPaths list of every path
+#' @param nodeGraph0 graph of all nodes
+#' @param breakPoints breakpoint list
+#' @return assigned letters to nodes in graph
 letterPaths = function(allPaths, nodeGraph0, breakPoints)
 {
   oldVerts = V(nodeGraph0)$name

@@ -2,9 +2,19 @@
 % Please edit documentation in R/JunctionDetection.R
 \name{letterPaths}
 \alias{letterPaths}
-\title{Internal function that uses existing breakPoint list to assign letters to the nodes in nodeGraph0.}
+\title{letterPaths}
 \usage{
 letterPaths(allPaths, nodeGraph0, breakPoints)
+}
+\arguments{
+\item{allPaths}{list of every path}
+
+\item{nodeGraph0}{graph of all nodes}
+
+\item{breakPoints}{breakpoint list}
+}
+\value{
+assigned letters to nodes in graph
 }
 \description{
 Internal function that uses existing breakPoint list to assign letters to the nodes in nodeGraph0.
