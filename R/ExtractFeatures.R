@@ -373,6 +373,7 @@ add_word_info = function(letterList, dims){
   testDF = dataDF[c("height_prop", "width_prop", "to_right_prop", "to_left_prop")]
   
   # Make prediction and add to other
+  loadNamespace("randomForest")
   wordPredictions <- cbind(testDF, predict(wordModel, testDF, type = "class"))
   names(wordPredictions)[names(wordPredictions) == "predict(wordModel, testDF, type = \"class\")"] <- "prediction"
   wordPredictions[1, 'prediction']="beginning"
