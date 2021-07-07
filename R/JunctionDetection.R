@@ -893,6 +893,11 @@ checkStacking = function(candidateBreaks, allPaths, letters, nodeGraph0, dims)
 
 #' countNodes
 #' 
+#' Function for counting nodes in a list of letters.
+#' 
+#' @param letterList list containing letter characters
+#' @param nodes list of nodes
+#' @return number of nodes in letterList
 #' @export
 countNodes = function(letterList, nodes)
 {

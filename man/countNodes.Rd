@@ -6,6 +6,14 @@
 \usage{
 countNodes(letterList, nodes)
 }
+\arguments{
+\item{letterList}{list containing letter characters}
+
+\item{nodes}{list of nodes}
+}
+\value{
+number of nodes in letterList
+}
 \description{
-countNodes
+Function for counting nodes in a list of letters.
 }
