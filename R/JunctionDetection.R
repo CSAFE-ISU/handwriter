@@ -367,13 +367,10 @@ getNodes = function(indices, dims)
 
 #' processHandwriting
 #'
-#' Huge step in handwriting processing. Takes in thin image form and the breakpoints suggested by getNodes
-#' and parses the writing into letters. Returns final letter separation points, a list of the paths in the image,
-#' and a list of the letter paths in the image.
+#' Huge step in handwriting processing. Takes in thin image form and the breakpoints suggested by getNodes and parses the writing into letters. Returns final letter separation points, a list of the paths in the image, and a list of the letter paths in the image.
 #'
 #' @param img Thinned binary image.
-#' @param nodes List of nodes from the getNodes function.
-#' return(list(breakPoints = finalBreaks, pathList = allPaths, letterList = letters))
+#' @param dims Dimensions of thinned binary image.
 #' @return Returns a list of length 3. Object [[1]] (called breakPoints) is the set of final letter separation points.
 #' Object [[2]] (called pathList) is a list of the paths between the input specified nodes.
 #' Object [[3]] (called letters) is a list of the pixels in the different letters in the handwriting sample.
