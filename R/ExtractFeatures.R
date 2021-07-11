@@ -342,7 +342,7 @@ add_word_info = function(letterList, dims){
   }
   
   #Create a new DF and fill it up from each character entry
-  dataDF <- data.frame(line=numeric(0),line_height=numeric(0),line_width=numeric(0),height=numeric(0),width=numeric(0),x=numeric(0),label=character(0))
+  dataDF <- data.frame(line=numeric(0),line_height=numeric(0),line_width=numeric(0),height=numeric(0),width=numeric(0),x=numeric(0),label=character(0),stringsAsFactors = FALSE)
   for (i in 1:length(letterList)){
     line = letterList[[i]]$characterFeatures$line_number
     dataDF[nrow(dataDF) + 1,] =
