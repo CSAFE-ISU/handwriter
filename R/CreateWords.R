@@ -1,6 +1,7 @@
 #' create_words
 #'
 #' creates word objects based on splits found in processHandwriting
+#' 
 #' @param processList Output from processHandwriting - contains all glyph information
 #' @return list of word objects
 #' @export
@@ -40,7 +41,7 @@ create_words = function(processList){
   
   nameList = list()
   
-  #Just naming them here
+  #Naming objects
   for (i in 1:length(words)){
     name = paste("wordIndex:",i,sep=" ")
     nameList <- append(nameList, name)
