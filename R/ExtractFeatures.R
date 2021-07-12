@@ -1,13 +1,14 @@
 #' extract_character_features
 #'
-#' Primary driver of feature extraction. 
-#' Parses all characters from a processed image.
+#' Primary driver of feature extraction. Parses all characters from a processed image.
+#' 
 #' @param character_lists Output from processHandwriting$letterLists
 #' @param img_dim Dimensions of binary image
 #' @keywords centroid, skew, slant, lean, character
 #' @return nested lists associating features to respective characters.
 #' @export
 extract_character_features = function(img, character_lists,img_dim){
+  
   character_features = list()
   
   for(i in 1:length(character_lists)){
@@ -19,6 +20,7 @@ extract_character_features = function(img, character_lists,img_dim){
   character_features = add_line_info(character_features,img_dim)
   character_features = nov_neighboring_char_dist(character_features)
   character_features = add_covariance_matrix(character_lists, character_features, img_dim)
+  
   return(character_features)
 }
 
