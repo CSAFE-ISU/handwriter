@@ -100,11 +100,12 @@ i_to_rc = function(nodes, dims)
 
 #' i_to_rci
 #'
-#' Convert indicies to respective row, col and associates the original index.
-#' @param nodes Nodes to be converted.
-#' @param img_dim Dimensions of binary image
+#' Function for converting indices to respective row, col and associates the original index.
+#' 
+#' @param nodes nodes to be converted.
+#' @param img_dim dimensions of binary image
 #' @keywords row, column, binary, image, index
-#' @return Returns matrix mapping nodes' indices to respective row, col. 
+#' @return returns matrix mapping nodes' indices to respective row, col
 #' @export
 i_to_rci = function(nodes, dims, fixed = FALSE)
 {
