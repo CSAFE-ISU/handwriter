@@ -46,7 +46,17 @@ char_to_feature = function(character, img_dim, uniqueid){
   return(features)
 }
 
-#give two nodes, draw one line
+
+#' plotNodesLine
+#'
+#' Internal function for drawing a line from two given nodes. 
+#' @param img full image matrix; used to call plotImageThinned()
+#' @param thinned thinned image matrix; used to call plotImageThinned()
+#' @param nodeList list of nodes
+#' @param nodeSize size of node; default set to 3
+#' @param nodeColor color of node; default set to red
+#' 
+#' @return a line in between the two nodes
 plotNodesLine = function(img, thinned, nodeList, nodeSize = 3, nodeColor = "red")
 {
   p = plotImageThinned(img, thinned)
@@ -56,8 +66,8 @@ plotNodesLine = function(img, thinned, nodeList, nodeSize = 3, nodeColor = "red"
   ex = pointSet[[1]][[2]]
   ey = pointSet[[2]][[2]]
   p = p + geom_point(data = pointSet, aes(X, Y), size = nodeSize, shape = I(16), color = I(nodeColor), alpha = I(.4)) + geom_segment(x = sx, y = sy, xend = ex, yend = ey)
+  
   return(p)
-
 }
 
 plotNodesLine1 = function(img, thinned, nodeList, nodeSize = 3, nodeColor = "red")
