@@ -28,6 +28,7 @@ extract_character_features = function(img, character_lists,img_dim){
 #'
 #' Secondary driver of feature extraction
 #' Extracts features from a single character
+#' 
 #' @param character character to extract information from
 #' @param img_dim Dimensions of binary image
 #' @param uniqueid Unique numerical reference to character
@@ -37,10 +38,11 @@ extract_character_features = function(img, character_lists,img_dim){
 char_to_feature = function(character, img_dim, uniqueid){
   aspect_info = get_aspect_info(character$path,img_dim)
   centroid_info = get_centroid_info(character$path,img_dim)
-  #loop_info = get_loop_info(character,img_dim)
-  features = c(aspect_info,centroid_info) #,loopinfo
-  #just a persistent index for when we sort / rearrange the features list
+  features = c(aspect_info,centroid_info)
+  
+  #persistent index for sorting/rearranging the features list
   features$uniqueid = uniqueid
+  
   return(features)
 }
 
