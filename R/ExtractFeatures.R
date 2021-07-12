@@ -84,11 +84,12 @@ plotNodesLine1 = function(img, thinned, nodeList, nodeSize = 3, nodeColor = "red
 
 #' i_to_rc
 #'
-#' Convert indicies to respective row, col.
-#' @param nodes Nodes to be converted.
-#' @param img_dim Dimensions of binary image
+#' Function for converting indices to respective row, col.
+#' 
+#' @param nodes nodes to be converted.
+#' @param img_dim dimensions of binary image
 #' @keywords row, column, binary, image
-#' @return Returns matrix mapping nodes to respective row, col. 
+#' @return returns matrix mapping nodes to respective row, col. 
 #' @export
 i_to_rc = function(nodes, dims)
 {
