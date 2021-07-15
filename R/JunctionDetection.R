@@ -396,8 +396,9 @@ getNodes = function(indices, dims)
 #' @export
 processHandwriting = function(img, dims){
   
-  # Next, we have to follow certain rules to find non intersection breakpoints.
+  value <- from <- to <- nodeOnlyDist <- man_dist <- euc_dist <- pen_dist <- NULL
   
+  # Next, we have to follow certain rules to find non intersection breakpoints.
   cat("Starting Processing...\n")
   indices = img
   img = matrix(1, nrow = dims[1], ncol = dims[2])

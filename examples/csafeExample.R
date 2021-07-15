@@ -2,6 +2,7 @@
 #install.packages("devtools")
 #devtools::install_github("CSAFE-ISU/handwriter")
 #install.packages("handwriter")
+#library(handwriter)
 
 #Create empty list, and load an image with READPNGBinary
 csafe = list()

@@ -1,18 +1,19 @@
-# install.packages("rjson")
-# install.packages("randomForest")
-# install.packages("usethis")
-# library(usethis)
-# library(rjson)
-# library(data.table)
-# library(randomForest)
+library(rjson)
+library(data.table)
+library(randomForest)
 
 
 #' makeModel
 #'
 #' Creates a randomForest word model
+#' 
 #' @return randomForest model
+#' @importFrom randomForest randomForest
 #' @export
 makeModel = function(){
+  
+  na.exclude <- NULL
+  
   #Load JSON file
   AsJSON <- rjson::fromJSON(file = "inst/extdata/5W_5D_34L.json")
   
@@ -77,6 +78,6 @@ makeModel = function(){
   #Now that model is trained, save it so it can be loaded
   wordModel = NULL
   wordModel <- randomForest(label ~ ., data = TrainSet, ntree = 500, mtry = 4, importance = TRUE, na.action=na.exclude)
-  usethis::use_data(wordModel, overwrite = TRUE)
+  use_data(wordModel, overwrite = TRUE)
 }
 

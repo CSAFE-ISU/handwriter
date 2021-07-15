@@ -8,6 +8,7 @@
 #' @export
 plotImage = function(x)
 {
+  Var2 <- Var1 <- value <- NULL
   xm = melt(x)
   names(xm) = c("Var1", "Var2", "value")
   p = ggplot(xm, aes(Var2, rev(Var1))) + geom_raster(aes(fill = as.factor(value)), na.rm=TRUE) + scale_fill_manual(values = c("black", "white"), guide = "none") + coord_fixed() + theme_void()
@@ -32,6 +33,7 @@ plotImage = function(x)
 #' @export
 plotImageThinned = function(img, thinned)
 {
+  Var2 <- Var1 <- value <- NULL
   l.m = melt(img)
   names(l.m) = c("Var1", "Var2", "value")
   l.m$value[thinned] = 2
@@ -60,6 +62,8 @@ plotImageThinned = function(img, thinned)
 
 plotNodes = function(img, thinned, nodeList, nodeSize = 3, nodeColor = "red")
 {
+  X <- Y <- NULL
+  
   p = plotImageThinned(img, thinned)
   pointSet = data.frame(X = ((nodeList - 1) %/% dim(img)[1]) + 1, Y = dim(img)[1] - ((nodeList - 1) %% dim(img)[1]))
   p = p + geom_point(data = pointSet, aes(X, Y), size = nodeSize, shape = I(16), color = I(nodeColor), alpha = I(.4))
@@ -78,6 +82,8 @@ plotNodes = function(img, thinned, nodeList, nodeSize = 3, nodeColor = "red")
 #' @export
 plotWord = function(letterList, whichWord, dims)
 {
+  X <- Y <- NULL
+  
   pathList = list()
   wordListIndex = list()
   #stitch all paths together
@@ -224,7 +230,7 @@ plotLine = function(letterList, whichLine, dims)
 #' @export
 plotLetter = function(letterList, whichLetter, dims, showPaths = TRUE, showCentroid = TRUE, showSlope = TRUE)#, showTightness = TRUE, showLoopDims = TRUE)
 {
-  
+  X <- Y <- NULL
   path = letterList[[whichLetter]]$path
   r = ((path-1) %% dims[1]) + 1
   c = ((path-1) %/% dims[1]) + 1

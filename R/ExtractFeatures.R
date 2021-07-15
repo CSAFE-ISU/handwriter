@@ -45,6 +45,7 @@ char_to_feature = function(character, img_dim, uniqueid){
 #give two nodes, draw one line
 plotNodesLine = function(img, thinned, nodeList, nodeSize = 3, nodeColor = "red")
 {
+  X <- Y <- NULL
   p = plotImageThinned(img, thinned)
   pointSet = data.frame(X = ((nodeList - 1) %/% dim(img)[1]) + 1, Y = dim(img)[1] - ((nodeList - 1) %% dim(img)[1]))
   sx = pointSet[[1]][[1]]
@@ -58,6 +59,7 @@ plotNodesLine = function(img, thinned, nodeList, nodeSize = 3, nodeColor = "red"
 
 plotNodesLine1 = function(img, thinned, nodeList, nodeSize = 3, nodeColor = "red")
 {
+  X <- Y <- NULL
   p = plotImageThinned(img, thinned)
   pointSet = data.frame(X = ((nodeList - 1) %/% dim(img)[1]) + 1, Y = dim(img)[1] - ((nodeList - 1) %% dim(img)[1]))
   sx = pointSet[[1]][[1]]
@@ -305,8 +307,9 @@ NULL
 #' @param letterList List containing characters
 #' @param dims Dimensions of binary image
 #' @keywords character, features, line number
-#' @return Appends line information to character features
 #' 
+#' @return Appends line information to character features
+#' @importFrom stats predict
 #' @export
 add_word_info = function(letterList, dims){
   
@@ -587,7 +590,10 @@ all_down_dists = function(character_features){
 #' @param all_centroids List of centroids extracted from cumulative character_features
 #' @param img_dim Dimensions of binary image
 #' @keywords character, features, line, number
+#' 
 #' @return List associating line numbers to characters
+#' @importFrom stats median
+#' @importFrom utils head
 #' @export
 line_number_extract = function(down_dists, all_centroids, img_dim){
   centroid_rci = matrix(i_to_rci(all_centroids,img_dim), ncol = 3)
@@ -641,80 +647,81 @@ line_number_extract = function(down_dists, all_centroids, img_dim){
 #####################################################################
 ###---### CURRENTLY UNUSED FUNCTIONS -- FUTURE USE UNKNOWN ####---###
 #####################################################################
-
-loop_info = function(loop_list, img_dim){
-  major = loop_major(loop_list, img_dim)
-  slope = find_i_slope(major$major_p1,major$major_p2,img_dim)
-  print(slope)
-  minor = loop_minor(loop_list,slope,img_dim)
-  return(list(major = major,minor = minor))
-}
-loop_major = function(loop_list,img_dim){
-  rowcol = i_to_rci(loop_list,img_dim)
-  rows_y = rowcol[,'y'] 
-  cols_x = rowcol[,'x']
-  major_dist = -Inf
-  y1 = rowcol[[1]]
-  x1 = rowcol[[1]]
-  furthest_index = NULL
-  for(i in 1:length(loop_list)){
-    cur_dist = sqrt((cols_x[[i]]-x1)^2+(rows_y[[i]]-y1)^2)
-    if(cur_dist > major_dist ){
-      major_dist = cur_dist
-      furthest_index = loop_list[[i]]
-    }
-  }
-  return(list(major_p1 = loop_list[[1]], major_p2 = furthest_index, major_dist = major_dist))
-}
-vector_to_mid = function(targ)
-  loop_minor = function(loop_list, slope, img_dim){
-    i1 = NULL
-    i2 = NULL
-    neg_recip = -1/(slope)
-    cat("neg recip: ",neg_recip,"\n")
-    min_dif = Inf
-    for(i in 1:length(loop_list)/2){
-      for(j in length(loop_list)/2:1){
-        if(i == j) next 
-        else {
-          new_slope = find_i_slope(loop_list[[i]],loop_list[[j]],img_dim)
-          slope_dif = abs(new_slope-neg_recip)
-          if(!is.nan(new_slope) & new_slope< -.8 & new_slope > -1){
-          }
-        }
-        if(!is.nan(slope_dif) & slope_dif < min_dif){
-          cat(loop_list[[i]],loop_list[[j]],"new slope: ",new_slope, "\n")
-          i1 = loop_list[[i]]
-          i2 = loop_list[[j]]
-          min_dif = slope_dif
-        }
-      }
-    }
-    return(list(minor_p1 = i1, minor_p2 = i2))
-  }
-
-find_i_slope = function(starti, endi, img_dim, dbug = FALSE)
-{
-  rci = i_to_rci(c(starti,endi),img_dim)
-  #print(rci)
-  #standard for actual coordinate eq's
-  rows_y = img_dim[[1]] - rci[,'y'] + 1
-  cols_x = rci[,'x']
-  x1 = cols_x[[1]]
-  y1 = rows_y[[1]]
-  x2 = cols_x[[2]]
-  y2 = rows_y[[2]]
-  if(dbug){
-    cat("x1: ",x1[[1]]," y1: ", y1[[1]] ,"\n")
-    cat("x2: ",x2[[1]]," y2: ", y2[[1]], "\n")
-  }
-  slope = (y2-y1)/(x2-x1)
-  return(slope)
-}
-
-#driver for minor axis, rq'd feature by amy
-perp_bisector = function(x1,x2,y1,y2,slope,img_dim,dbug = FALSE){
-  midx = (x1+x2)/2
-  midy = (y1+y2)/2
-  neg_recip = -1/(slope)
-}
+# 
+# loop_info = function(loop_list, img_dim){
+#   major = loop_major(loop_list, img_dim)
+#   slope = find_i_slope(major$major_p1,major$major_p2,img_dim)
+#   print(slope)
+#   minor = loop_minor(loop_list,slope,img_dim)
+#   return(list(major = major,minor = minor))
+# }
+# loop_major = function(loop_list,img_dim){
+#   rowcol = i_to_rci(loop_list,img_dim)
+#   rows_y = rowcol[,'y'] 
+#   cols_x = rowcol[,'x']
+#   major_dist = -Inf
+#   y1 = rowcol[[1]]
+#   x1 = rowcol[[1]]
+#   furthest_index = NULL
+#   for(i in 1:length(loop_list)){
+#     cur_dist = sqrt((cols_x[[i]]-x1)^2+(rows_y[[i]]-y1)^2)
+#     if(cur_dist > major_dist ){
+#       major_dist = cur_dist
+#       furthest_index = loop_list[[i]]
+#     }
+#   }
+#   return(list(major_p1 = loop_list[[1]], major_p2 = furthest_index, major_dist = major_dist))
+# }
+# vector_to_mid = function(targ)
+# 
+# loop_minor = function(loop_list, slope, img_dim){
+#     i1 = NULL
+#     i2 = NULL
+#     neg_recip = -1/(slope)
+#     cat("neg recip: ",neg_recip,"\n")
+#     min_dif = Inf
+#     for(i in 1:length(loop_list)/2){
+#       for(j in length(loop_list)/2:1){
+#         if(i == j) next 
+#         else {
+#           new_slope = find_i_slope(loop_list[[i]],loop_list[[j]],img_dim)
+#           slope_dif = abs(new_slope-neg_recip)
+#           if(!is.nan(new_slope) & new_slope< -.8 & new_slope > -1){
+#           }
+#         }
+#         if(!is.nan(slope_dif) & slope_dif < min_dif){
+#           cat(loop_list[[i]],loop_list[[j]],"new slope: ",new_slope, "\n")
+#           i1 = loop_list[[i]]
+#           i2 = loop_list[[j]]
+#           min_dif = slope_dif
+#         }
+#       }
+#     }
+#     return(list(minor_p1 = i1, minor_p2 = i2))
+#   }
+# 
+# find_i_slope = function(starti, endi, img_dim, dbug = FALSE)
+# {
+#   rci = i_to_rci(c(starti,endi),img_dim)
+#   #print(rci)
+#   #standard for actual coordinate eq's
+#   rows_y = img_dim[[1]] - rci[,'y'] + 1
+#   cols_x = rci[,'x']
+#   x1 = cols_x[[1]]
+#   y1 = rows_y[[1]]
+#   x2 = cols_x[[2]]
+#   y2 = rows_y[[2]]
+#   if(dbug){
+#     cat("x1: ",x1[[1]]," y1: ", y1[[1]] ,"\n")
+#     cat("x2: ",x2[[1]]," y2: ", y2[[1]], "\n")
+#   }
+#   slope = (y2-y1)/(x2-x1)
+#   return(slope)
+# }
+# 
+# #driver for minor axis, rq'd feature by amy
+# perp_bisector = function(x1,x2,y1,y2,slope,img_dim,dbug = FALSE){
+#   midx = (x1+x2)/2
+#   midy = (y1+y2)/2
+#   neg_recip = -1/(slope)
+# }
