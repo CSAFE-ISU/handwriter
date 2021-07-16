@@ -1,0 +1,1 @@
+utils::globalVariables(c("wordModel", "use_data"))
