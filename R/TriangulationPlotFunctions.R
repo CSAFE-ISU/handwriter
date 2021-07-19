@@ -13,11 +13,8 @@
 #' @export
 plotColorNodes = function(letterList, whichWord, dims, wordInfo) #TODO - CLEAN THIS UP: DONT NEED LETTERLIST
 {
-<<<<<<< HEAD
-=======
   X <- Y <- NULL
   
->>>>>>> 9079b376b2e7404e25fd9bb6c48cee7825f2ac50
   pathList = list()
   wordListIndex = list()
   #stitch all paths together

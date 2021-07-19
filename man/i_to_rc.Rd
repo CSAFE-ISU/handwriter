@@ -7,15 +7,15 @@
 i_to_rc(nodes, dims)
 }
 \arguments{
-\item{nodes}{Nodes to be converted.}
+\item{nodes}{nodes to be converted.}
 
-\item{img_dim}{Dimensions of binary image}
+\item{img_dim}{dimensions of binary image}
 }
 \value{
-Returns matrix mapping nodes to respective row, col.
+returns matrix mapping nodes to respective row, col.
 }
 \description{
-Convert indicies to respective row, col.
+Function for converting indices to respective row, col.
 }
 \keyword{binary,}
 \keyword{column,}

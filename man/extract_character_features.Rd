@@ -15,8 +15,7 @@ extract_character_features(img, character_lists, img_dim)
 nested lists associating features to respective characters.
 }
 \description{
-Primary driver of feature extraction. 
-Parses all characters from a processed image.
+Primary driver of feature extraction. Parses all characters from a processed image.
 }
 \keyword{centroid,}
 \keyword{character}

@@ -7,15 +7,15 @@
 i_to_rci(nodes, dims, fixed = FALSE)
 }
 \arguments{
-\item{nodes}{Nodes to be converted.}
+\item{nodes}{nodes to be converted.}
 
-\item{img_dim}{Dimensions of binary image}
+\item{img_dim}{dimensions of binary image}
 }
 \value{
-Returns matrix mapping nodes' indices to respective row, col.
+returns matrix mapping nodes' indices to respective row, col
 }
 \description{
-Convert indicies to respective row, col and associates the original index.
+Function for converting indices to respective row, col and associates the original index.
 }
 \keyword{binary,}
 \keyword{column,}
