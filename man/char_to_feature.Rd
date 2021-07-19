@@ -4,12 +4,12 @@
 \alias{char_to_feature}
 \title{char_to_feature}
 \usage{
-char_to_feature(character, img_dim, uniqueid)
+char_to_feature(character, dims, uniqueid)
 }
 \arguments{
 \item{character}{character to extract information from}
 
-\item{img_dim}{Dimensions of binary image}
+\item{dims}{Dimensions of binary image}
 
 \item{uniqueid}{Unique numerical reference to character}
 }

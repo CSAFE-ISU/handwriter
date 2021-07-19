@@ -4,12 +4,14 @@
 \alias{extract_character_features}
 \title{extract_character_features}
 \usage{
-extract_character_features(img, character_lists, img_dim)
+extract_character_features(img, character_lists, dims)
 }
 \arguments{
+\item{img}{The thinned image bitmap}
+
 \item{character_lists}{Output from processHandwriting$letterLists}
 
-\item{img_dim}{Dimensions of binary image}
+\item{dims}{Dimensions of binary image}
 }
 \value{
 nested lists associating features to respective characters.

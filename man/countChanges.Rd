@@ -2,10 +2,17 @@
 % Please edit documentation in R/JunctionDetection.R
 \name{countChanges}
 \alias{countChanges}
-\title{Internal function for counting 4-connected components around a pixel.}
+\title{countChanges}
 \usage{
 countChanges(coords, img)
 }
+\arguments{
+\item{coords}{coordinates to consider}
+
+\item{img}{The non-thinned image as binary bit map
+
+Internal function for counting 4-connected components around a pixel.}
+}
 \description{
-Internal function for counting 4-connected components around a pixel.
+countChanges
 }

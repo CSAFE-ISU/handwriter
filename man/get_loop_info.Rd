@@ -4,12 +4,12 @@
 \alias{get_loop_info}
 \title{get_loop_info}
 \usage{
-get_loop_info(character, img_dim)
+get_loop_info(character, dims)
 }
 \arguments{
 \item{character}{Target for loop association}
 
-\item{img_dim}{Dimensions of binary image}
+\item{dims}{Dimensions of binary image}
 }
 \value{
 Loop information to respective character

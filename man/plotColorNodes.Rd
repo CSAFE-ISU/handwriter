@@ -12,6 +12,8 @@ plotColorNodes(letterList, whichWord, dims, wordInfo)
 \item{whichWord}{Single word value denoting which line to plot - checked if too big inside function.}
 
 \item{dims}{Dimensions of the original document}
+
+\item{wordInfo}{Word information list}
 }
 \value{
 Plot of single word.

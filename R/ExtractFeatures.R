@@ -2,24 +2,26 @@
 #'
 #' Primary driver of feature extraction. Parses all characters from a processed image.
 #' 
+#' @param img The thinned image bitmap
 #' @param character_lists Output from processHandwriting$letterLists
-#' @param img_dim Dimensions of binary image
+#' @param dims Dimensions of binary image
 #' @keywords centroid, skew, slant, lean, character
 #' @return nested lists associating features to respective characters.
+#' 
 #' @export
-extract_character_features = function(img, character_lists,img_dim){
+extract_character_features = function(img, character_lists,dims){
   
   character_features = list()
   
   for(i in 1:length(character_lists)){
-    cur_features = char_to_feature(character_lists[[i]],img_dim, i)
+    cur_features = char_to_feature(character_lists[[i]],dims, i)
     character_features = append(character_features,list(cur_features))
   }
  
-  character_features = add_updown_neighboring_char_dist(character_features, character_lists, img, img_dim)
-  character_features = add_line_info(character_features,img_dim)
+  character_features = add_updown_neighboring_char_dist(character_features, character_lists, img, dims)
+  character_features = add_line_info(character_features,dims)
   character_features = nov_neighboring_char_dist(character_features)
-  character_features = add_covariance_matrix(character_lists, character_features, img_dim)
+  character_features = add_covariance_matrix(character_lists, character_features, dims)
   
   return(character_features)
 }
@@ -30,14 +32,14 @@ extract_character_features = function(img, character_lists,img_dim){
 #' Extracts features from a single character
 #' 
 #' @param character character to extract information from
-#' @param img_dim Dimensions of binary image
+#' @param dims Dimensions of binary image
 #' @param uniqueid Unique numerical reference to character
 #' @keywords character, features
 #' @return List containing features of character
 #' @export
-char_to_feature = function(character, img_dim, uniqueid){
-  aspect_info = get_aspect_info(character$path,img_dim)
-  centroid_info = get_centroid_info(character$path,img_dim)
+char_to_feature = function(character, dims, uniqueid){
+  aspect_info = get_aspect_info(character$path,dims)
+  centroid_info = get_centroid_info(character$path,dims)
   features = c(aspect_info,centroid_info)
   
   #persistent index for sorting/rearranging the features list
@@ -89,7 +91,7 @@ plotNodesLine1 = function(img, thinned, nodeList, nodeSize = 3, nodeColor = "red
 #' Function for converting indices to respective row, col.
 #' 
 #' @param nodes nodes to be converted.
-#' @param img_dim dimensions of binary image
+#' @param dims dimensions of binary image
 #' @keywords row, column, binary, image
 #' @return returns matrix mapping nodes to respective row, col. 
 #' @export
@@ -105,8 +107,10 @@ i_to_rc = function(nodes, dims)
 #' Function for converting indices to respective row, col and associates the original index.
 #' 
 #' @param nodes nodes to be converted.
-#' @param img_dim dimensions of binary image
+#' @param dims dimensions of binary image
+#' @param fixed instead of normal computation of rows, put it in a fixed location.
 #' @keywords row, column, binary, image, index
+#' 
 #' @return returns matrix mapping nodes' indices to respective row, col
 #' @export
 i_to_rci = function(nodes, dims, fixed = FALSE)
@@ -125,17 +129,17 @@ i_to_rci = function(nodes, dims, fixed = FALSE)
 #' This is index sensitive, so row_y[[1]] should correspond to col_x[[1]]
 #' @param row_y Row(s) to be converted to an index
 #' @param col_x Columns(s) to be converted to an index
-#' @param img_dim Dimensions of binary image
+#' @param dims Dimensions of binary image
 #' @param fixed Logical value asking if row_y is fixed to a point.
 #' @keywords row, column, binary, image, index
 #' @return Returns index(icies) of all row_y's and col_x's
 #' @export
-rc_to_i = function(row_y,col_x,img_dim, fixed = FALSE)
+rc_to_i = function(row_y,col_x,dims, fixed = FALSE)
 {
   row_y = as.integer(row_y)
-  if(fixed) row_y = img_dim[1] - row_y + 1
+  if(fixed) row_y = dims[1] - row_y + 1
   col_x = as.integer(col_x)
-  return((col_x-1)*img_dim[1]+row_y)
+  return((col_x-1)*dims[1]+row_y)
 }
 
 #' get_aspect_info
@@ -146,15 +150,15 @@ rc_to_i = function(row_y,col_x,img_dim, fixed = FALSE)
 #' Height, Width (Each measure of pixels)
 #' The rest are supporting features that are minor independently. 
 #' @param character character to extract information from
-#' @param img_dim Dimensions of binary image
+#' @param dims Dimensions of binary image
 #' @keywords aspect, ratio, character, width, height
 #' @return List containing aspect_ratio, 
 #' height, width, highest, lowest, leftmost,
 #' points of character. (row, col representation)
 #' @export
-get_aspect_info = function(character, img_dim)
+get_aspect_info = function(character, dims)
 {
-  rowcol = i_to_rci(character,img_dim)
+  rowcol = i_to_rci(character,dims)
   rows_y = rowcol[,'y'] 
   cols_x = rowcol[,'x']
   row_dist = max(rows_y) - min(rows_y) + 1 #vertical distance
@@ -176,26 +180,26 @@ get_aspect_info = function(character, img_dim)
 #' Box Density: (Dimensions of box around letter width height) / (how much of the document it covers) //Might be a more document as opposed to letter based feature
 #' Pixel Density: Ratio of black to white pixels found in box drawn around the letter.
 #' @param character character to extract information from
-#' @param img_dim Dimensions of binary image
+#' @param dims Dimensions of binary image
 #' @keywords centroid, skew, slant, lean, character
 #' @return List containing centroid, pixel density,
 #' letter 'lean', and all supporting information
 #' @export
-get_centroid_info = function(character, img_dim)
+get_centroid_info = function(character, dims)
 {
-  rowcol = i_to_rci(character,img_dim)
+  rowcol = i_to_rci(character,dims)
   rows_y = rowcol[,'y'] 
   cols_x = rowcol[,'x']
   centroid_row = mean(rows_y)
   centroid_col = mean(cols_x)
   row_dist = max(rows_y) - min(rows_y) + 1 #vertical distance
   col_dist = max(cols_x) - min(cols_x) + 1 #horizontal distance
-  centroid_index = rc_to_i(centroid_row,centroid_col,img_dim)
+  centroid_index = rc_to_i(centroid_row,centroid_col,dims)
   
   #relative density: draw a box around the letter, ratio of black to white pixels in the box
   r_density = length(character)/(row_dist*col_dist)
   #box density: dimensions of box around letter / how much of the document it covers
-  box_density = (row_dist*col_dist) / (img_dim[1]*img_dim[2])
+  box_density = (row_dist*col_dist) / (dims[1]*dims[2])
 
   centroid_horiz_location = (centroid_col-min(cols_x) + 1) / col_dist
   centroid_vert_location = (centroid_row-min(rows_y) + 1) / row_dist
@@ -205,19 +209,19 @@ get_centroid_info = function(character, img_dim)
   rHalf = list(rows_y = rows_y[which(cols_x>centroid_col)],cols_x = cols_x[which(cols_x>centroid_col)])
   lHalfCentroidrc = list(y=mean(lHalf$rows_y),x=mean(lHalf$cols_x))
   rHalfCentroidrc = list(y=mean(rHalf$rows_y),x=mean(rHalf$cols_x))
-  lHalfCentroidi = rc_to_i(mean(lHalf$rows_y),mean(lHalf$cols_x),img_dim)
-  rHalfCentroidi = rc_to_i(mean(rHalf$rows_y),mean(rHalf$cols_x),img_dim)
+  lHalfCentroidi = rc_to_i(mean(lHalf$rows_y),mean(lHalf$cols_x),dims)
+  rHalfCentroidi = rc_to_i(mean(rHalf$rows_y),mean(rHalf$cols_x),dims)
   #indices of each half
-  lHi = rc_to_i(lHalf$rows_y,lHalf$cols_x,img_dim)
-  rHi = rc_to_i(rHalf$rows_y,rHalf$cols_x,img_dim)
+  lHi = rc_to_i(lHalf$rows_y,lHalf$cols_x,dims)
+  rHi = rc_to_i(rHalf$rows_y,rHalf$cols_x,dims)
   #finding slope, in case of long letters like e in csafe maybe account length?
   #errrrr does the y need a +1
-  slope = ((img_dim[1] - rHalfCentroidrc$y)-(img_dim[1] - lHalfCentroidrc$y))/(rHalfCentroidrc$x-lHalfCentroidrc$x+1)
+  slope = ((dims[1] - rHalfCentroidrc$y)-(dims[1] - lHalfCentroidrc$y))/(rHalfCentroidrc$x-lHalfCentroidrc$x+1)
   if(length(lHalf[[1]]) == 0 & length(rHalf[[1]]) == 0)
   {
     slope = 0
   }
-  lHalfCentroid = rc_to_i(mean(lHalf$rows_y),mean(lHalf$cols_x),img_dim)
+  lHalfCentroid = rc_to_i(mean(lHalf$rows_y),mean(lHalf$cols_x),dims)
   centroid_info = list(centroid_index = centroid_index, centroid_y = centroid_row, centroid_x = centroid_col, centroid_horiz_location = centroid_horiz_location,centroid_vert_location = centroid_vert_location,lHalf = lHi,rHalf=rHi,disjoint_centroids = list(left = lHalfCentroidi,right = rHalfCentroidi),slope = slope, pixel_density = r_density,box_density = box_density)
   return(centroid_info)
 }
@@ -227,16 +231,16 @@ get_centroid_info = function(character, img_dim)
 #' 
 #' @param character_lists Output from processHandwriting$letterLists
 #' @param character_features Nested lists associating features to respective characters.
-#' @param img_dim Dimensions of binary image
+#' @param dims Dimensions of binary image
 #' @keywords centroid, skew, slant, lean, character
 #' @return nested lists associating features to respective characters.
 #' @export
-add_covariance_matrix = function(character_lists, character_features, img_dim){
+add_covariance_matrix = function(character_lists, character_features, dims){
   for(i in 1:length(character_lists)){
-    matrix = i_to_rc(character_lists[[i]]$path, img_dim)
+    matrix = i_to_rc(character_lists[[i]]$path, dims)
     x = matrix[,2]
     y = matrix[,1]
-    y = img_dim[1] - y #FLIPS Y VALUE SO IT REPS A REAL COORD PLANE
+    y = dims[1] - y #FLIPS Y VALUE SO IT REPS A REAL COORD PLANE
     variance_of_x = stats::var(x)
     variance_of_y = stats::var(y)
     covariance_of_xy = stats::cov(x,y)
@@ -255,12 +259,12 @@ add_covariance_matrix = function(character_lists, character_features, img_dim){
 #' Associates characters to their respective line numbers
 #' Needs improvement if runtime becomes a problem
 #' @param character_features All extracted features 
-#' @param img_dim Dimensions of binary image
+#' @param dims Dimensions of binary image
 #' @keywords character, features, line number
 #' @return Appends line information to character features
 #' @export
-add_line_info = function(character_features,img_dim){
-  line_info = line_number_extract(all_down_dists(character_features), all_centroids(character_features), img_dim)
+add_line_info = function(character_features,dims){
+  line_info = line_number_extract(all_down_dists(character_features), all_centroids(character_features), dims)
   line_order = lapply(line_info, sort)
   for(i in 1:length(character_features)){
     cur_letter_index = character_features[[i]]$centroid_index
@@ -275,14 +279,14 @@ add_line_info = function(character_features,img_dim){
 
 
 #Return a list of the distances from the top of a character to the first thing above it
-add_updown_neighboring_char_dist = function(character_features, character_lists, img, img_dim){
+add_updown_neighboring_char_dist = function(character_features, character_lists, img, dims){
 
   #For each character
   for(i in 1:length(character_lists)){
     down_distance = Inf
     #Get the lowest point as an index point
     lowest_point = character_lists[[i]]$path[[1]]
-    rci = i_to_rci(character_lists[[i]]$path, img_dim)
+    rci = i_to_rci(character_lists[[i]]$path, dims)
     min_y_sorted = rci[order(rci[,1],decreasing=TRUE),]
     lowest_index = min_y_sorted[[1,3]]
     row = min_y_sorted[[1,1]]
@@ -290,8 +294,8 @@ add_updown_neighboring_char_dist = function(character_features, character_lists,
     
     #go down until hit another index (don't go past the bottom)
     cur_row = row + 1
-    while(cur_row <= img_dim[1]){
-      index_to_check = rc_to_i(cur_row, col, img_dim)
+    while(cur_row <= dims[1]){
+      index_to_check = rc_to_i(cur_row, col, dims)
       
       if(img[[cur_row, col]] == 0){
         down_distance = cur_row-row
@@ -435,7 +439,7 @@ add_word_info = function(letterList, dims){
 # #' Associates characters to their respective word numbers by distance between right edge of char and left edge of next
 # #' Needs improvement if runtime becomes a problem
 # #' @param character_features All extracted features
-# #' @param img_dim Dimensions of binary image
+# #' @param dims Dimensions of binary image
 # #' @keywords character, features, line number
 # #' @return Appends line information to character features
 # #' @export
@@ -492,11 +496,11 @@ add_word_info = function(letterList, dims){
 #' The outliers were frequent enough to deem my implementation unreliable for modeling.
 #' I need additional help in some of the syntactical challenges I've experienced with those features..
 #' @param character Target for loop association
-#' @param img_dim Dimensions of binary image
+#' @param dims Dimensions of binary image
 #' @keywords character, loop, associate
 #' @return Loop information to respective character
 #' @export
-get_loop_info = function(character,img_dim){
+get_loop_info = function(character,dims){
   
   #loops = loop_extract(character$allPaths)
   #loop_info = list(loop_count = length(loops),loops = loops)
@@ -603,16 +607,17 @@ all_down_dists = function(character_features){
 #' line_number_extract
 #'
 #' Primary logic unit for line number to character association
+#' @param down_dists how far down to the next character from each character
 #' @param all_centroids List of centroids extracted from cumulative character_features
-#' @param img_dim Dimensions of binary image
+#' @param dims Dimensions of binary image
 #' @keywords character, features, line, number
 #' 
 #' @return List associating line numbers to characters
 #' @importFrom stats median
 #' @importFrom utils head
 #' @export
-line_number_extract = function(down_dists, all_centroids, img_dim){
-  centroid_rci = matrix(i_to_rci(all_centroids,img_dim), ncol = 3)
+line_number_extract = function(down_dists, all_centroids, dims){
+  centroid_rci = matrix(i_to_rci(all_centroids,dims), ncol = 3)
   #sorting list based on y
   centroid_rci = matrix(centroid_rci[order(centroid_rci[,1]),], ncol = 3)
 
@@ -664,15 +669,15 @@ line_number_extract = function(down_dists, all_centroids, img_dim){
 ###---### CURRENTLY UNUSED FUNCTIONS -- FUTURE USE UNKNOWN ####---###
 #####################################################################
 # 
-# loop_info = function(loop_list, img_dim){
-#   major = loop_major(loop_list, img_dim)
-#   slope = find_i_slope(major$major_p1,major$major_p2,img_dim)
+# loop_info = function(loop_list, dims){
+#   major = loop_major(loop_list, dims)
+#   slope = find_i_slope(major$major_p1,major$major_p2,dims)
 #   print(slope)
-#   minor = loop_minor(loop_list,slope,img_dim)
+#   minor = loop_minor(loop_list,slope,dims)
 #   return(list(major = major,minor = minor))
 # }
-# loop_major = function(loop_list,img_dim){
-#   rowcol = i_to_rci(loop_list,img_dim)
+# loop_major = function(loop_list,dims){
+#   rowcol = i_to_rci(loop_list,dims)
 #   rows_y = rowcol[,'y'] 
 #   cols_x = rowcol[,'x']
 #   major_dist = -Inf
@@ -690,7 +695,7 @@ line_number_extract = function(down_dists, all_centroids, img_dim){
 # }
 # vector_to_mid = function(targ)
 # 
-# loop_minor = function(loop_list, slope, img_dim){
+# loop_minor = function(loop_list, slope, dims){
 #     i1 = NULL
 #     i2 = NULL
 #     neg_recip = -1/(slope)
@@ -700,7 +705,7 @@ line_number_extract = function(down_dists, all_centroids, img_dim){
 #       for(j in length(loop_list)/2:1){
 #         if(i == j) next 
 #         else {
-#           new_slope = find_i_slope(loop_list[[i]],loop_list[[j]],img_dim)
+#           new_slope = find_i_slope(loop_list[[i]],loop_list[[j]],dims)
 #           slope_dif = abs(new_slope-neg_recip)
 #           if(!is.nan(new_slope) & new_slope< -.8 & new_slope > -1){
 #           }
@@ -716,12 +721,12 @@ line_number_extract = function(down_dists, all_centroids, img_dim){
 #     return(list(minor_p1 = i1, minor_p2 = i2))
 #   }
 # 
-# find_i_slope = function(starti, endi, img_dim, dbug = FALSE)
+# find_i_slope = function(starti, endi, dims, dbug = FALSE)
 # {
-#   rci = i_to_rci(c(starti,endi),img_dim)
+#   rci = i_to_rci(c(starti,endi),dims)
 #   #print(rci)
 #   #standard for actual coordinate eq's
-#   rows_y = img_dim[[1]] - rci[,'y'] + 1
+#   rows_y = dims[[1]] - rci[,'y'] + 1
 #   cols_x = rci[,'x']
 #   x1 = cols_x[[1]]
 #   y1 = rows_y[[1]]
@@ -736,7 +741,7 @@ line_number_extract = function(down_dists, all_centroids, img_dim){
 # }
 # 
 # #driver for minor axis, rq'd feature by amy
-# perp_bisector = function(x1,x2,y1,y2,slope,img_dim,dbug = FALSE){
+# perp_bisector = function(x1,x2,y1,y2,slope,dims,dbug = FALSE){
 #   midx = (x1+x2)/2
 #   midy = (y1+y2)/2
 #   neg_recip = -1/(slope)

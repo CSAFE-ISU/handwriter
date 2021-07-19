@@ -11,11 +11,11 @@ checkBreakPoints(candidateNodes, allPaths, nodeGraph, terminalNodes, dims)
 
 \item{allPaths}{list of paths}
 
+\item{nodeGraph}{graph of nodes; call the getNodeGraph function}
+
 \item{terminalNodes}{nodes at the endpoints of the graph}
 
 \item{dims}{graph dimensions}
-
-\item{nodeGraphs}{graph of nodes; call the getNodeGraph() function}
 }
 \value{
 a graph without breakpoints and separated letters

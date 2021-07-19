@@ -7,26 +7,15 @@
 getNodes(indices, dims)
 }
 \arguments{
-\item{img}{Thinned binary image.}
+\item{indices}{Where to check for intersection at}
+
+\item{dims}{dimensions of the image}
 }
 \value{
 Returns image matrix. 1 is blank, 0 is a node.
 }
 \description{
 Detect intersection points of an image thinned with thinImage.
-}
-\examples{
-data(london)
-london = crop(london)
-london_thin = thinImage(london)
-london_nodes = getNodes(london_thin, dim(london))
-
-## Not Run
-#data(message)
-#message = crop(message)
-#message_thin = thinImage(message)
-#message_nodes = getNodes(message_thin, dim(message))
-
 }
 \keyword{Suen}
 \keyword{Zhang,}

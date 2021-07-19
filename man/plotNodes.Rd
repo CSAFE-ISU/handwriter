@@ -14,6 +14,8 @@ plotNodes(img, thinned, nodeList, nodeSize = 3, nodeColor = "red")
 \item{nodeList}{Nodelist returned from getNodes.}
 
 \item{nodeSize}{Size of triangles printed. 3 by default. Move down to 2 or 1 for small text images.}
+
+\item{nodeColor}{Which color the nodes should be}
 }
 \value{
 Plot of full and thinned image with vertices overlaid.
@@ -21,10 +23,4 @@ Plot of full and thinned image with vertices overlaid.
 \description{
 This function returns a plot with the full image plotted in light gray and the skeleton printed in black, with red triangles over the vertices.
 Also called from plotPath, which is a more useful function, in general.
-}
-\examples{
-# See getNodes() examples first.
-# plotNodes(london, london_thin, london_nodes)
-# plotNodes(message, message_thin, message_nodes)
-
 }

@@ -49,17 +49,11 @@ plotImageThinned = function(img, thinned)
 #' @param thinned Thinned image matrix
 #' @param nodeList Nodelist returned from getNodes.
 #' @param nodeSize Size of triangles printed. 3 by default. Move down to 2 or 1 for small text images.
+#' @param nodeColor Which color the nodes should be
 #' @return Plot of full and thinned image with vertices overlaid.
 #' 
 #' @import ggplot2
-#' 
-#' @examples
-#' # See getNodes() examples first.
-#' # plotNodes(london, london_thin, london_nodes)
-#' # plotNodes(message, message_thin, message_nodes)
-#'
 #' @export
-
 plotNodes = function(img, thinned, nodeList, nodeSize = 3, nodeColor = "red")
 {
   X <- Y <- NULL
@@ -223,7 +217,10 @@ plotLine = function(letterList, whichLine, dims)
 #' @param letterList Letter list from processHandwriting function
 #' @param whichLetter Single value in 1:length(letterList) denoting which letter to plot.
 #' @param dims Dimensions of the original document
+#' 
 #' @param showPaths Whether the calculated paths on the letter should be shown with numbers.
+#' @param showCentroid Whether the centroid should be shown
+#' @param showSlope wheter the slope should be shown
 #' @return Plot of single letter.
 #' 
 #' @import ggplot2

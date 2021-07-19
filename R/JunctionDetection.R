@@ -1,11 +1,15 @@
-## Junction Detection.
-## Provide skeletonized image from ThinText.
-
+## Junction Detection ##
+# Provide skeletonized image from ThinText.
 # A black pixel becomes a node if its removal creates exactly one or at least
 # three 4-connected black components in its 1-neighborhood.
-
 # Also from Zhang thinning paper (allegedly)
 
+
+#' countChanges
+#' 
+#' @param coords coordinates to consider
+#' @param img The non-thinned image as binary bit map
+#' 
 #' Internal function for counting 4-connected components around a pixel.
 countChanges = function(coords, img)
 {
@@ -21,6 +25,12 @@ countChanges = function(coords, img)
     stop("Please use `crop` to crop your image. Not padded around outside.")
   }
 }
+
+#' whichNeighbors
+#' 
+#' @param coords coordinates to consider
+#' @param img The image as a bitmap
+#' 
 #' Internal function for identifying which neighbors are black.
 whichNeighbors = function(coords, img)
 {
@@ -34,6 +44,11 @@ whichNeighbors = function(coords, img)
   return(res)
 }
 
+#' whichNeighbors0
+#' 
+#' @param coords coordinates to consider
+#' @param img The image as a bitmap
+#' 
 #' Internal function for identifying which neighbors are black excluding diagonals
 #' to the middle point when a non-diagonal between those two vertices exists.
 whichNeighbors0 = function(coords, img)
@@ -56,7 +71,14 @@ whichNeighbors0 = function(coords, img)
   return(res)
 }
 
-#' Internal function to merge nodes that are very close together.
+#' findMergeNodes
+#'
+#'Internal function to merge nodes that are very close together.
+#'
+#' @param skel_graph the skeltonized graph
+#' @param mergeMat sets of the nodes to merge into a single nodes
+#' 
+#' @return the merged node
 findMergeNodes = function(skel_graph, mergeMat)
 {
   newNodes = rep(NA, dim(mergeMat)[1])
@@ -114,6 +136,11 @@ AllUniquePaths = function(adj, graph, graph0)
 }
 
 #' Internal function for getting looped paths.
+#' @param nodeList A list of all found nodes
+#' @param graph first skeletonized graph
+#' @param graph0 second skeletonized graph
+#' @param pathList The current path list to check for loops
+#' @param dims dimensions of the image
 #' 
 #' @importFrom utils combn
 getLoops = function(nodeList, graph, graph0, pathList, dims)
@@ -256,7 +283,7 @@ getLoops = function(nodeList, graph, graph0, pathList, dims)
 #' 
 #' @param candidateNodes possible breakpoints
 #' @param allPaths list of paths
-#' @param nodeGraphs graph of nodes; call the getNodeGraph() function
+#' @param nodeGraph graph of nodes; call the getNodeGraph function
 #' @param terminalNodes nodes at the endpoints of the graph
 #' @param dims graph dimensions
 #' @return a graph without breakpoints and separated letters
@@ -328,20 +355,11 @@ letterPaths = function(allPaths, nodeGraph0, breakPoints)
 #' getNodes
 #'
 #' Detect intersection points of an image thinned with thinImage.
-#' @param img Thinned binary image.
+#' 
+#' @param indices Where to check for intersection at
+#' @param dims dimensions of the image
 #' @keywords vertex detection, Zhang, Suen
 #' @return Returns image matrix. 1 is blank, 0 is a node.
-#' @examples
-#' data(london)
-#' london = crop(london)
-#' london_thin = thinImage(london)
-#' london_nodes = getNodes(london_thin, dim(london))
-#'
-#' ## Not Run
-#' #data(message)
-#' #message = crop(message)
-#' #message_thin = thinImage(message)
-#' #message_nodes = getNodes(message_thin, dim(message))
 #'
 #' @export
 getNodes = function(indices, dims)

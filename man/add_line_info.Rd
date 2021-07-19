@@ -4,12 +4,12 @@
 \alias{add_line_info}
 \title{add_line_info}
 \usage{
-add_line_info(character_features, img_dim)
+add_line_info(character_features, dims)
 }
 \arguments{
 \item{character_features}{All extracted features}
 
-\item{img_dim}{Dimensions of binary image}
+\item{dims}{Dimensions of binary image}
 }
 \value{
 Appends line information to character features

@@ -9,7 +9,9 @@ i_to_rci(nodes, dims, fixed = FALSE)
 \arguments{
 \item{nodes}{nodes to be converted.}
 
-\item{img_dim}{dimensions of binary image}
+\item{dims}{dimensions of binary image}
+
+\item{fixed}{instead of normal computation of rows, put it in a fixed location.}
 }
 \value{
 returns matrix mapping nodes' indices to respective row, col

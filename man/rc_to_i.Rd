@@ -4,14 +4,14 @@
 \alias{rc_to_i}
 \title{rc_to_i}
 \usage{
-rc_to_i(row_y, col_x, img_dim, fixed = FALSE)
+rc_to_i(row_y, col_x, dims, fixed = FALSE)
 }
 \arguments{
 \item{row_y}{Row(s) to be converted to an index}
 
 \item{col_x}{Columns(s) to be converted to an index}
 
-\item{img_dim}{Dimensions of binary image}
+\item{dims}{Dimensions of binary image}
 
 \item{fixed}{Logical value asking if row_y is fixed to a point.}
 }

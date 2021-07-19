@@ -6,6 +6,13 @@
 \usage{
 addToFeatures(FeatureSet, LetterList, vectorDims)
 }
+\arguments{
+\item{FeatureSet}{The current list of features that have been calculated}
+
+\item{LetterList}{List of all letters and their information}
+
+\item{vectorDims}{Vectors with image Dims}
+}
 \description{
 addToFeatures
 }

@@ -6,6 +6,17 @@
 \usage{
 getLoops(nodeList, graph, graph0, pathList, dims)
 }
+\arguments{
+\item{nodeList}{A list of all found nodes}
+
+\item{graph}{first skeletonized graph}
+
+\item{graph0}{second skeletonized graph}
+
+\item{pathList}{The current path list to check for loops}
+
+\item{dims}{dimensions of the image}
+}
 \description{
 Internal function for getting looped paths.
 }

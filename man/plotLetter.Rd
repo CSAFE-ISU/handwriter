@@ -21,6 +21,10 @@ plotLetter(
 \item{dims}{Dimensions of the original document}
 
 \item{showPaths}{Whether the calculated paths on the letter should be shown with numbers.}
+
+\item{showCentroid}{Whether the centroid should be shown}
+
+\item{showSlope}{wheter the slope should be shown}
 }
 \value{
 Plot of single letter.

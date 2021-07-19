@@ -6,6 +6,7 @@
 #' @param letterList Letter list from processHandwriting function
 #' @param whichWord Single word value denoting which line to plot - checked if too big inside function.
 #' @param dims Dimensions of the original document
+#' @param wordInfo Word information list
 #' @return Plot of single word.
 #' 
 #' @import ggplot2

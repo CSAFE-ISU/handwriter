@@ -4,12 +4,12 @@
 \alias{get_aspect_info}
 \title{get_aspect_info}
 \usage{
-get_aspect_info(character, img_dim)
+get_aspect_info(character, dims)
 }
 \arguments{
 \item{character}{character to extract information from}
 
-\item{img_dim}{Dimensions of binary image}
+\item{dims}{Dimensions of binary image}
 }
 \value{
 List containing aspect_ratio, 

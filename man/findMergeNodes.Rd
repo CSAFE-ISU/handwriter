@@ -2,9 +2,17 @@
 % Please edit documentation in R/JunctionDetection.R
 \name{findMergeNodes}
 \alias{findMergeNodes}
-\title{Internal function to merge nodes that are very close together.}
+\title{findMergeNodes}
 \usage{
 findMergeNodes(skel_graph, mergeMat)
+}
+\arguments{
+\item{skel_graph}{the skeltonized graph}
+
+\item{mergeMat}{sets of the nodes to merge into a single nodes}
+}
+\value{
+the merged node
 }
 \description{
 Internal function to merge nodes that are very close together.

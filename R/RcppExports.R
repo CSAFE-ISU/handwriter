@@ -13,6 +13,9 @@ cleanBinaryImage <- function(img) {
 
 #' addToFeatures
 #' 
+#' @param FeatureSet The current list of features that have been calculated
+#' @param LetterList List of all letters and their information
+#' @param vectorDims Vectors with image Dims
 #' @export
 addToFeatures <- function(FeatureSet, LetterList, vectorDims) {
     .Call(`_handwriter_addToFeatures`, FeatureSet, LetterList, vectorDims)

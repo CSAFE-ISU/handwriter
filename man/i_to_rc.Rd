@@ -9,7 +9,7 @@ i_to_rc(nodes, dims)
 \arguments{
 \item{nodes}{nodes to be converted.}
 
-\item{img_dim}{dimensions of binary image}
+\item{dims}{dimensions of binary image}
 }
 \value{
 returns matrix mapping nodes to respective row, col.

@@ -4,12 +4,12 @@
 \alias{get_centroid_info}
 \title{get_centroid_info}
 \usage{
-get_centroid_info(character, img_dim)
+get_centroid_info(character, dims)
 }
 \arguments{
 \item{character}{character to extract information from}
 
-\item{img_dim}{Dimensions of binary image}
+\item{dims}{Dimensions of binary image}
 }
 \value{
 List containing centroid, pixel density,

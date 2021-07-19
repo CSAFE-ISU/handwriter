@@ -2,10 +2,17 @@
 % Please edit documentation in R/JunctionDetection.R
 \name{whichNeighbors}
 \alias{whichNeighbors}
-\title{Internal function for identifying which neighbors are black.}
+\title{whichNeighbors}
 \usage{
 whichNeighbors(coords, img)
 }
+\arguments{
+\item{coords}{coordinates to consider}
+
+\item{img}{The image as a bitmap
+
+Internal function for identifying which neighbors are black.}
+}
 \description{
-Internal function for identifying which neighbors are black.
+whichNeighbors
 }
