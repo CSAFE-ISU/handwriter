@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>handwriter</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+  <style>
+    .fakeimg {
+      height: 200px;
+      background: #aaa;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="jumbotron text-center" style="margin-bottom:0">
+    <h1><code>handwriter</code> package</h1>
+    <p>Homepage for <code>handwriter</code> package as part of CSAFE</p>
+  </div>
+
+  <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+    <a class="navbar-brand" href="index.html">Home</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="collapsibleNavbar">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link active" href="statisticalmethods.html">Methods</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="howto.html">How To</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" href="workflow.html">Workflow Integration</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="container" style="margin-top:30px">
+    <div class="row">
+      <div class="col-sm-16">
+        <h1>Integrating <code> handwriter </code> into a workflow </h1>
+        <p>Interested in how to integrate <code> handwriter </code> into your own project?</p>
+        <p> This page will give you a little more information on integration, as well as an example of how we used it </p>
+        <h2>Inputs & Outputs</h2>
+        <p> As an input, <code>handwriter</code> take a .png image of handwriting. This input needs to be taken through the core steps defined in the <a href="methods.html">methods</a> section.
+          As a result, <code>handwriter</code> outputs the information and measurements for each glyph as a list of lists. You will want to keep this in mind as you integrate handwriter into your
+          own workflow</p>
+
+        <h2> How we use it </h2>
+        <p> The <code>handwriter</code> package came about as apart of our larger process of attempting to automate the process of identifying handwriting from the same individiual in a closed set.
+          The package is one of 3 distinct parts of our workflow that are as follows:</p>
+        <ol>
+          <li>Data Collection
+            <ul>
+              <li>Collect handwriting samples </li>
+              <li>Scan, load, and crop images via batch processing</li>
+            </ul>
+          </li>
+          <li>Computational Tools</li>
+          <ul>
+            <li>Binarize: Turn image to black and white</li>
+            <li>Skeltonize: Reduce writing to 1 pixel wide</li>
+            <li>Break into glyphs: Decompose into managable pieces</li>
+            <li>Measure: Extract various measurements of these glyphs</li>
+          </ul>
+          <li>Statistical analysis</li>
+          <ul>
+            <li>Clustering: Separate glyphs based on shape</li>
+            <li>Model: Fit a statistical model to the data</li>
+            <li>Identify: Identify a writer in a closed set</li>
+          </ul>
+        </ol>
+        <br>
+        <h3>Step 1: Data Collection</h3>
+        <p> We are conducting a large data collection study to gather handwriting samples
+          from a variety of participants across the world (most in the Midwest). Each participant
+          provides handwriting samples at three sessions. Session packets are prepared, mailed
+          to participants, completed, and mailed back. </p>
+        <p>
+          Once recieved, we scan all surveys and writing samples. Scans are loaded,
+          cropped, and saved using a Shiny app. The app also facilitates survey data entry,
+          saving that participant data to lines in an excel spreadsheet. </p>
+        <p> A public database of handwriting samples we have collected can be found at
+          <a href="https://forensicstats.org/handwritingdatabase/">forensicstats.org/handwritingdatabase</a>.</p>
+        <p> A data article regarding these samples was accepted at <a href="https://www.sciencedirect.com/science/article/pii/S2352340919314155?via%3Dihub"> Data in Brief </a><br>
+          Crawford, A., Ray, A., & Carriquiry, A. (2020). A database of handwriting samples for applications in forensic statistics. Data in brief, 28, 105059.</p>
+        <br>
+        <h3>Step 2: Computational Tools</h3>
+        <p> Information on computational tools can be found in the <a href="methods.html">methods</a> section. </p>
+
+
+        <h3>Step 3: Statistical Analysis</h3>
+        <h4> Clustering </h4>
+        <p> Rather than impose rigid grouping rules (the previously used ‘’adjacency grouping’’) we consider a more robust, dynamic K −
+          means type clustering method that is focused on major glyph structural components.</p>
+        <p>For a clustering algorithim we need two things: </p>
+        <ol>
+          <li> <b>A distance measure </b> - For us, a way to measure the discrepency between glyphs. </li>
+          <li> <b>A measure of center </b> - A glyph-like structure that is the exemplar representation of a group of glyphs. </li>
+        </ol>
+
+        <h5> Glyph Distance Measurement </h5>
+        <p> We begin by defining edge to edge distances. Edge to edge distances are subsequently combined for an overall glyph to glyph distance. </p>
+        <p> Consider the following single edge glyphs e1 and e2. Make 3 edits to e1 to match e2. Then combine the magnitude of each edit. </p>
+
+        <body>
+          <img src="Pictures/edge_to_edge_1.png" class="img-fluid" alt="edge_to_edge_1">
+        </body>
+
+        <p> Measure 1 (Left) - <b>Shift</b>: Anchor to the nearest endpoint by shifting. In our example, the shift value is 1.4.</p>
+        <p> Measure 2 (Center) - <b>Stretch</b>: Make the end points the same distance apart. Stretch value of 9.9.</p>
+        <p> Measure 3 (Right and Bottom) - <b>Shape</b>: Bend and twist the edge using 7 shape points. Shape points are 'matched' and the distance
+          between them is averaged to obtain the shape value. Shape value of 8.4 after averaging </p>
+
+        <body>
+          <img src="Pictures/edge_to_edge_6.png" class="img-fluid" alt="edge_to_edge_6">
+        </body>
+
+        <center> <br>Shape measurements averaged <br></center>
+
+        <body>
+          <img src="Pictures/edge_to_edge_5.png" class="img-fluid" alt="edge_to_edge_2">
+        </body>
+
+        <p> <br>So, our edge to edge distance: <b>D(e1, e2) = 1.4 + 9.9 + 8.4 = 19.7</b><br></p>
+
+        <h5>
+          <br>Measure of Glyph Centers </h5>
+        <p> For this measurement, we take the weighted average of endpoints, 7 shape points, and edge length</p>
+
+        <body>
+          <img src="Pictures/measure_center_1.png" class="img-fluid" alt="measure_center_1">
+        </body>
+
+        <h5> <br>K-means clustering algorithim for glyphs </h5>
+        <p> We implement a standard K-means. We begin with a fixed K and set of exemplars. Iterate between the following steps until cluster assignments don't change: </p>
+        <p> <b>1. Assign each glyph to the exemplar it is nearest to given the distance measure taken before </b></p>
+        <p> <b>2. Calculate each cluster mean as defined. Find the exemplar nearest the cluster center. </b></p>
+
+        <body>
+          <img src="Pictures/k_means_1.png" class="img-fluid" alt="k_means_1">
+        </body>
+
+        <p> <br>An example cluster when K = 40 is shown below. Examplar is shown on the left in red, with the members shown
+          as in black behind it. On the right is the cluster mean. </p>
+        <p> During clustering, outliers are considered glyphs that are a certain distance from the exemplar. The algorithim sets
+          a ceiling on the allowable number of clusters. </p>
+
+        <br>
+        <h4> Statistical Modeling </h4>
+        <p> The most appropriate approach to modeling is found through the wrapped model for rotational angles</p>
+        <h5> Wrapped Model for Rotation Angles </h5>
+        <p> We consider the rotational angles found in measurements before in the polar coordinate syste and treat them
+          as spanning the full circle. So we map the upper half plane values to (0, 2π), where the values above the x-axis
+          indicate a right leaning graph and below the x-axis indicate left leaning graphs. Graphs that are relatively straight
+          up and down will have values near 0/2π if they are wider than tall, and near π if they are taller than wide. </p>
+
+        <p> We consider two distributions to approach this circular data: </p>
+        <p> The <b> von Mises </b> distribution is a close approximate to the wrapped normal distribution,
+          circular analog of the normal distribution. This is the go-to model for unimodal wrapped distribution.
+          It is specified through the mean, μ, and concentration, κ (1/k analogous to σ<sup>2</sup>).</p>
+
+        <p>The <b> wrapped Cauchy</b> distribution is the wrapped version of the Cauchy distribution.
+          Similar to Cauchy, this distribution is symmetric, unimodel, and specified by a location paramter,
+          μ, and concetration parameter ρ. This is a heavily-tailed distribution in the sense that it will place
+          more density on the "back" of the circle opposite the peak of distribution. </p>
+        <p> Now consider: </p>
+
+        <body>
+          <img src="Pictures/wrapped_cauchy_1.png" class="img-fluid" alt="wrapped_cauchy_1">
+        </body>
+        <p><br>Where RA<sub>w,k,i</sub>, i = 1,...,n<sub>w,k</sub>, are roation angles from cluster k, and writer w, on
+          the full circle (0, 2π). For a given writer and cluster, μ<sub>w,k</sub> and ϕ<sub>w,k</sub> are the location
+          and concentration parameters, respectivley. We place non-informative uniform priors on each. Again, there is no borrowing
+          set up in the model for rotation angles. Each writer/cluster combination ets its own estimated rotation angle distribution.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="jumbotron text-center" style="margin-bottom:0">
+    <p><a href="https://forensicstats.org/"> CSAFE </a></p>
+  </div>
+
+</body>
+
+</html>
