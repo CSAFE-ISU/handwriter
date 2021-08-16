@@ -126,8 +126,8 @@
                       </pre>
                       <p>Save information for plotting</p>
                       <pre>
-                        <code>csafe$nodes = csafe_processList$nodes
-                          csafe$breaks = csafe_processList$breakpoints
+                        <code>csafe$nodes = csafe_processlist$nodes
+                          csafe$breaks = csafe_processlist$breakPoints
                           dims = dim(csafe$image)</code>
                       </pre>
                       <h2><br>Plotting processed writing</h2>
@@ -168,23 +168,20 @@
                         <li>
                           OPTIONAL: Boolean - Plot the slope of the glyph
                         </li>
-                        <li>
-                          OPTIONAL: Boolean - Plot the compactness based on the distance of each pixel of the glph from the centroid.
-                        </li>
                       </ul>
                       <p>The following will result in the first glyph being plotted with all optional paramters:</p>
                       <pre>
-                        <code>plotLetter(csafe_processlist$letterlist, 1, dims)
+                        <code>plotLetter(csafe_processList$letterlist, 1, dims)
 
                           #Note: No optional parameters specified is the same as:
-                          #plotLetter(csafe_processlist$letterlist, 1, dims, TRUE, TRUE, TRUE, TRUE)</code>
+                          #plotLetter(csafe_processlist$letterList, 1, dims, TRUE, TRUE, TRUE)</code>
                       </pre>
                       <div class = "container-sm">
                         <img src="Pictures/c_all_features.png" alt="c_all_features">
                       </div>
                       <p>This will plot the fifth glyph with just the slope and centroid:</p>
                       <pre>
-                        <code>plotLetter(csafe_processList$letterList, 5, dims, FALSE, TRUE, TRUE, FALSE)</code>
+                        <code>plotLetter(csafe_processlist$letterList, 5, dims, FALSE, TRUE, TRUE)</code>
                       </pre>
                       <div class = "container-sm">
                         <img src="Pictures/f_slope_and_centroid.png" alt="c_all_features">
