@@ -252,7 +252,7 @@ double findDistanceBetweenTwoPoints(NumericVector p1, NumericVector p2){
   
   int y_b = p1[1];
   int y_a = p2[1];
-  double distance = sqrt(pow((x_b-x_a), 2)+pow((y_b-y_a), 2));
+  double distance = sqrt(double((x_b - x_a) * (x_b - x_a)) + double((y_b - y_a) * (y_b - y_a)));
   return distance;
 }
 

@@ -91,6 +91,7 @@
                       </div>
                       <p>
                         Once you have that, read in the image:
+                        The image is also cropped as part of this process.
                       </p>
                       <pre>
                         <code>csafe = list()
@@ -99,11 +100,10 @@
                       <br>
                       <h2>Preparing the image for processing</h2>
                       <p>
-                        crop the image and plot it:
+                        Plot the original, cropped image:
                       </p>
                       <pre>
-                        <code>csafe$image = crop(csafe$image)
-                          plotImage(csafe$image)</code>
+                        <code>plotImage(csafe$image)</code>
                       </pre>
                       <div class = "container-sm">
                         <img src="Pictures/csafe_cropped.png" alt="Writing_csafe_single">
