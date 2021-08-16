@@ -9,10 +9,11 @@ countChanges(coords, img)
 \arguments{
 \item{coords}{coordinates to consider}
 
-\item{img}{The non-thinned image as binary bit map
-
-Internal function for counting 4-connected components around a pixel.}
+\item{img}{The non-thinned image as binary bit map}
+}
+\value{
+The sum of the 4-connected components around a pixel.
 }
 \description{
-countChanges
+Internal function for counting 4-connected components around a pixel.
 }

@@ -9,6 +9,9 @@ thinImage(img)
 \arguments{
 \item{img}{A binary matrix of the text that is to be thinned.}
 }
+\value{
+A thinned, one pixel wide, image.
+}
 \description{
 This function returns a vector of locations for black pixels in the thinned image.
 Thinning done using Zhang - Suen algorithm.

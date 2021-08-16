@@ -4,7 +4,10 @@
 \alias{makeModel}
 \title{makeModel}
 \usage{
-makeModel()
+makeModel(TaggedJson)
+}
+\arguments{
+\item{TaggedJson}{Json File with tagged letter data}
 }
 \value{
 randomForest model

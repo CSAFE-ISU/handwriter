@@ -9,6 +9,10 @@ whichToFill(img)
 \arguments{
 \item{img}{A binary matrix.}
 }
+\value{
+A cleaned up image.
+}
 \description{
-Finds pixels in the plot that shouldn't be white and makes them black. Quick and helpful cleaning for before the thinning algorithm runs.
+Finds pixels in the plot that shouldn't be white and makes them black. 
+Quick and helpful cleaning for before the thinning algorithm runs.
 }

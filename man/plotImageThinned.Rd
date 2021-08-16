@@ -18,9 +18,10 @@ Plot of full and thinned image.
 This function returns a plot with the full image plotted in light gray and the skeleton printed in black on top.
 }
 \examples{
-
-## Not Run
-# plotImageThinned(london, london_thin)
-# plotImageThinned(message, message_thin)
-
+\dontrun{
+nature1_document = list()
+nature1_document$image = nature1
+nature1_document$thin = thinImage(nature1_document$image)
+plotImageThinned(nature1_document$image, nature1_document$thin)
+}
 }

@@ -19,8 +19,8 @@ nested lists associating features to respective characters.
 \description{
 Primary driver of feature extraction. Parses all characters from a processed image.
 }
-\keyword{centroid,}
+\keyword{centroid}
 \keyword{character}
-\keyword{lean,}
-\keyword{skew,}
-\keyword{slant,}
+\keyword{lean}
+\keyword{skew}
+\keyword{slant}

@@ -1,15 +1,28 @@
 #' readPNGBinary
+#' 
 #' This function reads in and binarizes PNG images from the specified file path.
+#' 
 #' @param path File path for image.
 #' @param cutoffAdjust Multiplicative adjustment to the K-means estimated binarization cutoff.
 #' @param clean Whether to fill in white pixels with 7 or 8 neighbors. This will help a lot when thinning -- keeps from getting little white bubbles in text.
 #' @param inversion Logical value dictating whether or not to flip each pixel of binarized image. Flipping happens after binarization. FALSE by default.
 #' @param crop Logical value dictating whether or not to crop the white out around the image. TRUE by default. 
+#' @return Returns image from path. 0 represents black, and 1 represents white by default.
+#'
 #' @keywords binary
+#' 
 #' @importFrom png readPNG
 #' @useDynLib handwriter, .registration = TRUE
 #' @importFrom Rcpp sourceCpp
-#' @return Returns image from path. 0 represents black, and 1 represents white by default.
+#' 
+#' @examples
+#' \dontrun{
+#' csafe_document = list()
+#' csafe_document$image = readPNGBinary("examples/Writing_csafe_single.png")
+#' csafe_document$thin = thinImage(csafe_document$image)
+#' csafe_processList = processHandwriting(csafe_document$thin, dim(csafe_document$image))
+#' }
+#' 
 #' @export
 readPNGBinary = function(path, cutoffAdjust = 0, clean = TRUE, crop = TRUE, inversion = FALSE)
 {
@@ -86,11 +99,9 @@ otsuBinarization = function(img, breaks = 512)
 #' crop
 #'
 #' This function crops an image down so that there is 1 pixel of padding on each side of the outermost 0 points.
+#' 
 #' @param img Full image matrix to be cropped
 #' @return Cropped image matrix.
-#'
-#' @export
-
 crop = function(img)
 {
   if(any(img[,1] != 1)) {img = cbind(rep(1, dim(img)[1]), img)}

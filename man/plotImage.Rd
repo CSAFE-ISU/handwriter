@@ -15,4 +15,10 @@ Returns plot of x.
 \description{
 This function plots a basic binary image.
 }
+\examples{
+nature1_document = list()
+nature1_document$image = nature1
+plotImage(nature1_document$image)
+
+}
 \keyword{plot}

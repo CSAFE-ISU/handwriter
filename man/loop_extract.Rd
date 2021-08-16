@@ -13,9 +13,9 @@ loop_extract(allPaths)
 List of all loops
 }
 \description{
-Iterates through all avaiable paths from processHandwriting()
+Iterates through all available paths from processHandwriting()
 Picks out loops for later character association.
 }
-\keyword{character,}
+\keyword{character}
 \keyword{line}
-\keyword{loops,}
+\keyword{loops}

@@ -6,8 +6,12 @@
 #' 
 #' @seealso \pkg{\link{lattice}}
 #' @return None
-#' @export
 #' 
+#' @examples 
+#' \dontrun{
+#' runHandWrtingViewer()
+#' }
+#' @export
 runHandwritingViewer = function()
 {
   appDir <- system.file("ShinyHWViewer", package = "handwriter")

@@ -12,7 +12,7 @@ findMergeNodes(skel_graph, mergeMat)
 \item{mergeMat}{sets of the nodes to merge into a single nodes}
 }
 \value{
-the merged node
+The merged node
 }
 \description{
 Internal function to merge nodes that are very close together.

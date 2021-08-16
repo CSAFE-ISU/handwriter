@@ -4,16 +4,26 @@
 \alias{AddLetterImages}
 \title{AddLetterImages}
 \usage{
-AddLetterImages(letterList, docDims)
+AddLetterImages(letterList, dims)
 }
 \arguments{
 \item{letterList}{Letter list from processHandwriting function}
 
-\item{docDims}{Dimensions of the original document}
+\item{dims}{Dimensions of the original document}
 }
 \value{
 letterList with a new matrix `image` value for each sublist.
 }
 \description{
-This function returns a plot of a single letter extracted from a document. It uses the letterList parameter from the processHandwriting function and accepts a single value as whichLetter. Dims requires the dimensions of the entire document, since this isn't contained in processHandwriting.
+Pulls out letterlist as its own object, and adds the image matrix as well
+}
+\examples{
+twoSent_document = list()
+twoSent_document$image = twoSent
+twoSent_document$thin = thinImage(twoSent_document$image)
+twoSent_processList = processHandwriting(twoSent_document$thin, dim(twoSent_document$image))
+
+dims = dim(twoSent_document$image)
+withLetterImages = AddLetterImages(twoSent_processList$letterList, dims)
+
 }

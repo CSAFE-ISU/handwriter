@@ -17,7 +17,7 @@ Appends line information to character features
 \description{
 Associates characters to their respective word numbers by ML on labeled data
 }
-\keyword{character,}
-\keyword{features,}
+\keyword{character}
+\keyword{features}
 \keyword{line}
 \keyword{number}

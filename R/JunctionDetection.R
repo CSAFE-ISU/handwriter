@@ -7,10 +7,11 @@
 
 #' countChanges
 #' 
+#' Internal function for counting 4-connected components around a pixel.
+#' 
 #' @param coords coordinates to consider
 #' @param img The non-thinned image as binary bit map
-#' 
-#' Internal function for counting 4-connected components around a pixel.
+#' @return The sum of the 4-connected components around a pixel.
 countChanges = function(coords, img)
 {
   rr = coords[1]
@@ -28,10 +29,11 @@ countChanges = function(coords, img)
 
 #' whichNeighbors
 #' 
+#' Internal function for identifying which neighbors are black.
+#' 
 #' @param coords coordinates to consider
 #' @param img The image as a bitmap
-#' 
-#' Internal function for identifying which neighbors are black.
+#' @return Return a list of which neighbors are a black pixel
 whichNeighbors = function(coords, img)
 {
   rr = coords[1]
@@ -46,11 +48,13 @@ whichNeighbors = function(coords, img)
 
 #' whichNeighbors0
 #' 
-#' @param coords coordinates to consider
-#' @param img The image as a bitmap
-#' 
 #' Internal function for identifying which neighbors are black excluding diagonals
 #' to the middle point when a non-diagonal between those two vertices exists.
+#' 
+#' @param coords coordinates to consider
+#' @param img The image as a bitmap
+#' @return Return a list of which neighbors are a black pixel excluding diagonals to the 
+#' middle point when a non-diagonal between those two vertices exists.
 whichNeighbors0 = function(coords, img)
 {
   rr = coords[1]
@@ -77,8 +81,7 @@ whichNeighbors0 = function(coords, img)
 #'
 #' @param skel_graph the skeltonized graph
 #' @param mergeMat sets of the nodes to merge into a single nodes
-#' 
-#' @return the merged node
+#' @return The merged node
 findMergeNodes = function(skel_graph, mergeMat)
 {
   newNodes = rep(NA, dim(mergeMat)[1])
@@ -135,12 +138,16 @@ AllUniquePaths = function(adj, graph, graph0)
   return(paths)
 }
 
+#' getLoops
+#' 
 #' Internal function for getting looped paths.
+#' 
 #' @param nodeList A list of all found nodes
 #' @param graph first skeletonized graph
 #' @param graph0 second skeletonized graph
 #' @param pathList The current path list to check for loops
 #' @param dims dimensions of the image
+#' @return A list of all loops found
 #' 
 #' @importFrom utils combn
 getLoops = function(nodeList, graph, graph0, pathList, dims)
@@ -173,7 +180,7 @@ getLoops = function(nodeList, graph, graph0, pathList, dims)
 
   if(any(unlist(lapply(neighbors, length)) > 3))
   {
-    cat("At least 1 of the nodes in the potential loops has more than 2 neighbors after removal of the connections. Try again! \nThe nodes in question are: \n", dput(names(neighbors)[which(unlist(lapply(neighbors, length)) > 3)]))
+    warning("At least 1 of the nodes in the potential loops has more than 2 neighbors after removal of the connections. Try again! \nThe nodes in question are: \n", dput(names(neighbors)[which(unlist(lapply(neighbors, length)) > 3)]))
   }
 
   ## Get paths that start and end at the same point, where that point is a node in nodeList
@@ -279,13 +286,14 @@ getLoops = function(nodeList, graph, graph0, pathList, dims)
 
 #' checkBreakPoints
 #'
-#'  Internal function called by processHandwriting that eliminates breakpoints based on rules to try to coherently separate letters.
+#' Internal function called by processHandwriting that eliminates breakpoints based on rules to try to coherently separate letters.
 #' 
 #' @param candidateNodes possible breakpoints
 #' @param allPaths list of paths
 #' @param nodeGraph graph of nodes; call the getNodeGraph function
 #' @param terminalNodes nodes at the endpoints of the graph
 #' @param dims graph dimensions
+#' 
 #' @return a graph without breakpoints and separated letters
 checkBreakPoints = function(candidateNodes, allPaths, nodeGraph, terminalNodes, dims)
 {
@@ -358,10 +366,9 @@ letterPaths = function(allPaths, nodeGraph0, breakPoints)
 #' 
 #' @param indices Where to check for intersection at
 #' @param dims dimensions of the image
-#' @keywords vertex detection, Zhang, Suen
 #' @return Returns image matrix. 1 is blank, 0 is a node.
-#'
-#' @export
+#' 
+#' @keywords vertex Zhang
 getNodes = function(indices, dims)
 {
   ## First, we find endpoints and intersections of skeleton.
@@ -401,35 +408,44 @@ getNodes = function(indices, dims)
 
 #' processHandwriting
 #'
-#' Huge step in handwriting processing. Takes in thin image form and the breakpoints suggested by getNodes and parses the writing into letters. Returns final letter separation points, a list of the paths in the image, and a list of the letter paths in the image.
+#' Main driver of handwriting processing. 
+#' Takes in thin image form and the breakpoints suggested by getNodes and parses the writing into letters. 
+#' Returns final letter separation points, a list of the paths in the image, and a list of the letter paths in the image.
 #'
 #' @param img Thinned binary image.
 #' @param dims Dimensions of thinned binary image.
-#' @return Returns a list of length 3. Object [[1]] (called breakPoints) is the set of final letter separation points.
-#' Object [[2]] (called pathList) is a list of the paths between the input specified nodes.
-#' Object [[3]] (called letters) is a list of the pixels in the different letters in the handwriting sample.
+#' @return Returns a list of length 3. Object [[1]] (breakPoints) is the set of final letter separation points.
+#' Object [[2]] (pathList) is a list of the paths between the input specified nodes.
+#' Object [[3]] (letters) is a list of the pixels in the different letters in the handwriting sample.
+#' 
 #' @useDynLib handwriter, .registration = TRUE
+#' 
 #' @importFrom Rcpp sourceCpp
 #' @importFrom reshape2 melt
 #' @importFrom grDevices as.raster
 #' @importFrom graphics hist
 #' @importFrom stats na.omit
 #' @importFrom utils install.packages
-#' 
 #' @import igraph
 #'
+#' @examples
+#' twoSent_document = list()
+#' twoSent_document$image = twoSent
+#' twoSent_document$thin = thinImage(twoSent_document$image)
+#' twoSent_processList = processHandwriting(twoSent_document$thin, dim(twoSent_document$image))
+#' 
 #' @export
 processHandwriting = function(img, dims){
   
   value <- from <- to <- nodeOnlyDist <- man_dist <- euc_dist <- pen_dist <- NULL
   
   # Next, we have to follow certain rules to find non intersection breakpoints.
-  cat("Starting Processing...\n")
+  message("Starting Processing...")
   indices = img
   img = matrix(1, nrow = dims[1], ncol = dims[2])
   img[indices] = 0
   
-  cat("Getting Nodes...\n")
+  message("Getting Nodes...", appendLF = FALSE)
   nodeList = getNodes(indices, dims)
   nodeConnections = nodeList[[2]]
   terminalNodes = nodeList[!(nodeList %in% nodeConnections)]
@@ -473,7 +489,7 @@ processHandwriting = function(img, dims){
   dists0 = distances(skel_graph0, v = as.character(format(nodeList, scientific = FALSE, trim = TRUE)), to = as.character(format(nodeList, scientific = FALSE, trim = TRUE)), weights = E(skel_graph0)$nodeOnlyDist)
   adj0 = ifelse(dists0 == 1 | dists0 == 2, 1, 0)
   
-  cat("and merging them\nmergeSets left:")
+  message("attempting to merge them...", appendLF = FALSE)
   emergencyBreak = 20;
   while(TRUE)
   {
@@ -490,8 +506,6 @@ processHandwriting = function(img, dims){
     mergeSets = matrix(mergeSets, ncol = 2)
     
     if(dim(mergeSets)[1] == 0) break
-    cat(dim(mergeSets)[1])
-    cat("-->")
     
     if(anyDuplicated(c(mergeSets)) > 0)
     {
@@ -527,12 +541,12 @@ processHandwriting = function(img, dims){
     
     emergencyBreak = emergencyBreak - 1
     if(emergencyBreak == 0){
-      cat("Could not merge nodes... stopping execution")
+      warning("Could not merge nodes... stopping execution")
       stop()
     }
         
   }
-  cat("\n")
+  message("merged successfully.")
   
   
   graphdf0 = as_data_frame(skel_graph0)
@@ -544,10 +558,10 @@ processHandwriting = function(img, dims){
   adj.m = subset(adj.m, value == 1)
   names(adj.m) = c("from", "to", "value")
   
-  cat("Finding direct paths...")
+  message("Finding direct paths...", appendLF = FALSE)
   pathList = AllUniquePaths(adj.m, skel_graph, skel_graph0)
   
-  cat("and loops...\n")
+  message("and loops...")
   loopList = getLoops(nodeList, skel_graph, skel_graph0, pathList, dim(img))
 
   allPaths = append(pathList, loopList)
@@ -557,7 +571,7 @@ processHandwriting = function(img, dims){
   skel_graph0 = graph_from_data_frame(graphdf0, directed = FALSE)
   
   #Nominate and check candidate breakpoints
-  cat("Looking for letter break points...")
+  message("Looking for letter break points...", appendLF = FALSE)
   hasTrough = rep(FALSE, length(pathList))
   troughNodes = c()
   candidateNodes = c()
@@ -593,8 +607,8 @@ processHandwriting = function(img, dims){
   breaks = c(1, breaks, length(troughNodes))
   candidateNodes = c(candidateNodes, troughNodes[ceiling((breaks[-1] + breaks[-length(breaks)])/2)])
 
-  cat("and discarding bad ones...\n")
-  
+  message("and discarding bad ones...")
+
   goodBreaks = checkBreakPoints(candidateNodes = candidateNodes, allPaths = pathList, nodeGraph = getNodeGraph(pathList, nodeList), terminalNodes = terminalNodes, dims)
   preStackBreaks = candidateNodes[goodBreaks]
   
@@ -608,7 +622,7 @@ processHandwriting = function(img, dims){
   }
   
   
-  cat("Isolating letter paths...\n")
+  message("Isolating letter paths...")
 
   ## Break on breakpoints and group points by which letter they fall into. Adjust graph accordingly.
   letterList = letterPaths(allPaths, skel_graph0, preStackBreaks)
@@ -646,16 +660,16 @@ processHandwriting = function(img, dims){
   
   allPaths = lapply(rapply(allPaths, enquote, how="unlist"), eval)
   
-  cat("Organizing letters...\n")
+  message("Organizing letters...")
   letters = organize_letters(skel_graph0)
   
-  cat("Creating letter lists...\n")
+  message("Creating letter lists...")
   letterList = create_letter_lists(allPaths, letters, nodeList, nodeConnections, terminalNodes, dims)
 
-  cat("Adding character features...")
+  message("Adding character features...")
   letterList = add_character_features(img, letterList, letters, dims)
   
-  cat("Document processing complete.\n")
+  message("Document processing complete.")
   
   return(list(nodes = nodeList, connectingNodes = nodeConnections, terminalNodes = terminalNodes, breakPoints = sort(finalBreaks), letterList = letterList))
 }
@@ -777,7 +791,6 @@ create_letter_lists = function(allPaths, letters, nodeList, nodeConnections, ter
 #' @param letters individual characters from letterList
 #' @param dims image graph dimensions 
 #' @return a list of letters with features applied
-#' 
 add_character_features = function(img, letterList, letters, dims){
   featureSets = extract_character_features(img, letterList, dims)
   
@@ -812,7 +825,7 @@ pathLetterAssociate = function(allPaths,letter){
   return(associatedPaths)
 }
 
-#'  checkSimplicityBreaks
+#' checkSimplicityBreaks
 #' 
 #' Internal function for removing breakpoints that separate graphs that are too simple to be split. Remove break if graph on left and right of the break have 4 or fewer nodes and no loops or double paths. Never remove break on a trough.
 #' 
@@ -924,7 +937,6 @@ checkStacking = function(candidateBreaks, allPaths, letters, nodeGraph0, dims)
 #' @param letterList list containing letter characters
 #' @param nodes list of nodes
 #' @return number of nodes in letterList
-#' @export
 countNodes = function(letterList, nodes)
 {
   unlist(lapply(letterList, function(x){sum(x %in% nodes)}))
@@ -936,7 +948,6 @@ countNodes = function(letterList, nodes)
 #' 
 #' @param allPaths list of paths
 #' @param nodeList list of nodes
-#' 
 #' @return a graph of nodes
 getNodeGraph = function(allPaths, nodeList)
 {

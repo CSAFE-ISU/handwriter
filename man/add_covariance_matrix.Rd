@@ -19,8 +19,8 @@ nested lists associating features to respective characters.
 \description{
 add_covariance_matrix
 }
-\keyword{centroid,}
+\keyword{centroid}
 \keyword{character}
-\keyword{lean,}
-\keyword{skew,}
-\keyword{slant,}
+\keyword{lean}
+\keyword{skew}
+\keyword{slant}

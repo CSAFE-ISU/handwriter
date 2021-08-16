@@ -5,10 +5,9 @@
 #' @param img The thinned image bitmap
 #' @param character_lists Output from processHandwriting$letterLists
 #' @param dims Dimensions of binary image
-#' @keywords centroid, skew, slant, lean, character
 #' @return nested lists associating features to respective characters.
 #' 
-#' @export
+#' @keywords centroid skew slant lean character
 extract_character_features = function(img, character_lists,dims){
   
   character_features = list()
@@ -34,9 +33,9 @@ extract_character_features = function(img, character_lists,dims){
 #' @param character character to extract information from
 #' @param dims Dimensions of binary image
 #' @param uniqueid Unique numerical reference to character
-#' @keywords character, features
 #' @return List containing features of character
-#' @export
+#' 
+#' @keywords character features
 char_to_feature = function(character, dims, uniqueid){
   aspect_info = get_aspect_info(character$path,dims)
   centroid_info = get_centroid_info(character$path,dims)
@@ -51,13 +50,13 @@ char_to_feature = function(character, dims, uniqueid){
 
 #' plotNodesLine
 #'
-#' Internal function for drawing a line from two given nodes. 
+#' Internal function for drawing a line from two given nodes.
+#'  
 #' @param img full image matrix; used to call plotImageThinned()
 #' @param thinned thinned image matrix; used to call plotImageThinned()
 #' @param nodeList list of nodes
 #' @param nodeSize size of node; default set to 3
 #' @param nodeColor color of node; default set to red
-#' 
 #' @return a line in between the two nodes
 plotNodesLine = function(img, thinned, nodeList, nodeSize = 3, nodeColor = "red")
 {
@@ -92,9 +91,9 @@ plotNodesLine1 = function(img, thinned, nodeList, nodeSize = 3, nodeColor = "red
 #' 
 #' @param nodes nodes to be converted.
 #' @param dims dimensions of binary image
-#' @keywords row, column, binary, image
-#' @return returns matrix mapping nodes to respective row, col. 
-#' @export
+#' @return returns matrix mapping nodes to respective row, 
+#'  
+#' @keywords row column binary image
 i_to_rc = function(nodes, dims)
 {
   cs = (nodes-1)%/%dims[1] + 1
@@ -109,10 +108,9 @@ i_to_rc = function(nodes, dims)
 #' @param nodes nodes to be converted.
 #' @param dims dimensions of binary image
 #' @param fixed instead of normal computation of rows, put it in a fixed location.
-#' @keywords row, column, binary, image, index
-#' 
 #' @return returns matrix mapping nodes' indices to respective row, col
-#' @export
+#' 
+#' @keywords row column binary image index
 i_to_rci = function(nodes, dims, fixed = FALSE)
 {
   cs = (nodes-1)%/%dims[1] + 1
@@ -127,13 +125,14 @@ i_to_rci = function(nodes, dims, fixed = FALSE)
 #'
 #' Convert rows and columns to their respective indices.
 #' This is index sensitive, so row_y[[1]] should correspond to col_x[[1]]
+#' 
 #' @param row_y Row(s) to be converted to an index
 #' @param col_x Columns(s) to be converted to an index
 #' @param dims Dimensions of binary image
 #' @param fixed Logical value asking if row_y is fixed to a point.
-#' @keywords row, column, binary, image, index
 #' @return Returns index(icies) of all row_y's and col_x's
-#' @export
+#' 
+#' @keywords row column binary image index
 rc_to_i = function(row_y,col_x,dims, fixed = FALSE)
 {
   row_y = as.integer(row_y)
@@ -146,16 +145,15 @@ rc_to_i = function(row_y,col_x,dims, fixed = FALSE)
 #'
 #' Extracts aspect ratio & supporting information from a character
 #' Relevant Features:
-#' Aspect Ratio: Row (Height) over (Column Width) //Determined after a meeting, can easily be switched around)
+#' Aspect Ratio: Row (Height) over (Column Width) 
 #' Height, Width (Each measure of pixels)
-#' The rest are supporting features that are minor independently. 
+#' The rest are supporting features that are minor independently.
+#'  
 #' @param character character to extract information from
 #' @param dims Dimensions of binary image
-#' @keywords aspect, ratio, character, width, height
 #' @return List containing aspect_ratio, 
-#' height, width, highest, lowest, leftmost,
-#' points of character. (row, col representation)
-#' @export
+#' 
+#' @keywords aspect ratio character
 get_aspect_info = function(character, dims)
 {
   rowcol = i_to_rci(character,dims)
@@ -172,19 +170,19 @@ get_aspect_info = function(character, dims)
 #' Extracts centroid & supporting information from a character
 #' Relevant Features:
 #' Centroid Index: R Index representation of centroid location
-#' Centroid x,y: X,Y representations of the centroid, see ?i_to_rci (Written by Nick)
+#' Centroid x,y: X,Y representations of the centroid, see ?i_to_rci 
 #' Centroid Horiz Location: How far along horizontally (Represented as a number between 0 and 1) the centroid is in its respective character.
 #' Centroid Vertical Location: How far along vertically (Represented as a number between 0 and 1) the centroid is in its respective character.
 #' Slope: 'Letter Lean', slope found between the centroids of each disjoint half in a single character.
 #' The letter is split in half, each halve's centroid is calculated independently, the slope is taken between the two. 
 #' Box Density: (Dimensions of box around letter width height) / (how much of the document it covers) //Might be a more document as opposed to letter based feature
 #' Pixel Density: Ratio of black to white pixels found in box drawn around the letter.
+#' 
 #' @param character character to extract information from
 #' @param dims Dimensions of binary image
-#' @keywords centroid, skew, slant, lean, character
-#' @return List containing centroid, pixel density,
-#' letter 'lean', and all supporting information
-#' @export
+#' @return List containing centroid, pixel density,letter 'lean', and all supporting information
+#' 
+#' @keywords centroid skew slant lean character
 get_centroid_info = function(character, dims)
 {
   rowcol = i_to_rci(character,dims)
@@ -228,13 +226,12 @@ get_centroid_info = function(character, dims)
 
 #' add_covariance_matrix
 #'
-#' 
 #' @param character_lists Output from processHandwriting$letterLists
 #' @param character_features Nested lists associating features to respective characters.
 #' @param dims Dimensions of binary image
-#' @keywords centroid, skew, slant, lean, character
 #' @return nested lists associating features to respective characters.
-#' @export
+#' 
+#' @keywords centroid skew slant lean character
 add_covariance_matrix = function(character_lists, character_features, dims){
   for(i in 1:length(character_lists)){
     matrix = i_to_rc(character_lists[[i]]$path, dims)
@@ -258,11 +255,12 @@ add_covariance_matrix = function(character_lists, character_features, dims){
 #'
 #' Associates characters to their respective line numbers
 #' Needs improvement if runtime becomes a problem
+#' 
 #' @param character_features All extracted features 
 #' @param dims Dimensions of binary image
-#' @keywords character, features, line number
 #' @return Appends line information to character features
-#' @export
+#' 
+#' @keywords character features line number
 add_line_info = function(character_features,dims){
   line_info = line_number_extract(all_down_dists(character_features), all_centroids(character_features), dims)
   line_order = lapply(line_info, sort)
@@ -326,11 +324,11 @@ NULL
 #' 
 #' @param letterList List containing characters
 #' @param dims Dimensions of binary image
-#' @keywords character, features, line number
-#' 
 #' @return Appends line information to character features
+#' 
+#' @keywords character features line number
+#'
 #' @importFrom stats predict
-#' @export
 add_word_info = function(letterList, dims){
   
   #Compute the approximate width and height of each line
@@ -435,14 +433,13 @@ add_word_info = function(letterList, dims){
 }
 
 # #' add_word_info_old
-# #' OLD, CURRENT VERSION ABOVE
+# #' THIS IS THE OLD VERSION ---- CURRENT VERSION ABOVE
 # #' Associates characters to their respective word numbers by distance between right edge of char and left edge of next
 # #' Needs improvement if runtime becomes a problem
 # #' @param character_features All extracted features
 # #' @param dims Dimensions of binary image
 # #' @keywords character, features, line number
 # #' @return Appends line information to character features
-# #' @export
 
 # add_word_info_old = function(letterList, dims){#character_features){
 #   
@@ -491,15 +488,13 @@ add_word_info = function(letterList, dims){
 #' Relevant Features:
 #' Loop Count, how many loops are found in the letter
 #' Loop Major, length of farthest line that can be drawn inside of a loop
-#' Loop Minor, length of the perpindcular bisector of the loop major.
-#' ! I've removed loop minor / loop major features due to instability during testing.
-#' The outliers were frequent enough to deem my implementation unreliable for modeling.
-#' I need additional help in some of the syntactical challenges I've experienced with those features..
+#' Loop Minor, length of the perpendicular bisector of the loop major.
+#' 
 #' @param character Target for loop association
 #' @param dims Dimensions of binary image
-#' @keywords character, loop, associate
 #' @return Loop information to respective character
-#' @export
+#' 
+#' @keywords character loop associate
 get_loop_info = function(character,dims){
   
   #loops = loop_extract(character$allPaths)
@@ -553,12 +548,13 @@ character_features_by_line = function(character_features){
 
 #' loop_extract
 #'
-#' Iterates through all avaiable paths from processHandwriting()
+#' Iterates through all available paths from processHandwriting()
 #' Picks out loops for later character association.
+#' 
 #' @param allPaths All character (formerly letter) paths from processHandwriting()
-#' @keywords character, loops, line
-#' @return List of all loops
-#' @export
+#' @keywords character loops line
+#' 
+#' @return List of all loops 
 loop_extract = function(allPaths){
   loops = list()
   for(i in 1:length(allPaths)){
@@ -575,11 +571,12 @@ loop_extract = function(allPaths){
 #' all_centroids
 #'
 #' Iterates through extracted character features, extracting
-#' all centroids found for later use in line numbering
+#' all centroids found for later use in line numbering.
+#' 
 #' @param character_features Features extracted from any given document
-#' @keywords character, loops, line
 #' @return All centroids concatenated with one another (unlisted)
-#' @export
+#' 
+#' @keywords character loops line
 all_centroids = function(character_features){
   centroids = list()
   for(i in 1:length(character_features)){
@@ -591,11 +588,12 @@ all_centroids = function(character_features){
 #' all_down_dists
 #'
 #' Iterates through extracted character features, extracting
-#' all downward distances found for later use in line separating
+#' all downward distances found for later use in line separating.
+#' 
 #' @param character_features Features extracted from any given document
-#' @keywords character, neighbor, line
 #' @return All downdistance concatenated with one another (unlisted)
-#' @export
+#' 
+#' @keywords character neighbor line
 all_down_dists = function(character_features){
   down_dists = list()
   for(i in 1:length(character_features)){
@@ -606,16 +604,17 @@ all_down_dists = function(character_features){
 
 #' line_number_extract
 #'
-#' Primary logic unit for line number to character association
+#' Primary logic unit for line number to character association.
+#' 
 #' @param down_dists how far down to the next character from each character
 #' @param all_centroids List of centroids extracted from cumulative character_features
 #' @param dims Dimensions of binary image
-#' @keywords character, features, line, number
-#' 
 #' @return List associating line numbers to characters
+#' 
+#' @keywords character features line number
+#' 
 #' @importFrom stats median
 #' @importFrom utils head
-#' @export
 line_number_extract = function(down_dists, all_centroids, dims){
   centroid_rci = matrix(i_to_rci(all_centroids,dims), ncol = 3)
   #sorting list based on y

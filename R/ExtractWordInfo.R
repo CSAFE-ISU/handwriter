@@ -1,10 +1,22 @@
 #' process_words
 #'
-#' gets information on a word level
+#' Gets information on a word level
+#' 
 #' @param words List of words and some glyph level information
 #' @param dims The dimensions of the image (important for r/c features)
 #' @param triangulate Logical value that begins the triangulation process when set to TRUE. 
 #' @return A new list with word level information for each word.
+#' 
+#' @examples
+#' twoSent_document = list()
+#' twoSent_document$image = twoSent
+#' twoSent_document$thin = thinImage(twoSent_document$image)
+#' twoSent_processList = processHandwriting(twoSent_document$thin, dim(twoSent_document$image))
+#' 
+#' dims = dim(twoSent_document$image)
+#' words = create_words(twoSent_processList) 
+#' words_after_processing = process_words(words, dim(twoSent_document$image), TRUE)
+#' 
 #' @export
 process_words = function(words, dims, triangulate = FALSE){
   #Will do different things depending on what is passed in, pass in TRUE to start the triangulation process
@@ -22,11 +34,11 @@ process_words = function(words, dims, triangulate = FALSE){
 
 #' find_colorpoints
 #'
-#' finds and assigns points for Kneser Triangulation
+#' Finds and assigns points for Kneser Triangulation
+#' 
 #' @param words List of words and some glyph level information
 #' @param dims The dimensions of the image (important for r/c features)
 #' @return A new list with word level information for each word.
-#' @export
 find_colorpoints = function(words, dims){
   
   len = length(words$connectingNodes)

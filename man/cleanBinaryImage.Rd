@@ -9,6 +9,9 @@ cleanBinaryImage(img)
 \arguments{
 \item{img}{A matrix of 1s and 0s.}
 }
+\value{
+png image with the alpha channel removed
+}
 \description{
 Removes alpha channel from png image.
 }

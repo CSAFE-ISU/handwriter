@@ -4,6 +4,16 @@
 #' 
 #' @param processList Output from processHandwriting - contains all glyph information
 #' @return list of word objects
+#' 
+#' @examples 
+#' twoSent_document = list()
+#' twoSent_document$image = twoSent
+#' twoSent_document$thin = thinImage(twoSent_document$image)
+#' twoSent_processList = processHandwriting(twoSent_document$thin, dim(twoSent_document$image))
+#' 
+#' dims = dim(twoSent_document$image)
+#' words = create_words(twoSent_processList) 
+#' words_after_processing = process_words(words, dim(twoSent_document$image), TRUE)
 #' @export
 create_words = function(processList){
   words = list()

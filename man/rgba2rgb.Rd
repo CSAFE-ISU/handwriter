@@ -9,6 +9,9 @@ rgba2rgb(img)
 \arguments{
 \item{img}{A 3-d array with slices R, G, B, and alpha.}
 }
+\value{
+img as a 3D array with alpha channel removed
+}
 \description{
 Removes alpha channel from png image.
 }

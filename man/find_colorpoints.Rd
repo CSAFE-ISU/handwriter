@@ -15,5 +15,5 @@ find_colorpoints(words, dims)
 A new list with word level information for each word.
 }
 \description{
-finds and assigns points for Kneser Triangulation
+Finds and assigns points for Kneser Triangulation
 }

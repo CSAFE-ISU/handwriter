@@ -2,7 +2,7 @@
 % Please edit documentation in R/JunctionDetection.R
 \name{getLoops}
 \alias{getLoops}
-\title{Internal function for getting looped paths.}
+\title{getLoops}
 \usage{
 getLoops(nodeList, graph, graph0, pathList, dims)
 }
@@ -16,6 +16,9 @@ getLoops(nodeList, graph, graph0, pathList, dims)
 \item{pathList}{The current path list to check for loops}
 
 \item{dims}{dimensions of the image}
+}
+\value{
+A list of all loops found
 }
 \description{
 Internal function for getting looped paths.

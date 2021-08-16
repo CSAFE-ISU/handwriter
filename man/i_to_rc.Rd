@@ -12,12 +12,12 @@ i_to_rc(nodes, dims)
 \item{dims}{dimensions of binary image}
 }
 \value{
-returns matrix mapping nodes to respective row, col.
+returns matrix mapping nodes to respective row,
 }
 \description{
 Function for converting indices to respective row, col.
 }
-\keyword{binary,}
-\keyword{column,}
+\keyword{binary}
+\keyword{column}
 \keyword{image}
-\keyword{row,}
+\keyword{row}

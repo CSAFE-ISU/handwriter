@@ -24,3 +24,16 @@ Plot of full and thinned image with vertices overlaid.
 This function returns a plot with the full image plotted in light gray and the skeleton printed in black, with red triangles over the vertices.
 Also called from plotPath, which is a more useful function, in general.
 }
+\examples{
+\dontrun{
+twoSent_document = list()
+twoSent_document$image = twoSent
+twoSent_document$thin = thinImage(twoSent_document$image)
+twoSent_processList = processHandwriting(twoSent_document$thin, dim(twoSent_document$image))
+
+twoSent_document$nodes = twoSent_processList$nodes
+twoSent_document$breaks = twoSent_processList$breakPoints
+plotNodes(twoSent_document$image, twoSent_document$thin, twoSent_document$nodes)
+plotNodes(twoSent_document$image, twoSent_document$thin, twoSent_document$breaks)
+}
+}

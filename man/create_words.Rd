@@ -15,3 +15,13 @@ list of word objects
 \description{
 creates word objects based on splits found in processHandwriting
 }
+\examples{
+twoSent_document = list()
+twoSent_document$image = twoSent
+twoSent_document$thin = thinImage(twoSent_document$image)
+twoSent_processList = processHandwriting(twoSent_document$thin, dim(twoSent_document$image))
+
+dims = dim(twoSent_document$image)
+words = create_words(twoSent_processList) 
+words_after_processing = process_words(words, dim(twoSent_document$image), TRUE)
+}

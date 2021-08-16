@@ -20,5 +20,5 @@ List containing features of character
 Secondary driver of feature extraction
 Extracts features from a single character
 }
-\keyword{character,}
+\keyword{character}
 \keyword{features}

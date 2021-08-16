@@ -12,19 +12,15 @@ get_aspect_info(character, dims)
 \item{dims}{Dimensions of binary image}
 }
 \value{
-List containing aspect_ratio, 
-height, width, highest, lowest, leftmost,
-points of character. (row, col representation)
+List containing aspect_ratio,
 }
 \description{
 Extracts aspect ratio & supporting information from a character
 Relevant Features:
-Aspect Ratio: Row (Height) over (Column Width) //Determined after a meeting, can easily be switched around)
+Aspect Ratio: Row (Height) over (Column Width) 
 Height, Width (Each measure of pixels)
 The rest are supporting features that are minor independently.
 }
-\keyword{aspect,}
-\keyword{character,}
-\keyword{height}
-\keyword{ratio,}
-\keyword{width,}
+\keyword{aspect}
+\keyword{character}
+\keyword{ratio}

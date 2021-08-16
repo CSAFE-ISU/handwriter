@@ -17,9 +17,9 @@ line_number_extract(down_dists, all_centroids, dims)
 List associating line numbers to characters
 }
 \description{
-Primary logic unit for line number to character association
+Primary logic unit for line number to character association.
 }
-\keyword{character,}
-\keyword{features,}
-\keyword{line,}
+\keyword{character}
+\keyword{features}
+\keyword{line}
 \keyword{number}

@@ -9,6 +9,17 @@
 #' @param wordInfo Word information list
 #' @return Plot of single word.
 #' 
+#' @examples 
+#' twoSent_document = list()
+#' twoSent_document$image = twoSent
+#' twoSent_document$thin = thinImage(twoSent_document$image)
+#' twoSent_processList = processHandwriting(twoSent_document$thin, dim(twoSent_document$image))
+#' 
+#' dims = dim(twoSent_document$image)
+#' words = create_words(twoSent_processList) 
+#' words_after_processing = process_words(words, dim(twoSent_document$image), TRUE)
+#' plotColorNodes(twoSent_processList$letterList, 3, dims, words_after_processing)
+#' 
 #' @import ggplot2
 #' @import stringr
 #' @export

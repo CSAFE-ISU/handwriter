@@ -22,8 +22,8 @@ Returns index(icies) of all row_y's and col_x's
 Convert rows and columns to their respective indices.
 This is index sensitive, so row_y[[1]] should correspond to col_x[[1]]
 }
-\keyword{binary,}
-\keyword{column,}
-\keyword{image,}
+\keyword{binary}
+\keyword{column}
+\keyword{image}
 \keyword{index}
-\keyword{row,}
+\keyword{row}

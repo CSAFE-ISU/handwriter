@@ -20,7 +20,9 @@ NumericVector findCentroidofLoop(NumericVector loopPath, NumericVector dims);
 //' @param FeatureSet The current list of features that have been calculated
 //' @param LetterList List of all letters and their information
 //' @param vectorDims Vectors with image Dims
-//' @export
+//' 
+//' @return A list consisting of current features calculated in FeatureSet as well as measures of compactness, loop count, and loop dimensions
+//' 
 // [[Rcpp::export]]
 List addToFeatures(List FeatureSet, List LetterList, IntegerVector vectorDims){
   NumericVector compactness;
@@ -115,7 +117,7 @@ List findLoopDims(List knownLoops, NumericVector dims){
         NumericVector checkPointXY = convertIndextoXY(pathConsidering[k], dims, 1);
 
       //Does it fall on the line?
-      double distanceFromLine = abs(checkPointXY[1] - ((slopeFromXYToCentroid * checkPointXY[0]) + yIntercept));
+      double distanceFromLine = fabs(checkPointXY[1] - ((slopeFromXYToCentroid * checkPointXY[0]) + yIntercept));
 
       if(distanceFromLine < 2){//only check distance if it is more on the line that a previous one.
           //get distance between two points, if it is bigger than max then update max
@@ -150,7 +152,7 @@ List findLoopDims(List knownLoops, NumericVector dims){
     for(int j = 0; j < pathConsidering.size()/2; j++){
       NumericVector checkPointXY = convertIndextoXY(pathConsidering[j], dims, 1);
       
-      double distanceFromPerpLine = abs(checkPointXY[1] - ((shortestLineSlope * checkPointXY[0]) + yIntercept));
+      double distanceFromPerpLine = fabs(checkPointXY[1] - ((shortestLineSlope * checkPointXY[0]) + yIntercept));
       if(distanceFromPerpLine < closestPerpPoint1Val){
         closestPerpPoint1Val = distanceFromPerpLine;
         closestPerpPoint1 = checkPointXY;
@@ -161,7 +163,7 @@ List findLoopDims(List knownLoops, NumericVector dims){
     for(int k = pathConsidering.size()/2; k < pathConsidering.size(); k++){
       NumericVector checkPointXY = convertIndextoXY(pathConsidering[k], dims, 1);
 
-      double distanceFromPerpLine = abs(checkPointXY[1] - ((shortestLineSlope * checkPointXY[0]) + yIntercept));
+      double distanceFromPerpLine = fabs(checkPointXY[1] - ((shortestLineSlope * checkPointXY[0]) + yIntercept));
       if(distanceFromPerpLine < closestPerpPoint2Val){
         closestPerpPoint2Val = distanceFromPerpLine;
         closestPerpPoint2 = checkPointXY;

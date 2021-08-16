@@ -14,8 +14,8 @@ All centroids concatenated with one another (unlisted)
 }
 \description{
 Iterates through extracted character features, extracting
-all centroids found for later use in line numbering
+all centroids found for later use in line numbering.
 }
-\keyword{character,}
+\keyword{character}
 \keyword{line}
-\keyword{loops,}
+\keyword{loops}

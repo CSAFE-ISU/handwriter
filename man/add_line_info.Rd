@@ -18,7 +18,7 @@ Appends line information to character features
 Associates characters to their respective line numbers
 Needs improvement if runtime becomes a problem
 }
-\keyword{character,}
-\keyword{features,}
+\keyword{character}
+\keyword{features}
 \keyword{line}
 \keyword{number}

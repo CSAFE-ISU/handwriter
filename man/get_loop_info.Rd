@@ -19,11 +19,8 @@ Associator of loop to character association
 Relevant Features:
 Loop Count, how many loops are found in the letter
 Loop Major, length of farthest line that can be drawn inside of a loop
-Loop Minor, length of the perpindcular bisector of the loop major.
-! I've removed loop minor / loop major features due to instability during testing.
-The outliers were frequent enough to deem my implementation unreliable for modeling.
-I need additional help in some of the syntactical challenges I've experienced with those features..
+Loop Minor, length of the perpendicular bisector of the loop major.
 }
 \keyword{associate}
-\keyword{character,}
-\keyword{loop,}
+\keyword{character}
+\keyword{loop}

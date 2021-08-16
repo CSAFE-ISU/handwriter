@@ -2,8 +2,15 @@
 #'
 #' This function plots a basic binary image.
 #' @param x Binary matrix, usually from readPNGBinary
-#' @keywords plot
 #' @return Returns plot of x.
+#' 
+#' @keywords plot
+#' 
+#' @examples
+#' nature1_document = list()
+#' nature1_document$image = nature1
+#' plotImage(nature1_document$image)
+#' 
 #' @import ggplot2
 #' @export
 plotImage = function(x)
@@ -25,11 +32,12 @@ plotImage = function(x)
 #' @import ggplot2
 #' 
 #' @examples
-#' 
-#' ## Not Run
-#' # plotImageThinned(london, london_thin)
-#' # plotImageThinned(message, message_thin)
-#'
+#' \dontrun{
+#' nature1_document = list()
+#' nature1_document$image = nature1
+#' nature1_document$thin = thinImage(nature1_document$image)
+#' plotImageThinned(nature1_document$image, nature1_document$thin)
+#' }
 #' @export
 plotImageThinned = function(img, thinned)
 {
@@ -45,6 +53,7 @@ plotImageThinned = function(img, thinned)
 #'
 #' This function returns a plot with the full image plotted in light gray and the skeleton printed in black, with red triangles over the vertices.
 #' Also called from plotPath, which is a more useful function, in general.
+#' 
 #' @param img Full image matrix, unthinned.
 #' @param thinned Thinned image matrix
 #' @param nodeList Nodelist returned from getNodes.
@@ -52,6 +61,18 @@ plotImageThinned = function(img, thinned)
 #' @param nodeColor Which color the nodes should be
 #' @return Plot of full and thinned image with vertices overlaid.
 #' 
+#' @examples
+#' \dontrun{
+#' twoSent_document = list()
+#' twoSent_document$image = twoSent
+#' twoSent_document$thin = thinImage(twoSent_document$image)
+#' twoSent_processList = processHandwriting(twoSent_document$thin, dim(twoSent_document$image))
+#' 
+#' twoSent_document$nodes = twoSent_processList$nodes
+#' twoSent_document$breaks = twoSent_processList$breakPoints
+#' plotNodes(twoSent_document$image, twoSent_document$thin, twoSent_document$nodes)
+#' plotNodes(twoSent_document$image, twoSent_document$thin, twoSent_document$breaks)
+#' }
 #' @import ggplot2
 #' @export
 plotNodes = function(img, thinned, nodeList, nodeSize = 3, nodeColor = "red")
@@ -67,11 +88,24 @@ plotNodes = function(img, thinned, nodeList, nodeSize = 3, nodeColor = "red")
 #' plotWord
 #'
 #' This function returns a plot of a single Word extracted from a document. It uses the letterList parameter from the processHandwriting function and accepts a single value as whichLetter. Dims requires the dimensions of the entire document, since this isn't contained in processHandwriting.
+#' 
 #' @param letterList Letter list from processHandwriting function
 #' @param whichWord Single word value denoting which line to plot - checked if too big inside function.
 #' @param dims Dimensions of the original document
 #' @return Plot of single word.
 #' 
+#' @examples
+#' \dontrun{
+#' twoSent_document = list()
+#' twoSent_document$image = twoSent
+#' twoSent_document$thin = thinImage(twoSent_document$image)
+#' twoSent_processList = processHandwriting(twoSent_document$thin, dim(twoSent_document$image))
+#' 
+#' dims = dim(twoSent_document$image)
+#' words = create_words(twoSent_processList) 
+#' words_after_processing = process_words(words, dim(twoSent_document$image), TRUE)
+#' plotWord(twoSent_processList$letterList, 1, dims)
+#' }
 #' @import ggplot2
 #' @export
 plotWord = function(letterList, whichWord, dims)
@@ -140,11 +174,23 @@ plotWord = function(letterList, whichWord, dims)
 
 #' plotLine
 #'
-#' This function returns a plot of a single line extracted from a document. It uses the letterList parameter from the processHandwriting function and accepts a single value as whichLetter. Dims requires the dimensions of the entire document, since this isn't contained in processHandwriting.
+#' This function returns a plot of a single line extracted from a document. 
+#' It uses the letterList parameter from the processHandwriting function and accepts a single value as whichLetter. 
+#' Dims requires the dimensions of the entire document, since this isn't contained in processHandwriting.
+#' 
 #' @param letterList Letter list from processHandwriting function
 #' @param whichLine Single value denoting which line to plot - checked if too big inside function.
 #' @param dims Dimensions of the original document
 #' @return Plot of single line.
+#' 
+#' @examples
+#' twoSent_document = list()
+#' twoSent_document$image = twoSent
+#' twoSent_document$thin = thinImage(twoSent_document$image)
+#' twoSent_processList = processHandwriting(twoSent_document$thin, dim(twoSent_document$image))
+#' 
+#' dims = dim(twoSent_document$image)
+#' plotLine(twoSent_processList$letterList, 1, dims)
 #' 
 #' @import ggplot2
 #' @export
@@ -213,16 +259,26 @@ plotLine = function(letterList, whichLine, dims)
 
 #' plotLetter
 #'
-#' This function returns a plot of a single letter extracted from a document. It uses the letterList parameter from the processHandwriting function and accepts a single value as whichLetter. Dims requires the dimensions of the entire document, since this isn't contained in processHandwriting.
+#' This function returns a plot of a single letter extracted from a document. 
+#' It uses the letterList parameter from the processHandwriting function and accepts a single value as whichLetter. 
+#' Dims requires the dimensions of the entire document, since this isn't contained in processHandwriting.
 #' @param letterList Letter list from processHandwriting function
 #' @param whichLetter Single value in 1:length(letterList) denoting which letter to plot.
 #' @param dims Dimensions of the original document
-#' 
 #' @param showPaths Whether the calculated paths on the letter should be shown with numbers.
 #' @param showCentroid Whether the centroid should be shown
-#' @param showSlope wheter the slope should be shown
+#' @param showSlope whether the slope should be shown
 #' @return Plot of single letter.
 #' 
+#' @examples
+#' twoSent_document = list()
+#' twoSent_document$image = twoSent
+#' twoSent_document$thin = thinImage(twoSent_document$image)
+#' twoSent_processList = processHandwriting(twoSent_document$thin, dim(twoSent_document$image))
+#' 
+#' dims = dim(twoSent_document$image)
+#' plotLetter(twoSent_processList$letterList, 1, dims)
+#' plotLetter(twoSent_processList$letterList, 4, dims)
 #' @import ggplot2
 #' @export
 plotLetter = function(letterList, whichLetter, dims, showPaths = TRUE, showCentroid = TRUE, showSlope = TRUE)#, showTightness = TRUE, showLoopDims = TRUE)
@@ -355,17 +411,27 @@ plotLetter = function(letterList, whichLetter, dims, showPaths = TRUE, showCentr
 
 #' AddLetterImages
 #'
-#' This function returns a plot of a single letter extracted from a document. It uses the letterList parameter from the processHandwriting function and accepts a single value as whichLetter. Dims requires the dimensions of the entire document, since this isn't contained in processHandwriting.
+#' Pulls out letterlist as its own object, and adds the image matrix as well
+#' 
 #' @param letterList Letter list from processHandwriting function
-#' @param docDims Dimensions of the original document
+#' @param dims Dimensions of the original document
 #' @return letterList with a new matrix `image` value for each sublist.
 #' 
+#' @examples
+#' twoSent_document = list()
+#' twoSent_document$image = twoSent
+#' twoSent_document$thin = thinImage(twoSent_document$image)
+#' twoSent_processList = processHandwriting(twoSent_document$thin, dim(twoSent_document$image))
+#' 
+#' dims = dim(twoSent_document$image)
+#' withLetterImages = AddLetterImages(twoSent_processList$letterList, dims)
+#' 
 #' @export
-AddLetterImages = function(letterList, docDims)
+AddLetterImages = function(letterList, dims)
 {
   skeletons = lapply(letterList, function(x) x$path)
-  r = lapply(skeletons, function(x) {((x-1) %% docDims[1]) + 1})
-  c = lapply(skeletons, function(x) {((x-1) %/% docDims[1]) + 1})
+  r = lapply(skeletons, function(x) {((x-1) %% dims[1]) + 1})
+  c = lapply(skeletons, function(x) {((x-1) %/% dims[1]) + 1})
   for(i in 1:length(letterList))
   {
     letterList[[i]]$image = matrix(1, nrow = diff(range(r[[i]]))+1, ncol = diff(range(c[[i]]))+1)
@@ -381,19 +447,30 @@ AddLetterImages = function(letterList, docDims)
 #' This function returns a plot of a single letter extracted from a document. It uses the letterList parameter from the processHandwriting function and accepts a single value as whichLetter. Dims requires the dimensions of the entire document, since this isn't contained in processHandwriting. Requires the \pkg{\link{magick}} package.
 #' @param letterList Letter list from processHandwriting function
 #' @param filePaths Folder path to save images to
-#' @param documentDimensions Dimensions of original document
+#' @param dims Dimensions of original document
 #' @param bgTransparent Logical determines if the image is transparent
-#' @return Nothing
+#' @return No return value.
+#' 
+#' @examples 
+#' twoSent_document = list()
+#' twoSent_document$image = twoSent
+#' twoSent_document$thin = thinImage(twoSent_document$image)
+#' twoSent_processList = processHandwriting(twoSent_document$thin, dim(twoSent_document$image))
+#' 
+#' dims = dim(twoSent_document$image)
+#' \dontrun{
+#' withLetterImages = AddLetterImages(twoSent_processList$letterList, "path/to/save", dims)
+#' }
 #' 
 #' @seealso \code{\link[magick]{image_transparent}}  
 #' @seealso \code{\link[magick]{image_write}}  
 #' @seealso \code{\link[magick]{image_read}}
 #' 
 #' @export
-SaveAllLetterPlots = function(letterList, filePaths, documentDimensions, bgTransparent = TRUE)
+SaveAllLetterPlots = function(letterList, filePaths, dims, bgTransparent = TRUE)
 {
   if(is.null(letterList[[1]]$image))
-    letterList = AddLetterImages(letterList, documentDimensions)
+    letterList = AddLetterImages(letterList, dims)
   
   for(i in 1:length(letterList))
   {

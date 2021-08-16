@@ -1,21 +1,20 @@
 library(rjson)
-library(data.table)
 library(randomForest)
-
 
 #' makeModel
 #'
 #' Creates a randomForest word model
 #' 
+#' @param TaggedJson Json File with tagged letter data
 #' @return randomForest model
+#' 
 #' @importFrom randomForest randomForest
-#' @export
-makeModel = function(){
+makeModel = function(TaggedJson){
   
   na.exclude <- NULL
   
   #Load JSON file
-  AsJSON <- rjson::fromJSON(file = "inst/extdata/5W_5D_34L.json")
+  AsJSON <- rjson::fromJSON(file = TaggedJson)
   
   #Create a new DF and fill it up from each character entry
   dataDF <- data.frame(line=numeric(0),line_height=numeric(0),line_width=numeric(0),height=numeric(0),width=numeric(0),x=numeric(0),label=character(0))
@@ -60,7 +59,6 @@ makeModel = function(){
   trainDF$label = factor(trainDF$label)
   
   #Train a model
-  set.seed(100)
   train <- sample(nrow(trainDF), 0.7*nrow(trainDF), replace = FALSE)
   TrainSet <- trainDF[train,]
   ValidSet <- trainDF[-train,]

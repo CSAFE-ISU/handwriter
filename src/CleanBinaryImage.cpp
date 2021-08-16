@@ -18,7 +18,9 @@ arma::mat cleanBinaryImage(arma::mat img);
 //' Removes alpha channel from png image.
 //'
 //' @param img A matrix of 1s and 0s.
-//' @export
+//' 
+//' @return png image with the alpha channel removed
+//' 
 // [[Rcpp::export]]
 arma::mat cleanBinaryImage(arma::mat img)
 {

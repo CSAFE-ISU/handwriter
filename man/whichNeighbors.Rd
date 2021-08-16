@@ -9,10 +9,11 @@ whichNeighbors(coords, img)
 \arguments{
 \item{coords}{coordinates to consider}
 
-\item{img}{The image as a bitmap
-
-Internal function for identifying which neighbors are black.}
+\item{img}{The image as a bitmap}
+}
+\value{
+Return a list of which neighbors are a black pixel
 }
 \description{
-whichNeighbors
+Internal function for identifying which neighbors are black.
 }

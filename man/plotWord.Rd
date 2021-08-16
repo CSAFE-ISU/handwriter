@@ -19,3 +19,16 @@ Plot of single word.
 \description{
 This function returns a plot of a single Word extracted from a document. It uses the letterList parameter from the processHandwriting function and accepts a single value as whichLetter. Dims requires the dimensions of the entire document, since this isn't contained in processHandwriting.
 }
+\examples{
+\dontrun{
+twoSent_document = list()
+twoSent_document$image = twoSent
+twoSent_document$thin = thinImage(twoSent_document$image)
+twoSent_processList = processHandwriting(twoSent_document$thin, dim(twoSent_document$image))
+
+dims = dim(twoSent_document$image)
+words = create_words(twoSent_processList) 
+words_after_processing = process_words(words, dim(twoSent_document$image), TRUE)
+plotWord(twoSent_processList$letterList, 1, dims)
+}
+}

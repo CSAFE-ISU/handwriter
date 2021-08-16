@@ -1,14 +1,16 @@
 Package: handwriter
 Title: Handwriting Analysis in R
-Version: 1.0.0.0000
-Author: (2015 - 2019) Nick Berry <berryni@iastate.edu> , 
-        (2019 - 2021) James Taylor <jamesetay1@gmail.com> 
-Maintainer: (2021 - Current) Felix Baez-Santiago <felbasa@iastate.edu> 
-Description: Process handwriting document into letters and provide measurements.
+Version: 1.0.1
+Authors@R:c(person("Nick", "Berry", role = "aut", email = "berryni@iastate.edu"),
+          person("James", "Taylor", role = c("cre", "aut"), email = "jamesetay1@gmail.com"),
+          person("Felix", "Baez-Santiago", role = "aut", email = "felbasa@iastate.edu"))
+Maintainer: James Taylor <jamesetay1@gmail.com>
+Description: Process handwriting document into letters, words, and lines. Provides measurements at all levels.
+             Webpage provided at: <https://csafe-isu.github.io/handwriter/index.html>.
 Depends: R (>= 3.1)
 LinkingTo: Rcpp, RcppArmadillo
-License: GPL-3 + file LICENSE
+License: GPL-3
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1
-Imports: Rcpp, ggplot2, igraph, png, reshape2, stringr, rjson, magick, shiny, data.table, randomForest
+Imports: Rcpp, ggplot2, igraph, png, reshape2, stringr, rjson, magick, shiny, randomForest

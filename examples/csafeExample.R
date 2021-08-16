@@ -5,30 +5,30 @@
 #library(handwriter)
 
 #Create empty list, and load an image with READPNGBinary
-csafe = list()
+csafe_document = list()
 #CSAFE IMAGE
-#csafe$image = readPNGBinary("examples/0006_4.png") #full paragraph
-csafe$image = readPNGBinary("examples/Writing_csafe_single.png")
-plotImage(csafe$image)
+csafe_document$image = readPNGBinary("examples/0001_4.png") #full paragraph
+#csafe_document$image = readPNGBinary("examples/two_sent_example.png")
+plotImage(csafe_document$image)
 
 #Use the Zhang - Suen algorithim to thin the image (1 pixel wide) - then plot it.
-csafe$thin = thinImage(csafe$image)
-plotImageThinned(csafe$image, csafe$thin)
+csafe_document$thin = thinImage(csafe_document$image)
+plotImageThinned(csafe_document$image, csafe_document$thin)
 
 #Huge step in handwriting processing. Takes in thin image form and the breakpoints suggested by getNodes
 #and parses the writing into letters. Returns final letter separation points, a list of the paths in the image,
 #and a list of the letter paths in the image.
-csafe_processList = processHandwriting(csafe$thin, dim(csafe$image))
+csafe_processList = processHandwriting(csafe_document$thin, dim(csafe_document$image))
 
 #Save off nodes, breaks, paths, and graphemes
-csafe$nodes = csafe_processList$nodes
-csafe$breaks = csafe_processList$breakPoints
+csafe_document$nodes = csafe_processList$nodes
+csafe_document$breaks = csafe_processList$breakPoints
 
-plotNodes(csafe$image, csafe$thin, csafe$nodes)
-#plotNodes(csafe$image, csafe$thin, csafe$breaks)
+plotNodes(csafe_document$image, csafe_document$thin, csafe_document$nodes)
+plotNodes(csafe_document$image, csafe_document$thin, csafe_document$breaks)
 
 ###Some stuff for plotting letters, words, and lines:###
-dims = dim(csafe$image)
+dims = dim(csafe_document$image)
 plotLetter(csafe_processList$letterList, 1, dims)
 plotLine(csafe_processList$letterList, 1, dims)
 
@@ -36,8 +36,17 @@ plotLine(csafe_processList$letterList, 1, dims)
  
 #Create list of word objects, process the words for more information, plot the word with colored Nodes
 words = create_words(csafe_processList) 
-words_after_processing = process_words(words, dim(csafe$image), TRUE)
-plotColorNodes(csafe_processList$letterList, 1, dims, words_after_processing)
+words_after_processing = process_words(words, dim(csafe_document$image), TRUE)
+plotWord(csafe_processList$letterList, 1, dims)
 
 ###COLOR NODES (must have processed words)
-plotColorNodes(csafe_processList$letterList, 6, dims, words_after_processing)
+plotColorNodes(csafe_processList$letterList, 3, dims, words_after_processing)
+
+### Test space for loading data files (used in examples in documentation)
+# london_document = list()
+# #load("data/nature1.rda")
+# london_document$image = nature1
+# plotImage(london_document$image)
+# london_document$thin = thinImage(london_document$image)
+# plotImageThinned(london_document$image, london_document$thin)
+# london_processList = processHandwriting(london_document$thin, dim(london_document$image))

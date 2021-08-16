@@ -13,6 +13,9 @@ addToFeatures(FeatureSet, LetterList, vectorDims)
 
 \item{vectorDims}{Vectors with image Dims}
 }
+\value{
+A list consisting of current features calculated in FeatureSet as well as measures of compactness, loop count, and loop dimensions
+}
 \description{
 addToFeatures
 }

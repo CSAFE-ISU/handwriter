@@ -2,13 +2,16 @@
 % Please edit documentation in R/RcppExports.R
 \name{rgb2grayscale}
 \alias{rgb2grayscale}
-\title{rgba2rgb}
+\title{rgba2grayscale}
 \usage{
 rgb2grayscale(img)
 }
 \arguments{
-\item{img}{A 3-d array with slices R, G, B, and alpha.}
+\item{img}{A 3D array with slices R, G, and B}
+}
+\value{
+img as a 3D array as grayscale
 }
 \description{
-Removes alpha channel from png image.
+Changes RGB image to grayscale
 }

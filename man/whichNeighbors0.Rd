@@ -9,11 +9,13 @@ whichNeighbors0(coords, img)
 \arguments{
 \item{coords}{coordinates to consider}
 
-\item{img}{The image as a bitmap
-
-Internal function for identifying which neighbors are black excluding diagonals
-to the middle point when a non-diagonal between those two vertices exists.}
+\item{img}{The image as a bitmap}
+}
+\value{
+Return a list of which neighbors are a black pixel excluding diagonals to the 
+middle point when a non-diagonal between those two vertices exists.
 }
 \description{
-whichNeighbors0
+Internal function for identifying which neighbors are black excluding diagonals
+to the middle point when a non-diagonal between those two vertices exists.
 }

@@ -25,7 +25,8 @@ void count268(const arma::mat &img, uvec checkList, vec &toWhite);
 //' Removes alpha channel from png image.
 //'
 //' @param img A 3-d array with slices R, G, B, and alpha.
-//' @export
+//' @return img as a 3D array with alpha channel removed
+//' 
 // [[Rcpp::export]]
 arma::cube rgba2rgb(arma::cube img)
 {
@@ -47,11 +48,13 @@ arma::cube rgba2rgb(arma::cube img)
   return(img.slices(0,2));
 }
 
-//' rgba2rgb
+//' rgba2grayscale
 //' 
-//' Removes alpha channel from png image.
+//' Changes RGB image to grayscale
 //'
-//' @param img A 3-d array with slices R, G, B, and alpha.
+//' @param img A 3D array with slices R, G, and B
+//' @return img as a 3D array as grayscale
+//' 
 //' @export
 // [[Rcpp::export]]
 arma::mat rgb2grayscale(arma::cube img)
@@ -71,9 +74,12 @@ arma::mat rgb2grayscale(arma::cube img)
 
 //' whichToFill
 //' 
-//' Finds pixels in the plot that shouldn't be white and makes them black. Quick and helpful cleaning for before the thinning algorithm runs.
+//' Finds pixels in the plot that shouldn't be white and makes them black. 
+//' Quick and helpful cleaning for before the thinning algorithm runs.
 //'
 //' @param img A binary matrix.
+//' @return A cleaned up image.
+//' 
 //' @export
 // [[Rcpp::export]]
 arma::uvec whichToFill(arma::mat img)
@@ -120,6 +126,8 @@ void countBNeighbors_7or8(const arma::mat &img, uvec white, uvec &toBlack)
 //' Thinning done using Zhang - Suen algorithm.
 //'
 //' @param img A binary matrix of the text that is to be thinned.
+//' @return A thinned, one pixel wide, image.
+//' 
 //' @export
 // [[Rcpp::export]]
 arma::uvec thinImage(arma::mat img) {

@@ -17,5 +17,16 @@ process_words(words, dims, triangulate = FALSE)
 A new list with word level information for each word.
 }
 \description{
-gets information on a word level
+Gets information on a word level
+}
+\examples{
+twoSent_document = list()
+twoSent_document$image = twoSent
+twoSent_document$thin = thinImage(twoSent_document$image)
+twoSent_processList = processHandwriting(twoSent_document$thin, dim(twoSent_document$image))
+
+dims = dim(twoSent_document$image)
+words = create_words(twoSent_processList) 
+words_after_processing = process_words(words, dim(twoSent_document$image), TRUE)
+
 }

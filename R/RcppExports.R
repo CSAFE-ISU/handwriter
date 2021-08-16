@@ -6,7 +6,9 @@
 #' Removes alpha channel from png image.
 #'
 #' @param img A matrix of 1s and 0s.
-#' @export
+#' 
+#' @return png image with the alpha channel removed
+#' 
 cleanBinaryImage <- function(img) {
     .Call(`_handwriter_cleanBinaryImage`, img)
 }
@@ -16,7 +18,9 @@ cleanBinaryImage <- function(img) {
 #' @param FeatureSet The current list of features that have been calculated
 #' @param LetterList List of all letters and their information
 #' @param vectorDims Vectors with image Dims
-#' @export
+#' 
+#' @return A list consisting of current features calculated in FeatureSet as well as measures of compactness, loop count, and loop dimensions
+#' 
 addToFeatures <- function(FeatureSet, LetterList, vectorDims) {
     .Call(`_handwriter_addToFeatures`, FeatureSet, LetterList, vectorDims)
 }
@@ -26,16 +30,19 @@ addToFeatures <- function(FeatureSet, LetterList, vectorDims) {
 #' Removes alpha channel from png image.
 #'
 #' @param img A 3-d array with slices R, G, B, and alpha.
-#' @export
+#' @return img as a 3D array with alpha channel removed
+#' 
 rgba2rgb <- function(img) {
     .Call(`_handwriter_rgba2rgb`, img)
 }
 
-#' rgba2rgb
+#' rgba2grayscale
 #' 
-#' Removes alpha channel from png image.
+#' Changes RGB image to grayscale
 #'
-#' @param img A 3-d array with slices R, G, B, and alpha.
+#' @param img A 3D array with slices R, G, and B
+#' @return img as a 3D array as grayscale
+#' 
 #' @export
 rgb2grayscale <- function(img) {
     .Call(`_handwriter_rgb2grayscale`, img)
@@ -43,9 +50,12 @@ rgb2grayscale <- function(img) {
 
 #' whichToFill
 #' 
-#' Finds pixels in the plot that shouldn't be white and makes them black. Quick and helpful cleaning for before the thinning algorithm runs.
+#' Finds pixels in the plot that shouldn't be white and makes them black. 
+#' Quick and helpful cleaning for before the thinning algorithm runs.
 #'
 #' @param img A binary matrix.
+#' @return A cleaned up image.
+#' 
 #' @export
 whichToFill <- function(img) {
     .Call(`_handwriter_whichToFill`, img)
@@ -57,6 +67,8 @@ whichToFill <- function(img) {
 #' Thinning done using Zhang - Suen algorithm.
 #'
 #' @param img A binary matrix of the text that is to be thinned.
+#' @return A thinned, one pixel wide, image.
+#' 
 #' @export
 thinImage <- function(img) {
     .Call(`_handwriter_thinImage`, img)
