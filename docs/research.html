@@ -21,19 +21,19 @@
                 <nav class="navbar navbar-expand-lg navbar-light bg-navy border-bottom">
                     <div class="container-fluid">
                         <a href = "https://forensicstats.org/" target="_blank">
-                          <img src = "Pictures/csafe-logo-90.png">
+                          <img src = "Pictures/csafe-logo-90.png" class = "img-fluid">
                         </a>
                       <div class="title-text-center">
-                        <h1 style ="font-size:5vw"><a class="title-link" href="#!">Handwriter</a></h1>
+                        <h1 style ="font-size:5vw"><a class="title-link" href="index.html">Handwriter</a></h1>
                       </div>
                         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
                         <div class="collapse navbar-collapse" id="navbarSupportedContent">
                             <ul class="navbar-nav ms-auto mt-2 mt-lg-0">
-                                <li class="nav-item active"><a class="nav-link" href="#!">Home</a></li>
+                                <li class="nav-item active"><a class="nav-link" href="index.html">Home</a></li>
                                 <li class="nav-item"><a class="nav-link" href="methods.html">Methods</a></li>
                                 <li class="nav-item"><a class="nav-link" href="howto.html">How To</a></li>
                                 <li class="nav-item"><a class="nav-link" href="workflow.html">Workflow Integration</a></li>
-                                <li class="nav-item"><a class="nav-link" href="research.html">Research</a></li>
+                                <li class="nav-item"><a class="nav-link" href="#!">Research</a></li>
                                 <!--
                                 <li class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Resources</a>
@@ -50,34 +50,28 @@
 
                 </nav>
                 <!-- Page content-->
-                <div class = "bg-lblue bands">
-                  <div class = "container-fluid">
-                    <img src = "Pictures/WrittenCodeHexSmall.png" class = "lhex">
-                    <h1 class="mt-4">R Package for Handwriting Analysis</h1>
-                    <p>A detailed tutorial on using Handwriter is available on the <a href="howto.html">How To</a> page.</p>
-                    <p>The Handwriter package can be installed using: </p>
-                    <pre>
-                      <code>install.packages("devtools")
-                        devtools::install_github("csafe-isu/handwriter")
-                        library(handwriter)</code>
-                    </pre>
+                <div class = "container-fluid">
+                  <h2 style ="padding-top:20px">Publications</h2>
+                  <p><a href = "https://onlinelibrary.wiley.com/doi/10.1002/sam.11488" target="_blank">A clustering method for graphical handwriting components and statistical writership analysis</a> by Amy Crawford, Nicholas Berry, and Alicia Carriquiry<p>
+                  <p><a href = "https://www.sciencedirect.com/science/article/pii/S2352340919314155?via%3Dihub" target ="_blank">A database of handwriting samples for applications in forensic statistics</a> by Amy Crawford, Anyesha Ray, and Alicia Carriquiry</p>
+                  <br>
+                  <h2>Websites</h2>
+                  <p><a href = "https://forensicstats.org/" target="_blank">Center for Statistics and Application in Forensic Evidence's (CSAFE) Homepage</a></p>
+                  <p><a href = "https://github.com/CSAFE-ISU/handwriter" target="_blank">GitHub Repo for Handwriter</a></p>
+                  <br>
+                  <h2>Posters</h2>
+                  <div class = "container-sm">
+                    <a href="Pictures/handwriter_measurements_poster.png" target="_blank">
+                    <img src = "Pictures/handwriter_measurements_poster.png" width = "600px">
                   </div>
-                </div>
-                <div class = "bg-llblue bands">
-                  <div class = "container-fluid">
-                    <img src = "Pictures/CHex.png" class = "rhex">
-                    <h1 class = "mt-4">How It Works</h1>
-                    <p>A step by step explanation on how Handwriter works is available on the <a href="methods.html">Methods</a> page. The package is open-source and the code can be viewed on <a href ="https://github.com/CSAFE-ISU/handwriter" target="_blank">Github</a>.</p>
-                    <p>Information on integrating Handwriter into your workflow is available on the <a href="workflow.html">Workflow Integration</a> page.
+                  <p>Measurements Poster </a> - Poster created by James Taylor for ISU Research Day 2020</p>
+                  <div class = "container-sm">
+                    <a href="Pictures/handwriter_poster.png" target="_blank">
+                    <img src = "Pictures/handwriter_poster.png" width = "600px">
                   </div>
-                </div>
-                <div class = "bg-lblue bands">
-                  <div class = "container-fluid">
-                    <img src = "Pictures/CsafeHex.png" class = "lhex">
-                    <h1 class = "mt-4">Research</h1>
-                    <p>Handwriter is part of the Handwriting Evaluation project by CSAFE at Iowa State University. </p>
-                    <p>More information on the entire project can be found on the <a href = "research.html">Research</a> page.</p>
-                  </div>
+                  <p>Handwriter Poster</a> - Poster created by Félix Báez-Santiago and Julia Lundstrum for IAI Conference 2021</p>
+                  <br>
+                  <p style ="padding-bottom:20px">For questions or comments, please contact Julia Lundstrum at <a href = "mailto:jlu@iastate.edu" target="_blank">jlu@iastate.edu</a></p>
                 </div>
             <!-- Footer -->
             <footer class = "bg-green foot">
