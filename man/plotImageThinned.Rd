@@ -19,9 +19,9 @@ This function returns a plot with the full image plotted in light gray and the s
 }
 \examples{
 \dontrun{
-nature1_document = list()
-nature1_document$image = nature1
-nature1_document$thin = thinImage(nature1_document$image)
-plotImageThinned(nature1_document$image, nature1_document$thin)
+csafe_document = list()
+csafe_document$image = nature1
+csafe_document$thin = thinImage(csafe_document$image)
+plotImageThinned(csafe_document$image, csafe_document$thin)
 }
 }

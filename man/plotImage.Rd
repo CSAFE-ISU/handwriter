@@ -16,9 +16,9 @@ Returns plot of x.
 This function plots a basic binary image.
 }
 \examples{
-nature1_document = list()
-nature1_document$image = nature1
-plotImage(nature1_document$image)
+csafe_document = list()
+csafe_document$image = csafe
+plotImage(csafe_document$image)
 
 }
 \keyword{plot}
