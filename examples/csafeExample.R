@@ -7,13 +7,13 @@
 #Create empty list, and load an image with READPNGBinary
 csafe_document = list()
 #CSAFE IMAGE
-csafe_document$image = readPNGBinary("examples/ProblemDocs/w0004_s03_pWOZ_r01.png") #full paragraph
+csafe_document$image = readPNGBinary("examples/ProblemDocs/Crashes R But Works on Server/w0001_s03_pLND_r01.png") #full paragraph
 #csafe_document$image = readPNGBinary("examples/two_sent_example.png")
-plotImage(csafe_document$image)
+#plotImage(csafe_document$image)
 
 #Use the Zhang - Suen algorithim to thin the image (1 pixel wide) - then plot it.
 csafe_document$thin = thinImage(csafe_document$image)
-plotImageThinned(csafe_document$image, csafe_document$thin)
+#plotImageThinned(csafe_document$image, csafe_document$thin)
 
 #Huge step in handwriting processing. Takes in thin image form and the breakpoints suggested by getNodes
 #and parses the writing into letters. Returns final letter separation points, a list of the paths in the image,
@@ -39,10 +39,10 @@ words = create_words(csafe_processList)
 words_after_processing = process_words(words, dim(csafe_document$image), TRUE)
 plotWord(csafe_processList$letterList, 1, dims)
 
-###COLOR NODES (must have processed words)
+#Plot a word with colored nodes (must have processed words)
 plotColorNodes(csafe_processList$letterList, 3, dims, words_after_processing)
 
-### Test space for loading data files (used in examples in documentation)
+### Test space for loading data files (used in examples in documentation) ###
 # london_document = list()
 # #load("data/nature1.rda")
 # london_document$image = nature1

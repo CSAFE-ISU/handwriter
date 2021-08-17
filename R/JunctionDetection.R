@@ -489,8 +489,8 @@ processHandwriting = function(img, dims){
   dists0 = distances(skel_graph0, v = as.character(format(nodeList, scientific = FALSE, trim = TRUE)), to = as.character(format(nodeList, scientific = FALSE, trim = TRUE)), weights = E(skel_graph0)$nodeOnlyDist)
   adj0 = ifelse(dists0 == 1 | dists0 == 2, 1, 0)
   
-  message("attempting to merge them...", appendLF = FALSE)
-  emergencyBreak = 20;
+  message("attempting to merging them...")
+  emergencyBreak = 100;
   while(TRUE)
   {
     originalNodeList = nodeList
@@ -541,13 +541,9 @@ processHandwriting = function(img, dims){
     
     emergencyBreak = emergencyBreak - 1
     if(emergencyBreak == 0){
-      warning("Could not merge nodes... stopping execution")
-      stop()
+      break()
     }
-        
   }
-  message("merged successfully.")
-  
   
   graphdf0 = as_data_frame(skel_graph0)
   graphdf0$nodeOnlyDist = ifelse(graphdf0$from %in% nodeList | graphdf0$to %in% nodeList, 1, 0.00001)
