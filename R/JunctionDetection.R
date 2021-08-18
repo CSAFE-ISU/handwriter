@@ -489,7 +489,7 @@ processHandwriting = function(img, dims){
   dists0 = distances(skel_graph0, v = as.character(format(nodeList, scientific = FALSE, trim = TRUE)), to = as.character(format(nodeList, scientific = FALSE, trim = TRUE)), weights = E(skel_graph0)$nodeOnlyDist)
   adj0 = ifelse(dists0 == 1 | dists0 == 2, 1, 0)
   
-  message("attempting to merging them...")
+  message("and merging them...")
   emergencyBreak = 100;
   while(TRUE)
   {

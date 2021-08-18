@@ -47,20 +47,20 @@ find_colorpoints = function(words, dims){
   colordf <- data.frame(words$connectingNodes, i_to_rc(words$connectingNodes, dims), rep(3, len), rep("pink", len))
   colnames(colordf) <- c("point", "row", "col", "colorIndex", "color")
   
-  
   #Add Starting BLUE node
-  beginning_node = words$terminalNodes[[1]]
-  blue_point <- data.frame(beginning_node, i_to_rc(beginning_node, dims), 1, "blue")
-  colnames(blue_point) <- c("point", "row", "col", "colorIndex", "color")
-  colordf <- rbind(colordf, (blue_point))
+  if (length(words$terminalNodes) != 0){
+    beginning_node = words$terminalNodes[[1]]
+    blue_point <- data.frame(beginning_node, i_to_rc(beginning_node, dims), 1, "blue")
+    colnames(blue_point) <- c("point", "row", "col", "colorIndex", "color")
+    colordf <- rbind(colordf, (blue_point))
+  
 
-
-  #Add Ending ORANGE node
-  ending_node = words$terminalNodes[[length(words$terminalNodes)]]
-  orange_point <- data.frame(ending_node, i_to_rc(ending_node, dims), 2, "orange")
-  colnames(orange_point) <- c("point", "row", "col", "colorIndex", "color")
-  colordf <- rbind(colordf, orange_point)
-
+    #Add Ending ORANGE node
+    ending_node = words$terminalNodes[[length(words$terminalNodes)]]
+    orange_point <- data.frame(ending_node, i_to_rc(ending_node, dims), 2, "orange")
+    colnames(orange_point) <- c("point", "row", "col", "colorIndex", "color")
+    colordf <- rbind(colordf, orange_point)
+  }
 
   #Add Node at highest GREEN point in total path
   rcs = i_to_rci(words$wordPath, dims)
