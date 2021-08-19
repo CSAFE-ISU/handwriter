@@ -1,13 +1,15 @@
 #Install the devtools package and the then the handwriter package directly from Github
 #install.packages("devtools")
 #devtools::install_github("CSAFE-ISU/handwriter")
+#library(handwriter)
+
 #install.packages("handwriter")
-library(handwriter)
+#library(handwriter)
 
 #Create empty list, and load an image with READPNGBinary
 csafe_document = list()
 #CSAFE IMAGE
-csafe_document$image = readPNGBinary("examples/ProblemDocs/Could Not Merge Nodes/w0005_s03_pWOZ_r02.png") #full paragraph
+csafe_document$image = readPNGBinary("examples/ProblemDocs/Could Not Merge Nodes/w0043_s03_pWOZ_r01.png") #full paragraph
 #csafe_document$image = readPNGBinary("examples/twoSent.png")
 plotImage(csafe_document$image)
 
