@@ -1,6 +1,6 @@
  ```diff 
  - NOTE: This is our beta version of handwriter, for the most stable version of handwriter 
- - please use CRAN: https://CRAN.R-project.org/package=handwriter .
+ - please use CRAN: https://CRAN.R-project.org/package=handwriter.
  ```
 
 # handwriter package
