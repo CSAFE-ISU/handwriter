@@ -1,9 +1,11 @@
+ ```diff 
+ - NOTE: This is our beta version of handwriter, for the most stable version of handwriter 
+ - please use CRAN: https://CRAN.R-project.org/package=handwriter .
+ ```
+
 # handwriter package
-
-### Website homepage located on our [Github pages](https://csafe-isu.github.io/handwriter/)
-
-### Tutorial located [here](https://csafe-isu.github.io/handwriter/howto)
-
+### Website homepage located on our [Github pages](https://csafe-isu.github.io/handwriter/) (how-to [here](https://csafe-isu.github.io/handwriter/howto))
+### Most stable version available from [CRAN](https://CRAN.R-project.org/package=handwriter)
 ## Overview:
 
 #### What is it?
