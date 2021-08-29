@@ -362,6 +362,14 @@ add_word_info = function(letterList, dims){
     }
   }
   
+  #Case if a single letter is by itself on its own line
+  if(length(dimsList) < letterList[[length(letterList)]]$characterFeatures$line_number){
+    left_most = letterList[[length(letterList)]]$characterFeatures$leftmost_col
+    right_most = letterList[[length(letterList)]]$characterFeatures$rightmost_col
+    tallest = letterList[[length(letterList)]]$characterFeatures$height
+    dimsList[[currentLine]] <- list(right_most-left_most, tallest)
+  }
+  
   #Create a new DF and fill it up from each character entry
   dataDF <- data.frame(line=numeric(0),line_height=numeric(0),line_width=numeric(0),height=numeric(0),width=numeric(0),x=numeric(0),label=character(0),stringsAsFactors = FALSE)
   for (i in 1:length(letterList)){
