@@ -9,7 +9,7 @@
 #Create empty list, and load an image with READPNGBinary
 csafe_document = list()
 
-csafe_document$image = readPNGBinary("examples/ProblemDocs/w0260_s01_pLND_r01.png") #full paragraph
+csafe_document$image = readPNGBinary("examples/ProblemDocs/w0124_s03_pLND_r03.png") #full paragraph
 #csafe_document$image = readPNGBinary("examples/0001_4.png")
 #plotImage(csafe_document$image)
 
