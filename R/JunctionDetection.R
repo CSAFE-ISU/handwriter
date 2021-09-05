@@ -182,24 +182,28 @@ getLoops = function(nodeList, graph, graph0, pathList, dims)
   {
     warning("At least 1 of the nodes in the potential loops has more than 2 neighbors after removal of the connections. Try again! \nThe nodes in question are: \n", dput(names(neighbors)[which(unlist(lapply(neighbors, length)) > 3)]))
   }
-
-  ## Get paths that start and end at the same point, where that point is a node in nodeList
-  if(length(neighbors) > 0)
-  {
-    for(i in 1:length(neighbors))
-    {
-      neigh = as.numeric(names(neighbors[[i]]))
-      graph = delete.edges(graph, paste0(neigh[1], "|", neigh[2]))
-      if(distances(graph, v = as.character(neigh[1]), to = as.character(neigh[2])) < Inf)
+  
+  tryCatch(
+    expr = {
+      ## Get paths that start and end at the same point, where that point is a node in nodeList
+      if(length(neighbors) > 0)
       {
-        newPath = as.numeric(names(unlist(shortest_paths(graph, from = format(neigh[1], scientific = FALSE), to = format(neigh[2], scientific = FALSE), weights = E(graph)$pen_dist)$vpath)))
-        loopList = append(loopList, list(c(newPath, newPath[1])))
+        for(i in 1:length(neighbors)){
+          neigh = as.numeric(names(neighbors[[i]]))
+          graph = delete.edges(graph, paste0(neigh[1], "|", neigh[2]))
+          if(distances(graph, v = as.character(neigh[1]), to = as.character(neigh[2])) < Inf)
+          {
+            newPath = as.numeric(names(unlist(shortest_paths(graph, from = format(neigh[1], scientific = FALSE), to = format(neigh[2], scientific = FALSE), weights = E(graph)$pen_dist)$vpath)))
+            loopList = append(loopList, list(c(newPath, newPath[1])))
+          }
+        }
       }
-    }
-  }
-  
+    },
+      error = function(e){
+        message("Error in loops... skipping...")
+      }
+  )
 
-  
   ## Eliminate loop paths that we have found and find ones that dont have vertex on the loop. This is caused by combining of nodes that are close together.
   used = as.numeric(unique(c(unlist(pathList), unlist(loopList))))
   unused = as.numeric(vertexNames)[which(!(as.numeric(vertexNames) %in% used))]
@@ -339,6 +343,7 @@ letterPaths = function(allPaths, nodeGraph0, breakPoints)
   oldVerts = V(nodeGraph0)$name
   if(any(as.character(format(breakPoints, scientific = FALSE, trim = TRUE)) %in% names(V(nodeGraph0))))
     nodeGraph0 = delete_vertices(nodeGraph0, v = as.character(format(breakPoints, scientific = FALSE, trim = TRUE)))
+  
   grIDs = rep(NA, length(V(nodeGraph0)))
   dists = distances(nodeGraph0, v = names(V(nodeGraph0)), to = names(V(nodeGraph0)), weights = E(nodeGraph0)$nodeOnlyDist)
   vertList = V(nodeGraph0)$name

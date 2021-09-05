@@ -331,6 +331,11 @@ NULL
 #' @importFrom stats predict
 add_word_info = function(letterList, dims){
   
+  #Remove the null element at the end, if there is one - extreme edge case
+  if(is.null(letterList[length(letterList)][[1]])){
+    letterList = letterList[-length(letterList)]
+  }
+  
   #Compute the approximate width and height of each line
   dimsList <- list()
   currentLine = 1
@@ -339,16 +344,20 @@ add_word_info = function(letterList, dims){
   right_most = 0
   tallest = 0
   for (i in 1:length(letterList)){
-    if(letterList[[i]]$characterFeatures$leftmost_col < left_most){
-      left_most = letterList[[i]]$characterFeatures$leftmost_col
+    left = letterList[[i]]$characterFeatures$leftmost_col
+    right = letterList[[i]]$characterFeatures$rightmost_col
+    height = letterList[[i]]$characterFeatures$height
+    
+    if(left < left_most){
+      left_most = left
     }
     
-    if(letterList[[i]]$characterFeatures$rightmost_col > right_most){
+    if(right > right_most){
       right_most = letterList[[i]]$characterFeatures$rightmost_col
     }
     
-    if(letterList[[i]]$characterFeatures$height > tallest){
-      tallest = letterList[[i]]$characterFeatures$height
+    if(height > tallest){
+      tallest = height
     }
     
     if(letterList[[i]]$characterFeatures$line_number != currentLine | i == length(letterList)) {
