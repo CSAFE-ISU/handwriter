@@ -739,11 +739,14 @@ create_letter_lists = function(allPaths, letters, nodeList, nodeConnections, ter
       nodeOrder[[i]] = getNodeOrder(letters[[i]], nodesinGraph[[i]], connectivityScores[[i]], dims)
       
       nodeSet = nodesinGraph[[i]][order(nodeOrder[[i]])]
+      
+      warn = FALSE
       for(j in 1:length(pathStarts))
       {
         if(!(pathStarts[j] %in% nodeSet))
         {
           warning(paste0("Maybe a loop that didn't merge with node. letterList[[",i,"]]"))
+          warn = TRUE
         }
         else
           pathStarts[j] = which(nodeSet == pathStarts[j])
@@ -751,10 +754,13 @@ create_letter_lists = function(allPaths, letters, nodeList, nodeConnections, ter
         if(!(pathEnds[j] %in% nodeSet))
         {
           warning(paste0("Maybe a loop that didn't merge with node. letterList[[",i,"]]"))
+          warn = TRUE
         }
         else
           pathEnds[j] = which(nodeSet == pathEnds[j])
       }
+      if(warn){next}
+      
       letterList[[i]]$adjMatrix[cbind(pathStarts, pathEnds)] = 1
       letterList[[i]]$adjMatrix[cbind(pathEnds, pathStarts)] = 1
       binCode = t(letterList[[i]]$adjMatrix)[!upper.tri(letterList[[i]]$adjMatrix)]
