@@ -31,6 +31,7 @@ makeModel = function(TaggedJson){
   
   #Sort DF By first line number, and then x value
   dataDF=dataDF[order( dataDF[,1], dataDF[,6] ),]
+  print(nrow(dataDF))
   
   #Add proportionalized data
   dataDF['height_prop'] <- NA
@@ -73,9 +74,12 @@ makeModel = function(TaggedJson){
     a[i] = mean(predValid == ValidSet$label, na.rm = TRUE)
   }
   
+  
+  print(a)
+  
   #Now that model is trained, save it so it can be loaded
-  wordModel = NULL
-  wordModel <- randomForest(label ~ ., data = TrainSet, ntree = 500, mtry = 4, importance = TRUE, na.action=na.exclude)
-  use_data(wordModel, overwrite = TRUE)
+  #wordModel = NULL
+  #wordModel <- randomForest(label ~ ., data = TrainSet, ntree = 500, mtry = 4, importance = TRUE, na.action=na.exclude)
+  #use_data(wordModel, overwrite = TRUE)
 }
 
