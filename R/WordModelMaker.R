@@ -78,8 +78,8 @@ makeModel = function(TaggedJson){
   print(a)
   
   #Now that model is trained, save it so it can be loaded
-  #wordModel = NULL
-  #wordModel <- randomForest(label ~ ., data = TrainSet, ntree = 500, mtry = 4, importance = TRUE, na.action=na.exclude)
-  #use_data(wordModel, overwrite = TRUE)
+  wordModelNew = NULL
+  wordModelNew <- randomForest(label ~ ., data = TrainSet, ntree = 500, mtry = 4, importance = TRUE, na.action=na.exclude)
+  use_data(wordModelNew, overwrite = TRUE)
 }
 
