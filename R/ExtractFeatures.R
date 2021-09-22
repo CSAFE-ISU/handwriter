@@ -415,15 +415,26 @@ add_word_info = function(letterList, dims){
     dataDF[r, 'to_left_prop'] = to_left/row$line_width
   } 
   
+  
   #just take the proportional data since that is what our model is based off of
   testDF = dataDF[c("height_prop", "width_prop", "to_right_prop", "to_left_prop")]
+  testDF[testDF < 0] = 0
   
   # Make prediction and add to other
   loadNamespace("randomForest")
-  wordPredictions <- cbind(testDF, predict(wordModel, testDF, type = "class"))
-  names(wordPredictions)[names(wordPredictions) == "predict(wordModel, testDF, type = \"class\")"] <- "prediction"
+  wordPredictions <- cbind(testDF, predict(wordModelNew, testDF, type = "class"))
+  names(wordPredictions)[names(wordPredictions) == "predict(wordModelNew, testDF, type = \"class\")"] <- "prediction"
   wordPredictions[1, 'prediction']="beginning"
-  wordPredictions[nrow(wordPredictions), 'prediction']="ending"
+  wordPredictions[nrow(wordPredictions), 'prediction']="end"
+  
+  #Some manual interventions
+  aggregateWordPredictions = aggregate(. ~ prediction, wordPredictions, mean)
+  
+  beginning_to_left_mean = aggregateWordPredictions[1,'to_left_prop']
+  ending_to_right_mean = aggregateWordPredictions[2,'to_right_prop']
+  
+  wordPredictions$prediction[which(wordPredictions$to_left_prop > beginning_to_left_mean)] = 'beginning'
+  wordPredictions$prediction[which(wordPredictions$to_right_prop > ending_to_right_mean)] = 'end'
   
   #Now use the predictions to figure out the word boundaries
   wordCount = 1
@@ -441,18 +452,38 @@ add_word_info = function(letterList, dims){
     #keep track of next prediction
     nextPrediction = wordPredictions[i+1, 'prediction']
     
+    if(prediction == "middle" & nextPrediction == "beginning" & wordPredictions[i,'to_right_prop'] > ending_to_right_mean *.5){
+      wordPredictions[i, 'prediction'] = 'end'
+    }
+    else {
+      wordPredictions[i+1, 'prediction'] = 'middle'
+    }
+   
+    
+    if(prediction == "end" & nextPrediction == "end"){
+      wordPredictions[i, 'prediction'] = 'middle'
+    }
+    
+    #Update the prediction to use
+   # prediction = wordPredictions[i, 'prediction'] 
+    
     #if next char is on a new line, index the word and go to next iteration
     if(letterList[[i+1]]$characterFeatures$line_number > letterList[[i]]$characterFeatures$line_number){
       wordCount = wordCount + 1
+      wordPredictions[i, 'prediction'] = 'end'
+      wordPredictions[i+1, 'prediction'] = 'beginning'
       next
     }
+    prediction = wordPredictions[i, 'prediction'] 
     
     #if we see an end and the next is NOT an end, move on
-    if(prediction == "ending" & nextPrediction != "ending"){
+    if(prediction == "end" & nextPrediction != "end"){
       wordCount = wordCount + 1
       next
     }
   }
+  
+  print("test line")
   
   return(letterList)
 }

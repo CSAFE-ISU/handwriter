@@ -9,7 +9,7 @@
 #Create empty list, and load an image with READPNGBinary
 csafe_document = list()
 
-csafe_document$image = readPNGBinary("examples/ProblemDocs/w0124_s03_pLND_r03.png") #full paragraph
+csafe_document$image = readPNGBinary("examples/just_the.png") #full paragraph
 #csafe_document$image = readPNGBinary("examples/0001_4.png")
 #plotImage(csafe_document$image)
 
@@ -43,6 +43,21 @@ plotWord(csafe_processList$letterList, 1, dims)
 
 #Plot a word with colored nodes (must have processed words)
 plotColorNodes(csafe_processList$letterList, 50, dims, words_after_processing)
+
+
+####### QUICK EXAMPLE FOR WORD EXAMPLES #######
+csafe_document = list()
+csafe_document$image = readPNGBinary("inst/extdata/word_splitting_problems/w0003_s01_pPHR_r03.png")
+csafe_document$thin = thinImage(csafe_document$image)
+csafe_processList = processHandwriting(csafe_document$thin, dim(csafe_document$image))
+
+csafe_document$nodes = csafe_processList$nodes
+csafe_document$breaks = csafe_processList$breakPoints
+
+dims = dim(csafe_document$image)
+words = create_words(csafe_processList) 
+words_after_processing = process_words(words, dim(csafe_document$image), TRUE)
+plotWord(csafe_processList$letterList, 1, dims)
 
 ### Test space for loading data files (used in examples in documentation) ###
 # london_document = list()

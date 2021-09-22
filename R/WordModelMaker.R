@@ -1,5 +1,6 @@
 library(rjson)
 library(randomForest)
+library(usethis)
 
 #' makeModel
 #'
@@ -55,7 +56,12 @@ makeModel = function(TaggedJson){
     dataDF[r, 'to_left_prop'] = to_left/row$line_width
   } 
   
+  dataDF = pmax(dataDF, 0)
+  
   trainDF = dataDF[c("label", "height_prop", "width_prop", "to_right_prop", "to_left_prop")]
+  aggregateDataDF = aggregate(. ~ label, trainDF, mean)
+  print(aggregateDataDF)
+  
   #Reconfigure DF for to be put into model
   trainDF$label = factor(trainDF$label)
   
@@ -80,6 +86,6 @@ makeModel = function(TaggedJson){
   #Now that model is trained, save it so it can be loaded
   wordModelNew = NULL
   wordModelNew <- randomForest(label ~ ., data = TrainSet, ntree = 500, mtry = 4, importance = TRUE, na.action=na.exclude)
-  use_data(wordModelNew, overwrite = TRUE)
+  usethis::use_data(wordModelNew, overwrite = TRUE)
 }
 
