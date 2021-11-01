@@ -2,6 +2,7 @@
 
 export(AddLetterImages)
 export(SaveAllLetterPlots)
+export(createClusterTemplates)
 export(create_words)
 export(plotColorNodes)
 export(plotImage)

@@ -1,0 +1,4 @@
+Document CVL_0014_0014-7-cropped.png is being processed. 	 (3 of 100)
+[1] "test line"
+Document  CVL_0014_0014-7-cropped.png  features saved.[1] "working on: examples/template_50CVL_50IAM/base_set/PNG/CVL_0077_0077-2-cropped.png"
+[1] "D:/GitHub/handwriter"
