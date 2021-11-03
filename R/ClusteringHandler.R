@@ -31,7 +31,6 @@ createClusterTemplates = function(documentDirectory,
                                   numberToRun = 1, 
                                   numCores = 1, 
                                   numDistCores = 1, 
-                                  numPathCuts = 8, 
                                   iter.max = 500, 
                                   gamma = 3,
                                   meanGraph = 'slow_change',
@@ -42,6 +41,8 @@ createClusterTemplates = function(documentDirectory,
   library(tidyverse)
   library(tidyr)
   library(dplyr)
+  
+  numPathCuts = 8
   
   #Get rds files from clustertemplate_docprocessing
   #processDocsForClustering(documentDirectory, logDirectory, dataDirectory, numCores)
