@@ -6,12 +6,13 @@
 \usage{
 createClusterTemplates(
   documentDirectory,
-  resultsFile,
+  logDirectory = "",
+  dataDirectory = "",
+  resultsFile = "",
   K = 40,
   numberToRun = 1,
   numCores = 1,
   numDistCores = 1,
-  numPathCuts = 8,
   iter.max = 500,
   gamma = 3,
   meanGraph = "slow_change",
@@ -26,11 +27,9 @@ there will be K+1 clusters.}
 \item{numberToRun}{Integer number of clustering templates to create}
 
 \item{numCores}{Integer number of cores. Each clustering template will be created on
-a different core}
+a different core.}
 
 \item{numDistCores}{Integer number of cores to use for distance calculations}
-
-\item{numPathCuts}{Integer number of segments to cut each path into}
 
 \item{iter.max}{Integer maximum number of iterations to allow cluster centers to converge}
 
@@ -44,6 +43,8 @@ graph calculations. The options are 'sequential' and 'random'}
 
 \item{fillClusters}{String choice of how to choose which graph to reassign to an empty cluster. 
 Choice are 'random' and 'farthest'}
+
+\item{numPathCuts}{Integer number of segments to cut each path into}
 
 \item{results_file}{String name of file without the file extension to save the clustering template}
 }

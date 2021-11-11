@@ -9,8 +9,12 @@
 #Create empty list, and load an image with READPNGBinary
 csafe_document = list()
 
-csafe_document$image = readPNGBinary("examples/just_the.png") #full paragraph
-#csafe_document$image = readPNGBinary("examples/0001_4.png")
+#csafe_document$image = readPNGBinary("examples/problem_docs_nov21/w0233_s01_pWOZ_r02.png")
+#csafe_document$image = readPNGBinary("examples/problem_docs_nov21/w0297_s01_pLND_r02.png") 
+#csafe_document$image = readPNGBinary("examples/problem_docs_nov21/s2_samp/w0365_s02_pWOZ_r01.png") 
+
+#csafe_document$image = readPNGBinary("examples/just_the.png") 
+csafe_document$image = readPNGBinary("examples/0001_4.png")
 #plotImage(csafe_document$image)
 
 #Use the Zhang - Suen algorithim to thin the image (1 pixel wide) - then plot it.
@@ -20,7 +24,7 @@ csafe_document$thin = thinImage(csafe_document$image)
 #Huge step in handwriting processing. Takes in thin image form and the breakpoints suggested by getNodes
 #and parses the writing into letters. Returns final letter separation points, a list of the paths in the image,
 #and a list of the letter paths in the image.
-csafe_processList = processHandwriting(csafe_document$thin, dim(csafe_document$image))
+#csafe_processList = processHandwriting(csafe_document$thin, dim(csafe_document$image))
 
 #Save off nodes, breaks, paths, and graphemes
 csafe_document$nodes = csafe_processList$nodes

@@ -419,6 +419,9 @@ add_word_info = function(letterList, dims){
   #just take the proportional data since that is what our model is based off of
   testDF = dataDF[c("height_prop", "width_prop", "to_right_prop", "to_left_prop")]
   testDF[testDF < 0] = 0
+  #testDF[is.infinite(testDF)] <- NA  
+  
+  testDF=do.call(data.frame, lapply (testDF, function(value) replace(value, is.infinite(value),NA)))
   
   # Make prediction and add to other
   loadNamespace("randomForest")
@@ -426,6 +429,7 @@ add_word_info = function(letterList, dims){
   names(wordPredictions)[names(wordPredictions) == "predict(wordModelNew, testDF, type = \"class\")"] <- "prediction"
   wordPredictions[1, 'prediction']="beginning"
   wordPredictions[nrow(wordPredictions), 'prediction']="end"
+  wordPredictions$prediction[is.na(wordPredictions$prediction)] ="end"
   
   #Some manual interventions
   aggregateWordPredictions = aggregate(. ~ prediction, wordPredictions, mean)
@@ -435,6 +439,7 @@ add_word_info = function(letterList, dims){
   
   wordPredictions$prediction[which(wordPredictions$to_left_prop > beginning_to_left_mean)] = 'beginning'
   wordPredictions$prediction[which(wordPredictions$to_right_prop > ending_to_right_mean)] = 'end'
+  
   
   #Now use the predictions to figure out the word boundaries
   wordCount = 1
@@ -482,8 +487,6 @@ add_word_info = function(letterList, dims){
       next
     }
   }
-  
-  print("test line")
   
   return(letterList)
 }

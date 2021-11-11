@@ -9,56 +9,10 @@
         <title>Handwriter</title>
         <!-- Core theme CSS (includes Bootstrap)-->
         <link href="css/styles.css" rel="stylesheet" />
+        <link href="css/collapsiblestyle.css" rel="stylesheet" />
         <link rel="icon" href="https://forensicstats.org/wp-content/uploads/2017/01/favicon-32x32.png" sizes="32x32">
         <link href="https://fonts.googleapis.com/css?family=Montserrat:100,200,300,400" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css?family=Indie+Flower" rel="stylesheet">
-    <style>
-        .collapsible {
-        background-color: #777;
-        outline-color: #777;
-        color: white;
-        cursor: pointer;
-        padding: 18px;
-        width: 100%;
-        border: none;
-        text-align: left;
-        outline: none;
-        font-size: 15px;
-        }
-
-        .collapsible:hover {
-        background-color: #555;
-        }
-
-        .collapsible:after {
-        content: '\002B';
-        color: white;
-        font-weight: bold;
-        float: ight;
-        margin-left: 5px;
-        }
-
-        .active:after {
-        content: "\2212";
-        }
-
-        .content {
-        padding: 0 18px;
-        max-height: 0;
-        overflow: hidden;
-        transition: max-height 0.2s ease-out;
-        outline-color: #f1f1f1;
-        }
-
-
-        code{
-          font-family: var(--font-monospace);
-          background-color: #ededed;
-          font-size: 1em;
-          direction: ltr /* rtl:ignore */;
-          unicode-bidi: bidi-override;
-        }
-    </style>
     </head>
     <body>
         <div class="d-flex" id="wrapper">
@@ -245,93 +199,93 @@
                         <p> <b>createClusterTemplates()</b> only has one required parameter, <b>documentDirectory</b> which is the folder where the documents to process reside.
                          Paths can also be provided for storage of log files, temp files, and results files. Otherwise, they will be stored within <b>documentDirectory</b> </p>
 
-                         <p> The most simple call will look something like this, but there are also plenty of options: </p>
+                         <p> Typical use cases: </p>
                           <pre>
+                            <code>#The most basic call, with only the documentDirectory provided</code>
                             <code>createClusterTemplates("path/to/directory")</code>
+                            <code></code>
+                            <code>#A call with the documentDirectory, resultsFile, 25 clusters and 5 cluster sets</code>
+                            <code>createClusterTemplates(documentDirectory = "path/to/directory", resultsFile = "path/to/resultsfile", K = 25, numberToRun = 5)</code>
                           </pre>
 
                         <p>The parameters for <b>createClusterTemplates()</b> include:</p>
                         <ul>
                           <li>
-                            <b>documentDirectory</b> | <u>STRING</u> | <b>REQUIRED</b> | The directory where the .png files are located
-                          </li>
-                          <li>
-                            <b>logDirectory</b> | <u>STRING</u> | <b>OPTIONAL</b> | Where the logs will be saved
+                            <b>documentDirectory</b> | <u>STRING</u> | <b>REQUIRED</b>
                             <ul>
-                              Defaults to documentDirectory
+                              The directory where the .png files are located.
                             </ul>
                           </li>
                           <li>
-                            <b>dataDirectory</b> | <u>STRING</u> | <b>OPTIONAL</b> | The directory where the temporary data will be saved.
+                            <b>logDirectory</b> | <u>STRING</u> | <b>OPTIONAL</b> | DEFAULT: documentDirectory
                             <ul>
-                              Defaults to documentDirectory
+                              Where the logs will be saved.
                             </ul>
                           </li>
                           <li>
-                            <b>resultsFile</b> | <u>STRING</u> | <b>OPTIONAL</b> | Representing the file where the results will be saved
+                            <b>dataDirectory</b> | <u>STRING</u> | <b>OPTIONAL</b> | DEFAULT: documentDirectory
                             <ul>
-                              Defaults to documentDirectory
+                              The directory where the temporary data will be saved.
                             </ul>
                           </li>
                           <li>
-                            <b>K </b> | <u>INTEGER</u> | <b>OPTIONAL</b> | How many clusters will be created
+                            <b>resultsFile</b> | <u>STRING</u> | <b>OPTIONAL</b> | DEFAULT: documentDirectory
                             <ul>
-                              Defaults to 40
+                              Representing the file where the results will be saved.
                             </ul>
                           </li>
                           <li>
-                            <b>numberToRun</b> | <u>INTEGER</u> | <b>OPTIONAL</b> | How many cluster sets will be created
+                            <b>K </b> | <u>INTEGER</u> | <b>OPTIONAL</b> | DEFAULT: 40
                             <ul>
-                              Defaults to 1
+                              How many clusters will be created
                             </ul>
                           </li>
                           <li>
-                            <b>numCores</b> | <u>INTEGER</u> | <b>OPTIONAL</b> | representing the directory where the .png files are located.
+                            <b>numberToRun</b> | <u>INTEGER</u> | <b>OPTIONAL</b> | DEFAULT: 1
                             <ul>
-                              Defaults to 1
+                              How many cluster sets will be created.
                             </ul>
                           </li>
                           <li>
-                            <b>numDistCores</b> | <u>INTEGER</u> | <b>OPTIONAL</b> | representing the directory where the .png files are located.
+                            <b>numCores</b> | <u>INTEGER</u> | <b>OPTIONAL</b> | DEFAULT: 1
                             <ul>
-                              Defaults to 1
+                              Number of cores. Each clustering template will be created on a different core.
                             </ul>
                           </li>
                           <li>
-                            <b>numPathCuts</b> | <u>INTEGER</u> | <b>OPTIONAL</b> | representing the directory where the .png files are located.
+                            <b>numDistCores</b> | <u>INTEGER</u> | <b>OPTIONAL</b> | DEFAULT: 1
                             <ul>
-                              Defaults to 8
+                              Integer number of cores to use for distance calculations
                             </ul>
                           </li>
                           <li>
-                            <b>iter.max</b> | <u>INTEGER</u> | <b>OPTIONAL</b> | representing the directory where the .png files are located.
+                            <b>iter.max</b> | <u>INTEGER</u> | <b>OPTIONAL</b> | DEFAULT: 500
                             <ul>
-                              Defaults to 500
+                              Integer maximum number of iterations to allow cluster centers to converge
                             </ul>
                           </li>
                           <li>
-                            <b>gamma</b> | <u>INTEGER</u> | <b>OPTIONAL</b> | representing the directory where the .png files are located.
+                            <b>gamma</b> | <u>INTEGER</u> | <b>OPTIONAL</b> | DEFAULT: 3
                             <ul>
-                              Defaults to 3
+                              Float parameter for calculating the outlier cutoff. If numOutliers is zero, gamma has no effect.
                             </ul>
                           </li>
                           <li>
-                            <b>meanGraph</b> | <u>STRING</u> | <b>OPTIONAL</b> | representing the directory where the .png files are located.
+                            <b>meanGraph</b> | <u>STRING</u> | <b>OPTIONAL</b> | DEFAULT: 'slow_change'
                             <ul>
-                              <li> Defaults to 'slow_change' </li>
-                              <li> Other options include </li>
+                              <li> String choice of algorithm for calculating mean graphs. The choices are 'basic', 'slow_change' and 'kmeans' </li>
                             </ul>
                           </li>
                           <li>
-                            <b>meanGraphOrder</b> | <u>STRING</u> | <b>OPTIONAL</b> | representing the directory where the .png files are located.
+                            <b>meanGraphOrder</b> | <u>STRING</u> | <b>OPTIONAL</b> | DEFAULT: 'sequential'.
                             <ul>
-                              Defaults to 'sequential'
+                              Chose the order in which to add graphs to the mean graph calculations. The options are 'sequential' and 'random'
                             </ul>
                           </li>
                           <li>
-                            <b>fillClusters</b> | <u>STRING</u> | <b>OPTIONAL</b> | representing the directory where the .png files are located.
+                            <b>fillClusters</b> | <u>STRING</u> | <b>OPTIONAL</b> | DEFAULT: 'farthest'
                             <ul>
-                              Defaults to 'farthest'
+                              String choice of how to choose which graph to reassign to an empty cluster. Choices are 'random' and 'farthest'
                             </ul>
                           </li>
                         </ul>

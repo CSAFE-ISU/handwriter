@@ -4,7 +4,12 @@
 \alias{processDocsForClustering}
 \title{processDocsForClustering}
 \usage{
-processDocsForClustering(documentDirectory, numCores)
+processDocsForClustering(
+  documentDirectory,
+  logDirectory,
+  dataDirectory,
+  numCores
+)
 }
 \description{
 Some stuff here

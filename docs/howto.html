@@ -9,6 +9,7 @@
         <title>Handwriter</title>
         <!-- Core theme CSS (includes Bootstrap)-->
         <link href="css/styles.css" rel="stylesheet" />
+        <link href="css/collapsiblestyle.css" rel="stylesheet" />
         <link rel="icon" href="https://forensicstats.org/wp-content/uploads/2017/01/favicon-32x32.png" sizes="32x32">
         <link href="https://fonts.googleapis.com/css?family=Montserrat:100,200,300,400" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css?family=Indie+Flower" rel="stylesheet">
@@ -96,11 +97,9 @@
                         <code>csafe = list()
                           csafe$image = readPNGBinary("path/to/the/picture.png")</code>
                       </pre>
-                      <br>
+                      <br><br>
                       <h2>Preparing the image for processing</h2>
-                      <p>
-                        Plot the original, cropped image:
-                      </p>
+                      <p> Plot the original, cropped image: </p>
                       <pre>
                         <code>plotImage(csafe$image)</code>
                       </pre>
@@ -108,7 +107,7 @@
                         <img src="Pictures/csafe_cropped.png" alt="Writing_csafe_single">
                       </div>
                       <p>
-                        <br>thin the image and you can plot it again:
+                      <br>thin the image and you can plot it again:
                       </p>
                       <pre>
                         <code>csafe$thin = thinImage(csafe$image)
@@ -117,34 +116,47 @@
                       <div class = "container-sm">
                         <img src="Pictures/csafe_thinned.png" alt="Writing_csafe_single">
                       </div>
-                      <h2>Processing the image and save off information</h2>
+                      <h2>Processing the image exploring the results</h2>
                       <p>
                         Process the image</p>
                       <pre>
                         <code>csafe_processlist = processHandwriting(csafe$thin, dim(csafe$image))</code>
                       </pre>
-                      <p>Save information for plotting</p>
+                      <p> <b>processHandwriting()</b> will return tons of information about the document. It is worth exploring, and we've provided a handy list here of what each element of the list means </p>
+                      <button type="button" class="collapsible">Information returned from <b>processHandwriting()</b></button>
+                      <div class="content">
+                        <p>On a document level:</p>
+                        <ul>
+                          <li> <b>nodes</b> | A list of all 'points of interest' </li>
+                          <li> <b>connectingNodes</b> | A list of all nodes where glyphs connect </li>
+                          <li> <b>terminalNodes</b> | A list of all nodes where a path in a glyph ends </li>
+                          <li> <b>breakPoints</b> | A list of calculated points to break glyphs apart (based on connectingNodes) </li>
+                        </ul>
+
+                        <p>As well as a <b> letterList </b> for each letter/glyph that includes:</p>
+                        <ul>
+                          <li> <b>path</b> | A list of all 'points of interest'  </li>
+                          <li> <b>nodes</b> | A list of all 'points of interest' in the document </li>
+                          <li> <b>allPaths</b> | A list of all 'points of interest' in the document </li>
+                          <li> <b>adjMatrix</b> | A list of all 'points of interest' in the document </li>
+                          <li> <b>letterCode</b> | A list of all 'points of interest' in the document </li>
+                          <li> <b>connectingNodes</b> | A list of all 'points of interest' in the document </li>
+                          <li> <b>terminalNodes</b> | A list of all 'points of interest' in the document </li>
+                          <li> <b>characterFeatures</b> | A list of all 'points of interest' in the document </li>
+                        </ul>
+                      </div>
+
+
+                      <br><br><h2>Exploring processed writing</h2>
+                      <p> Using the information returned from <b>processHandwriting()</b>, Handwriter allows plotting on a letter (or glyph), word, sentence, or the entire document.</p>
+                      <p>Ensure to save this information for plotting to work correctly</p>
                       <pre>
                         <code>csafe$nodes = csafe_processlist$nodes
                           csafe$breaks = csafe_processlist$breakPoints
                           dims = dim(csafe$image)</code>
                       </pre>
-                      <h2><br>Plotting processed writing</h2>
-                      <p>
-                        Plot all nodes found during processing</p>
-                      <pre>
-                        <code>plotNodes(csafe$image, csafe$thin, csafe$nodes)</code>
-                      </pre>
-                      <div class = "container-sm">
-                        <img src="Pictures/csafe_nodes.png" alt="Writing_csafe_single">
-                      </div>
-                      <p>Plot all glyph breaks found during processing</p>
-                      <pre>
-                        <code>plotNodes(csafe$image, csafe$thin, csafe$breaks)</code>
-                      </pre>
-                      <div class = "container-sm">
-                        <img src="Pictures/csafe_breaks.png" alt="Writing_csafe_single">
-                      </div>
+                      <button type="button" class="collapsible">Plotting Letters</button>
+                      <div class="content">
                       <p>Also included is the ability to plot individual glyphs from the sample of writing, using
                         plotLetter(). First lets look at the parameters and options, and then run through a few examples.</p>
                       <p>The parameters include:</p>
@@ -185,7 +197,36 @@
                       <div class = "container-sm">
                         <img src="Pictures/f_slope_and_centroid.png" alt="c_all_features">
                       </div>
-                </div>
+                    </div>
+
+                    <button type="button" class="collapsible">Plotting Words</button>
+                    <div class="content">
+                    </div>
+
+                    <button type="button" class="collapsible">Plotting Lines</button>
+                    <div class="content">
+                    </div>
+
+                    <button type="button" class="collapsible">Plotting Documents</button>
+                    <div class="content">
+                      <p>
+                        Plot all nodes found during processing</p>
+                      <pre>
+                        <code>plotNodes(csafe$image, csafe$thin, csafe$nodes)</code>
+                      </pre>
+                      <div class = "container-sm">
+                        <img src="Pictures/csafe_nodes.png" alt="Writing_csafe_single">
+                      </div>
+                      <p>Plot all glyph breaks found during processing</p>
+                      <pre>
+                        <code>plotNodes(csafe$image, csafe$thin, csafe$breaks)</code>
+                      </pre>
+                      <div class = "container-sm">
+                        <img src="Pictures/csafe_breaks.png" alt="Writing_csafe_single">
+                      </div>
+                    </div>
+              </div>
+            </br>
             <!-- Footer -->
             <footer class = "bg-green foot">
               <a href = "https://www.iastate.edu/" target="_blank">
@@ -205,5 +246,21 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
         <!-- Core theme JS-->
         <script src="js/scripts.js"></script>
+        <script>
+        var coll = document.getElementsByClassName("collapsible");
+        var i;
+
+        for (i = 0; i < coll.length; i++) {
+          coll[i].addEventListener("click", function() {
+            this.classList.toggle("active");
+            var content = this.nextElementSibling;
+            if (content.style.maxHeight){
+              content.style.maxHeight = null;
+            } else {
+              content.style.maxHeight = content.scrollHeight + "px";
+            }
+          });
+        }
+        </script>
     </body>
 </html>

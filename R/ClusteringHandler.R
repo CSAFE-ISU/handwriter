@@ -6,7 +6,7 @@
 #' there will be K+1 clusters.
 #' @param numberToRun Integer number of clustering templates to create
 #' @param numCores Integer number of cores. Each clustering template will be created on
-#' a different core
+#' a different core.
 #' @param numDistCores Integer number of cores to use for distance calculations
 #' @param numPathCuts Integer number of segments to cut each path into
 #' @param iter.max Integer maximum number of iterations to allow cluster centers to converge
