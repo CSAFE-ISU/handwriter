@@ -436,6 +436,7 @@ add_word_info = function(letterList, dims){
   
   beginning_to_left_mean = aggregateWordPredictions[1,'to_left_prop']
   ending_to_right_mean = aggregateWordPredictions[2,'to_right_prop']
+  if(is.na(ending_to_right_mean)) {ending_to_right_mean = 0}
   
   wordPredictions$prediction[which(wordPredictions$to_left_prop > beginning_to_left_mean)] = 'beginning'
   wordPredictions$prediction[which(wordPredictions$to_right_prop > ending_to_right_mean)] = 'end'
@@ -457,8 +458,10 @@ add_word_info = function(letterList, dims){
     #keep track of next prediction
     nextPrediction = wordPredictions[i+1, 'prediction']
     
-    if(prediction == "middle" & nextPrediction == "beginning" & wordPredictions[i,'to_right_prop'] > ending_to_right_mean *.5){
-      wordPredictions[i, 'prediction'] = 'end'
+    if(prediction == "middle" & nextPrediction == "beginning"){
+       if(wordPredictions[i,'to_right_prop'] > ending_to_right_mean *.5){
+          wordPredictions[i, 'prediction'] = 'end'
+       }
     }
     else {
       wordPredictions[i+1, 'prediction'] = 'middle'

@@ -135,14 +135,44 @@
 
                         <p>As well as a <b> letterList </b> for each letter/glyph that includes:</p>
                         <ul>
-                          <li> <b>path</b> | A list of all 'points of interest'  </li>
-                          <li> <b>nodes</b> | A list of all 'points of interest' in the document </li>
-                          <li> <b>allPaths</b> | A list of all 'points of interest' in the document </li>
-                          <li> <b>adjMatrix</b> | A list of all 'points of interest' in the document </li>
-                          <li> <b>letterCode</b> | A list of all 'points of interest' in the document </li>
-                          <li> <b>connectingNodes</b> | A list of all 'points of interest' in the document </li>
-                          <li> <b>terminalNodes</b> | A list of all 'points of interest' in the document </li>
+                          <li> <b>path</b> | A list of all points  </li>
+                          <li> <b>nodes</b> | A list of all 'points of interest' </li>
+                          <li> <b>allPaths</b> | A list of lists of calculated 'paths'  </li>
+                          <li> <b>adjMatrix</b> | Adjacency matrix </li>
+                          <li> <b>letterCode</b> | A unique letter code </li>
+                          <li> <b>connectingNodes</b> | A list of all nodes where the glyph connects  </li>
+                          <li> <b>terminalNodes</b> | A list of all nodes where a path in the glyph ends </li>
                           <li> <b>characterFeatures</b> | A list of all 'points of interest' in the document </li>
+                            <ul>
+                              <li> <b>aspect_ratio</b> | Height to width ratio </li>
+                              <li> <b>height</b> | Height of the glyph, measured in pixels </li>
+                              <li> <b>width</b> | Width of the glyph, measured in pixels  </li>
+                              <li> <b>topmost_row</b> | The top-most row, as its y coordinate </li>
+                              <li> <b>bottom_row</b> | The bottom-most row, as its y coordinate </li>
+                              <li> <b>leftmost_col</b> | The left-most column, as its x coordinate </li>
+                              <li> <b>rightmost_col</b> | The left-most column, as its x coordinate </li>
+                              <li> <b>centroid_index</b> | The centroid of the glpyh, as its index </li>
+                              <li> <b>centroid_y</b> | The y coordinate of the centroid  </li>
+                              <li> <b>centroid_x</b> | The x coordinate of the centroid </li>
+                              <li> <b>centroid_horiz_location</b> |   </li>
+                              <li> <b>centroid_vert_location</b> | </li>
+                              <li> <b>lHalf</b> | List of all points on the left half of the glyph </li>
+                              <li> <b>rHalf</b> | List of all points on the right half of the glyph </li>
+                              <li> <b>disjoint_centroids</b> | The centroids of the left and right halves, as their idicies </li>
+                              <li> <b>slope</b> | The slope of the glyph as it runs through the centroid  </li>
+                              <li> <b>pixel_density</b> |   </li>
+                              <li> <b>box_density</b> |  </li>
+                              <li> <b>uniqueid</b> | A unqiue numerical identifier for the glyph </li>
+                              <li> <b>down_dist</b> |  Distance from the lowest point of a glyph to the next glyph, measured in pixels</li>
+                              <li> <b>line_number</b> | The line number the glyph falls in </li>
+                              <li> <b>order_within_line</b> | The ordered within the line the glyph falls in </li>
+                              <li> <b>l_neighbor_dist</b> | Distance from the left-most point in the glyph to its left neighbor, measured in pixels</li>
+                              <li> <b>r_neighbor_dist</b> | Distance from the right-most point in the glyph to its left neighbor, measured in pixels</li>
+                              <li> <b>xvar</b> | Varience of X, used in calculate covariance </li>
+                              <li> <b>yvar</b> |  Varience of Y, used in calculate covariance </li>
+                              <li> <b>covar</b> |  Covarience of the glyph </li>
+                              <li> <b>wordIndex</b> | Word number the glyph belongs to </li>
+                            </ul>
                         </ul>
                       </div>
 
@@ -205,10 +235,31 @@
 
                     <button type="button" class="collapsible">Plotting Lines</button>
                     <div class="content">
+                      <p> Plot the line, where the second parameters is the line_number </p>
+                      <pre>
+                        <code>plotLine(csafe_processList$letterList, 1, dims)</code>
+                      </pre>
+                      <div class = "container-fluid">
+                        <img src="Pictures/csafe_line.png" alt="Writing_csafe_single">
+                      </div>
                     </div>
 
                     <button type="button" class="collapsible">Plotting Documents</button>
                     <div class="content">
+                      <p> Plot the original, cropped image </p>
+                      <pre>
+                        <code>plotImage(csafe$image)</code>
+                      </pre>
+                      <div class = "container-sm">
+                        <img src="Pictures/csafe_cropped.png" alt="Writing_csafe_single">
+                      </div>
+                      <p> Plot the thinned image </p>
+                      <pre>
+                        <code>plotImageThinned(csafe$image, csafe$thin)</code>
+                      </pre>
+                      <div class = "container-sm">
+                        <img src="Pictures/csafe_thinned.png" alt="Writing_csafe_single">
+                      </div>
                       <p>
                         Plot all nodes found during processing</p>
                       <pre>
