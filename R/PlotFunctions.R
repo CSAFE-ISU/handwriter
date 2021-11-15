@@ -164,10 +164,10 @@ plotWord = function(letterList, whichWord, dims)
   p = plotImage(img)
   
   #plot nodes
-  nodeSize = 4
-  nodeColor = "red"
-  pointSet = data.frame(X = ((nodeList - 1) %/% dim(img)[1]) + 1, Y = dim(img)[1] - ((nodeList - 1) %% dim(img)[1]))
-  p = p + geom_point(data = pointSet, aes(X, Y), size = nodeSize, shape = I(16), color = I(nodeColor), alpha = I(.6))
+  #nodeSize = 4
+  #nodeColor = "red"
+  #pointSet = data.frame(X = ((nodeList - 1) %/% dim(img)[1]) + 1, Y = dim(img)[1] - ((nodeList - 1) %% dim(img)[1]))
+  #p = p + geom_point(data = pointSet, aes(X, Y), size = nodeSize, shape = I(16), color = I(nodeColor), alpha = I(.6))
   
   return(p)
 }

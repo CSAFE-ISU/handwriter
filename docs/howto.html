@@ -231,6 +231,24 @@
 
                     <button type="button" class="collapsible">Plotting Words</button>
                     <div class="content">
+                      <p> To plot words, a little bit of extra processing must be done: </p>
+                      <pre>
+                        <code>words = create_words(csafe_processList)
+                              words_after_processing = process_words(words, dim(csafe_document$image), TRUE)</code>
+                      </pre>
+
+                      <p> Then you can plot just the word with <b>plotWord</b></p>
+                        <pre>
+                          <code>plotWord(csafe_processList$letterList, 1, dims)</code>
+                        </pre>
+
+                        <p> Or optionally, use the <b>plotColorNodes</b> function to show some additional information. </p>
+                        <pre>
+                          <code>plotColorNodes(csafe_processList$letterList, 1, dims, words_after_processing)</code>
+                        </pre>
+                      <div class = "container-sm">
+                        <img src="Pictures/csafe_colors.png" alt="Writing_csafe_single">
+                      </div>
                     </div>
 
                     <button type="button" class="collapsible">Plotting Lines</button>
@@ -239,9 +257,6 @@
                       <pre>
                         <code>plotLine(csafe_processList$letterList, 1, dims)</code>
                       </pre>
-                      <div class = "container-fluid">
-                        <img src="Pictures/csafe_line.png" alt="Writing_csafe_single">
-                      </div>
                     </div>
 
                     <button type="button" class="collapsible">Plotting Documents</button>

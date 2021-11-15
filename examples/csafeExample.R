@@ -46,7 +46,7 @@ words_after_processing = process_words(words, dim(csafe_document$image), TRUE)
 plotWord(csafe_processList$letterList, 1, dims)
 
 #Plot a word with colored nodes (must have processed words)
-plotColorNodes(csafe_processList$letterList, 50, dims, words_after_processing)
+plotColorNodes(csafe_processList$letterList, 1, dims, words_after_processing)
 
 
 ####### QUICK EXAMPLE FOR WORD EXAMPLES #######

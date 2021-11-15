@@ -448,6 +448,7 @@ add_word_info = function(letterList, dims){
   holding = NULL
   prediction = NA
   for(i in 1:length(letterList)){
+    if(length(letterList) < 10) {wordCount = 1}
     letterList[[i]]$characterFeatures = c(letterList[[i]]$characterFeatures, list(wordIndex = wordCount))
     holding = prediction
     prediction = wordPredictions[i, 'prediction']
