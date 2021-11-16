@@ -54,30 +54,39 @@
                 <div class = "container-fluid">
                   <h1 style ="padding-top:20px">How to use the Handwriter package</h1>
                   <br>
-                  <h2>Interested in trying it out yourself?</h2>
-                  <p>While we work on something interactive and web-based, you can download the package yourself and give it a try. The following is a step by step tutorial to help you along the way.</p>
+                  <h2><b>Interested in trying it out yourself?</b></h2>
+                  <p>While we work on something interactive and web-based, you can download the package yourself and give it a try.
+                    The following is a step by step tutorial to help you along the way.</p>
+
+                  <p> Recently we have been incorpoating our research work built on top of <b>handwriter</b> so that you may also use those.
+                    See the <a href="#research_pipelines"> Research Pipelines</a> section for more. </p>
                   <br>
-                  <h2>Things you'll need:</h2>
+                  <h2><b>Things you'll need:</b></h2>
                   <ul>
                     <li>The R software enviroment, downloadable from
-                      <a href="https://www.r-project.org/" target="_blank">The R Project</a>.
+                      <a href="https://www.r-project.org/" target="_blank"><b>The R Project</b></a>.
                       You may use <a href="https://mirror.las.iastate.edu/CRAN/" target="_blank"> this </a> mirror from Iowa State if you wish.
                     </li>
                     <li>
-                      <a href="https://rstudio.com/products/rstudio/download/" target="_blank">RStudio Desktop</a>, an IDE that should simplify the experience.</li>
+                      <a href="https://rstudio.com/products/rstudio/download/" target="_blank"><b>RStudio Desktop</b></a>, an IDE that should simplify the experience.</li>
                     <li>A sample of handwriting in .png format, you can:
                       <ul>
                         <li> Write something up (black and white works best) and scan it digitally.</li>
                         <li>
                         Use an online tool like
-                        <a href="https://sketch.io/sketchpad/" target="_blank">Sketch.io</a>
+                        <a href="https://sketch.io/sketchpad/" target="_blank"><b>Sketch.io</b></a>
                         create and export some handwriting easily.</li>
                         <li>Use one of <a href="writingsamples.html" target="_blank">our images</a> to get started.</li>
                       </ul>
                     </li>
                   </ul>
+                  <br><h2><b>Terms to know</b></h2>
+                  <ul>
+                    <li> <b> Glyphs </b> | Often letters, but not always due to the separation algorithm used.</li>
+                    <li> <b> Index </b> | Top to bottom and left to right, our way of keeping track where a pixel sits on the document as a whole.</li>
+                  </ul>
                   <br>
-                  <h2>Getting started</h2>
+                  <h2><b>Getting started</b></h2>
                   <p>Once you have R installed, you'll want to install and load our package from CRAN using:
                     <pre>
                       <code>install.packages("handwriter")
@@ -98,7 +107,7 @@
                           csafe$image = readPNGBinary("path/to/the/picture.png")</code>
                       </pre>
                       <br><br>
-                      <h2>Preparing the image for processing</h2>
+                      <h2><b>Preparing the image for processing</b></h2>
                       <p> Plot the original, cropped image: </p>
                       <pre>
                         <code>plotImage(csafe$image)</code>
@@ -116,7 +125,7 @@
                       <div class = "container-sm">
                         <img src="Pictures/csafe_thinned.png" alt="Writing_csafe_single">
                       </div>
-                      <h2>Processing the image exploring the results</h2>
+                      <h2><b>Processing the image exploring the results</b></h2>
                       <p>
                         Process the image</p>
                       <pre>
@@ -176,8 +185,7 @@
                         </ul>
                       </div>
 
-
-                      <br><br><h2>Exploring processed writing</h2>
+                      <br><h2><b>Exploring processed writing</b></h2>
                       <p> Using the information returned from <b>processHandwriting()</b>, Handwriter allows plotting on a letter (or glyph), word, sentence, or the entire document.</p>
                       <p>Ensure to save this information for plotting to work correctly</p>
                       <pre>
@@ -291,7 +299,13 @@
                         <img src="Pictures/csafe_breaks.png" alt="Writing_csafe_single">
                       </div>
                     </div>
+                    <br><h2><b> <a id= "research_pipelines" > Research Pipelines </a></b></h2>
+                    <p> K-means Clustering </p>
+
+                    <p> Triangle Decomposition </p>
               </div>
+
+
             </br>
             <!-- Footer -->
             <footer class = "bg-green foot">
