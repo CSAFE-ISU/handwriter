@@ -647,6 +647,7 @@ processHandwriting = function(img, dims){
     {
       E(skel_graph0, P = format(allPaths[[i]][c(newNodes - 2, newNodes - 1)], scientific = FALSE, trim = TRUE))$nodeOnlyDist = 1
       E(skel_graph0, P = format(allPaths[[i]][c(newNodes + 1, newNodes + 2)], scientific = FALSE, trim = TRUE))$nodeOnlyDist = 1
+      }
       newNodes = c(newNodes - 1, newNodes + 1)
       nodeList = c(nodeList, allPaths[[i]][newNodes])
       allPaths[[i]] = list(allPaths[[i]][1:(newNodes[1])], allPaths[[i]][(newNodes[2]):length(allPaths[[i]])])
@@ -928,6 +929,9 @@ checkStacking = function(candidateBreaks, allPaths, letters, nodeGraph0, dims)
         overlap = min(abs(max(gr1Rows) - min(gr2Rows)), abs(max(gr2Rows) - min(gr1Rows)))
         totalRange = (diff(range(c(gr1Rows,gr2Rows))))
         overlapPercentage = overlap/totalRange
+        if(is.na(overlapPercentage)){
+          overlapPercentage = 1
+        }
         if(overlapPercentage < .1)
         {
           stackPtFlag[nodeChecks] = TRUE
