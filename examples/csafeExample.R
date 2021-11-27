@@ -19,7 +19,7 @@ csafe_document = list()
 csafe_document$image = readPNGBinary("examples/problem_docs_nov23/w0501_s02_pLND_r03.png") #Invalid vertex names error
 
 #csafe_document$image = readPNGBinary("examples/just_the.png") 
-#csafe_document$image = readPNGBinary("examples/external_data/Writing_csafe_single.png")
+csafe_document$image = readPNGBinary("examples/external_data/Writing_csafe_single.png")
 #plotImage(csafe_document$image)
 
 #Use the Zhang - Suen algorithim to thin the image (1 pixel wide) - then plot it.

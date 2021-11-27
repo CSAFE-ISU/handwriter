@@ -647,12 +647,11 @@ processHandwriting = function(img, dims){
     {
       E(skel_graph0, P = format(allPaths[[i]][c(newNodes - 2, newNodes - 1)], scientific = FALSE, trim = TRUE))$nodeOnlyDist = 1
       E(skel_graph0, P = format(allPaths[[i]][c(newNodes + 1, newNodes + 2)], scientific = FALSE, trim = TRUE))$nodeOnlyDist = 1
-      }
+      
       newNodes = c(newNodes - 1, newNodes + 1)
       nodeList = c(nodeList, allPaths[[i]][newNodes])
       allPaths[[i]] = list(allPaths[[i]][1:(newNodes[1])], allPaths[[i]][(newNodes[2]):length(allPaths[[i]])])
     }
-    else
     {
       letterIDs = range(V(skel_graph0)$letterID[names(V(skel_graph0)) %in% format(allPaths[[i]], scientific = FALSE, trim = TRUE)], na.rm = TRUE)
       
