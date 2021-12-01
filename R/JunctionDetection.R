@@ -653,7 +653,14 @@ processHandwriting = function(img, dims){
       allPaths[[i]] = list(allPaths[[i]][1:(newNodes[1])], allPaths[[i]][(newNodes[2]):length(allPaths[[i]])])
     }
     
-     letterIDs = range(V(skel_graph0)$letterID[names(V(skel_graph0)) %in% format(allPaths[[i]], scientific = FALSE, trim = TRUE)], na.rm = TRUE)
+    #letterIDs = range(V(skel_graph0)$letterID[names(V(skel_graph0)) %in% format(allPaths[[i]], scientific = FALSE, trim = TRUE)], na.rm = TRUE)
+    #Had to break this above line into this to stop a range(numeric(0)) error from happening
+     skelInPaths = V(skel_graph0)$letterID[names(V(skel_graph0)) %in% format(allPaths[[i]], scientific = FALSE, trim = TRUE)]
+     if(identical(skelInPaths, numeric(0))){
+       letterIDs = c(Inf, -Inf)
+     }else{
+       letterIDs = range(skelInPaths, na.rm = TRUE)
+     }
       
      V(skel_graph0)$letterID[which(V(skel_graph0)$letterID == letterIDs[2])] = letterIDs[1]
      V(skel_graph0)$letterID[which(names(V(skel_graph0)) %in% format(allPaths[[i]][newNodes], scientific = FALSE, trim = TRUE))] = letterIDs[1]

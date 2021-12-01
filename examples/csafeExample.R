@@ -9,17 +9,18 @@
 #Create empty list, and load an image with READPNGBinary
 csafe_document = list()
 
-#csafe_document$image = readPNGBinary("examples/problem_docs_nov21/w0233_s01_pWOZ_r02.png")
+#csafe_document$image = readPNGBinary("examples/csafe_data/0001_4.png")
+#csafe_document$image = readPNGBinary("examples/external_data/twoSent.png")
 #csafe_document$image = readPNGBinary("examples/problem_docs_nov21/w0297_s01_pLND_r02.png") 
 #csafe_document$image = readPNGBinary("examples/problem_docs_nov21/s2_samp/w0365_s02_pWOZ_r01.png") 
 
 #csafe_document$image = readPNGBinary("examples/problem_docs_nov23/w0356_s02_pPHR_r03.png") #No problem I can find
-#csafe_document$image = readPNGBinary("examples/problem_docs_nov23/w0481_s03_pLND_r01.png") #Invalid vertex names error
+csafe_document$image = readPNGBinary("examples/problem_docs_nov23/w0481_s03_pLND_r01.png") #Invalid vertex names error
 #csafe_document$image = readPNGBinary("examples/problem_docs_nov23/w0498_s02_pLND_r01.png") #No problem I can find
 #csafe_document$image = readPNGBinary("examples/problem_docs_nov23/w0501_s02_pLND_r03.png") #Invalid vertex names error
 
 #csafe_document$image = readPNGBinary("examples/just_the.png") 
-csafe_document$image = readPNGBinary("examples/external_data/Writing_csafe_single.png")
+#csafe_document$image = readPNGBinary("examples/external_data/Writing_csafe_single.png")
 #plotImage(csafe_document$image)
 
 #Use the Zhang - Suen algorithim to thin the image (1 pixel wide) - then plot it.
@@ -48,7 +49,7 @@ plotLine(csafe_processList$letterList, 1, dims)
 #Create list of word objects, process the words for more information, plot the word with colored Nodes
 words = create_words(csafe_processList) 
 words_after_processing = process_words(words, dim(csafe_document$image), TRUE)
-plotWord(csafe_processList$letterList, 1, dims)
+plotWord(csafe_processList$letterList, 2, dims)
 
 #Plot a word with colored nodes (must have processed words)
 plotColorNodes(csafe_processList$letterList, 1, dims, words_after_processing)
