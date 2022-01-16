@@ -52,18 +52,18 @@
                 </nav>
                 <!-- Page content-->
                 <div class = "container-fluid">
-                  <h1 style ="padding-top:20px">How to use the Handwriter package</h1>
+                  <h1 style ="padding-top:20px">How to use the <b>handwriter</b> package</h1>
                   <br>
                   <h2><b>Interested in trying it out yourself?</b></h2>
                   <p>While we work on something interactive and web-based, you can download the package yourself and give it a try.
                     The following is a step by step tutorial to help you along the way.</p>
 
-                  <p> Recently we have been incorpoating our research work built on top of <b>handwriter</b> so that you may also use those.
+                  <p> Recently we have been incorporating our research work built on top of <b>handwriter</b> so that you may also use those.
                     See the <a href="#research_pipelines"> Research Pipelines</a> section for more. </p>
                   <br>
                   <h2><b>Things you'll need:</b></h2>
                   <ul>
-                    <li>The R software enviroment, downloadable from
+                    <li>The R software environment, downloadable from
                       <a href="https://www.r-project.org/" target="_blank"><b>The R Project</b></a>.
                       You may use <a href="https://mirror.las.iastate.edu/CRAN/" target="_blank"> this </a> mirror from Iowa State if you wish.
                     </li>
@@ -76,13 +76,13 @@
                         Use an online tool like
                         <a href="https://sketch.io/sketchpad/" target="_blank"><b>Sketch.io</b></a>
                         create and export some handwriting easily.</li>
-                        <li>Use one of <a href="writingsamples.html" target="_blank">our images</a> to get started.</li>
+                        <li>Use one of <a href="OLDwritingsamples.html" target="_blank">our images</a> to get started.</li>
                       </ul>
                     </li>
                   </ul>
                   <br><h2><b>Terms to know</b></h2>
                   <ul>
-                    <li> <b> Glyphs </b> | Often letters, but not always due to the separation algorithm used.</li>
+                    <li> <b> Graphs </b> | Often letters, but not always due to the separation algorithm used.</li>
                     <li> <b> Index </b> | Top to bottom and left to right, our way of keeping track where a pixel sits on the document as a whole.</li>
                   </ul>
                   <br>
@@ -137,57 +137,57 @@
                         <p>On a document level:</p>
                         <ul>
                           <li> <b>nodes</b> | A list of all 'points of interest' </li>
-                          <li> <b>connectingNodes</b> | A list of all nodes where glyphs connect </li>
-                          <li> <b>terminalNodes</b> | A list of all nodes where a path in a glyph ends </li>
-                          <li> <b>breakPoints</b> | A list of calculated points to break glyphs apart (based on connectingNodes) </li>
+                          <li> <b>connectingNodes</b> | A list of all nodes where graphs connect </li>
+                          <li> <b>terminalNodes</b> | A list of all nodes where a path in a graphs ends </li>
+                          <li> <b>breakPoints</b> | A list of calculated points to break graphs apart (based on connectingNodes) </li>
                         </ul>
 
-                        <p>As well as a <b> letterList </b> for each letter/glyph that includes:</p>
+                        <p>As well as a <b> letterList </b> for each letter/graph that includes:</p>
                         <ul>
                           <li> <b>path</b> | A list of all points  </li>
                           <li> <b>nodes</b> | A list of all 'points of interest' </li>
                           <li> <b>allPaths</b> | A list of lists of calculated 'paths'  </li>
                           <li> <b>adjMatrix</b> | Adjacency matrix </li>
                           <li> <b>letterCode</b> | A unique letter code </li>
-                          <li> <b>connectingNodes</b> | A list of all nodes where the glyph connects  </li>
-                          <li> <b>terminalNodes</b> | A list of all nodes where a path in the glyph ends </li>
+                          <li> <b>connectingNodes</b> | A list of all nodes where the graph connects  </li>
+                          <li> <b>terminalNodes</b> | A list of all nodes where a path in the graph ends </li>
                           <li> <b>characterFeatures</b> | A list of all 'points of interest' in the document </li>
                             <ul>
                               <li> <b>aspect_ratio</b> | Height to width ratio </li>
-                              <li> <b>height</b> | Height of the glyph, measured in pixels </li>
-                              <li> <b>width</b> | Width of the glyph, measured in pixels  </li>
+                              <li> <b>height</b> | Height of the graph, measured in pixels </li>
+                              <li> <b>width</b> | Width of the graph, measured in pixels  </li>
                               <li> <b>topmost_row</b> | The top-most row, as its y coordinate </li>
                               <li> <b>bottom_row</b> | The bottom-most row, as its y coordinate </li>
                               <li> <b>leftmost_col</b> | The left-most column, as its x coordinate </li>
                               <li> <b>rightmost_col</b> | The left-most column, as its x coordinate </li>
-                              <li> <b>centroid_index</b> | The centroid of the glpyh, as its index </li>
+                              <li> <b>centroid_index</b> | The centroid of the graph, as its index </li>
                               <li> <b>centroid_y</b> | The y coordinate of the centroid  </li>
                               <li> <b>centroid_x</b> | The x coordinate of the centroid </li>
                               <li> <b>centroid_horiz_location</b> |   </li>
                               <li> <b>centroid_vert_location</b> | </li>
-                              <li> <b>lHalf</b> | List of all points on the left half of the glyph </li>
-                              <li> <b>rHalf</b> | List of all points on the right half of the glyph </li>
+                              <li> <b>lHalf</b> | List of all points on the left half of the graph </li>
+                              <li> <b>rHalf</b> | List of all points on the right half of the graph </li>
                               <li> <b>disjoint_centroids</b> | The centroids of the left and right halves, as their idicies </li>
-                              <li> <b>slope</b> | The slope of the glyph as it runs through the centroid  </li>
+                              <li> <b>slope</b> | The slope of the graph as it runs through the centroid  </li>
                               <li> <b>pixel_density</b> |   </li>
                               <li> <b>box_density</b> |  </li>
-                              <li> <b>uniqueid</b> | A unqiue numerical identifier for the glyph </li>
-                              <li> <b>down_dist</b> |  Distance from the lowest point of a glyph to the next glyph, measured in pixels</li>
-                              <li> <b>line_number</b> | The line number the glyph falls in </li>
-                              <li> <b>order_within_line</b> | The ordered within the line the glyph falls in </li>
-                              <li> <b>l_neighbor_dist</b> | Distance from the left-most point in the glyph to its left neighbor, measured in pixels</li>
-                              <li> <b>r_neighbor_dist</b> | Distance from the right-most point in the glyph to its left neighbor, measured in pixels</li>
-                              <li> <b>xvar</b> | Varience of X, used in calculate covariance </li>
-                              <li> <b>yvar</b> |  Varience of Y, used in calculate covariance </li>
-                              <li> <b>covar</b> |  Covarience of the glyph </li>
-                              <li> <b>wordIndex</b> | Word number the glyph belongs to </li>
+                              <li> <b>uniqueid</b> | A unique numerical identifier for the graph </li>
+                              <li> <b>down_dist</b> |  Distance from the lowest point of a graph to the next graph, measured in pixels</li>
+                              <li> <b>line_number</b> | The position of the graph in the line </li>
+                              <li> <b>order_within_line</b> | The ordered within the line the graph falls in </li>
+                              <li> <b>l_neighbor_dist</b> | Distance from the left-most point in the graph to its left neighbor, measured in pixels</li>
+                              <li> <b>r_neighbor_dist</b> | Distance from the right-most point in the graph to its left neighbor, measured in pixels</li>
+                              <li> <b>xvar</b> | Variance of X, used to calculate the covariance in covar </li>
+                              <li> <b>yvar</b> | Variance of Y, used to calculate the covariance in covar </li>
+                              <li> <b>covar</b> | Covarience of the graph </li>
+                              <li> <b>wordIndex</b> | Word number the graph belongs to </li>
                             </ul>
                         </ul>
                       </div>
 
                       <br><h2><b>Exploring processed writing</b></h2>
-                      <p> Using the information returned from <b>processHandwriting()</b>, Handwriter allows plotting on a letter (or glyph), word, sentence, or the entire document.</p>
-                      <p>Ensure to save this information for plotting to work correctly</p>
+                      <p> Using the information returned from <b>processHandwriting()</b>, Handwriter allows plotting on a letter (or graph), word, sentence, or the entire document.</p>
+                      <p>Make sure to save this information so that the plotting functions work correctly</p>
                       <pre>
                         <code>csafe$nodes = csafe_processlist$nodes
                           csafe$breaks = csafe_processlist$breakPoints
@@ -195,7 +195,7 @@
                       </pre>
                       <button type="button" class="collapsible">Plotting Letters</button>
                       <div class="content">
-                      <p>Also included is the ability to plot individual glyphs from the sample of writing, using
+                      <p>Also included is the ability to plot individual graphs from the sample of writing, using
                         plotLetter(). First lets look at the parameters and options, and then run through a few examples.</p>
                       <p>The parameters include:</p>
                       <ul>
@@ -203,22 +203,22 @@
                           letterList Object
                         </li>
                         <li>
-                          The index of the glyph you wish to plot
+                          The index of the graph you wish to plot
                         </li>
                         <li>
                           dims Object
                         </li>
                         <li>
-                          OPTIONAL: Boolean - Number the paths within the glyph
+                          OPTIONAL: Boolean - Number the paths within the graph
                         </li>
                         <li>
-                          OPTIONAL: Boolean - Plot the centroid of the glyph
+                          OPTIONAL: Boolean - Plot the centroid of the graph
                         </li>
                         <li>
-                          OPTIONAL: Boolean - Plot the slope of the glyph
+                          OPTIONAL: Boolean - Plot the slope of the graph
                         </li>
                       </ul>
-                      <p>The following will result in the first glyph being plotted with all optional paramters:</p>
+                      <p>The following will result in the first graph being plotted with all optional paramters:</p>
                       <pre>
                         <code>plotLetter(csafe_processList$letterlist, 1, dims)
 
@@ -228,7 +228,7 @@
                       <div class = "container-sm">
                         <img src="Pictures/c_all_features.png" alt="c_all_features">
                       </div>
-                      <p>This will plot the fifth glyph with just the slope and centroid:</p>
+                      <p>This will plot the fifth graph with just the slope and centroid:</p>
                       <pre>
                         <code>plotLetter(csafe_processlist$letterList, 5, dims, FALSE, TRUE, TRUE)</code>
                       </pre>
@@ -291,7 +291,7 @@
                       <div class = "container-sm">
                         <img src="Pictures/csafe_nodes.png" alt="Writing_csafe_single">
                       </div>
-                      <p>Plot all glyph breaks found during processing</p>
+                      <p>Plot all graph breaks found during processing</p>
                       <pre>
                         <code>plotNodes(csafe$image, csafe$thin, csafe$breaks)</code>
                       </pre>
@@ -300,7 +300,7 @@
                       </div>
                     </div>
                     <br><h2><b> <a id= "research_pipelines" > Research Pipelines </a></b></h2>
-                    <p> <b> K-means Clustering </b> | Perform K-means clustering on a glyph level | <a href= "clustering.html">Read more</a></p>
+                    <p> <b> K-means Clustering </b> | Perform K-means clustering on a graph level | <a href= "clustering.html">Read more</a></p>
                     <p> <b> Triangle Decomposition </b> | Perform triangle decomposition on a word level | <a href= "decomposition.html">Read more</a></p>
               </div>
 

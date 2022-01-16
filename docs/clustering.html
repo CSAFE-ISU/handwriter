@@ -54,7 +54,7 @@
                 <div class = "container-fluid">
                 <h1 style ="padding-top:20px"> Research Pipeline: <b>K-means Clustering</b> </h1>
 
-                  <p>Handwriter also supports K-means clustering of glyphs support.</p>
+                  <p>Handwriter also supports K-means clustering of graphs.</p>
                   <p>To create a clustering template you can use <b> createClusterTemplates() </b>
                   <p> <b>createClusterTemplates()</b> only has one required parameter, <b>documentDirectory</b> which is the folder where the documents to process reside.
                    Paths can also be provided for storage of log files, temp files, and results files. Otherwise, they will be stored within <b>documentDirectory</b> </p>
@@ -110,12 +110,14 @@
                       <b>numCores</b> | <u>INTEGER</u> | <b>OPTIONAL</b> | DEFAULT: 1
                       <ul>
                         Number of cores. Each clustering template will be created on a different core.
+                        If you have the necessary resources this can significantly improve processing time.
                       </ul>
                     </li>
                     <li>
                       <b>numDistCores</b> | <u>INTEGER</u> | <b>OPTIONAL</b> | DEFAULT: 1
                       <ul>
-                        Integer number of cores to use for distance calculations
+                        Integer number of cores to use for distance calculations.
+                        If you have the necessary resources this can significantly improve processing time.
                       </ul>
                     </li>
                     <li>

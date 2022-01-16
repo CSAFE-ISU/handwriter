@@ -57,7 +57,7 @@
                       handwritten documents and the following are performed:</p>
                     <ol>
                       <li style ="margin:1rem"><b>Binarize</b> - Turn the image into pure black and white</li>
-                      <li style ="margin:1rem"><b>Skeltonize</b> - Reduce writing to a 1 pixel wide skelton</li>
+                      <li style ="margin:1rem"><b>Skeletonize</b> - Reduce writing to a 1 pixel wide skeleton</li>
                       <li style ="margin:1rem"><b>Break</b> - Connected writing is decomposed into small manageable pieces called graphs with nodes and edges that usually repond to Roman letters.</li>
                       <li style ="margin:1rem"><b>Measure</b> - Measurements are taken on each graph</li>
                     </ol>
@@ -81,26 +81,26 @@
                     <p><b>Let's walk through an example of how rotational angle can help differentiate between two writers.</b></p>
                     <p> Here is the scanned writing of "Our London business is good," from our first writer, writer A: </p>
                       <div class = "container-sm">
-                        <img src="Pictures/London_writing_1.png" class="img-fluid" alt="London_writing_1">
+                        <img src="Pictures/London_Writing_1.png" class="img-fluid" alt="London_writing_1">
                       </div>
-                    <p>These measurements are used to differntiate inside of each cluster, so we will look at the cluster of graphs most similar to the letter 'u' in the roman alphabet.</p>
+                    <p>These measurements are used to differentiate inside of each cluster, so we will look at the cluster of graphs most similar to the letter 'u' in the roman alphabet.</p>
                     <p>On the left is the cluster for this graph. On the right is 4 individual graphs from the writing, as well as a graph with each graphs direction of greatest variability.</p>
                       <div class = "container-sm">
                         <img src="Pictures/London_u_1.png" class="img-fluid" alt="London_u_1">
                       </div>
                     <p> Now, the directions determined above are compiled for each cluster from each writer. The compiled graph for the graph closed to the letter u from our writer A is shown on the left below.
-                      This data is then normalized to respect the polar coordinate system, and a curve is fit to approximate the distribuition of the rotation angle, show on the right </p>
+                      These data are then normalized to respect the polar coordinate system, and a curve is fit to approximate the distribuition of the rotation angle, show on the right </p>
                       <div class = "container-sm">
                         <img src="Pictures/London_Graph_1.png" class="img-fluid" alt="London_Graph_1">
                       </div>
                     <br>
                     <p> The same can be done for a writer B: </p>
                       <div class = "container-sm">
-                        <img src="Pictures/London_writing_2.png" class="img-fluid" alt="London_writing_2">
+                        <img src="Pictures/London_Writing_2.png" class="img-fluid" alt="London_writing_2">
                         <img src="Pictures/London_u_2.png" class="img-fluid" alt="London_u_2">
                         <img src="Pictures/London_Graph_2.png" class="img-fluid" alt="London_Graph_2">
                       </div>
-                    <p> There is great dispartiy in the distribuition of the rotation angle between writer A and B when dealing with this cluster. We have found this measurement to be the most influential
+                    <p> There is great disparity in the distribuition of the rotation angle between writer A and B when dealing with this cluster. We have found this measurement to be the most influential
                       in correctly identifying a writer.</p>
                     <br>
                     <h2>Compactness</h2>
@@ -111,17 +111,17 @@
                       <div class = "container-sm">
                         <img src="Pictures/compactness_examples.png" class="img-fluid" alt="compactness_examples">
                       </div>
-                    <p>Unfortunatley, while informative for comparing like-sized graphs, this measurement suffers from the inherit
-                      spacial dependence between pixels and (unfortunately) does not scale well for modelling.</p>
+                    <p>Unfortunatley, while informative for comparing like-sized graphs, this measurement suffers from the inherently
+                      spatial dependence between pixels and (unfortunately) does not scale well for modelling.</p>
                     <br>
                     <h2>Loops</h2>
-                    <p>The number of loops in a given graph are found, as well as the height to width ratio of each.</p>
+                    <p>The number of loops in a given graph is found, as well as the height to width ratio of each.</p>
                     <p> Unfortunatley, we found that most loops in handwriting are generally about the same shape, and
                       didn't produce any useful information in differentiating between writers. </p>
                     <br>
                     <h2>What's next?</h2>
-                    <p>Once each graphs measrurements have been taken and saved, Handwriter's job is done. You can now take this information and integrate it into your specific workflow. </p>
-                    <p style="padding-bottom: 20px">For an example of our workflow that involved Handwriter, take a look at <a href="workflow.html">Our Workflow</a>
+                    <p>Once each graph's measrurements have been taken and saved, the job of <b> handwriter </b> is done. You can now take this information and integrate it into your specific workflow. </p>
+                    <p style="padding-bottom: 20px">For an example of our workflow that involved <b>handwriter</b>, take a look at <a href="workflow.html">Our Workflow</a>
                 </div>
             <!-- Footer -->
             <footer class = "bg-green foot">
