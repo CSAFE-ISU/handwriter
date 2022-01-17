@@ -9,15 +9,18 @@
 #Create empty list, and load an image with READPNGBinary
 csafe_document = list()
 
-#csafe_document$image = readPNGBinary("examples/csafe_data/0001_4.png")
+csafe_document$image = readPNGBinary("examples/csafe_data/0001_4.png")
 #csafe_document$image = readPNGBinary("examples/external_data/twoSent.png")
 #csafe_document$image = readPNGBinary("examples/problem_docs_nov21/w0297_s01_pLND_r02.png") 
 #csafe_document$image = readPNGBinary("examples/problem_docs_nov21/s2_samp/w0365_s02_pWOZ_r01.png") 
 
-#csafe_document$image = readPNGBinary("examples/problem_docs_nov23/w0356_s02_pPHR_r03.png") #No problem I can find
-csafe_document$image = readPNGBinary("examples/problem_docs_nov23/w0481_s03_pLND_r01.png") #Invalid vertex names error
-#csafe_document$image = readPNGBinary("examples/problem_docs_nov23/w0498_s02_pLND_r01.png") #No problem I can find
+#=======================================================================================================================
+
+#Anyesha problem docs
+#csafe_document$image = readPNGBinary("examples/problem_docs_nov23/w0481_s03_pLND_r01.png") #Invalid vertex names error
 #csafe_document$image = readPNGBinary("examples/problem_docs_nov23/w0501_s02_pLND_r03.png") #Invalid vertex names error
+
+#=======================================================================================================================
 
 #csafe_document$image = readPNGBinary("examples/just_the.png") 
 #csafe_document$image = readPNGBinary("examples/external_data/Writing_csafe_single.png")
@@ -55,6 +58,10 @@ plotWord(csafe_processList$letterList, 2, dims)
 plotColorNodes(csafe_processList$letterList, 1, dims, words_after_processing)
 
 
+#=======================================================================================================================
+#=======================================================================================================================
+
+
 ####### QUICK EXAMPLE FOR WORD EXAMPLES #######
 csafe_document = list()
 csafe_document$image = readPNGBinary("inst/extdata/word_splitting_problems/w0003_s01_pPHR_r03.png")
@@ -68,6 +75,11 @@ dims = dim(csafe_document$image)
 words = create_words(csafe_processList) 
 words_after_processing = process_words(words, dim(csafe_document$image), TRUE)
 plotWord(csafe_processList$letterList, 1, dims)
+
+
+#=======================================================================================================================
+#=======================================================================================================================
+
 
 ### Test space for loading data files (used in examples in documentation) ###
 # london_document = list()

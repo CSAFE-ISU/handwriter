@@ -645,8 +645,14 @@ processHandwriting = function(img, dims){
     newNodes = pathsWithBreaks[[i]]
     if(allPaths[[i]][newNodes] %in% finalBreaks)
     {
-      E(skel_graph0, P = format(allPaths[[i]][c(newNodes - 2, newNodes - 1)], scientific = FALSE, trim = TRUE))$nodeOnlyDist = 1
-      E(skel_graph0, P = format(allPaths[[i]][c(newNodes + 1, newNodes + 2)], scientific = FALSE, trim = TRUE))$nodeOnlyDist = 1
+      tryCatch( 
+        expr = {
+          E(skel_graph0, P = format(allPaths[[i]][c(newNodes - 2, newNodes - 1)], scientific = FALSE, trim = TRUE))$nodeOnlyDist = 1
+          E(skel_graph0, P = format(allPaths[[i]][c(newNodes + 1, newNodes + 2)], scientific = FALSE, trim = TRUE))$nodeOnlyDist = 1
+        }, error = function(e) {
+          
+        }
+      )
       
       newNodes = c(newNodes - 1, newNodes + 1)
       nodeList = c(nodeList, allPaths[[i]][newNodes])
@@ -931,7 +937,7 @@ checkStacking = function(candidateBreaks, allPaths, letters, nodeGraph0, dims)
 
         # Call a break a stack point if the overlap between the bordering letters is
         # less than 10% of the total range of the combined letters.
-        
+        if (is.null(gr1) || is.null(gr2)){ next } 
         overlap = min(abs(max(gr1Rows) - min(gr2Rows)), abs(max(gr2Rows) - min(gr1Rows)))
         totalRange = (diff(range(c(gr1Rows,gr2Rows))))
         overlapPercentage = overlap/totalRange
