@@ -16,19 +16,20 @@ between = function(x, left, right)
   x <= max(left, right) & x >= min(left, right)
 }
 index2subindex = function(index, x1, x2, y1, y2, d1)
-{
+{F
   index = index[between(((index - 1) %/% d1 + 1), x1, x2) & between(((index - 1) %% d1 + 1), d1-y2+1, d1-y1+1)]
   index - (x1-1)*d1 - (d1-y2)*(((index-1) %/% d1 + 1) - x1 + 1) - (y1 - 1)*((index - 1) %/% d1 - x1 + 1)
 }
 
 ui <- fluidPage(
   fluidRow(
-    column(5, offset = 1, h1("Handwriting Viewer")),
-    column(5, offset = 1, fileInput("filePath", "Choose handwriter R object:"))),
+    column(5, offset = 1, h1("Handwriter")),
+    column(5, offset = 1, fileInput("filePath", "Choose handwriting (.png) to process:"))),
   hr(),
     fluidRow(
        column(7, align="center",
            plotOutput("letterPlot",
+                dblclick = "letterPlot",
                 brush = brushOpts(
                   id = "letterPlot_brush",
                   resetOnNew = TRUE
@@ -57,10 +58,12 @@ server <- function(input, output) {
     df$nodes = getNodes(df$thin, dim(df$image))
     return(df)
   })
+  
   output$letterPlot <- renderPlot({
     imgList = data()
     plotImageThinned(imgList$image, imgList$thin)
   })
+  
   letterRanges <- reactiveValues(x = NULL, y = NULL)
 
   output$zoomedPlot <- renderPlot({
@@ -90,7 +93,7 @@ server <- function(input, output) {
 
   # When a double-click happens, check if there's a brush on the plot.
   # If so, zoom to the brush bounds; if not, reset the zoom.
-  observe({
+  observeEvent(input$letterPlot_dblclick,{
     brush <- input$letterPlot_brush
     if (!is.null(brush)) {
       letterRanges$x <- c(brush$xmin, brush$xmax)

@@ -100,6 +100,8 @@ otsuBinarization = function(img, breaks = 512)
 #'
 #' This function crops an image down so that there is 1 pixel of padding on each side of the outermost 0 points.
 #' 
+#' @export
+#' 
 #' @param img Full image matrix to be cropped
 #' @return Cropped image matrix.
 crop = function(img)
