@@ -79,14 +79,44 @@ server <- function(input, output) {
     df = list()
     df$image = crop(readPNGBinary(path))
     df$thin = thinImage(df$image)
-    df$nodes = getNodes(df$thin, dim(df$image))
+    
+    df_processList = processHandwriting(df$thin, dim(df$image))
+    
+    df$words = create_words(df_processList) 
+    df$words_after_processing = process_words(df$words, dim(df$image), TRUE)
+    df$dims = dim(df$image)
+    
+    df$letterList = df_processList$letterList
+    df$nodes = df_processList$nodes
+    df$breaks = df_processList$breakPoints
     return(df)
   })
   
-  #basic output
+  v <- reactiveValues(data = NULL)
+  v$type = ''
+  
+  #top output
   output$letterPlot <- renderPlot({
     imgList = data()
     plotImageThinned(imgList$image, imgList$thin)
+  })
+  
+  #Set plot type based on button click
+  observeEvent(input$plotnodes, {v$type = 'nodes'})
+  observeEvent(input$plotbreaks, {v$type = 'breaks'})
+  observeEvent(input$plotline, {v$type = 'line'})
+  observeEvent(input$plotword, {v$type = 'word'})
+  observeEvent(input$plotletter, {v$type = 'letter'})
+
+  #Plot specific plot based on button pressed
+  output$outputPlot <- renderPlot({
+    imgList = data()
+    if (v$type == 'nodes'){ plotNodes(imgList$image, imgList$thin, imgList$nodes) }
+    else if (v$type == 'breaks'){ plotNodes(imgList$image, imgList$thin, imgList$breaks) }
+    else if (v$type == 'line'){ plotLine(imgList$letterList, input$linenum, imgList$dims) }
+    else if (v$type == 'word'){ plotWord(imgList$letterList, input$wordnum, imgList$dims) }
+    else if (v$type == 'letter'){ plotLetter(imgList$letterList, input$letternum, imgList$dims) }
+    else { plotImageThinned(imgList$image, imgList$thin) }
   })
 }
 
