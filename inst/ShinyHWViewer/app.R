@@ -11,6 +11,7 @@
 library(shiny)
 options(shiny.sanitize.errors = FALSE)
 
+
 between = function(x, left, right)
 {
   x <= max(left, right) & x >= min(left, right)
@@ -22,87 +23,105 @@ index2subindex = function(index, x1, x2, y1, y2, d1)
 }
 
 ui <- fluidPage(
-  fluidRow(
-    column(5, offset = 1, h1("Handwriter")),
-    column(5, offset = 1, fileInput("filePath", "Choose handwriting (.png) to process:"))),
+  tags$head(tags$script(src = "message-handler.js"), 
+            tags$style(HTML("
+              input[type=\"number\"] {
+                width: 80px;
+              }"))),
   hr(),
-    fluidRow(
-       column(7, align="center",
-           plotOutput("letterPlot",
-                dblclick = "letterPlot",
-                brush = brushOpts(
-                  id = "letterPlot_brush",
-                  resetOnNew = TRUE
-                )
-          )
-      ),
-      column(5, align="center", style="margin-top:10px;",
-        plotOutput("zoomedPlot")
-      )
-    )
+  fluidRow(
+    column(3, offset = 2, h1("Handwriter")),
+    column(5, offset = 1, fileInput("filePath", "Choose handwriting (.png) to process:"))),
+  
+  fluidRow(
+    column(12, align="center", plotOutput("letterPlot", dblclick = "letterPlot",
+      brush = brushOpts(id = "letterPlot_brush", resetOnNew = TRUE)
+    ))
+  ),
+ hr(),  
+ fluidRow(column(3, offset = 1,
+       fluidRow(
+        splitLayout(cellWidths = c("50%", "50%"),
+           actionButton("plotnodes", "Plot Nodes"), 
+           actionButton("plotbreaks", "Plot Breaks"))),
+       br(),
+       fluidRow(
+         splitLayout(cellWidths = c("50%", "50%"),
+           actionButton("plotline", "Plot Line"), 
+           numericInput("linenum", "Line Number", 1))),
+       
+       fluidRow(
+         splitLayout(cellWidths = c("50%", "50%"),
+           actionButton("plotword", "Plot Word"), 
+           numericInput("wordnum", "Word Number", 1))),
+       
+       fluidRow(
+         splitLayout(cellWidths = c("50%", "50%"),
+           actionButton("plotletter", "Plot Letter"), 
+           numericInput("letternum", "Letter Number", 1))),
+   ),
+     column(8, align="center", plotOutput("outputPlot", dblclick = "outputPlot",
+       brush = brushOpts(id = "outputPlot_brush", resetOnNew = TRUE)
+     )),
+  ),
+  
 )
 
 server <- function(input, output) {
-  if(!require(handwriter))
+  if(!require(handwriter) && !require(handwriter::crop))
   {
-    devtools::install_github("CSAFE-ISU/handwriter")
+    #devtools::install_github("CSAFE-ISU/handwriter")
     require(handwriter)
+    require(handwriter::crop)
   }
-
+  
+  library('handwriter')
+  
   data <- reactive({
     req(input$filePath)
     path <- input$filePath$datapath
     df = list()
-    df$image = crop(readPNGBinary(path))
+    
+    df$image = readPNGBinary(path)
     df$thin = thinImage(df$image)
-    df$nodes = getNodes(df$thin, dim(df$image))
+    
+    df_processList = processHandwriting(df$thin, dim(df$image))
+    
+    df$words = create_words(df_processList) 
+    df$words_after_processing = process_words(df$words, dim(df$image), TRUE)
+    df$dims = dim(df$image)
+    
+    df$letterList = df_processList$letterList
+    df$nodes = df_processList$nodes
+    df$breaks = df_processList$breakPoints
     return(df)
   })
   
+  v <- reactiveValues(data = NULL)
+  v$type = ''
+  
+  #top output
   output$letterPlot <- renderPlot({
     imgList = data()
     plotImageThinned(imgList$image, imgList$thin)
   })
   
-  letterRanges <- reactiveValues(x = NULL, y = NULL)
+  #Set plot type based on button click
+  observeEvent(input$plotnodes, {v$type = 'nodes'})
+  observeEvent(input$plotbreaks, {v$type = 'breaks'})
+  observeEvent(input$plotline, {v$type = 'line'})
+  observeEvent(input$plotword, {v$type = 'word'})
+  observeEvent(input$plotletter, {v$type = 'letter'})
 
-  output$zoomedPlot <- renderPlot({
+  #Plot specific plot based on button pressed
+  output$outputPlot <- renderPlot({
     imgList = data()
-
-    if(!is.null(letterRanges$x) & !is.null(letterRanges$y))
-    {
-      xlims = floor(letterRanges$x)+1
-      ylims = floor(letterRanges$y)+1
-      
-      for(i in 1:2){
-        if(xlims[i] <= 0) xlims[i] = 1
-        else if(xlims[i] > dim(imgList$image)[2]) xlims[i] = dim(imgList$image)[2]
-      }
-      for(i in 1:2){
-        if(ylims[i] <= 0) ylims[i] = 1
-        else if(ylims[i] > dim(imgList$image)[1]) ylims[i] = dim(imgList$image)[1]
-      }
-      
-      subimage = imgList$image[(dim(imgList$image)[1] - ylims[2] + 1):(dim(imgList$image)[1] - ylims[1] + 1),(xlims[1]):(xlims[2])]
-      subthin = index2subindex(imgList$thin, xlims[1], xlims[2], ylims[1], ylims[2], dim(imgList$image)[1])
-      subnodes = index2subindex(imgList$nodes, xlims[1], xlims[2], ylims[1], ylims[2], dim(imgList$image)[1])
-      
-      plotNodes(subimage, subthin, subnodes, nodeSize = 6, nodeColor = "red") + ggplot2::theme(panel.border = ggplot2::element_rect(colour = "gray", fill=NA, size=.3))
-    }
-  })
-
-  # When a double-click happens, check if there's a brush on the plot.
-  # If so, zoom to the brush bounds; if not, reset the zoom.
-  observeEvent(input$letterPlot_dblclick,{
-    brush <- input$letterPlot_brush
-    if (!is.null(brush)) {
-      letterRanges$x <- c(brush$xmin, brush$xmax)
-      letterRanges$y <- c(brush$ymin, brush$ymax)
-
-    } else {
-      letterRanges$x <- NULL
-      letterRanges$y <- NULL
-    }
+    if (v$type == 'nodes'){ plotNodes(imgList$image, imgList$thin, imgList$nodes) }
+    else if (v$type == 'breaks'){ plotNodes(imgList$image, imgList$thin, imgList$breaks) }
+    else if (v$type == 'line'){ plotLine(imgList$letterList, input$linenum, imgList$dims) }
+    else if (v$type == 'word'){ plotWord(imgList$letterList, input$wordnum, imgList$dims) }
+    else if (v$type == 'letter'){ plotLetter(imgList$letterList, input$letternum, imgList$dims) }
+    else { plotImageThinned(imgList$image, imgList$thin) }
   })
 }
 

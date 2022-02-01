@@ -1,0 +1,14 @@
+name: shinyhwviewer
+title:
+username:
+account: jamesetay1
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 5550521
+bundleId: 5528056
+url: https://jamesetay1.shinyapps.io/shinyhwviewer/
+when: 1643662680.50733
+lastSyncTime: 1643662680.50733
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: .RData|oldApp.R|sample.R
