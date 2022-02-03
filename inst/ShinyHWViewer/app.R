@@ -68,11 +68,11 @@ ui <- fluidPage(
 )
 
 server <- function(input, output) {
-  if(!require(handwriter) && !require(handwriter::crop))
+  if(!require(handwriter))
   {
-    #devtools::install_github("CSAFE-ISU/handwriter")
+    devtools::install_github("CSAFE-ISU/handwriter")
     require(handwriter)
-    require(handwriter::crop)
+
   }
   
   library('handwriter')
