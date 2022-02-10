@@ -8,8 +8,10 @@
 #
 # devtools::install_github("CSAFE-ISU/handwriter")
 # Rcpp::sourceCpp(file = "~/src/ThinImageCpp.cpp")
+#install.packages("shinybusy")
 library(shiny)
 options(shiny.sanitize.errors = FALSE)
+library(shinybusy)
 
 
 between = function(x, left, right)
@@ -23,6 +25,7 @@ index2subindex = function(index, x1, x2, y1, y2, d1)
 }
 
 ui <- fluidPage(
+  add_busy_bar(color = "#0E86D4"),
   tags$head(tags$script(src = "message-handler.js"), 
             tags$style(HTML("
               input[type=\"number\"] {
@@ -77,7 +80,11 @@ server <- function(input, output) {
   
   library('handwriter')
   
-  data <- reactive({
+  v <- reactiveValues(data = NULL)
+  v$type = ''
+  
+  v[["log"]] <- capture.output(
+    data <- reactive({
     req(input$filePath)
     path <- input$filePath$datapath
     df = list()
@@ -95,16 +102,16 @@ server <- function(input, output) {
     df$nodes = df_processList$nodes
     df$breaks = df_processList$breakPoints
     return(df)
-  })
+  }))
   
-  v <- reactiveValues(data = NULL)
-  v$type = ''
+  
   
   #top output
   output$letterPlot <- renderPlot({
     imgList = data()
     plotImageThinned(imgList$image, imgList$thin)
   })
+  
   
   #Set plot type based on button click
   observeEvent(input$plotnodes, {v$type = 'nodes'})
