@@ -16,6 +16,7 @@
 #' words_after_processing = process_words(words, dim(twoSent_document$image), TRUE)
 #' @export
 create_words = function(processList){
+  message("Creating words..")
   words = list()
   letterList = processList$letterList
   

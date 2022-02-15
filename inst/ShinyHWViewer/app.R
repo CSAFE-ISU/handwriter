@@ -12,6 +12,8 @@
 library(shiny)
 options(shiny.sanitize.errors = FALSE)
 library(shinybusy)
+print(getwd())
+load(file='data/wordModelNew.rda')
 
 
 between = function(x, left, right)
@@ -37,8 +39,8 @@ ui <- fluidPage(
     column(5, offset = 1, fileInput("filePath", "Choose handwriting (.png) to process:"))),
   
   fluidRow(
-    column(12, align="center", plotOutput("letterPlot", dblclick = "letterPlot",
-      brush = brushOpts(id = "letterPlot_brush", resetOnNew = TRUE)
+    column(12, align="center", plotOutput("letterPlot", dblclick = "letterPlotPlot",
+      brush = brushOpts(id = "letterPlotPlot_brush", resetOnNew = TRUE)
     ))
   ),
  hr(),  
@@ -60,8 +62,8 @@ ui <- fluidPage(
        
        fluidRow(
          splitLayout(cellWidths = c("50%", "50%"),
-           actionButton("plotletter", "Plot Letter"), 
-           numericInput("letternum", "Letter Number", 1))),
+           actionButton("plotgraph", "Plot Graph"), 
+           numericInput("graphnum", "Graph Number", 1))),
    ),
      column(8, align="center", plotOutput("outputPlot", dblclick = "outputPlot",
        brush = brushOpts(id = "outputPlot_brush", resetOnNew = TRUE)
@@ -118,7 +120,7 @@ server <- function(input, output) {
   observeEvent(input$plotbreaks, {v$type = 'breaks'})
   observeEvent(input$plotline, {v$type = 'line'})
   observeEvent(input$plotword, {v$type = 'word'})
-  observeEvent(input$plotletter, {v$type = 'letter'})
+  observeEvent(input$plotgraph, {v$type = 'graph'})
 
   #Plot specific plot based on button pressed
   output$outputPlot <- renderPlot({
@@ -127,7 +129,7 @@ server <- function(input, output) {
     else if (v$type == 'breaks'){ plotNodes(imgList$image, imgList$thin, imgList$breaks) }
     else if (v$type == 'line'){ plotLine(imgList$letterList, input$linenum, imgList$dims) }
     else if (v$type == 'word'){ plotWord(imgList$letterList, input$wordnum, imgList$dims) }
-    else if (v$type == 'letter'){ plotLetter(imgList$letterList, input$letternum, imgList$dims) }
+    else if (v$type == 'graph'){ plotLetter(imgList$letterList, input$graphnum, imgList$dims) }
     else { plotImageThinned(imgList$image, imgList$thin) }
   })
 }

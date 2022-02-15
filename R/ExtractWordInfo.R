@@ -29,6 +29,9 @@ process_words = function(words, dims, triangulate = FALSE){
   for(i in 1:length(words)){
     words[[i]] <- append(words[[i]], list(colorpoints_df = colorpoints_df[[i]]))
   }
+  
+  message("   ... words processed")
+  
   return(words);
 }
 
@@ -88,7 +91,7 @@ find_colorpoints = function(words, dims){
     colnames(yellow_point) <- c("point", "row", "col", "colorIndex", "color")
     colordf <- rbind(colordf, yellow_point)
   }
-
+  
   return(colordf);
 }
 

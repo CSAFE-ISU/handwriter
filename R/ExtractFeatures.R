@@ -310,10 +310,10 @@ add_updown_neighboring_char_dist = function(character_features, character_lists,
   return(character_features)
 }
 
-#' wordModel is the RandomForest model to decide if a word separation has happened
+#' wordModelNew is the RandomForest model to decide if a word separation has happened
 #' 
 #'
-#' @name wordModel
+#' @name wordModelNew
 #' @docType data
 #' @keywords data
 NULL

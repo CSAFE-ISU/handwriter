@@ -1,7 +1,7 @@
 Package: handwriter
 Title: Handwriting Analysis in R
 Version: 1.0.1
-Authors@R:c(person("Nick", "Berry", role = "aut", email = "berryni@iastate.edu"),
+Authors@R: c(person("Nick", "Berry", role = "aut", email = "berryni@iastate.edu"),
           person("James", "Taylor", role = c("cre", "aut"), email = "jamesetay1@gmail.com"),
           person("Felix", "Baez-Santiago", role = "aut", email = "felbasa@iastate.edu"))
 Maintainer: James Taylor <jamesetay1@gmail.com>
@@ -12,5 +12,5 @@ LinkingTo: Rcpp, RcppArmadillo
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 Imports: Rcpp, ggplot2, igraph, png, reshape2, stringr, rjson, usethis, magick, shiny, randomForest, dplyr, tidyr, foreach, purrr, doParallel, stringr, tidyverse, gridExtra, lpSolve

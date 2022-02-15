@@ -32,7 +32,7 @@ makeModel = function(TaggedJson){
   
   #Sort DF By first line number, and then x value
   dataDF=dataDF[order( dataDF[,1], dataDF[,6] ),]
-  print(nrow(dataDF))
+  #print(nrow(dataDF))
   
   #Add proportionalized data
   dataDF['height_prop'] <- NA
