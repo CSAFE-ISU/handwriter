@@ -72,7 +72,7 @@ makeModel = function(TaggedJson){
   summary(TrainSet)
   summary(ValidSet)
   
-  
+  #Model Testing
   a=c()
   for (i in 1:4) {
     model1 <- randomForest(label ~ ., data = TrainSet, ntree = 500, mtry = i, importance = TRUE, na.action=na.exclude)
