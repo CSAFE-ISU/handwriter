@@ -1,0 +1,14 @@
+name: shinyHandwritR
+title: shinyHandwritR
+username:
+account: jamesetay1
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 5550555111
+bundleId: 5566022111
+url: https://jamesetay1.shinyapps.io/shinyHandwritR/
+when: 1644521816.22218
+lastSyncTime: 1644521816.22218
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: .RData|oldApp.R|sample.R
