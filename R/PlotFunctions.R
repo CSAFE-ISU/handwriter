@@ -281,7 +281,7 @@ plotLine = function(letterList, whichLine, dims)
 #' plotLetter(twoSent_processList$letterList, 4, dims)
 #' @import ggplot2
 #' @export
-plotLetter = function(letterList, whichLetter, dims, showPaths = TRUE, showCentroid = TRUE, showSlope = TRUE)#, showTightness = TRUE, showLoopDims = TRUE)
+plotLetter = function(letterList, whichLetter, dims, showPaths = TRUE, showCentroid = TRUE, showSlope = TRUE, showNodes = TRUE)#, showTightness = TRUE, showLoopDims = TRUE)
 {
   X <- Y <- NULL
   path = letterList[[whichLetter]]$path
@@ -300,7 +300,10 @@ plotLetter = function(letterList, whichLetter, dims, showPaths = TRUE, showCentr
   cnew = c-min(c)+1
   nodes = ((nodesc - 1)*(diff(range(r))+1)) + nodesr
   img[cbind(rnew,cnew)] = 0
-  p = plotNodes(img, which(img == 1), nodes)
+  
+  if (showNodes){
+    p = plotNodes(img, which(img == 1), nodes)
+  }else p = plotImageThinned(img, which(img == 1))
   
   #End of plotting the Nodes, 
   #Start finding info for optional features to display
