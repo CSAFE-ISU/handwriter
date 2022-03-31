@@ -26,10 +26,23 @@
 #' @export
 readPNGBinary = function(path, cutoffAdjust = 0, clean = TRUE, crop = TRUE, inversion = FALSE)
 {
-  #Read PNG in as an array
-  img = png::readPNG(path)
-  img = as.array(img)
+  library(magick)
+  if(endsWith(path, "RData")){
+    load(path)
+    
+    f <- file.path(tempdir(), "temp_png")
+    magick_img <- image_read(magick_image)
 
+    image_write(magick_img, path = f, format = "png")
+    img = png::readPNG(f)
+    
+  }else{
+    img = png::readPNG(path)
+    
+  }
+  
+  img = as.array(img)
+  
   #Want only a grayscale image - so if more than 2 dimensions (Grayscale Alpha, RGB, or RGB Alpha)... reduce
   if(length(dim(img)) > 2)
   {
@@ -58,6 +71,17 @@ readPNGBinary = function(path, cutoffAdjust = 0, clean = TRUE, crop = TRUE, inve
   
   #Turn the grayscale image to just black and white
   img = img > thresh
+  
+  #ADD MASK
+  
+  #convert numeric mask to logical
+  if(!is.null(mask)){
+    logical_mask <- as.logical(mask) & ( as.integer(mask) > 0 )
+    logical_mask[is.na(mask)] <- TRUE
+    dim(logical_mask) <- dim(mask)
+    
+    img[which(logical_mask == TRUE)] <- TRUE
+  }
   
   #if clean param is True, cleanBinaryImage removes the alpha parameter from the image.
   #NOTE: I thought the alpha parameter was removed above but it appears this will double check?

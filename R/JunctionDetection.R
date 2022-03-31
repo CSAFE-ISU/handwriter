@@ -346,7 +346,14 @@ letterPaths = function(allPaths, nodeGraph0, breakPoints)
     nodeGraph0 = delete_vertices(nodeGraph0, v = as.character(format(breakPoints, scientific = FALSE, trim = TRUE)))
   
   grIDs = rep(NA, length(V(nodeGraph0)))
-  dists = distances(nodeGraph0, v = names(V(nodeGraph0)), to = names(V(nodeGraph0)), weights = E(nodeGraph0)$nodeOnlyDist)
+  tryCatch( 
+    expr = {
+      dists = distances(nodeGraph0, v = names(V(nodeGraph0)), to = names(V(nodeGraph0)), weights = E(nodeGraph0)$nodeOnlyDist)
+    }, error = function(e) {
+      message("Unusual amounts of interconnected paths being detected. Do you have crossed out writing in your document?")
+    }
+  )
+  
   vertList = V(nodeGraph0)$name
 
   grPaths = list()

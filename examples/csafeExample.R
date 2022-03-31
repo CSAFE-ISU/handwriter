@@ -10,15 +10,21 @@
 csafe_document = list()
 
 #csafe_document$image = readPNGBinary("examples/csafe_data/0001_4.png")
-#csafe_document$image = readPNGBinary("examples/external_data/twoSent.png")
-#csafe_document$image = readPNGBinary("examples/problem_docs_nov21/w0297_s01_pLND_r02.png") 
-#csafe_document$image = readPNGBinary("examples/problem_docs_nov21/s2_samp/w0365_s02_pWOZ_r01.png") 
+#csafe_document$image = readPNGBinary("examples/masked/image_masked.RData")
+csafe_document$image = readPNGBinary("examples/masked/scribbled_masked.RData")
+#csafe_document$image = readPNGBinary("examples/external_data/Writing_csafe_single.png")
 
+#csafe_document$image = readPNGBinary("examples/problem_docs_mar6/w0001_s03_pLND_r01.png") 
+#csafe_document$image = readPNGBinary("examples/problem_docs_mar6/w0342_s01_pLND_r02.png")
+#csafe_document$image = readPNGBinary("examples/problem_docs_mar6/w0356_s02_pPHR_r03.png")
+
+#csafe_document$image = readPNGBinary("examples/problem_docs_mar6/working_1.png")
+#csafe_document$image = readPNGBinary("examples/external_data/delined.png")
 #=======================================================================================================================
 
 #csafe_document$image = readPNGBinary("examples/just_the.png") 
-csafe_document$image = readPNGBinary("examples/external_data/01_04_first5.png")
-#plotImage(csafe_document$image)
+#csafe_document$image = readPNGBinary("examples/external_data/01_04_first5.png")
+plotImage(csafe_document$image)
 
 #Use the Zhang - Suen algorithim to thin the image (1 pixel wide) - then plot it.
 csafe_document$thin = thinImage(csafe_document$image)
@@ -38,7 +44,7 @@ plotNodes(csafe_document$image, csafe_document$thin, csafe_document$breaks)
 
 ###Some stuff for plotting letters, words, and lines:###
 dims = dim(csafe_document$image)
-plotLetter(csafe_processList$letterList, 1, dims, showNodes = FALSE)
+plotLetter(csafe_processList$letterList, 35, dims, showNodes = FALSE)
 plotLine(csafe_processList$letterList, 1, dims)
 plotWord(csafe_processList$letterList, 2, dims)
 
