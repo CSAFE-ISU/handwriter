@@ -10,8 +10,8 @@
 csafe_document = list()
 
 #csafe_document$image = readPNGBinary("examples/csafe_data/0001_4.png")
-#csafe_document$image = readPNGBinary("examples/masked/image_masked.RData")
-csafe_document$image = readPNGBinary("examples/masked/scribbled_masked.RData")
+csafe_document$image = readPNGBinary("examples/masked/image_masked2.RData")
+#csafe_document$image = readPNGBinary("examples/masked/sample_mask.RData")
 #csafe_document$image = readPNGBinary("examples/external_data/Writing_csafe_single.png")
 
 #csafe_document$image = readPNGBinary("examples/problem_docs_mar6/w0001_s03_pLND_r01.png") 
@@ -19,6 +19,7 @@ csafe_document$image = readPNGBinary("examples/masked/scribbled_masked.RData")
 #csafe_document$image = readPNGBinary("examples/problem_docs_mar6/w0356_s02_pPHR_r03.png")
 
 #csafe_document$image = readPNGBinary("examples/problem_docs_mar6/working_1.png")
+#csafe_document$image = readPNGBinary("examples/problem_docs_apr2/w0009_s01_pLND_r01.png")
 #csafe_document$image = readPNGBinary("examples/external_data/delined.png")
 #=======================================================================================================================
 

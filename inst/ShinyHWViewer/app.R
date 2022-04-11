@@ -1,139 +1,46 @@
-#
-# This is a Shiny web application. You can run the application by clicking
-# the 'Run App' button above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
-# devtools::install_github("CSAFE-ISU/handwriter")
-# Rcpp::sourceCpp(file = "~/src/ThinImageCpp.cpp")
-#install.packages("shinybusy")
 library(shiny)
-options(shiny.sanitize.errors = FALSE)
-library(shinybusy)
-print(getwd())
-load(file='data/wordModelNew.rda')
+library(shinyjs)
 
-
-between = function(x, left, right)
-{
-  x <= max(left, right) & x >= min(left, right)
-}
-index2subindex = function(index, x1, x2, y1, y2, d1)
-{F
-  index = index[between(((index - 1) %/% d1 + 1), x1, x2) & between(((index - 1) %% d1 + 1), d1-y2+1, d1-y1+1)]
-  index - (x1-1)*d1 - (d1-y2)*(((index-1) %/% d1 + 1) - x1 + 1) - (y1 - 1)*((index - 1) %/% d1 - x1 + 1)
-}
-
+# Define UI for application that draws a histogram
 ui <- fluidPage(
-  add_busy_bar(color = "#0E86D4"),
-  tags$head(tags$script(src = "message-handler.js"), 
-            tags$style(HTML("
-              input[type=\"number\"] {
-                width: 80px;
-              }"))),
-  hr(),
-  fluidRow(
-    column(3, offset = 2, h1("Handwriter")),
-    column(5, offset = 1, fileInput("filePath", "Choose handwriting (.png) to process:"))),
+  useShinyjs(),
+  # Application title
+  titlePanel("Old Faithful Geyser Data"),
   
-  fluidRow(
-    column(12, align="center", plotOutput("letterPlot", dblclick = "letterPlotPlot",
-      brush = brushOpts(id = "letterPlotPlot_brush", resetOnNew = TRUE)
-    ))
-  ),
- hr(),  
- fluidRow(column(3, offset = 1,
-       fluidRow(
-        splitLayout(cellWidths = c("50%", "50%"),
-           actionButton("plotnodes", "Plot Nodes"), 
-           actionButton("plotbreaks", "Plot Breaks"))),
-       br(),
-       fluidRow(
-         splitLayout(cellWidths = c("50%", "50%"),
-           actionButton("plotline", "Plot Line"), 
-           numericInput("linenum", "Line Number", 1))),
-       
-       fluidRow(
-         splitLayout(cellWidths = c("50%", "50%"),
-           actionButton("plotword", "Plot Word"), 
-           numericInput("wordnum", "Word Number", 1))),
-       
-       fluidRow(
-         splitLayout(cellWidths = c("50%", "50%"),
-           actionButton("plotgraph", "Plot Graph"), 
-           numericInput("graphnum", "Graph Number", 1))),
-   ),
-     column(8, align="center", plotOutput("outputPlot", dblclick = "outputPlot",
-       brush = brushOpts(id = "outputPlot_brush", resetOnNew = TRUE)
-     )),
-  ),
-  
+  sidebarLayout(
+    sidebarPanel(
+      disabled(actionButton("MakePlot", "Make Plot")),
+      br(),
+      actionButton("EnableButton", "Enable Button"
+      ),
+      actionButton("DisableButton", "Disable Button"
+      )
+    ),
+    
+    # Show a plot of the generated distribution
+    mainPanel(
+      plotOutput("distPlot")
+    )
+  )
 )
 
 server <- function(input, output) {
-  if(!require(handwriter))
-  {
-    devtools::install_github("CSAFE-ISU/handwriter")
-    require(handwriter)
-
-  }
   
-  library('handwriter')
-  
-  v <- reactiveValues(data = NULL)
-  v$type = ''
-  
-  v[["log"]] <- capture.output(
-    data <- reactive({
-    req(input$filePath)
-    path <- input$filePath$datapath
-    df = list()
-    
-    df$image = readPNGBinary(path)
-    df$thin = thinImage(df$image)
-    
-    df_processList = processHandwriting(df$thin, dim(df$image))
-    
-    df$words = create_words(df_processList) 
-    df$words_after_processing = process_words(df$words, dim(df$image), TRUE)
-    df$dims = dim(df$image)
-    
-    df$letterList = df_processList$letterList
-    df$nodes = df_processList$nodes
-    df$breaks = df_processList$breakPoints
-    return(df)
-  }))
-  
-  
-  
-  #top output
-  output$letterPlot <- renderPlot({
-    imgList = data()
-    plotImageThinned(imgList$image, imgList$thin)
+  observeEvent(input$MakePlot, {
+    output$distPlot <- renderPlot({
+      x    <- faithful[, 2] 
+      hist(x, breaks = 30, col = 'darkgray', border = 'white')
+    })
   })
   
+  observeEvent(input$EnableButton, {
+    enable("MakePlot")
+  })
   
-  #Set plot type based on button click
-  observeEvent(input$plotnodes, {v$type = 'nodes'})
-  observeEvent(input$plotbreaks, {v$type = 'breaks'})
-  observeEvent(input$plotline, {v$type = 'line'})
-  observeEvent(input$plotword, {v$type = 'word'})
-  observeEvent(input$plotgraph, {v$type = 'graph'})
-
-  #Plot specific plot based on button pressed
-  output$outputPlot <- renderPlot({
-    imgList = data()
-    if (v$type == 'nodes'){ plotNodes(imgList$image, imgList$thin, imgList$nodes) }
-    else if (v$type == 'breaks'){ plotNodes(imgList$image, imgList$thin, imgList$breaks) }
-    else if (v$type == 'line'){ plotLine(imgList$letterList, input$linenum, imgList$dims) }
-    else if (v$type == 'word'){ plotWord(imgList$letterList, input$wordnum, imgList$dims) }
-    else if (v$type == 'graph'){ plotLetter(imgList$letterList, input$graphnum, imgList$dims) }
-    else { plotImageThinned(imgList$image, imgList$thin) }
+  observeEvent(input$DisableButton, {
+    disable("MakePlot")
   })
 }
 
-# Run the application
+# Run the application 
 shinyApp(ui = ui, server = server)
-
