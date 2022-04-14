@@ -2,9 +2,9 @@
 #' 
 #' extractGraphs
 #' 
-#' @param image
-#' @param source_folder
-#' @param save_folder
+#' @param image .png image to be processed
+#' @param source_folder path to folder containing .png images
+#' @param save_folder path to folder where graphs are saved to
 #' @return saves proclist to an rds file
 getGraphs = function(image, source_folder = getwd(), save_folder = getwd()){
   setwd(source_folder)
@@ -26,9 +26,8 @@ getGraphs = function(image, source_folder = getwd(), save_folder = getwd()){
 #' 
 #' extractGraphs
 #' 
-#' @importFrom foreach foreach
-#' @importFrom doParallel registerDoParallel
-#' @import handwriter
+#' @import foreach
+#' @import doParallel
 #' @import purrr
 #' 
 #' @param source_folder path to folder containing .png images
@@ -40,7 +39,6 @@ getGraphs = function(image, source_folder = getwd(), save_folder = getwd()){
 #' extractGraphs(sof, saf)
 #' @export
 extractGraphs = function(source_folder = getwd(), save_folder = getwd()){
-  registerDoParallel(7)
   setwd(source_folder)
   filenames = as.list(list.files(source_folder, pattern = ".png"))
   
@@ -55,10 +53,3 @@ extractGraphs = function(source_folder = getwd(), save_folder = getwd()){
     getGraphs(filenames[[i]], source_folder = source_folder, save_folder = graph_writer)
   }
 }
-
-
-sf = "/lss/research/csafe-handwriting/amymc/demo/data/source_test"
-gf = "/lss/research/csafe-handwriting/Data_Processing/graph_test/"
-cf = "/lss/research/csafe-handwriting/Data_Processing/clust_test/"
-filenames = list.files(sf, pattern="*.png", full.names=TRUE)
-extractGraphs(sf, gf)

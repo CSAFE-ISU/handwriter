@@ -10,7 +10,8 @@ plotLetter(
   dims,
   showPaths = TRUE,
   showCentroid = TRUE,
-  showSlope = TRUE
+  showSlope = TRUE,
+  showNodes = TRUE
 )
 }
 \arguments{
