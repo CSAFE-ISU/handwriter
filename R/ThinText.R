@@ -75,7 +75,7 @@ readPNGBinary = function(path, cutoffAdjust = 0, clean = TRUE, crop = TRUE, inve
   #ADD MASK
   
   #convert numeric mask to logical
-  if(!is.null(mask)){
+  if(exists('mask') && !is.null(mask)){
     logical_mask <- as.logical(mask) & ( as.integer(mask) > 0 )
     logical_mask[is.na(mask)] <- TRUE
     dim(logical_mask) <- dim(mask)

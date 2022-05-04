@@ -108,7 +108,7 @@ plotNodes = function(img, thinned, nodeList, nodeSize = 3, nodeColor = "red")
 #' }
 #' @import ggplot2
 #' @export
-plotWord = function(letterList, whichWord, dims)
+plotWord = function(letterList, whichWord, dims, full_doc = FALSE)
 {
   X <- Y <- NULL
   
