@@ -1,7 +1,7 @@
 ui <- shinyUI({
   fluidPage(
     shinyjs::useShinyjs(), 
-    add_busy_bar(color = "#0E86D4"),
+    #add_busy_bar(color = "#0E86D4"),
     #span(textOutput("error"), style="color:red"),
     tags$head(tags$script(src = "message-handler.js"), 
               tags$style(HTML("input[type=\"number\"] {width: 80px;}")),
