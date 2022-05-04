@@ -4,7 +4,7 @@
 \alias{plotWord}
 \title{plotWord}
 \usage{
-plotWord(letterList, whichWord, dims)
+plotWord(letterList, whichWord, dims, full_doc = FALSE)
 }
 \arguments{
 \item{letterList}{Letter list from processHandwriting function}
