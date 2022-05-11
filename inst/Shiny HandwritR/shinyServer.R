@@ -1,6 +1,31 @@
 server <- function(input, output, session) {
   
   #========================================================
+  #============= ADDING TOOL TIPS TO UI ===================
+  #========================================================
+  addTooltip(session, id = 'processhandwriting', title = "Must be done before plotting. Can take up to a minute depending on the complexity of the document",
+             placement = "bottom", trigger = "hover", options = list(delay = list(show=500)))
+  addTooltip(session, id = 'rotation', title = "Slide to rotate document. Use arrows to adjust by 1 degree", options = list(delay = list(show=500)))
+  addTooltip(session, id = 'reset_crop', title = "Reset to originally uploaded image.", options = list(delay = list(show=500)))
+  addTooltip(session, id = 'undo_crop', title = "Undo previous crop", options = list(delay = list(show=500)))
+  addTooltip(session, id = 'crop', title = "Crop the highlighted area", options = list(delay = list(show=500)))
+  addTooltip(session, id = 'mask', title = "Mask the highlighted area", options = list(delay = list(show=500)))
+  addTooltip(session, id = 'undo_mask', title = "Undo previously applied mask", options = list(delay = list(show=500)))
+  addTooltip(session, id = 'reset_mask', title = "Undo all mask areas", options = list(delay = list(show=500)))
+  addTooltip(session, id = 'save_mask', title = "Save masks as an RData Object. The object will have the document and the mask, and must be saved with the .RData file type", options = list(delay = list(show=500)))
+
+  addTooltip(session, id = 'plotbinarized', title = "Plot the binarized (black and white) document", options = list(delay = list(show=500)))
+  addTooltip(session, id = 'plotthinned', title = "Plot the thinned version of the document", options = list(delay = list(show=500)))
+  addTooltip(session, id = 'plotnodes', title = "Plot the important nodes of the document", options = list(delay = list(show=500)))
+  addTooltip(session, id = 'plotbreaks', title = "Plot the break nodes of the document", options = list(delay = list(show=500)))
+  addTooltip(session, id = 'plotline', title = "Plot a given line of the document", options = list(delay = list(show=500)))
+  addTooltip(session, id = 'linenum', title = "Line number to plot", options = list(delay = list(show=500)))
+  addTooltip(session, id = 'plotword', title = "Plot a given word of the document", options = list(delay = list(show=500)))
+  addTooltip(session, id = 'wordnum', title = "Word number to plot", options = list(delay = list(show=500)))
+  addTooltip(session, id = 'plotgraph', title = "Plot a given graph of a document. Graphs are often, but not always, letters", options = list(delay = list(show=500)))
+  addTooltip(session, id = 'graphnum', title = "Graph number to plot", options = list(delay = list(show=500)))
+  
+  #========================================================
   #======================= SET UP =========================
   #========================================================
   
@@ -12,7 +37,8 @@ server <- function(input, output, session) {
   
   #Read in sample image & Set up basic values
   image <- image_read("CSAFE_Sample.png")
-  values$path <- "CSAFE_Sample.png"
+  values$upload_path <- "CSAFE_Sample.png"
+  values$current_path <- "CSAFE_Sample.png"
   values$image_name <- 'CSAFE_Sample.png'
   
   info <- image_info(image)
@@ -28,26 +54,44 @@ server <- function(input, output, session) {
   
   values$dimensions <- paste0(info$width, 'x', info$height)
   
+  
+  
+  
+  
   #=============================================================
   #======================= PREPROCESSING =======================
   #=============================================================
   
   #UPLOAD BOX
   observeEvent(input$upload, {
-    if (length(input$upload$datapath))
-      
+    if (length(input$upload$datapath)){
+     values$upload_path <- input$upload$datapath
+     #message(paste0('input$upload$datapath in preprocessing upload box: ', input$upload$datapath))
+     #message(paste0('values$path in preprocessing upload box: ', values$path))
+    }
+    values$plot_type <- ''
+    
     values$uploaded_image <- NULL
-    values$uploaded_image <- image_read(input$upload$datapath)
     
-    values$image <- values$uploaded_image 
+    if(endsWith(input$upload$datapath, "png")){
+      values$uploaded_image <- image_read(input$upload$datapath)
+      
+      values$image <- values$uploaded_image
+      info <- image_info(values$image)
+    }else if(endsWith(input$plot_upload$datapath, "RData") || endsWith(input$plot_upload$datapath, "rda")){
+      image_with_mask <- load(input$upload$datapath)
+      values$uploaded_image <- image_read(magick_image)
+      
+      values$image <- values$uploaded_image
+      info <- image_info(values$image)
+    }
     
-    info <- image_info(values$image)
     values$dimensions <- paste0(info$width, 'x', info$height)
-    
     values$image_name <- input$upload$name
-    message(input$upload$name)
+    #message(paste0('values$image_name in preprocessing upload box:  ', values$image_name))
     
-    #Clean up masks
+    #Clean up
+    values$crop_list <- list(values$image)
     values$mask_list_df <- values$mask_list_df[0,]
   })
   
@@ -76,8 +120,8 @@ server <- function(input, output, session) {
     #Reset dimensions
     info <- image_info(values$image)
     values$dimensions <- paste0(info$width, 'x', info$height)
-    shinyjs::disable("reset_crop")
-    shinyjs::disable("undo_crop")
+    shinyjs::disable("reset_crop"); shinyjs::disable("undo_crop")
+    values$current_path <- values$upload_path
   })
   
   #BUTTON: UNDO CROP
@@ -86,14 +130,15 @@ server <- function(input, output, session) {
     values$image <- tail(values$crop_list, 2)[[1]]
     values$crop_list <- head(values$crop_list, -1)
     
-    message(paste0("crop list after undo crop:", values$crop_list))
+    #message(paste0("crop list after undo crop:", values$crop_list))
     #Reset dimensions
     info <- image_info(values$image)
     values$dimensions <- paste0(info$width, 'x', info$height)
     if(length(values$crop_list) == 1){
-      shinyjs::disable("reset_crop")
-      shinyjs::disable("undo_crop")
+      shinyjs::disable("reset_crop"); shinyjs::disable("undo_crop")
     }
+    
+    image_write(values$image, "tmp.png"); values$current_path <- "tmp.png"
     
   })
   
@@ -122,10 +167,10 @@ server <- function(input, output, session) {
       values$dimensions <- paste0(info$width, 'x', info$height)
       
       values$crop_list <- append(values$crop_list, values$image)
-      message(paste0('crop_list:', values$crop_list))
+      message(paste0('crop_list:', values$crop_list, '\n'))
       
-      shinyjs::enable("reset_crop")
-      shinyjs::enable("undo_crop")
+      shinyjs::enable("reset_crop"); shinyjs::enable("undo_crop")
+      image_write(values$image, "tmp.png"); values$current_path <- "tmp.png"
     }})
   
   #BUTTON: RESET MASK
@@ -135,9 +180,7 @@ server <- function(input, output, session) {
     }else{
       output$error <- renderText({""})
       values$mask_list_df <- values$mask_list_df[0,]
-      shinyjs::disable("save_mask")
-      shinyjs::disable("undo_mask")
-      shinyjs::disable("reset_mask")
+      shinyjs::disable("save_mask"); shinyjs::disable("undo_mask"); shinyjs::disable("reset_mask")
     }
   })
   
@@ -151,9 +194,7 @@ server <- function(input, output, session) {
       
       #Disable Mask
       if(nrow(values$mask_list_df) == 0){
-        shinyjs::disable("save_mask")
-        shinyjs::disable("undo_mask")
-        shinyjs::disable("reset_mask")
+        shinyjs::disable("save_mask"); shinyjs::disable("undo_mask"); shinyjs::disable("reset_mask")
       }
     }})
   
@@ -175,9 +216,7 @@ server <- function(input, output, session) {
       yrange = ymax - ymin
       
       values$mask_list_df[nrow(values$mask_list_df) + 1,] = c(xmin, xmax, ymin, ymax, xrange, yrange)
-      shinyjs::enable("save_mask")
-      shinyjs::enable("undo_mask")
-      shinyjs::enable("reset_mask")
+      shinyjs::enable("save_mask"); shinyjs::enable("undo_mask"); shinyjs::enable("reset_mask")
       
       message(values$mask_list_df)
     }})
@@ -210,7 +249,6 @@ server <- function(input, output, session) {
   }, deleteFile = FALSE)
   
   #RENDER PLOT
-  
   output$preprocess_plot <- renderImage({
     output$error <- renderText({""})
     
@@ -272,7 +310,6 @@ server <- function(input, output, session) {
   
   
   
-  
   #=============================================================
   #======================= PLOTTING ============================
   #=============================================================
@@ -285,11 +322,13 @@ server <- function(input, output, session) {
   shinyjs::disable("plotnodes"); shinyjs::disable("plotbreaks"); shinyjs::disable("plotline"); shinyjs::disable("linenum"); 
   shinyjs::disable("plotword"); shinyjs::disable("wordnum"); shinyjs::disable("plotgraph"); shinyjs::disable("graphnum"); 
   
+  #UPLOAD
   observeEvent(input$plot_upload, {
-    if (length(input$plot_upload$datapath))
-      
-    values$path <- NULL
-    values$path <- input$plot_upload$datapath
+    if (length(input$plot_upload$datapath)){
+      values$upload_path <- input$plot_upload$datapath
+      values$current_path <- values$upload_path
+    }
+    
     values$plot_type <- ''
     
     values$uploaded_image <- NULL
@@ -301,7 +340,7 @@ server <- function(input, output, session) {
       
       values$image <- values$uploaded_image
       info <- image_info(values$image)
-    }else if(endsWith(input$plot_upload$datapath, "RData")){
+    }else if(endsWith(input$plot_upload$datapath, "RData") || endsWith(input$plot_upload$datapath, "rda")){
       image_with_mask <- load(input$plot_upload$datapath)
       values$uploaded_image <- image_read(magick_image)
       
@@ -309,13 +348,15 @@ server <- function(input, output, session) {
       info <- image_info(values$image)
     }
     
-    #Clean up masks
+    #Clean up
+    values$crop_list <- list(values$image)
     values$mask_list_df <- values$mask_list_df[0,]
     
-    #processhandwriting needs to be run again since it is a new upload
     shinyjs::disable('plotbinarized'); shinyjs::disable('plotthinned');
     shinyjs::disable("plotnodes"); shinyjs::disable("plotbreaks"); shinyjs::disable("plotline"); shinyjs::disable("linenum"); 
-    shinyjs::disable("plotword"); shinyjs::disable("wordnum"); shinyjs::disable("plotgraph"); shinyjs::disable("graphnum"); 
+    shinyjs::disable("plotword"); shinyjs::disable("wordnum"); shinyjs::disable("plotgraph"); shinyjs::disable("graphnum");
+    
+    values$plot_type <- 'nothing. Process your document to be able to plot lines, words, and graphs'
   })
   
   output$plot_image_name <- renderText({paste0("Name: ", values$image_name)})
@@ -337,9 +378,11 @@ server <- function(input, output, session) {
 
   #PROCESS HANDWRITING BUTTON
   observeEvent(input$processhandwriting, {
-    path <- values$path
-    df = list()
     
+    path <- values$current_path
+    df = list()
+    message(paste0('path after processhandwriting button:  ', path))
+    message(paste0('values$path after processhandwriting button:  ', values$path))
     df$image = readPNGBinary(path)
     df$thin = thinImage(df$image)
     
@@ -370,6 +413,7 @@ server <- function(input, output, session) {
   
   #Plot specific plot based on button pressed
   output$plot_output <- renderPlot({
+    
     req(processHandwriting_data$df)
     imgList = processHandwriting_data$df
     if(values$plot_type == 'line'){values$number = input$linenum}

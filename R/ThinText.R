@@ -27,7 +27,8 @@
 readPNGBinary = function(path, cutoffAdjust = 0, clean = TRUE, crop = TRUE, inversion = FALSE)
 {
   library(magick)
-  if(endsWith(path, "RData")){
+  message(paste0('path in readPNGBinary: ', path))
+  if(endsWith(path, "RData") || endsWith(path, "rda")){
     load(path)
     
     f <- file.path(tempdir(), "temp_png")

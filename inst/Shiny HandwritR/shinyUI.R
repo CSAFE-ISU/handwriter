@@ -1,7 +1,8 @@
 ui <- shinyUI({
   fluidPage(
-    shinyjs::useShinyjs(), 
-    #add_busy_bar(color = "#0E86D4"),
+    shinyjs::useShinyjs(),
+    shinyBS:::shinyBSDep,
+    add_busy_bar(color = "#0E86D4"),
     #span(textOutput("error"), style="color:red"),
     tags$head(tags$script(src = "message-handler.js"), 
               tags$style(HTML("input[type=\"number\"] {width: 80px;}")),
@@ -34,11 +35,10 @@ ui <- shinyUI({
                               fluidRow(column(width=11, offset=1, textOutput("dimensions"))),
                               br(),
                               fileInput("upload", "Choose a new document to pre-process", accept = c('image/png')),
-                              
                               hr(),
                               fluidRow(
                                 column(width = 1, br(), actionButton("left", label = icon("angle-double-left", "fa-2xs"))),
-                                column(width = 8, offset = 1, sliderInput("rotation", "Rotate:", min = -180, max = 180, value = 0)),
+                                column(width = 8, offset = 1, sliderInput("rotation", "Rotate:", min = -180, max = 180, value = 0)), 
                                 column(width = 1, br(), actionButton("right", label = icon("angle-double-right", "fa-2xs"))),
                               ), 
                               hr(),
@@ -49,7 +49,7 @@ ui <- shinyUI({
                               ),
                               hr(),
                               fluidRow(
-                                column(width = 6, offset = 6, downloadButton("save_document", "Save Document"))
+                                column(width = 6, offset = 6, downloadButton("save_document", "Save Document")),
                               )),
                  mainPanel(width = 9,
                            span(textOutput("error"), style="color:red"),
@@ -65,7 +65,7 @@ ui <- shinyUI({
                                                   column(width = 2, actionButton("mask", "Mask Area")),
                                                   column(width = 2, actionButton("undo_mask", "Undo Last Mask")),
                                                   column(width = 2, actionButton("reset_mask", "Remove Mask")),
-                                                  column(width = 2, downloadButton("save_mask", "Save Mask")),
+                                                  column(width = 2, downloadButton("save_mask", "Save Mask"))
                                                   
                                                 ),
                                                 hr(),
@@ -90,7 +90,7 @@ ui <- shinyUI({
                               fileInput("plot_upload", "Choose a new document to plot", accept = c('image/png')),
                               br(),
                               fluidRow(
-                                column(6, offset = 2, actionButton('processhandwriting', "Process Handwriting"))
+                                column(6, offset = 2, actionButton("processhandwriting", "Process Handwriting"))
                               ), br(), br(),
                               fluidRow(
                                 column(4, offset = 1, actionButton("plotbinarized", "Plot Binarized")),
@@ -120,11 +120,7 @@ ui <- shinyUI({
                            hr(),
                            h3("Current image"),
                            plotOutput("plot_image")),
-                 
                ),
-               
-               
-               
       ),
       
       #FEATURE EXPLORATION
@@ -144,12 +140,12 @@ ui <- shinyUI({
       tabPanel("k-means Clustering", 
                sidebarLayout(
                  sidebarPanel(width = 3,
-                              h3("Explore Features"),
+                              h3("k-means Clustering"),
                               br(),
                               fileInput("upload", "Choose document to explore", accept = c('image/png')),
                               
                  ),
-                 mainPanel(width = 9, plotOutput("kmeans_output"))
+                 mainPanel(width = 9, h1("Placeholder Tab"), ("kmeans_output"))
                ),
       ),
       
@@ -157,11 +153,11 @@ ui <- shinyUI({
       tabPanel("Triangle Decomposition", 
                sidebarLayout(
                  sidebarPanel(width = 3,
-                              h3("Explore Features"),
+                              h3("Triangle Decomposition"),
                               br(),
                               fileInput("upload", "Choose a document or directory to decompose", accept = c('image/png')),
                               
                  ),
-                 mainPanel(width = 9, plotOutput("triangle_output"))),
+                 mainPanel(width = 9, h1("Placeholder Tab"), plotOutput("triangle_output"))),
       )),
 )})

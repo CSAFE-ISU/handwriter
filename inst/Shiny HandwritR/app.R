@@ -2,16 +2,17 @@
 # devtools::install_github("CSAFE-ISU/handwriter")
 # Rcpp::sourceCpp(file = "~/src/ThinImageCpp.cpp")
 #install.packages("shinybusy")
-#library(handwriter)
+library(handwriter)
 library(magick)
 library(shiny)
 library(shinyjs)
-#library(shinybusy)
+library(shinybusy)
+library(shinyBS)
 print(paste0('working in: ', getwd()))
 
 source('shinyUI.R', local = TRUE)
 source('shinyServer.R')
 
-runGadget(ui, server, viewer = dialogViewer("Shiny HandwritR", width = 1800, height = 900))
+runGadget(ui, server, viewer = dialogViewer("Shiny HandwritR", width = 1800, height = 1100))
 #shinyApp(ui, server)
 

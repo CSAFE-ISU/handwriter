@@ -492,8 +492,8 @@ processHandwriting = function(img, dims){
   
   skel_graph = graph_from_data_frame(d = graphdf, vertices = as.character(format(indices, scientific = FALSE, trim = TRUE)), directed = FALSE)
   skel_graph0 = graph_from_data_frame(d = graphdf0, vertices = as.character(format(indices, scientific = FALSE, trim = TRUE)), directed = FALSE)
-  skel_graph = simplify(skel_graph, remove.multiple = TRUE, edge.attr.comb="mean")
-  skel_graph0 = simplify(skel_graph0, remove.multiple = TRUE, edge.attr.comb="mean")
+  skel_graph = igraph::simplify(skel_graph, remove.multiple = TRUE, edge.attr.comb="mean")
+  skel_graph0 = igraph::simplify(skel_graph0, remove.multiple = TRUE, edge.attr.comb="mean")
   
   V(skel_graph)$color = ifelse(V(skel_graph)$name %in% nodeList, 1, 0)
   V(skel_graph0)$color = ifelse(V(skel_graph0)$name %in% nodeList, 1, 0)
