@@ -36,10 +36,10 @@ server <- function(input, output, session) {
   values <- reactiveValues()
   
   #Read in sample image & Set up basic values
-  image <- image_read("CSAFE_Sample.png")
-  values$upload_path <- "CSAFE_Sample.png"
-  values$current_path <- "CSAFE_Sample.png"
-  values$image_name <- 'CSAFE_Sample.png'
+  image <- image_read("samplewriting.png")
+  values$upload_path <- "samplewriting.png"
+  values$current_path <- "samplewriting.png"
+  values$image_name <- 'samplewriting.png'
   
   info <- image_info(image)
   mask_list_df <- data.frame(matrix(ncol=6, nrow=0))
@@ -442,7 +442,31 @@ server <- function(input, output, session) {
   #==================================================================
   #======================= FEATURE EXTRACTION =======================
   #==================================================================
-  
+    shinyDirChoose(
+      input,
+      'dir',
+      roots = c(home = '~'),
+      filetypes = c('', 'txt', 'bigWig', "tsv", "csv", "bw")
+    )
+    
+    global <- reactiveValues(datapath = getwd())
+    
+    dir <- reactive(input$dir)
+    
+    output$dir <- renderText({
+      global$datapath
+    })
+    
+    observeEvent(ignoreNULL = TRUE,
+                 eventExpr = {
+                   input$dir
+                 },
+                 handlerExpr = {
+                   if (!"path" %in% names(dir())) return()
+                   home <- normalizePath("~")
+                   global$datapath <-
+                     file.path(home, paste(unlist(dir()$path[-1]), collapse = .Platform$file.sep))
+                 })
   
   
   

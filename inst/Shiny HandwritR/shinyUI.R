@@ -2,7 +2,7 @@ ui <- shinyUI({
   fluidPage(
     shinyjs::useShinyjs(),
     shinyBS:::shinyBSDep,
-    add_busy_bar(color = "#0E86D4"),
+    add_busy_spinner(spin = "fading-circle"),
     #span(textOutput("error"), style="color:red"),
     tags$head(tags$script(src = "message-handler.js"), 
               tags$style(HTML("input[type=\"number\"] {width: 80px;}")),
@@ -130,6 +130,10 @@ ui <- shinyUI({
                               h3("Explore Features"),
                               br(),
                               fileInput("upload", "Choose document to explore", accept = c('image/png')),
+                              hr(), hr(),
+                              h4("Batch Processing"),
+                              shinyDirButton("dir", "Input directory", "Upload"),
+                              verbatimTextOutput("dir", placeholder = TRUE)  
                               
                  ),
                  mainPanel(width = 9, plotOutput("features_output"))
