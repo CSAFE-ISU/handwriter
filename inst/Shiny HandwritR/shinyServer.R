@@ -3,7 +3,7 @@ server <- function(input, output, session) {
   #========================================================
   #============= ADDING TOOL TIPS TO UI ===================
   #========================================================
-  addTooltip(session, id = 'processhandwriting', title = "Must be done before plotting. Can take up to a minute depending on the complexity of the document",
+  addTooltip(session, id = 'plot_processhandwriting', title = "Must be done before plotting. Can take up to a minute depending on the complexity of the document",
              placement = "bottom", trigger = "hover", options = list(delay = list(show=500)))
   addTooltip(session, id = 'rotation', title = "Slide to rotate document. Use arrows to adjust by 1 degree", options = list(delay = list(show=500)))
   addTooltip(session, id = 'reset_crop', title = "Reset to originally uploaded image.", options = list(delay = list(show=500)))
@@ -31,6 +31,8 @@ server <- function(input, output, session) {
   
   #Disable buttons
   shinyjs::disable("reset_crop"); shinyjs::disable("undo_crop"); shinyjs::disable("save_mask"); shinyjs::disable("reset_mask"); shinyjs::disable("undo_mask")
+  
+  global <- reactiveValues(datapath = getwd())
   
   #Create Reactive Values
   values <- reactiveValues()
@@ -377,12 +379,12 @@ server <- function(input, output, session) {
   
 
   #PROCESS HANDWRITING BUTTON
-  observeEvent(input$processhandwriting, {
+  observeEvent(input$plot_processhandwriting, {
     
     path <- values$current_path
     df = list()
-    message(paste0('path after processhandwriting button:  ', path))
-    message(paste0('values$path after processhandwriting button:  ', values$path))
+    message(paste0('path after plot_processhandwriting button:  ', path))
+    message(paste0('values$path after plot_processhandwriting button:  ', values$path))
     df$image = readPNGBinary(path)
     df$thin = thinImage(df$image)
     
@@ -434,47 +436,210 @@ server <- function(input, output, session) {
   
   
   
-  
-  
-  
-  
-  
   #==================================================================
   #======================= FEATURE EXTRACTION =======================
   #==================================================================
+   
+    #UPLOAD
+    observeEvent(input$features_upload, {
+      if (length(input$features_upload$datapath)){
+        values$upload_path <- input$features_upload$datapath
+        values$current_path <- values$upload_path
+      }
+      
+      values$plot_type <- ''
+      
+      values$uploaded_image <- NULL
+      processHandwriting_data <- reactiveValues()
+      
+      #Split depending on if png or RData is uploaded
+      if(endsWith(input$features_upload$datapath, "png")){
+        values$uploaded_image <- image_read(input$features_upload$datapath)
+        
+        values$image <- values$uploaded_image
+        info <- image_info(values$image)
+      }else if(endsWith(input$features_upload$datapath, "RData") || endsWith(input$features_upload$datapath, "rda")){
+        image_with_mask <- load(input$features_upload$datapath)
+        values$uploaded_image <- image_read(magick_image)
+        
+        values$image <- values$uploaded_image
+        info <- image_info(values$image)
+      }
+      
+      #Clean up
+      values$crop_list <- list(values$image)
+      values$mask_list_df <- values$mask_list_df[0,]
+      
+      shinyjs::disable('plotbinarized'); shinyjs::disable('plotthinned');
+      shinyjs::disable("plotnodes"); shinyjs::disable("plotbreaks"); shinyjs::disable("plotline"); shinyjs::disable("linenum"); 
+      shinyjs::disable("plotword"); shinyjs::disable("wordnum"); shinyjs::disable("plotgraph"); shinyjs::disable("graphnum");
+      
+      values$plot_type <- 'nothing. Process your document to be able to plot lines, words, and graphs'
+    })
+    
+    output$features_image_name <- renderText({paste0("Name: ", values$image_name)})
+    output$features_dimensions <- renderText({paste0("Dimensions: ", values$dimensions)})   
+    
+  #==================================================================
+  #======================== BATCH PROCESSING ========================
+  #==================================================================
+  
     shinyDirChoose(
       input,
-      'dir',
-      roots = c(home = '~'),
-      filetypes = c('', 'txt', 'bigWig', "tsv", "csv", "bw")
+      'batch_input_dir',
+      roots = c(home = '../../../../../../../../../../../..'),
+      filetypes = c('')
     )
     
-    global <- reactiveValues(datapath = getwd())
+    batch_input_dir <- reactive(input$batch_input_dir)
     
-    dir <- reactive(input$dir)
-    
-    output$dir <- renderText({
+    output$batch_input_dir <- renderText({
       global$datapath
     })
     
     observeEvent(ignoreNULL = TRUE,
                  eventExpr = {
-                   input$dir
+                   input$batch_input_dir
                  },
                  handlerExpr = {
-                   if (!"path" %in% names(dir())) return()
+                   if (!"path" %in% names(batch_input_dir())) return()
                    home <- normalizePath("~")
                    global$datapath <-
-                     file.path(home, paste(unlist(dir()$path[-1]), collapse = .Platform$file.sep))
+                     file.path(home, paste(unlist(batch_input_dir()$path[-1]), collapse = .Platform$file.sep))
                  })
-  
-  
+    
+    
+    shinyDirChoose(
+      input,
+      'batch_output_dir',
+      roots = c(home = '../../../../../../../../../../../..'),
+      filetypes = c('')
+    )
+    
+    batch_output_dir <- reactive(input$batch_output_dir)
+    
+    output$batch_output_dir <- renderText({
+      global$datapath
+    })
+    
+    observeEvent(ignoreNULL = TRUE,
+                 eventExpr = {
+                   input$batch_output_dir
+                 },
+                 handlerExpr = {
+                   if (!"path" %in% names(batch_output_dir())) return()
+                   home <- normalizePath("~")
+                   global$datapath <-
+                     file.path(home, paste(unlist(batch_output_dir()$path[-1]), collapse = .Platform$file.sep))
+                 })
   
   #==================================================================
   #======================= K-MEANS CLUSTERING =======================
   #==================================================================
   
-  
+    shinyDirChoose(
+      input,
+      'cluster_template_input_dir',
+      roots = c(home = '../../../../../../../../../../../..'),
+      filetypes = c('')
+    )
+    
+    cluster_template_input_dir <- reactive(input$cluster_template_input_dir)
+    
+    output$cluster_template_input_dir <- renderText({
+      global$datapath
+    })
+    
+    observeEvent(ignoreNULL = TRUE,
+                 eventExpr = {
+                   input$cluster_template_input_dir
+                 },
+                 handlerExpr = {
+                   if (!"path" %in% names(cluster_template_input_dir())) return()
+                   home <- normalizePath("~")
+                   global$datapath <-
+                     file.path(home, paste(unlist(cluster_template_input_dir()$path[-1]), collapse = .Platform$file.sep))
+                 })
+    
+    
+    
+    
+    shinyDirChoose(
+      input,
+      'cluster_x_input_dir',
+      roots = c(home = '../../../../../../../../../../../..'),
+      filetypes = c('')
+    )
+    
+    cluster_x_input_dir <- reactive(input$cluster_x_input_dir)
+    
+    output$cluster_x_input_dir <- renderText({
+      global$datapath
+    })
+    
+    observeEvent(ignoreNULL = TRUE,
+                 eventExpr = {
+                   input$cluster_x_input_dir
+                 },
+                 handlerExpr = {
+                   if (!"path" %in% names(cluster_x_input_dir())) return()
+                   home <- normalizePath("~")
+                   global$datapath <-
+                     file.path(home, paste(unlist(cluster_x_input_dir()$path[-1]), collapse = .Platform$file.sep))
+                 })
+    
+    
+    
+    shinyDirChoose(
+      input,
+      'cluster_xx_input_dir',
+      roots = c(home = '../../../../../../../../../../../..'),
+      filetypes = c('')
+    )
+    
+    cluster_xx_input_dir <- reactive(input$cluster_xx_input_dir)
+    
+    output$cluster_xx_input_dir <- renderText({
+      global$datapath
+    })
+    
+    observeEvent(ignoreNULL = TRUE,
+                 eventExpr = {
+                   input$cluster_xx_input_dir
+                 },
+                 handlerExpr = {
+                   if (!"path" %in% names(cluster_xx_input_dir())) return()
+                   home <- normalizePath("~")
+                   global$datapath <-
+                     file.path(home, paste(unlist(cluster_xx_input_dir()$path[-1]), collapse = .Platform$file.sep))
+                 })
+    
+    
+    
+    shinyDirChoose(
+      input,
+      'cluster_output_dir',
+      roots = c(home = '../../../../../../../../../../../..'),
+      filetypes = c('')
+    )
+    
+    cluster_output_dir <- reactive(input$cluster_output_dir)
+    
+    output$cluster_output_dir <- renderText({
+      global$datapath
+    })
+    
+    observeEvent(ignoreNULL = TRUE,
+                 eventExpr = {
+                   input$cluster_output_dir
+                 },
+                 handlerExpr = {
+                   if (!"path" %in% names(cluster_output_dir())) return()
+                   home <- normalizePath("~")
+                   global$datapath <-
+                     file.path(home, paste(unlist(cluster_output_dir()$path[-1]), collapse = .Platform$file.sep))
+                 })
+    
   
   
   #======================================================================
