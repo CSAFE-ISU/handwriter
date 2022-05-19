@@ -147,18 +147,23 @@ ui <- shinyUI({
                  mainPanel(width = 9, 
                            tabsetPanel(id = "processset",
                                        tabPanel("Document",
-                                                br(),
+                                                h2("Document information after processing"),
+                                                hr(), br(),
+                                                DT::dataTableOutput("document_dt")
                                        ),
+                                                
+                            
                                        tabPanel("Word",
-                                                br(),
-                                                fluidRow(
-                                                  column(width = 2, actionButton("mask", "Show Word Details")),
-                                                  column(4, numericInput("wordnum", "Word Number", 1))
-                                                ),
+                                                h2("Word information after processing"),
+                                                hr(), br(),
+                                                DT::dataTableOutput("word_dt")
 
                                        ),
                                        tabPanel("Graph",
-                                                br(),
+                                                h2("Graph information after processing"),
+                                                hr(), br(),
+                                                DT::dataTableOutput("graph_dt")
+                                                
                                        )
                             ),
                  ),

@@ -8,6 +8,9 @@ library(shinyjs)
 library(shinybusy)
 library(shinyBS)
 library(shinyFiles)
+library(DT)
+library(stringr)
+
 print(paste0('working in: ', getwd()))
 
 source('shinyUI.R', local = TRUE)

@@ -396,7 +396,11 @@ server <- function(input, output, session) {
     
     df$letterList = df_processList$letterList
     df$nodes = df_processList$nodes
+    df$connectingNodes = df_processList$connectingNodes
+    df$terminalNodes = df_processList$terminalNodes
     df$breaks = df_processList$breakPoints
+    df$breakPoints = df_processList$breakPoints
+    
     processHandwriting_data$df <- df
     
     shinyjs::enable('plotbinarized'); shinyjs::enable('plotthinned');
@@ -418,6 +422,7 @@ server <- function(input, output, session) {
     
     req(processHandwriting_data$df)
     imgList = processHandwriting_data$df
+    
     if(values$plot_type == 'line'){values$number = input$linenum}
     if(values$plot_type == 'word'){values$number = input$wordnum}
     if(values$plot_type == 'graph'){values$number = input$graphnum}
@@ -429,7 +434,7 @@ server <- function(input, output, session) {
     else if (values$plot_type == 'line'){plotLine(imgList$letterList, input$linenum, imgList$dims)} 
     else if (values$plot_type == 'word'){plotWord(imgList$letterList, input$wordnum, imgList$dims)} 
     else if (values$plot_type == 'graph'){plotLetter(imgList$letterList, input$graphnum, imgList$dims)} 
-    else { values$plot_type = 'thinned image'; plotImageThinned(imgList$image, imgList$thin) }
+    else {values$plot_type = 'thinned image'; plotImageThinned(imgList$image, imgList$thin)}
   })
   
     output$plot_output_title <- renderText({paste0("Showing ", values$plot_type, " ", values$number)})
@@ -478,7 +483,49 @@ server <- function(input, output, session) {
     })
     
     output$features_image_name <- renderText({paste0("Name: ", values$image_name)})
-    output$features_dimensions <- renderText({paste0("Dimensions: ", values$dimensions)})   
+    output$features_dimensions <- renderText({paste0("Dimensions: ", values$dimensions)})
+    
+    output$document_dt = DT::renderDataTable({
+      extensions="Responsive"
+      req(processHandwriting_data$df)
+      imgList = processHandwriting_data$df
+      name <- c("image", "thin", "nodes", "connectingNodes", "terminalNodes", "breakPoints")
+      type <- c(typeof(imgList$image), typeof(imgList$thin), typeof(imgList$nodes), typeof(imgList$connectingNodes), typeof(imgList$terminalNodes), typeof(imgList$breakPoints))
+      size <- c(toString(dim(imgList$image)), toString(dim(imgList$thin)), toString(length(imgList$nodes)), toString(length(imgList$connectingNodes)), toString(length(imgList$terminalNodes)), toString(length(imgList$breakPoints)))
+      value <- c(paste0(stringr::str_trunc(toString(imgList$image), 50), '...'), 
+                  paste0(stringr::str_trunc(toString(imgList$thin), 50), '...'),  
+                  paste0(stringr::str_trunc(toString(imgList$nodes), 50), '...'), 
+                  paste0(stringr::str_trunc(toString(imgList$connectingNodes), 50), '...'),  
+                  paste0(stringr::str_trunc(toString(imgList$terminalNodes), 50), '...'), 
+                  paste0(stringr::str_trunc(toString(imgList$breakPoints), 50), '...')) 
+      
+      
+      document_table <- data.frame(name, type, size, value)
+      document_table 
+    })
+    
+    output$word_dt = DT::renderDataTable({
+      
+    })
+    
+    output$document_dt = DT::renderDataTable({
+      extensions="Responsive"
+      req(processHandwriting_data$df)
+      imgList = processHandwriting_data$df
+      name <- c("image", "thin", "nodes", "connectingNodes", "terminalNodes", "breakPoints")
+      type <- c(typeof(imgList$image), typeof(imgList$thin), typeof(imgList$nodes), typeof(imgList$connectingNodes), typeof(imgList$terminalNodes), typeof(imgList$breakPoints))
+      size <- c(toString(dim(imgList$image)), toString(dim(imgList$thin)), toString(length(imgList$nodes)), toString(length(imgList$connectingNodes)), toString(length(imgList$terminalNodes)), toString(length(imgList$breakPoints)))
+      value <- c(paste0(stringr::str_trunc(toString(imgList$image), 50), '...'), 
+                 paste0(stringr::str_trunc(toString(imgList$thin), 50), '...'),  
+                 paste0(stringr::str_trunc(toString(imgList$nodes), 50), '...'), 
+                 paste0(stringr::str_trunc(toString(imgList$connectingNodes), 50), '...'),  
+                 paste0(stringr::str_trunc(toString(imgList$terminalNodes), 50), '...'), 
+                 paste0(stringr::str_trunc(toString(imgList$breakPoints), 50), '...')) 
+      
+      
+      document_table <- data.frame(name, type, size, value)
+      document_table 
+    })
     
   #==================================================================
   #======================== BATCH PROCESSING ========================

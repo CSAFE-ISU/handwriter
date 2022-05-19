@@ -9,7 +9,8 @@
 #Create empty list, and load an image with READPNGBinary
 csafe_document = list()
 
-csafe_document$image = readPNGBinary("examples/csafe_data/0001_4.png")
+#csafe_document$image = readPNGBinary("examples/csafe_data/0001_4.png")
+csafe_document$image = readPNGBinary("examples/samplewriting.png")
 #csafe_document$image = readPNGBinary("examples/masked/image_masked2.RData")
 #csafe_document$image = readPNGBinary("examples/external_data/ali_prob_cropped.png")
 #csafe_document$image = readPNGBinary("examples/external_data/just_the2.png")
