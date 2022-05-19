@@ -18,11 +18,17 @@ handwriter is an R package that analyzes handwriting samples for the sake of ide
 Through a step by step processes explained [here](https://csafe-isu.github.io/handwriter/methods)
 
 
-#### How do I use it
+#### How do I use it?
 A full step by step is included in the [How To](https://csafe-isu.github.io/handwriter/howto) section.
+
 
 #### How can I integrate the package into my own workflow?
 Information (and an example) on workflow integration can be found [here](https://csafe-isu.github.io/handwriter/workflow) section.
 
+
 #### Who made it?
 handwriter is a project of the Center for Statistics and Applications in Forensic Evidence (or CSAFE) at Iowa State University. Find out more on the About Us Page
+
+
+#### Who do I contact?
+For questions, comments, and concerns please contact lead maintainer James at [jamesetay1@gmail.com](jamesetay1@gmail.com).
