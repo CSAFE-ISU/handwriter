@@ -3,8 +3,8 @@ server <- function(input, output, session) {
   #========================================================
   #============= ADDING TOOL TIPS TO UI ===================
   #========================================================
-  addTooltip(session, id = 'plot_processhandwriting', title = "Must be done before plotting. Can take up to a minute depending on the complexity of the document",
-             placement = "bottom", trigger = "hover", options = list(delay = list(show=500)))
+  
+  #PRE PROCESSING 
   addTooltip(session, id = 'rotation', title = "Slide to rotate document. Use arrows to adjust by 1 degree", options = list(delay = list(show=500)))
   addTooltip(session, id = 'reset_crop', title = "Reset to originally uploaded image.", options = list(delay = list(show=500)))
   addTooltip(session, id = 'undo_crop', title = "Undo previous crop", options = list(delay = list(show=500)))
@@ -14,6 +14,9 @@ server <- function(input, output, session) {
   addTooltip(session, id = 'reset_mask', title = "Undo all mask areas", options = list(delay = list(show=500)))
   addTooltip(session, id = 'save_mask', title = "Save masks as an RData Object. The object will have the document and the mask, and must be saved with the .RData file type", options = list(delay = list(show=500)))
 
+  #PLOTTING
+  addTooltip(session, id = 'plot_processhandwriting', title = "Must be done before plotting. Can take up to a minute depending on the complexity of the document",
+             placement = "bottom", trigger = "hover", options = list(delay = list(show=500)))
   addTooltip(session, id = 'plotbinarized', title = "Plot the binarized (black and white) document", options = list(delay = list(show=500)))
   addTooltip(session, id = 'plotthinned', title = "Plot the thinned version of the document", options = list(delay = list(show=500)))
   addTooltip(session, id = 'plotnodes', title = "Plot the important nodes of the document", options = list(delay = list(show=500)))
@@ -24,6 +27,14 @@ server <- function(input, output, session) {
   addTooltip(session, id = 'wordnum', title = "Word number to plot", options = list(delay = list(show=500)))
   addTooltip(session, id = 'plotgraph', title = "Plot a given graph of a document. Graphs are often, but not always, letters", options = list(delay = list(show=500)))
   addTooltip(session, id = 'graphnum', title = "Graph number to plot", options = list(delay = list(show=500)))
+  
+  #FEATURE EXPLORATION'test'
+  addTooltip(session, id = 'document_image', title = "A matrix reprsenting the cropped image, where 1s are the 'whitespace' and 0s represent the writing", options = list(delay = list(show=500)))
+  addTooltip(session, id = 'document_thin', title = "A list of the index values that are taken out during the thinning process", options = list(delay = list(show=500)))
+  addTooltip(session, id = 'document_nodes', title = "All points of importance to breaking apart graphs", options = list(delay = list(show=500)))
+  addTooltip(session, id = 'document_connectingNodes', title = "Nodes that are deemed to be connecting two graphs", options = list(delay = list(show=500)))
+  addTooltip(session, id = 'document_terminalNodes', title = "Nodes that are terminating on graphs", options = list(delay = list(show=500)))
+  addTooltip(session, id = 'document_breakPoints', title = "Based on nodes, points that are used to split apart two graphs", options = list(delay = list(show=500)))
   
   #========================================================
   #======================= SET UP =========================
@@ -485,6 +496,7 @@ server <- function(input, output, session) {
     output$features_image_name <- renderText({paste0("Name: ", values$image_name)})
     output$features_dimensions <- renderText({paste0("Dimensions: ", values$dimensions)})
     
+    
     output$document_dt = DT::renderDataTable({
       extensions="Responsive"
       req(processHandwriting_data$df)
@@ -492,40 +504,92 @@ server <- function(input, output, session) {
       name <- c("image", "thin", "nodes", "connectingNodes", "terminalNodes", "breakPoints")
       type <- c(typeof(imgList$image), typeof(imgList$thin), typeof(imgList$nodes), typeof(imgList$connectingNodes), typeof(imgList$terminalNodes), typeof(imgList$breakPoints))
       size <- c(toString(dim(imgList$image)), toString(dim(imgList$thin)), toString(length(imgList$nodes)), toString(length(imgList$connectingNodes)), toString(length(imgList$terminalNodes)), toString(length(imgList$breakPoints)))
-      value <- c(paste0(stringr::str_trunc(toString(imgList$image), 50), '...'), 
-                  paste0(stringr::str_trunc(toString(imgList$thin), 50), '...'),  
-                  paste0(stringr::str_trunc(toString(imgList$nodes), 50), '...'), 
-                  paste0(stringr::str_trunc(toString(imgList$connectingNodes), 50), '...'),  
-                  paste0(stringr::str_trunc(toString(imgList$terminalNodes), 50), '...'), 
-                  paste0(stringr::str_trunc(toString(imgList$breakPoints), 50), '...')) 
-      
+      value <- c(paste0(stringr::str_trunc(toString(imgList$image), 50)), 
+                 paste0(stringr::str_trunc(toString(imgList$thin), 50)),  
+                 paste0(stringr::str_trunc(toString(imgList$nodes), 50)), 
+                 paste0(stringr::str_trunc(toString(imgList$connectingNodes), 50)),  
+                 paste0(stringr::str_trunc(toString(imgList$terminalNodes), 50)), 
+                 paste0(stringr::str_trunc(toString(imgList$breakPoints), 50))) 
       
       document_table <- data.frame(name, type, size, value)
       document_table 
     })
     
+    
+    #FILL OUT THE DOCUMENT INFORMATION
+    check_for_processHandwriting_data <- reactive(processHandwriting_data$df)
+    
+    observeEvent(check_for_processHandwriting_data(), {
+        req(processHandwriting_data$df)
+        imgList = processHandwriting_data$df
+        
+        #image
+        output$features_document_image_type <- renderText({paste(stringr::str_trunc(toString(typeof(imgList$image)), 50))})
+        output$features_document_image_size <- renderText({paste(stringr::str_trunc(toString(dim(imgList$image)), 50))})
+        output$features_document_image <- renderText({paste(stringr::str_trunc(toString(imgList$image), 100))})
+        
+        #thin
+        output$features_document_thin_type <- renderText({paste(stringr::str_trunc(toString(typeof(imgList$thin)), 50))})
+        output$features_document_thin_size <- renderText({paste(stringr::str_trunc(toString(dim(imgList$thin)), 50))})
+        output$features_document_thin <- renderText({paste(stringr::str_trunc(toString(imgList$thin), 100))})
+        
+        #nodes
+        output$features_document_nodes_type <- renderText({paste(stringr::str_trunc(toString(typeof(imgList$nodes)), 50))})
+        output$features_document_nodes_size <- renderText({paste(stringr::str_trunc(toString(length(imgList$nodes)), 50))})
+        output$features_document_nodes <- renderText({paste(stringr::str_trunc(toString(imgList$nodes), 100))})
+        
+        #connectingNodes
+        output$features_document_connectingNodes_type <- renderText({paste(stringr::str_trunc(toString(typeof(imgList$connectingNodes)), 50))})
+        output$features_document_connectingNodes_size <- renderText({paste(stringr::str_trunc(toString(length(imgList$connectingNodes)), 50))})
+        output$features_document_connectingNodes <- renderText({paste(stringr::str_trunc(toString(imgList$connectingNodes), 100))})
+        
+        #terminalNodes
+        output$features_document_terminalNodes_type <- renderText({paste(stringr::str_trunc(toString(typeof(imgList$terminalNodes)), 50))})
+        output$features_document_terminalNodes_size <- renderText({paste(stringr::str_trunc(toString(length(imgList$terminalNodes)), 50))})
+        output$features_document_terminalNodes <- renderText({paste(stringr::str_trunc(toString(imgList$terminalNodes), 100))})
+        
+        #breakPoints
+        output$features_document_breakPoints_type <- renderText({paste(stringr::str_trunc(toString(typeof(imgList$breakPoints)), 50))})
+        output$features_document_breakPoints_size <- renderText({paste(stringr::str_trunc(toString(length(imgList$breakPoints)), 50))})
+        output$features_document_breakPoints <- renderText({paste(stringr::str_trunc(toString(imgList$breakPoints), 100))})
+    })
+    
+
     output$word_dt = DT::renderDataTable({
       
     })
     
-    output$document_dt = DT::renderDataTable({
+    output$graph_dt = DT::renderDataTable({
       extensions="Responsive"
       req(processHandwriting_data$df)
       imgList = processHandwriting_data$df
-      name <- c("image", "thin", "nodes", "connectingNodes", "terminalNodes", "breakPoints")
-      type <- c(typeof(imgList$image), typeof(imgList$thin), typeof(imgList$nodes), typeof(imgList$connectingNodes), typeof(imgList$terminalNodes), typeof(imgList$breakPoints))
-      size <- c(toString(dim(imgList$image)), toString(dim(imgList$thin)), toString(length(imgList$nodes)), toString(length(imgList$connectingNodes)), toString(length(imgList$terminalNodes)), toString(length(imgList$breakPoints)))
-      value <- c(paste0(stringr::str_trunc(toString(imgList$image), 50), '...'), 
-                 paste0(stringr::str_trunc(toString(imgList$thin), 50), '...'),  
-                 paste0(stringr::str_trunc(toString(imgList$nodes), 50), '...'), 
-                 paste0(stringr::str_trunc(toString(imgList$connectingNodes), 50), '...'),  
-                 paste0(stringr::str_trunc(toString(imgList$terminalNodes), 50), '...'), 
-                 paste0(stringr::str_trunc(toString(imgList$breakPoints), 50), '...')) 
+      graph_table <- data.frame(matrix(ncol=8, nrow=0, dimnames=list(NULL, c("path", "nodes", "allPaths", "adjMatrix", "letterCode", "connectingNodes", "terminalNodes", "characterFeatures"))))
+      
+      for(i in 1:length(imgList$letterList)){
+        graph = imgList$letterList[[i]]
+        graph_table[i, ] <- c(ifelse(nchar(toString(graph$path)) > 30, paste0(strtrim(toString(graph$path), 27), '...'), toString(graph$path)),
+                              ifelse(nchar(toString(graph$nodes)) > 30, paste0(strtrim(toString(graph$nodes), 27), '...'), toString(graph$nodes)),
+                              ifelse(nchar(toString(graph$allPaths)) > 30, paste0(strtrim(toString(graph$allPaths), 27), '...'), toString(graph$allPaths)),
+                              ifelse(nchar(toString(graph$adjMatrix)) > 30, paste0(strtrim(toString(graph$adjMatrix), 27), '...'), toString(graph$adjMatrix)),
+                              ifelse(nchar(toString(graph$letterCode)) > 30, paste0(strtrim(toString(graph$letterCode), 27), '...'), toString(graph$letterCode)),
+                              ifelse(nchar(toString(graph$connectingNodes)) > 30, paste0(strtrim(toString(graph$connectingNodes), 27), '...'), toString(graph$connectingNodes)),
+                              ifelse(nchar(toString(graph$terminalNodes)) > 30, paste0(strtrim(toString(graph$terminalNodes), 27), '...'), toString(graph$terminalNodes)),
+                              ifelse(nchar(toString(graph$characterFeatures)) > 30, paste0(strtrim(toString(graph$characterFeatures), 27), '...'), toString(graph$characterFeatures))
+        )
+      }
       
       
-      document_table <- data.frame(name, type, size, value)
-      document_table 
+      graph_table 
     })
+    
+    output$features_graph <- renderPlot({
+      
+      req(processHandwriting_data$df)
+      imgList = processHandwriting_data$df
+      
+      plotLetter(imgList$letterList, input$features_graphnum, imgList$dims) 
+    })
+    
     
   #==================================================================
   #======================== BATCH PROCESSING ========================

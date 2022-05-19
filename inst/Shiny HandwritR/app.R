@@ -10,6 +10,7 @@ library(shinyBS)
 library(shinyFiles)
 library(DT)
 library(stringr)
+library(dplyr)
 
 print(paste0('working in: ', getwd()))
 

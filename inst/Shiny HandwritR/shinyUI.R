@@ -148,8 +148,40 @@ ui <- shinyUI({
                            tabsetPanel(id = "processset",
                                        tabPanel("Document",
                                                 h2("Document information after processing"),
-                                                hr(), br(),
-                                                DT::dataTableOutput("document_dt")
+                                                fluidRow(column(2, h4('Name')),
+                                                         column(1, h4('Type')),
+                                                         column(1, h4('Size')),
+                                                         column(8, h4('Value'))),
+                                                hr(),
+                                                fluidRow(style = "background-color:#ECECEC;", column(2, strong(id = 'document_image', "image")),
+                                                         column(1, textOutput("features_document_image_type")),
+                                                         column(1, textOutput("features_document_image_size")),
+                                                         column(8, textOutput("features_document_image"))),
+                                                fluidRow(column(2, strong(id = 'document_thin', "thin")),
+                                                         column(1, textOutput("features_document_thin_type")),
+                                                         column(1, textOutput("features_document_thin_size")),
+                                                         column(8, textOutput("features_document_thin"))),
+                                                hr(),
+                                                fluidRow(style = "background-color:#ECECEC;", column(2, strong(id = 'document_nodes', "nodes")),
+                                                         column(1, textOutput("features_document_nodes_type")),
+                                                         column(1, textOutput("features_document_nodes_size")),
+                                                         column(8, textOutput("features_document_nodes"))),
+                                                fluidRow(column(2, strong(id = 'document_connectingNodes', "connectingNodes")),
+                                                         column(1, textOutput("features_document_connectingNodes_type")),
+                                                         column(1, textOutput("features_document_connectingNodes_size")),
+                                                         column(8, textOutput("features_document_connectingNodes"))),
+                                                fluidRow(style = "background-color:#ECECEC;", column(2, strong(id = 'document_terminalNodes', "terminalNodes")),
+                                                         column(1, textOutput("features_document_terminalNodes_type")),
+                                                         column(1, textOutput("features_document_terminalNodes_size")),
+                                                         column(8, textOutput("features_document_terminalNodes"))),
+                                                fluidRow(column(2, strong(id = 'document_breakPoints', "breakPoints")),
+                                                         column(1, textOutput("features_document_breakPoints_type")),
+                                                         column(1, textOutput("features_document_breakPoints_size")),
+                                                         column(8, textOutput("features_document_breakPoints"))),
+                                                br(), br(),
+                                                DT::dataTableOutput("document_dt"),
+                                                hr(),
+                                                
                                        ),
                                                 
                             
@@ -159,10 +191,25 @@ ui <- shinyUI({
                                                 DT::dataTableOutput("word_dt")
 
                                        ),
+                                       
                                        tabPanel("Graph",
                                                 h2("Graph information after processing"),
                                                 hr(), br(),
-                                                DT::dataTableOutput("graph_dt")
+                                                DT::dataTableOutput("graph_dt"),
+                                                hr(),
+                                                
+                                                fluidRow(
+                                                  column(2,
+                                                    fluidRow(
+                                                      numericInput("features_graphnum", "Enter a graph number to investigate further", 1),
+                                                      fluidRow(imageOutput("features_graph")))),
+                                                  column(10, #PUT THE WORD INFO HERE WITH HOVERS)
+                                                  )
+                                                ),
+                                                fluidRow(
+                                                  #PUT INFO HERE
+                                                  #PUT IMAGE OF GRAPH IN QUESTION HERE
+                                                )
                                                 
                                        )
                             ),
