@@ -36,7 +36,7 @@ ui <- shinyUI({
       #PREPROCESS
       tabPanel("Pre-process", 
                sidebarLayout(
-                 sidebarPanel(width = 3,
+                 sidebarPanel(width = 4,
                               h2("Pre-process"),
                               br(),
                               h4("Current document:"),
@@ -58,9 +58,9 @@ ui <- shinyUI({
                               ),
                               hr(),
                               fluidRow(
-                                column(width = 6, offset = 6, downloadButton("save_document", "Save Document")),
+                                column(width = 2, offset = 6, downloadButton("save_document", "Save Document")),
                               )),
-                 mainPanel(width = 9,
+                 mainPanel(width = 8,
                            span(textOutput("error"), style="color:red"),
                            br(),
                            tabsetPanel(id = "plotset",
@@ -89,7 +89,7 @@ ui <- shinyUI({
       #PLOT
       tabPanel("Plot",
                sidebarLayout(
-                 sidebarPanel(width = 3,
+                 sidebarPanel(width = 4,
                               h2("Plotting"),
                               br(),
                               h4("Current document:"),
@@ -123,7 +123,7 @@ ui <- shinyUI({
                               ),
                               
                  ),
-                 mainPanel(width = 9, 
+                 mainPanel(width = 8, 
                            textOutput("plot_output_title"),
                            plotOutput("plot_output"),
                            hr(),
@@ -135,7 +135,7 @@ ui <- shinyUI({
       #FEATURE EXPLORATION
       tabPanel("Explore Features",
                sidebarLayout(
-                 sidebarPanel(width = 3,
+                 sidebarPanel(width = 4,
                               h3("Explore Features"),
                               br(),
                               h4("Current document:"),
@@ -153,7 +153,7 @@ ui <- shinyUI({
                               fluidRow(column(width=3, offset=8, actionButton("process_batch", "Process Batch")))
                               
                  ),
-                 mainPanel(width = 9, 
+                 mainPanel(width = 8, 
                            tabsetPanel(id = "processset",
                                        tabPanel("Document",
                                                 h2("Document information after processing"),
@@ -221,24 +221,30 @@ ui <- shinyUI({
                                                   column(1, ),
                                                   column(9, 
                                                      fluidRow(style = "background-color:#ECECEC;", 
-                                                              column(1, offset = 1, strong(id = 'graph_aspect_ratio', "aspect_ratio")), column(2, textOutput("features_graph_aspect_ratio")),
-                                                              column(1, strong(id = 'graph_height', "height")), column(2, textOutput("features_graph_height")),
-                                                              column(1, strong(id = 'graph_width', "width")), column(2, textOutput("features_graph_width")),
+                                                              column(2, offset = 1, strong(id = 'graph_aspect_ratio', "aspect_ratio")), column(2, textOutput("features_graph_aspect_ratio")),
+                                                              column(2, strong(id = 'graph_height', "height")), column(2, textOutput("features_graph_height")),
                                                      ),
                                                      fluidRow( 
+                                                              column(1, strong(id = 'graph_width', "width")), column(2, textOutput("features_graph_width")),
                                                               column(1, offset = 1, strong(id = 'graph_topmost_row', "topmost_row")), column(2, textOutput("features_graph_topmost_row")),
-                                                              column(1, strong(id = 'graph_bottom_row', "bottom_row")), column(2, textOutput("features_graph_bottom_row")),
-                                                              column(1, strong(id = 'graph_leftmost_col', "leftmost_col")), column(2, textOutput("features_graph_leftmost_col")),     
+                                                                   
+                                                     ),
+                                                     fluidRow( 
+                                                               column(1, strong(id = 'graph_bottom_row', "bottom_row")), column(2, textOutput("features_graph_bottom_row")),
+                                                               column(1, strong(id = 'graph_leftmost_col', "leftmost_col")), column(2, textOutput("features_graph_leftmost_col")),    
                                                      ),
                                                      fluidRow(style = "background-color:#ECECEC;", 
                                                               column(1, offset = 1, strong(id = 'graph_leftmost_col', "rightmost_col")), column(2, textOutput("features_graph_rightmost_col")),
-                                                              column(1, strong(id = 'graph_centroid_index', "centroid_index")), column(2, textOutput("features_graph_centroid_index")),
-                                                              column(1, strong(id = 'graph_centroid_y', "centroid_y")), column(2, textOutput("features_graph_centroid_y")),     
+                                                              column(1, strong(id = 'graph_centroid_index', "centroid_index")), column(2, textOutput("features_graph_centroid_index")),          
                                                      ),
                                                      fluidRow(
+                                                              column(1, strong(id = 'graph_centroid_y', "centroid_y")), column(2, textOutput("features_graph_centroid_y")), 
                                                               column(1, offset = 1, strong(id = 'graph_centroid_x', "centroid_x")), column(2, textOutput("features_graph_centroid_x")),
-                                                              column(1, strong(id = 'graph_horiz_location', "centroid_horiz_location")), column(2, textOutput("features_graph_horiz_location")),
-                                                              column(1, strong(id = 'graph_vert_location', "centroid_vert_location")), column(2, textOutput("features_graph_vert_location"))      
+                                                                    
+                                                     ),
+                                                     fluidRow(
+                                                             column(1, strong(id = 'graph_horiz_location', "centroid_horiz_location")), column(2, textOutput("features_graph_horiz_location")),
+                                                             column(1, strong(id = 'graph_vert_location', "centroid_vert_location")), column(2, textOutput("features_graph_vert_location"))      
                                                      ),
                                                      fluidRow(style = "background-color:#ECECEC;", 
                                                               
@@ -256,7 +262,7 @@ ui <- shinyUI({
       #K-MEANS CLUSTERING
       tabPanel("k-means Clustering", 
                sidebarLayout(
-                 sidebarPanel(width = 3,
+                 sidebarPanel(width = 4,
                               h3("k-means Clustering"),
                               br(),
                               h5("Choose a template from the drop down, or create a new one with a new set of documents and the provided options"),
@@ -283,7 +289,7 @@ ui <- shinyUI({
                               fluidRow(column(width=3, offset=9, actionButton("cluster_analyze", "Analyze"))),
                               
                  ),
-                 mainPanel(width = 9, h1("Sample Tab -- Sample Tab"),
+                 mainPanel(width = 8, h1("Sample Tab -- Sample Tab"),
                            tabsetPanel(id = "cluster_set",
                                        tabPanel("Graphs", imageOutput("cluster_graphs")),
                                        tabPanel("Writer Profiles", imageOutput("cluster_profiles"))
@@ -297,7 +303,7 @@ ui <- shinyUI({
       #TRIANGLE DECOMPOSITION
       tabPanel("Triangle Decomposition", 
                sidebarLayout(
-                 sidebarPanel(width = 3,
+                 sidebarPanel(width = 4,
                               h3("Triangle Decomposition"),
                               br(),
                               h5("Upload known documents and question document"),
@@ -307,7 +313,7 @@ ui <- shinyUI({
                               fluidRow(column(width=3, offset=9, actionButton("cluster_analyze", "Analyze"))),
                               
                  ),
-                 mainPanel(width = 9, h1("PLACEHOLDER"), br(), h1("PLACEHOLDER"), br(), h1("PLACEHOLDER"), br(), h1("PLACEHOLDER"), br(), h1("PLACEHOLDER"), br(), h1("PLACEHOLDER"), br(),
+                 mainPanel(width = 8, h1("PLACEHOLDER"), br(), h1("PLACEHOLDER"), br(), h1("PLACEHOLDER"), br(), h1("PLACEHOLDER"), br(), h1("PLACEHOLDER"), br(), h1("PLACEHOLDER"), br(),
                            h1("PLACEHOLDER"), br(), h1("PLACEHOLDER"), br(), h1("PLACEHOLDER"), br(), h1("PLACEHOLDER"), br(), h1("PLACEHOLDER"), br(), h1("PLACEHOLDER"), br())),
       )),
 )})
