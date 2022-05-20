@@ -588,18 +588,47 @@ server <- function(input, output, session) {
         #GRAPHS
         output$features_graph_aspect_ratio <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$aspect_ratio), 10))})
         output$features_graph_height <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$height), 10))})
+        
         output$features_graph_width <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$width), 10))})
         output$features_graph_topmost_row <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$topmost_row), 10))})
         
         output$features_graph_bottom_row <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$bottom_row), 10))})
-        output$features_graph_leftmost_row <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$leftmost_row), 10))})
+        output$features_graph_leftmost_col <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$leftmost_col), 10))})
+        
         output$features_graph_rightmost_col <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$rightmost_col), 10))})
         output$features_graph_centroid_index <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$centroid_index), 10))})
         
         output$features_graph_centroid_y <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$centroid_y), 10))})
         output$features_graph_centroid_x <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$centroid_x), 10))})
+        
         output$features_graph_centroid_horiz_location <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$centroid_horiz_location), 10))})
         output$features_graph_centroid_vert_location <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$centroid_vert_location), 10))})
+        
+        output$features_graph_lHalf <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$lHalf), 20))})
+        output$features_graph_rHalf <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$rHalf), 20))})
+        
+        output$features_graph_disjoint_centroids_left <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$disjoint_centroids$left), 10))})
+        output$features_graph_disjoint_centroids_right <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$disjoint_centroids$right), 10))})
+        
+        output$features_graph_slope <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$disjoint_centroids$left), 10))})
+        output$features_graph_pixel_density <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$disjoint_centroids$right), 10))})
+        
+        output$features_graph_box_density <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$disjoint_centroids$left), 10))})
+        output$features_graph_uniqueid <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$disjoint_centroids$right), 10))})
+        
+        output$features_graph_down_dist <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$disjoint_centroids$left), 10))})
+        output$features_graph_line_number <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$disjoint_centroids$right), 10))})
+        
+        output$features_graph_order_within_line <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$disjoint_centroids$left), 10))})
+        output$features_graph_l_neighbor_dist <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$disjoint_centroids$right), 10))})
+        #ok
+        output$features_graph_r_neighbor_dist <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$r_neighbor_dist), 10))})
+        output$features_graph_xvar <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$xvar), 10))})
+        
+        output$features_graph_yvar <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$yvar), 10))})
+        output$features_graph_covar <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$covar), 10))})
+        
+        output$features_graph_wordIndex <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$wordIndex), 10))})
         
         #Plot Graph & Document (with nodes)
         output$features_graph <- renderPlot({plotLetter(imgList$letterList, input$features_graphnum, imgList$dims )})
