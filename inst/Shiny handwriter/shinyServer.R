@@ -28,13 +28,43 @@ server <- function(input, output, session) {
   addTooltip(session, id = 'plotgraph', title = "Plot a given graph of a document. Graphs are often, but not always, letters", options = list(delay = list(show=500)))
   addTooltip(session, id = 'graphnum', title = "Graph number to plot", options = list(delay = list(show=500)))
   
-  #FEATURE EXPLORATION'test'
+  #FEATURE EXPLORATION 
   addTooltip(session, id = 'document_image', title = "A matrix reprsenting the cropped image, where 1s are the 'whitespace' and 0s represent the writing", options = list(delay = list(show=500)))
   addTooltip(session, id = 'document_thin', title = "A list of the index values that are taken out during the thinning process", options = list(delay = list(show=500)))
   addTooltip(session, id = 'document_nodes', title = "All points of importance to breaking apart graphs", options = list(delay = list(show=500)))
   addTooltip(session, id = 'document_connectingNodes', title = "Nodes that are deemed to be connecting two graphs", options = list(delay = list(show=500)))
   addTooltip(session, id = 'document_terminalNodes', title = "Nodes that are terminating on graphs", options = list(delay = list(show=500)))
   addTooltip(session, id = 'document_breakPoints', title = "Based on nodes, points that are used to split apart two graphs", options = list(delay = list(show=500)))
+  
+  addTooltip(session, id = 'graph_aspect_ratio', title = "Height to width ratio", options = list(delay = list(show=500)))
+  addTooltip(session, id = 'graph_height', title = "Height of the graph, measured in pixels", options = list(delay = list(show=500)))
+  addTooltip(session, id = 'graph_width', title = "Width of the graph, measured in pixels", options = list(delay = list(show=500)))
+  addTooltip(session, id = 'graph_topmost_row', title = "The top-most row, as its y coordinate", options = list(delay = list(show=500)))
+  addTooltip(session, id = 'graph_bottom_row', title = "The bottom-most row, as its y coordinate", options = list(delay = list(show=500)))
+  addTooltip(session, id = 'graph_leftmost_col', title = "The left-most column, as its x coordinate", options = list(delay = list(show=500)))
+  addTooltip(session, id = 'graph_rightmost_col', title = "The left-most column, as its x coordinate", options = list(delay = list(show=500)))
+  addTooltip(session, id = 'graph_centroid_index', title = "The centroid of the graph, as its index", options = list(delay = list(show=500)))
+  addTooltip(session, id = 'graph_centroid_y', title = "The y coordinate of the centroid", options = list(delay = list(show=500)))
+  addTooltip(session, id = 'graph_centroid_x', title = "The x coordinate of the centroid", options = list(delay = list(show=500)))
+  addTooltip(session, id = 'graph_horiz_location', title = "x", options = list(delay = list(show=500)))
+  addTooltip(session, id = 'graph_vert_location', title = "x", options = list(delay = list(show=500)))
+  addTooltip(session, id = 'graph_lHalf', title = "List of all points on the left half of the graph", options = list(delay = list(show=500)))
+  addTooltip(session, id = 'graph_rHalf', title = "List of all points on the right half of the graph", options = list(delay = list(show=500)))
+  addTooltip(session, id = 'graph_disjoint_centroids_left', title = "The centroids of the left half, as its index", options = list(delay = list(show=500)))
+  addTooltip(session, id = 'graph_disjoint_centroids_right', title = "The centroids of the right half, as its index", options = list(delay = list(show=500)))
+  addTooltip(session, id = 'graph_slope', title = "The slope of the graph as it runs through the centroid", options = list(delay = list(show=500)))
+  addTooltip(session, id = 'graph_pixel_density', title = "x", options = list(delay = list(show=500)))
+  addTooltip(session, id = 'graph_box_density', title = "x", options = list(delay = list(show=500)))
+  addTooltip(session, id = 'graph_uniqueid', title = "A unique numerical identifier for the graph", options = list(delay = list(show=500)))
+  addTooltip(session, id = 'graph_down_dist', title = "Distance from the lowest point of a graph to the next graph, measured in pixels", options = list(delay = list(show=500)))
+  addTooltip(session, id = 'graph_line_number', title = "The position of the graph in the line", options = list(delay = list(show=500)))
+  addTooltip(session, id = 'graph_order_within_line', title = "The ordered within the line the graph falls in", options = list(delay = list(show=500)))
+  addTooltip(session, id = 'graph_l_neighbor_dist', title = "Distance from the left-most point in the graph to its left neighbor, measured in pixels", options = list(delay = list(show=500)))
+  addTooltip(session, id = 'graph_r_neighbor_dist', title = "Distance from the right-most point in the graph to its left neighbor, measured in pixels", options = list(delay = list(show=500)))
+  addTooltip(session, id = 'graph_xvar', title = "Variance of X, used to calculate the covariance in covar", options = list(delay = list(show=500)))
+  addTooltip(session, id = 'graph_yvar', title = "Variance of Y, used to calculate the covariance in covar", options = list(delay = list(show=500)))
+  addTooltip(session, id = 'graph_covar', title = "Covarience of the graph", options = list(delay = list(show=500)))
+  addTooltip(session, id = 'graph_wordIndex', title = "Word number the graph belongs to", options = list(delay = list(show=500)))
   
   #========================================================
   #======================= SET UP =========================
@@ -610,18 +640,18 @@ server <- function(input, output, session) {
         output$features_graph_disjoint_centroids_left <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$disjoint_centroids$left), 10))})
         output$features_graph_disjoint_centroids_right <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$disjoint_centroids$right), 10))})
         
-        output$features_graph_slope <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$disjoint_centroids$left), 10))})
-        output$features_graph_pixel_density <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$disjoint_centroids$right), 10))})
+        output$features_graph_slope <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$slope), 10))})
+        output$features_graph_pixel_density <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$pixel_density), 10))})
         
-        output$features_graph_box_density <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$disjoint_centroids$left), 10))})
-        output$features_graph_uniqueid <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$disjoint_centroids$right), 10))})
+        output$features_graph_box_density <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$box_density), 10))})
+        output$features_graph_uniqueid <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$uniqueid), 10))})
         
-        output$features_graph_down_dist <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$disjoint_centroids$left), 10))})
-        output$features_graph_line_number <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$disjoint_centroids$right), 10))})
+        output$features_graph_down_dist <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$down_dist), 10))})
+        output$features_graph_line_number <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$line_number), 10))})
         
-        output$features_graph_order_within_line <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$disjoint_centroids$left), 10))})
-        output$features_graph_l_neighbor_dist <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$disjoint_centroids$right), 10))})
-        #ok
+        output$features_graph_order_within_line <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$order_within_line), 10))})
+        output$features_graph_l_neighbor_dist <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$l_neighbor_dist), 10))})
+        
         output$features_graph_r_neighbor_dist <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$r_neighbor_dist), 10))})
         output$features_graph_xvar <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$xvar), 10))})
         
@@ -648,20 +678,19 @@ server <- function(input, output, session) {
       
       for(i in 1:length(imgList$letterList)){
         graph = imgList$letterList[[i]]
-        graph_table[i, ] <- c(ifelse(nchar(toString(graph$path)) > 30, paste0(strtrim(toString(graph$path), 27), '...'), toString(graph$path)),
-                              ifelse(nchar(toString(graph$nodes)) > 30, paste0(strtrim(toString(graph$nodes), 27), '...'), toString(graph$nodes)),
-                              ifelse(nchar(toString(graph$allPaths)) > 30, paste0(strtrim(toString(graph$allPaths), 27), '...'), toString(graph$allPaths)),
-                              ifelse(nchar(toString(graph$adjMatrix)) > 30, paste0(strtrim(toString(graph$adjMatrix), 27), '...'), toString(graph$adjMatrix)),
-                              ifelse(nchar(toString(graph$letterCode)) > 30, paste0(strtrim(toString(graph$letterCode), 27), '...'), toString(graph$letterCode)),
-                              ifelse(nchar(toString(graph$connectingNodes)) > 30, paste0(strtrim(toString(graph$connectingNodes), 27), '...'), toString(graph$connectingNodes)),
-                              ifelse(nchar(toString(graph$terminalNodes)) > 30, paste0(strtrim(toString(graph$terminalNodes), 27), '...'), toString(graph$terminalNodes)),
-                              ifelse(nchar(toString(graph$characterFeatures)) > 30, paste0(strtrim(toString(graph$characterFeatures), 27), '...'), toString(graph$characterFeatures))
+        graph_table[i, ] <- c((stringr::str_trunc(toString(graph$path), 30)),
+                              (stringr::str_trunc(toString(graph$nodes), 30)),
+                              #(stringr::str_trunc(psate0('List of ', toString(length(graph$allPaths), 30)),
+                                                  (stringr::str_trunc(paste0('List of ', (toString(length(graph$allPaths))), ' paths'), 30)),
+                              (stringr::str_trunc(toString(graph$adjMatrix), 30)),
+                              (stringr::str_trunc(toString(graph$letterCode), 30)),
+                              (stringr::str_trunc(toString(graph$connectingNodes), 30)),
+                              (stringr::str_trunc(toString(graph$terminalNodes), 30)),
+                              (stringr::str_trunc(paste0('List of ', (toString(length(graph$characterFeatures))), ' features'), 30))
+                              
         )
       }
-      
-      
-      graph_table 
-    })
+      graph_table}, options = list(pageLength = 5))
     
     
     
