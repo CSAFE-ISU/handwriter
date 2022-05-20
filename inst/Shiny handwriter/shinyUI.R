@@ -11,18 +11,27 @@ ui <- shinyUI({
               tags$style(HTML('#save_mask{background-color:#33ADFF} #save_mask:hover{background-color:#3398FF} #save_mask{color:white}'))),
     
     navbarPage(
-      title = "Shiny HandwritR",
+      title = "Shiny handwriter",
+      
       tabPanel("Intro",
-               h1("Welcome to shiny handwriter!"),
-               h3("This app has the following features:"),
-               tags$div(tags$ul(
-                 tags$li("Preprocessing | Clean up your data including rotation, resizing, and cropping"),
-                 tags$li("Plotting | Plot your document as well as its lines, words, or graphs"),
-                 tags$li("Explore Features | Extract valuable features from your documents"),
-                 tags$li("k-means Clustering | Perform k-means clustering on a set of documents"),
-                 tags$li("Triangle Decomposition | Do Kniser Triangle Decomposition & compare on your documents"),
-               ),  style = "font-size: 15px"),
+                 h1("Welcome to Shiny handwriter!"),
+                 h3("Shiny handwriter is a handwritten document analysis tool created by CSAFE"),
+                 br(), br(),
+                 h3("Whats avaialble:"),
+                 tags$div(tags$ul(
+                   tags$li("Preproces | Use rotation, resizing, cropping, and masking to clean up your data"),
+                   tags$li("Plot | Plot your document as well as its lines, words, or graphs"),
+                   tags$li("Explore Features | Extract and explore valuable features from your documents")
+                 ), style = "font-size: 15px"), hr(),
+                 h4("COMING SOON: Two statistical analysis tools to determine probability of writership"),
+                 tags$div(tags$ul(
+                   tags$li("k-means Clustering | Perform k-means clustering on a set of documents"),
+                   tags$li("Triangle Decomposition | Do Kniser Triangle Decomposition & compare on your documents"),
+                 ),  style = "font-size: 15px"),
+                 br(),br(),
+                 HTML('<p> Learn more about handwriter on our <a href = "https://csafe-isu.github.io/handwriter/index.html"> website </a> or at our <a href = "https://github.com/CSAFE-ISU/handwriter"> Github </a></p>')
       ),
+               
       
       #PREPROCESS
       tabPanel("Pre-process", 
@@ -152,7 +161,7 @@ ui <- shinyUI({
                                                          column(1, h4('Type')),
                                                          column(1, h4('Size')),
                                                          column(8, h4('Value'))),
-                                                hr(),
+                                                hr(), br(),
                                                 fluidRow(style = "background-color:#ECECEC;", column(2, strong(id = 'document_image', "image")),
                                                          column(1, textOutput("features_document_image_type")),
                                                          column(1, textOutput("features_document_image_size")),
@@ -178,15 +187,19 @@ ui <- shinyUI({
                                                          column(1, textOutput("features_document_breakPoints_type")),
                                                          column(1, textOutput("features_document_breakPoints_size")),
                                                          column(8, textOutput("features_document_breakPoints"))),
-                                                br(), br(),
-                                                DT::dataTableOutput("document_dt"),
                                                 hr(),
-                                                
+                                                imageOutput("features_document")
                                        ),
                                                 
                             
                                        tabPanel("Word",
                                                 h2("Word information after processing"),
+                                                h1("PLACEHOLDER"), br(),
+                                                h1("PLACEHOLDER"), br(),
+                                                h1("PLACEHOLDER"), br(),
+                                                h1("PLACEHOLDER"), br(),
+                                                h1("PLACEHOLDER"), br(),
+                                                h1("PLACEHOLDER"), br(),
                                                 hr(), br(),
                                                 DT::dataTableOutput("word_dt")
 
@@ -202,19 +215,40 @@ ui <- shinyUI({
                                                   column(2,
                                                     fluidRow(
                                                       numericInput("features_graphnum", "Enter a graph number to investigate further", 1),
-                                                      fluidRow(imageOutput("features_graph")))),
-                                                  column(10, #PUT THE WORD INFO HERE WITH HOVERS)
-                                                  )
-                                                ),
-                                                fluidRow(
-                                                  #PUT INFO HERE
-                                                  #PUT IMAGE OF GRAPH IN QUESTION HERE
-                                                )
-                                                
-                                       )
-                            ),
-                 ),
-               ),
+                                                      fluidRow(imageOutput("features_graph"))
+                                                    )
+                                                  ),
+                                                  column(1, ),
+                                                  column(9, 
+                                                     fluidRow(style = "background-color:#ECECEC;", 
+                                                              column(1, offset = 1, strong(id = 'graph_aspect_ratio', "aspect_ratio")), column(2, textOutput("features_graph_aspect_ratio")),
+                                                              column(1, strong(id = 'graph_height', "height")), column(2, textOutput("features_graph_height")),
+                                                              column(1, strong(id = 'graph_width', "width")), column(2, textOutput("features_graph_width")),
+                                                     ),
+                                                     fluidRow( 
+                                                              column(1, offset = 1, strong(id = 'graph_topmost_row', "topmost_row")), column(2, textOutput("features_graph_topmost_row")),
+                                                              column(1, strong(id = 'graph_bottom_row', "bottom_row")), column(2, textOutput("features_graph_bottom_row")),
+                                                              column(1, strong(id = 'graph_leftmost_col', "leftmost_col")), column(2, textOutput("features_graph_leftmost_col")),     
+                                                     ),
+                                                     fluidRow(style = "background-color:#ECECEC;", 
+                                                              column(1, offset = 1, strong(id = 'graph_leftmost_col', "rightmost_col")), column(2, textOutput("features_graph_rightmost_col")),
+                                                              column(1, strong(id = 'graph_centroid_index', "centroid_index")), column(2, textOutput("features_graph_centroid_index")),
+                                                              column(1, strong(id = 'graph_centroid_y', "centroid_y")), column(2, textOutput("features_graph_centroid_y")),     
+                                                     ),
+                                                     fluidRow(
+                                                              column(1, offset = 1, strong(id = 'graph_centroid_x', "centroid_x")), column(2, textOutput("features_graph_centroid_x")),
+                                                              column(1, strong(id = 'graph_horiz_location', "centroid_horiz_location")), column(2, textOutput("features_graph_horiz_location")),
+                                                              column(1, strong(id = 'graph_vert_location', "centroid_vert_location")), column(2, textOutput("features_graph_vert_location"))      
+                                                     ),
+                                                     fluidRow(style = "background-color:#ECECEC;", 
+                                                              
+                                                     )
+                                                )  
+                                              )
+                                      )
+                                ),
+                    ),
+      )
       ),
       
       
@@ -225,13 +259,10 @@ ui <- shinyUI({
                  sidebarPanel(width = 3,
                               h3("k-means Clustering"),
                               br(),
+                              h5("Choose a template from the drop down, or create a new one with a new set of documents and the provided options"),
+                              selectInput("download", "Select premade template for clustering", choices = c("CVL50", "IAM50", "CVL100")),
                               shinyDirButton("cluster_template_input_dir", "Template Directory", "Choose a template input directory"),
                               verbatimTextOutput("cluster_template_input_dir", placeholder = TRUE),
-                              shinyDirButton("cluster_x_input_dir", "X Directory", "Choose an input directory"),
-                              verbatimTextOutput("cluster_x_input_dir", placeholder = TRUE),
-                              shinyDirButton("cluster_xx_input_dir", "XX Directory", "Choose a final directory"),
-                              verbatimTextOutput("cluster_xx_input_dir", placeholder = TRUE),
-                              br(),
                               fluidRow(
                                 column(4, numericInput("k", "K", 40)),
                                 column(4, numericInput("numPathCuts", "Path Cuts", 8))
@@ -240,12 +271,24 @@ ui <- shinyUI({
                                 column(4, numericInput("iter.max", "Maximum Iterations", 10)),
                                 column(4, numericInput("numOutliers", "numOutliers", 10))
                               ),
-                              br(),
+                              fluidRow(column(width=3, offset=8, actionButton("cluster_create_template", "Create Template"))),
+                              hr(),
+                              h5('Now choose a closed set directory and question document'),
+                              shinyDirButton("cluster_closed_input_dir", "Closed Set Directory", "Choose a closed set directory"),
+                              verbatimTextOutput("cluster_closed_input_dir", placeholder = TRUE),
+                              fileInput("cluster_question_document", "Choose question document", accept = c('image/png')),
+                              h5('Optionally, you can choose an output directory for results'),
                               shinyDirButton("cluster_output_dir", "Output Directory", "Choose an output directory"),
                               verbatimTextOutput("cluster_output_dir", placeholder = TRUE),
+                              fluidRow(column(width=3, offset=9, actionButton("cluster_analyze", "Analyze"))),
                               
                  ),
-                 mainPanel(width = 9, h1("Placeholder Tab"), ("kmeans_output"))
+                 mainPanel(width = 9, h1("Sample Tab -- Sample Tab"),
+                           tabsetPanel(id = "cluster_set",
+                                       tabPanel("Graphs", imageOutput("cluster_graphs")),
+                                       tabPanel("Writer Profiles", imageOutput("cluster_profiles"))
+                                       )
+                           ),
                ),
       ),
       
@@ -257,9 +300,14 @@ ui <- shinyUI({
                  sidebarPanel(width = 3,
                               h3("Triangle Decomposition"),
                               br(),
-                              fileInput("upload", "Choose a document or directory to decompose", accept = c('image/png')),
+                              h5("Upload known documents and question document"),
+                              shinyDirButton("triangle_input_dir", "Set Directory", "Choose a set directory"),
+                              verbatimTextOutput("triangle_input_dir", placeholder = TRUE),
+                              fileInput("upload", "Choose question document", accept = c('image/png')),
+                              fluidRow(column(width=3, offset=9, actionButton("cluster_analyze", "Analyze"))),
                               
                  ),
-                 mainPanel(width = 9, h1("Placeholder Tab"), plotOutput("triangle_output"))),
+                 mainPanel(width = 9, h1("PLACEHOLDER"), br(), h1("PLACEHOLDER"), br(), h1("PLACEHOLDER"), br(), h1("PLACEHOLDER"), br(), h1("PLACEHOLDER"), br(), h1("PLACEHOLDER"), br(),
+                           h1("PLACEHOLDER"), br(), h1("PLACEHOLDER"), br(), h1("PLACEHOLDER"), br(), h1("PLACEHOLDER"), br(), h1("PLACEHOLDER"), br(), h1("PLACEHOLDER"), br())),
       )),
 )})

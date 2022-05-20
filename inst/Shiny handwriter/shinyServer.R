@@ -453,7 +453,7 @@ server <- function(input, output, session) {
   
   
   #==================================================================
-  #======================= FEATURE EXTRACTION =======================
+  #======================= FEATURE EXPLORATION =======================
   #==================================================================
    
     #UPLOAD
@@ -493,6 +493,36 @@ server <- function(input, output, session) {
       values$plot_type <- 'nothing. Process your document to be able to plot lines, words, and graphs'
     })
     
+    #PROCESS HANDWRITING BUTTON
+    observeEvent(input$features_processhandwriting, {
+      
+      path <- values$current_path
+      df = list()
+      message(paste0('path after plot_processhandwriting button:  ', path))
+      message(paste0('values$path after plot_processhandwriting button:  ', values$path))
+      df$image = readPNGBinary(path)
+      df$thin = thinImage(df$image)
+      
+      df_processList = processHandwriting(df$thin, dim(df$image))
+      
+      df$words = create_words(df_processList)
+      df$words_after_processing = process_words(df$words, dim(df$image), TRUE)
+      df$dims = dim(df$image)
+      
+      df$letterList = df_processList$letterList
+      df$nodes = df_processList$nodes
+      df$connectingNodes = df_processList$connectingNodes
+      df$terminalNodes = df_processList$terminalNodes
+      df$breaks = df_processList$breakPoints
+      df$breakPoints = df_processList$breakPoints
+      
+      processHandwriting_data$df <- df
+      
+      shinyjs::enable('plotbinarized'); shinyjs::enable('plotthinned');
+      shinyjs::enable("plotnodes"); shinyjs::enable("plotbreaks"); shinyjs::enable("plotline"); shinyjs::enable("linenum"); 
+      shinyjs::enable("plotword"); shinyjs::enable("wordnum"); shinyjs::enable("plotgraph"); shinyjs::enable("graphnum"); 
+    })
+    
     output$features_image_name <- renderText({paste0("Name: ", values$image_name)})
     output$features_dimensions <- renderText({paste0("Dimensions: ", values$dimensions)})
     
@@ -516,12 +546,14 @@ server <- function(input, output, session) {
     })
     
     
-    #FILL OUT THE DOCUMENT INFORMATION
+    #FILL OUT THE DOCUMENT & GRAPH INFORMATION
     check_for_processHandwriting_data <- reactive(processHandwriting_data$df)
     
     observeEvent(check_for_processHandwriting_data(), {
         req(processHandwriting_data$df)
         imgList = processHandwriting_data$df
+        
+        #DOCUMENT LEVEL
         
         #image
         output$features_document_image_type <- renderText({paste(stringr::str_trunc(toString(typeof(imgList$image)), 50))})
@@ -552,6 +584,26 @@ server <- function(input, output, session) {
         output$features_document_breakPoints_type <- renderText({paste(stringr::str_trunc(toString(typeof(imgList$breakPoints)), 50))})
         output$features_document_breakPoints_size <- renderText({paste(stringr::str_trunc(toString(length(imgList$breakPoints)), 50))})
         output$features_document_breakPoints <- renderText({paste(stringr::str_trunc(toString(imgList$breakPoints), 100))})
+        
+        #GRAPHS
+        output$features_graph_aspect_ratio <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$aspect_ratio), 10))})
+        output$features_graph_height <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$height), 10))})
+        output$features_graph_width <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$width), 10))})
+        output$features_graph_topmost_row <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$topmost_row), 10))})
+        
+        output$features_graph_bottom_row <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$bottom_row), 10))})
+        output$features_graph_leftmost_row <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$leftmost_row), 10))})
+        output$features_graph_rightmost_col <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$rightmost_col), 10))})
+        output$features_graph_centroid_index <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$centroid_index), 10))})
+        
+        output$features_graph_centroid_y <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$centroid_y), 10))})
+        output$features_graph_centroid_x <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$centroid_x), 10))})
+        output$features_graph_centroid_horiz_location <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$centroid_horiz_location), 10))})
+        output$features_graph_centroid_vert_location <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$centroid_vert_location), 10))})
+        
+        #Plot Graph & Document (with nodes)
+        output$features_graph <- renderPlot({plotLetter(imgList$letterList, input$features_graphnum, imgList$dims )})
+        output$features_document <- renderPlot({plotNodes(imgList$image, imgList$thin, imgList$nodes)})
     })
     
 
@@ -582,13 +634,8 @@ server <- function(input, output, session) {
       graph_table 
     })
     
-    output$features_graph <- renderPlot({
-      
-      req(processHandwriting_data$df)
-      imgList = processHandwriting_data$df
-      
-      plotLetter(imgList$letterList, input$features_graphnum, imgList$dims) 
-    })
+    
+    
     
     
   #==================================================================
@@ -677,26 +724,23 @@ server <- function(input, output, session) {
     
     shinyDirChoose(
       input,
-      'cluster_x_input_dir',
+      'cluster_closed_input_dir',
       roots = c(home = '../../../../../../../../../../../..'),
       filetypes = c('')
     )
     
-    cluster_x_input_dir <- reactive(input$cluster_x_input_dir)
-    
-    output$cluster_x_input_dir <- renderText({
-      global$datapath
-    })
+    cluster_closed_input_dir <- reactive(cluster_closed_input_dir)
+    output$cluster_closed_input_dir <- renderText({global$datapath})
     
     observeEvent(ignoreNULL = TRUE,
                  eventExpr = {
-                   input$cluster_x_input_dir
+                   input$cluster_closed_input_dir
                  },
                  handlerExpr = {
-                   if (!"path" %in% names(cluster_x_input_dir())) return()
+                   if (!"path" %in% names(cluster_closed_input_dir())) return()
                    home <- normalizePath("~")
                    global$datapath <-
-                     file.path(home, paste(unlist(cluster_x_input_dir()$path[-1]), collapse = .Platform$file.sep))
+                     file.path(home, paste(unlist(cluster_closed_input_dir()$path[-1]), collapse = .Platform$file.sep))
                  })
     
     
@@ -756,5 +800,31 @@ server <- function(input, output, session) {
   #======================================================================
   #======================= TRIANGLE DECOMPOSITION =======================
   #======================================================================
-  
+    shinyDirChoose(
+      input,
+      'triangle_input_dir',
+      roots = c(home = '../../../../../../../../../../../..'),
+      filetypes = c('')
+    )
+    
+    triangle_input_dir <- reactive(triangle_input_dir)
+    output$triangle_input_dir <- renderText({global$datapath})
+    
+    observeEvent(ignoreNULL = TRUE,
+                 eventExpr = {
+                   input$triangle_input_dir
+                 },
+                 handlerExpr = {
+                   if (!"path" %in% names(triangle_input_dir())) return()
+                   home <- normalizePath("~")
+                   global$datapath <-
+                     file.path(home, paste(unlist(triangle_input_dir()$path[-1]), collapse = .Platform$file.sep))
+                 })
+    
+    output$cluster_graphs <- renderImage({
+      list(
+        src = file.path("graphs.png"),
+        contentType = "image/png"
+      )
+    }, deleteFile = FALSE)
 }

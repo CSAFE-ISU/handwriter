@@ -1,4 +1,4 @@
-#Shiny HandwritR
+#Shiny handwriter
 # devtools::install_github("CSAFE-ISU/handwriter")
 
 library(handwriter)
