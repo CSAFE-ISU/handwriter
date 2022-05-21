@@ -309,8 +309,20 @@ ui <- shinyUI({
                  ),
                  mainPanel(width = 8, h1("Sample Tab -- Sample Tab"),
                            tabsetPanel(id = "cluster_set",
-                                       tabPanel("Graphs", imageOutput("cluster_graphs")),
-                                       tabPanel("Writer Profiles", imageOutput("cluster_profiles"))
+                                       tabPanel("Graphs",
+                                         br(),
+                                         h3('Sample clustering template (K = 40)'),
+                                         imageOutput("cluster_graphs")),
+                                         tabPanel("Writer Profiles", 
+                                                  br(),
+                                                  imageOutput("cluster_unknown"),
+                                                  tabsetPanel(id = "writer_set",
+                                                              tabPanel("Writer 1", br(), imageOutput("cluster_1")),
+                                                              tabPanel("Writer 2", br(), imageOutput("cluster_2")),
+                                                              tabPanel("Writer 3", br(), imageOutput("cluster_3"))
+                                                  )
+                                         )
+                                                
                                        )
                            ),
                ),
