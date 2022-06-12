@@ -50,6 +50,12 @@ find_colorpoints = function(words, dims){
   colordf <- data.frame(words$connectingNodes, i_to_rc(words$connectingNodes, dims), rep(3, len), rep("pink", len))
   colnames(colordf) <- c("point", "row", "col", "colorIndex", "color")
   
+  # len = length(words$terminalNodes)
+  # 
+  # yellow_point <- data.frame(words$terminalNodes, i_to_rc(words$terminalNodes, dims), rep(6, len), rep("yellow", len))
+  # colnames(yellow_point) <- c("point", "row", "col", "colorIndex", "color")
+  # colordf <- rbind(colordf, (yellow_point))
+  
   #Add Starting BLUE node
   if (length(words$terminalNodes) != 0){
     beginning_node = words$terminalNodes[[1]]
@@ -81,16 +87,16 @@ find_colorpoints = function(words, dims){
        
   #Add the YELLOW points for dots on i or j
   #JAMES NOTES - For some reason these dont appear when plotting word normally - more exploration needed
-  has_i_or_j = FALSE
-
-  if(has_i_or_j){
-    yellowrow = mean(colordf[,2])
-    yellowcol = mean(colordf[,3])
-    yellowindex = rc_to_i(yellowrow-15, yellowcol, dims)
-    yellow_point <- data.frame(yellowindex, i_to_rc(yellowindex, dims), 6, "yellow")
-    colnames(yellow_point) <- c("point", "row", "col", "colorIndex", "color")
-    colordf <- rbind(colordf, yellow_point)
-  }
+  # has_i_or_j = FALSE
+  # 
+  # if(has_i_or_j){
+  #   yellowrow = mean(colordf[,2])
+  #   yellowcol = mean(colordf[,3])
+  #   yellowindex = rc_to_i(yellowrow-15, yellowcol, dims)
+  #   yellow_point <- data.frame(yellowindex, i_to_rc(yellowindex, dims), 6, "yellow")
+  #   colnames(yellow_point) <- c("point", "row", "col", "colorIndex", "color")
+  #   colordf <- rbind(colordf, yellow_point)
+  # }
   
   return(colordf);
 }

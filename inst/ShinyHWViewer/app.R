@@ -1,3 +1,4 @@
+library(handwriter)
 library(shiny)
 library(shinyjs)
 

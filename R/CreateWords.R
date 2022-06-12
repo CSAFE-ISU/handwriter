@@ -25,9 +25,11 @@ create_words = function(processList){
   terminalNodes = c()
   connectingNodes = c()
   
+
+  
   wordIndex = 1
   for(i in letterList){
-    
+    #if about to go to next word, create all word info and then index, make new empty lists
     if(wordIndex != i$characterFeatures$wordIndex){
       wordsInfo <- list(wordIndex = wordIndex, wordPath = wordPath, allNodes = allNodes, terminalNodes = terminalNodes, connectingNodes = connectingNodes)
       words[[wordIndex]] <- wordsInfo
@@ -39,6 +41,7 @@ create_words = function(processList){
       connectingNodes = c()
     }
     
+    #As long as in word, keep apending next graphs info.
     if(wordIndex == i$characterFeatures$wordIndex){
       allNodes <- append(allNodes, i$nodes)
       wordPath <- append(wordPath, i$path)

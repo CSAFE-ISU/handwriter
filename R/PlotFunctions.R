@@ -108,7 +108,7 @@ plotNodes = function(img, thinned, nodeList, nodeSize = 3, nodeColor = "red")
 #' }
 #' @import ggplot2
 #' @export
-plotWord = function(letterList, whichWord, dims, full_doc = FALSE)
+plotWord = function(letterList, whichWord, dims)
 {
   X <- Y <- NULL
   
@@ -119,7 +119,7 @@ plotWord = function(letterList, whichWord, dims, full_doc = FALSE)
   for(i in letterList){
     
     wordIndex = i$characterFeatures$wordIndex
-    if(wordIndex == whichWord)
+    if(wordIndex == whichWord || single_override == TRUE)
     {
       pathList <- append(pathList, i$path)
       wordListIndex <- append(wordListIndex, count)
