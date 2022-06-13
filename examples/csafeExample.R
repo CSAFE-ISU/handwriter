@@ -12,8 +12,8 @@ csafe_document = list()
 #csafe_document$image = readPNGBinary("examples/csafe_data/0001_4.png")
 #csafe_document$image = readPNGBinary("examples/samplewriting.png")
 #csafe_document$image = readPNGBinary("examples/masked/image_masked2.RData")
-csafe_document$image = readPNGBinary("examples/to_mask/w0001_s03_pLND_r1_masked.rda")
-csafe_document$image = readPNGBinary("examples/to_mask/w0356_s02_pPHR_r3_masked.rda")
+#csafe_document$image = readPNGBinary("examples/to_mask/w0001_s03_pLND_r1_masked.rda")
+#csafe_document$image = readPNGBinary("examples/to_mask/w0356_s02_pPHR_r3_masked.rda")
 #csafe_document$image = readPNGBinary("examples/external_data/ali_prob_cropped.png")
 #csafe_document$image = readPNGBinary("examples/external_data/just_the2.png")
 #csafe_document$image = readPNGBinary("examples/Writer 4/w0004_s01_pPHR_r01_cw1 copy.png")
@@ -22,7 +22,7 @@ csafe_document$image = readPNGBinary("examples/to_mask/w0356_s02_pPHR_r3_masked.
 
 #csafe_document$image = readPNGBinary("examples/just_the.png") 
 #csafe_document$image = readPNGBinary("examples/just_the.png") 
-#csafe_document$image = readPNGBinary("examples/external_data/handwriteR.png")
+csafe_document$image = readPNGBinary("examples/external_data/handwriteR.png")
 #=======================================================================================================================
 plotImage(csafe_document$image)
 
@@ -35,6 +35,7 @@ plotImageThinned(csafe_document$image, csafe_document$thin)
 #and a list of the letter paths in the image.
 csafe_processList = processHandwriting(csafe_document$thin, dim(csafe_document$image))
 
+
 #Save off nodes, breaks, paths, and graphemes
 csafe_document$nodes = csafe_processList$nodes
 csafe_document$breaks = csafe_processList$breakPoints
@@ -43,20 +44,20 @@ plotNodes(csafe_document$image, csafe_document$thin, csafe_document$nodes)
 #plotNodes(csafe_document$image, csafe_document$thin, csafe_document$breaks)
 
 ###Some stuff for plotting letters, words, and lines:###
-dims = dim(csafe_document$image)
-plotLetter(csafe_processList$letterList, 1, dims, showNodes = FALSE)
-plotLine(csafe_processList$letterList, 1, dims)
+plotLetter(csafe_processList$letterList, 1, dim(csafe_document$image), showNodes = FALSE)
+plotLine(csafe_processList$letterList, 1, dim(csafe_document$image))
 #ggsave("imagetosave.png")
+
 ######### WORD STUFF #######
  
 #Create list of word objects, process the words for more information, plot the word with colored Nodes
-csafeprocessList$letterListwords = create_words(csafe_processList)
+csafe_processList$letterList = make_single_word(csafe_processList$letterList)
+words = create_words(csafe_processList)
 words_after_processing = process_words(words, dim(csafe_document$image), TRUE)
-plotWord(csafe_processList$letterList, 1, dims)
+plotWord(csafe_processList$letterList, 1, dim(csafe_document$image))
 
 #Plot a word with colored nodes (must have processed words)
 plotColorNodes(csafe_processList$letterList, 1, dims, words_after_processing)
-
 
 #=======================================================================================================================
 #=======================================================================================================================

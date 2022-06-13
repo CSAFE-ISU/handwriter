@@ -1,3 +1,16 @@
+#' make_single_word
+#' 
+#' @export
+make_single_word = function(letterList){
+  
+  for(i in 1:length(letterList)){
+    letterList[[i]]$characterFeatures$wordIndex = 1
+  }
+  
+  return(letterList)
+}
+
+
 #' create_words
 #'
 #' creates word objects based on splits found in processHandwriting

@@ -44,17 +44,14 @@ process_words = function(words, dims, triangulate = FALSE){
 #' @return A new list with word level information for each word.
 find_colorpoints = function(words, dims){
   
-  len = length(words$connectingNodes)
-  
   #Add connecting PINK nodes
-  colordf <- data.frame(words$connectingNodes, i_to_rc(words$connectingNodes, dims), rep(3, len), rep("pink", len))
+  colordf <- data.frame(words$connectingNodes, i_to_rc(words$connectingNodes, dims), rep(3, length(words$connectingNodes)), rep("pink", length(words$connectingNodes)))
   colnames(colordf) <- c("point", "row", "col", "colorIndex", "color")
   
-  # len = length(words$terminalNodes)
-  # 
-  # yellow_point <- data.frame(words$terminalNodes, i_to_rc(words$terminalNodes, dims), rep(6, len), rep("yellow", len))
-  # colnames(yellow_point) <- c("point", "row", "col", "colorIndex", "color")
-  # colordf <- rbind(colordf, (yellow_point))
+  #Add terminal YELLOW nodes
+  yellow_point <- data.frame(words$terminalNodes, i_to_rc(words$terminalNodes, dims), rep(6, length(words$terminalNodes)), rep("yellow", length(words$terminalNodes)))
+  colnames(yellow_point) <- c("point", "row", "col", "colorIndex", "color")
+  colordf <- rbind(colordf, (yellow_point))
   
   #Add Starting BLUE node
   if (length(words$terminalNodes) != 0){
@@ -85,8 +82,8 @@ find_colorpoints = function(words, dims){
   colnames(purple_point) <- c("point", "row", "col", "colorIndex", "color")
   colordf <- rbind(colordf, purple_point)
        
-  #Add the YELLOW points for dots on i or j
-  #JAMES NOTES - For some reason these dont appear when plotting word normally - more exploration needed
+  # #Add the YELLOW points for dots on i or j
+  # #JAMES NOTES - For some reason these dont appear when plotting word normally - more exploration needed
   # has_i_or_j = FALSE
   # 
   # if(has_i_or_j){

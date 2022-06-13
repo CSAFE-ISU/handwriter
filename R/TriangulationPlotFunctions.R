@@ -92,6 +92,7 @@ plotColorNodes = function(letterList, whichWord, dims, wordInfo) #TODO - CLEAN T
   #Initializing X and Y to bind them for the dev check
   X <- 0
   Y <- 0
+  #if(!is.null(thinned)){p = plotImageThinned(img, thinned)}
   pointSet = data.frame(X = ((nodeList - 1) %/% dim(img)[1]) + 1, Y = dim(img)[1] - ((nodeList - 1) %% dim(img)[1]))
   p = p + geom_point(data = pointSet, aes(X, Y), size = nodeSize, shape = I(16), color = I(colorpoints_df$color), alpha = I(.7))
   

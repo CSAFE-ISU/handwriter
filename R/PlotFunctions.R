@@ -119,7 +119,7 @@ plotWord = function(letterList, whichWord, dims)
   for(i in letterList){
     
     wordIndex = i$characterFeatures$wordIndex
-    if(wordIndex == whichWord || single_override == TRUE)
+    if(wordIndex == whichWord)
     {
       pathList <- append(pathList, i$path)
       wordListIndex <- append(wordListIndex, count)
