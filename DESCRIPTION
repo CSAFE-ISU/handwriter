@@ -13,5 +13,5 @@ License: GPL-3
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.2
-Imports: Rcpp, ggplot2, igraph, png, reshape2, stringr, rjson, usethis, magick, shiny, shinyjs, randomForest, dplyr, tidyr, foreach, doParallel, stringr, tidyverse, gridExtra, lpSolve, purrr
+Imports: Rcpp, ggplot2, igraph, png, reshape2, stringr, rjson, usethis, magick, randomForest, dplyr, tidyr, foreach, doParallel, stringr, tidyverse, gridExtra, lpSolve, purrr
 
