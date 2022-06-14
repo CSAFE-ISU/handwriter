@@ -11,11 +11,11 @@ ui <- shinyUI({
               tags$style(HTML('#save_mask{background-color:#33ADFF} #save_mask:hover{background-color:#3398FF} #save_mask{color:white}'))),
     
     navbarPage(
-      title = "Shiny handwriter",
+      title = "handwriter",
       
       tabPanel("Intro",
-                 h1("Welcome to Shiny handwriter!"),
-                 h3("Shiny handwriter is a handwritten document analysis tool created by CSAFE"),
+                 h1("Welcome to handwriter!"),
+                 h3("handwriter is a handwritten document analysis tool created by CSAFE"),
                  br(), br(),
                  h3("Whats avaialble:"),
                  tags$div(tags$ul(
