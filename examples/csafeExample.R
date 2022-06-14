@@ -22,7 +22,7 @@ csafe_document = list()
 
 #csafe_document$image = readPNGBinary("examples/just_the.png") 
 #csafe_document$image = readPNGBinary("examples/just_the.png") 
-csafe_document$image = readPNGBinary("examples/external_data/handwriteR.png")
+csafe_document$image = readPNGBinary("examples/external_data/handwriter.png")
 #=======================================================================================================================
 plotImage(csafe_document$image)
 

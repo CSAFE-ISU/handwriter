@@ -4,3 +4,6 @@
 .Ruserdata
 .DS_Store
 old_NAMESPACE
+.gitignore
+docs-local
+_bookdown_files/
