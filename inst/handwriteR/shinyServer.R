@@ -660,12 +660,16 @@ server <- function(input, output, session) {
         
         output$features_graph_wordIndex <- renderText({paste(stringr::str_trunc(toString(imgList$letterList[[input$features_graphnum]]$characterFeatures$wordIndex), 10))})
         
+        #Jon - WORD INFO PASTING HERE
+        
         #Plot Graph & Document (with nodes)
+        #Jon - WORD PLOT HERE
         output$features_graph <- renderPlot({plotLetter(imgList$letterList, input$features_graphnum, imgList$dims )})
         output$features_document <- renderPlot({plotNodes(imgList$image, imgList$thin, imgList$nodes)})
     })
     
-
+    
+    #Jon - WORD DATA TABLE HERE
     output$word_dt = DT::renderDataTable({
       
     })
