@@ -8,22 +8,7 @@ library(handwriter)
 
 #Create empty list, and load an image with READPNGBinary
 csafe_document = list()
-
-#csafe_document$image = readPNGBinary("examples/csafe_data/0001_4.png")
-#csafe_document$image = readPNGBinary("examples/samplewriting.png")
-#csafe_document$image = readPNGBinary("examples/masked/image_masked2.RData")
-#csafe_document$image = readPNGBinary("examples/to_mask/w0001_s03_pLND_r1_masked.rda")
-#csafe_document$image = readPNGBinary("examples/to_mask/w0356_s02_pPHR_r3_masked.rda")
-#csafe_document$image = readPNGBinary("examples/external_data/ali_prob_cropped.png")
-#csafe_document$image = readPNGBinary("examples/external_data/just_the2.png")
-#csafe_document$image = readPNGBinary("examples/Writer 4/w0004_s01_pPHR_r01_cw1 copy.png")
-
-#csafe_document$image = readPNGBinary("examples/external_data/delined.png")
-
-#csafe_document$image = readPNGBinary("examples/just_the.png") 
-#csafe_document$image = readPNGBinary("examples/just_the.png") 
 csafe_document$image = readPNGBinary("examples/external_data/handwriter.png")
-#=======================================================================================================================
 plotImage(csafe_document$image)
 
 #Use the Zhang - Suen algorithim to thin the image (1 pixel wide) - then plot it.
@@ -62,7 +47,6 @@ plotColorNodes(csafe_processList$letterList, 1, dims, words_after_processing)
 #=======================================================================================================================
 #=======================================================================================================================
 
-
 ####### QUICK EXAMPLE FOR WORD EXAMPLES #######
 csafe_document = list()
 csafe_document$image = readPNGBinary("inst/extdata/word_splitting_problems/w0003_s01_pPHR_r03.png")
@@ -76,6 +60,14 @@ dims = dim(csafe_document$image)
 words = create_words(csafe_processList) 
 words_after_processing = process_words(words, dim(csafe_document$image), TRUE)
 plotWord(csafe_processList$letterList, 6, dims)
+
+
+#=======================================================================================================================
+#=======================================================================================================================
+
+######   BATCH PROCESSING AND TEMPLATE CREATION EXAMPLE #######
+process_batch('examples/50CSAFE_50CVL_2022-06-17/data/template_images_5_test', 'examples/50CSAFE_50CVL_2022-06-17/data/template_graphs_5_test')
+make_clustering_templates('examples/50CSAFE_50CVL_2022-06-17', num_graphs = 100)
 
 
 #=======================================================================================================================

@@ -691,7 +691,7 @@ processHandwriting = function(img, dims){
   message("Adding character features...")
   letterList = add_character_features(img, letterList, letters, dims)
   
-  message("Document processing complete.")
+  message("Document processing complete.\n")
   
   return(list(nodes = nodeList, connectingNodes = nodeConnections, terminalNodes = terminalNodes, breakPoints = sort(finalBreaks), letterList = letterList))
 }
