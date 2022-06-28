@@ -2,7 +2,6 @@
 
 export(AddLetterImages)
 export(SaveAllLetterPlots)
-export(createClusterTemplates)
 export(create_words)
 export(crop)
 export(extractGraphs)

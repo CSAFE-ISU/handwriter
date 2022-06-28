@@ -275,7 +275,7 @@ solveLP = function(dists)
 #' name, the path might not be cut into quarters.
 #'
 #' @keywords ?
-letterToPrototype = function(letter, numPathCuts = 8, imagesList)
+letterToPrototype = function(letter, numPathCuts = 8)
 {
   # Find number of paths in graph
   pathCount = length(letter$allPaths)

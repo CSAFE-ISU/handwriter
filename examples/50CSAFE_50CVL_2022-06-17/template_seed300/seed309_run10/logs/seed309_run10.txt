@@ -1,0 +1,183 @@
+INFO [2022-06-19 05:40:37] Start creating template 10
+INFO [2022-06-19 05:40:37] Choosing starting cluster centers.
+INFO [2022-06-19 05:40:54] Starting iteration 1.
+INFO [2022-06-19 05:40:54] Calculating the distances between graphs and cluster centers.
+INFO [2022-06-19 05:59:17] Assigning graphs to clusters.
+INFO [2022-06-19 05:59:18] 41259 graphs changed clusters.
+INFO [2022-06-19 05:59:18] 100.000000 percent of total graphs changed clusters.
+INFO [2022-06-19 05:59:18] The within-cluster sum of squares is 27346766.029137.
+INFO [2022-06-19 05:59:18] The root mean square error is 25.745044.
+INFO [2022-06-19 05:59:33] The Davies-Bouldin Index is 2.595400.
+INFO [2022-06-19 05:59:34] The variance ratio criterion is 20199.530694.
+INFO [2022-06-19 05:59:34] Calculating new cluster centers.
+INFO [2022-06-19 06:05:59] Starting iteration 2.
+INFO [2022-06-19 06:05:59] Calculating the distances between graphs and cluster centers.
+INFO [2022-06-19 06:27:16] Assigning graphs to clusters.
+INFO [2022-06-19 06:27:17] 19734 graphs changed clusters.
+INFO [2022-06-19 06:27:17] 47.829564 percent of total graphs changed clusters.
+INFO [2022-06-19 06:27:17] The within-cluster sum of squares is 20671719.699739.
+INFO [2022-06-19 06:27:17] The root mean square error is 22.501109.
+INFO [2022-06-19 06:27:33] The Davies-Bouldin Index is 2.549723.
+INFO [2022-06-19 06:27:34] The variance ratio criterion is 10520.889981.
+INFO [2022-06-19 06:27:34] Calculating new cluster centers.
+INFO [2022-06-19 06:33:42] Starting iteration 3.
+INFO [2022-06-19 06:33:42] Calculating the distances between graphs and cluster centers.
+INFO [2022-06-19 06:55:15] Assigning graphs to clusters.
+INFO [2022-06-19 06:55:16] 12598 graphs changed clusters.
+INFO [2022-06-19 06:55:16] 30.533944 percent of total graphs changed clusters.
+INFO [2022-06-19 06:55:16] The within-cluster sum of squares is 19707371.052665.
+INFO [2022-06-19 06:55:16] The root mean square error is 22.058507.
+INFO [2022-06-19 06:55:31] The Davies-Bouldin Index is 2.803498.
+INFO [2022-06-19 06:55:32] The variance ratio criterion is 14492.119583.
+INFO [2022-06-19 06:55:32] Calculating new cluster centers.
+INFO [2022-06-19 07:01:32] Starting iteration 4.
+INFO [2022-06-19 07:01:32] Calculating the distances between graphs and cluster centers.
+INFO [2022-06-19 07:23:30] Assigning graphs to clusters.
+INFO [2022-06-19 07:23:31] 8641 graphs changed clusters.
+INFO [2022-06-19 07:23:31] 20.943309 percent of total graphs changed clusters.
+INFO [2022-06-19 07:23:31] The within-cluster sum of squares is 19312890.135521.
+INFO [2022-06-19 07:23:31] The root mean square error is 21.847950.
+INFO [2022-06-19 07:23:49] The Davies-Bouldin Index is 2.971339.
+INFO [2022-06-19 07:23:49] The variance ratio criterion is 14438.218195.
+INFO [2022-06-19 07:23:49] Calculating new cluster centers.
+INFO [2022-06-19 07:29:59] Starting iteration 5.
+INFO [2022-06-19 07:29:59] Calculating the distances between graphs and cluster centers.
+INFO [2022-06-19 07:49:18] Assigning graphs to clusters.
+INFO [2022-06-19 07:49:19] 7766 graphs changed clusters.
+INFO [2022-06-19 07:49:19] 18.822560 percent of total graphs changed clusters.
+INFO [2022-06-19 07:49:19] The within-cluster sum of squares is 19013010.823201.
+INFO [2022-06-19 07:49:19] The root mean square error is 21.705580.
+INFO [2022-06-19 07:49:38] The Davies-Bouldin Index is 2.937412.
+INFO [2022-06-19 07:49:39] The variance ratio criterion is 14494.320967.
+INFO [2022-06-19 07:49:39] Calculating new cluster centers.
+INFO [2022-06-19 07:56:09] Starting iteration 6.
+INFO [2022-06-19 07:56:09] Calculating the distances between graphs and cluster centers.
+INFO [2022-06-19 08:15:22] Assigning graphs to clusters.
+INFO [2022-06-19 08:15:23] 5650 graphs changed clusters.
+INFO [2022-06-19 08:15:23] 13.693982 percent of total graphs changed clusters.
+INFO [2022-06-19 08:15:23] The within-cluster sum of squares is 19030115.780219.
+INFO [2022-06-19 08:15:23] The root mean square error is 21.736357.
+INFO [2022-06-19 08:15:37] The Davies-Bouldin Index is 2.968029.
+INFO [2022-06-19 08:15:37] The variance ratio criterion is 14521.611786.
+INFO [2022-06-19 08:15:37] Calculating new cluster centers.
+INFO [2022-06-19 08:21:50] Starting iteration 7.
+INFO [2022-06-19 08:21:51] Calculating the distances between graphs and cluster centers.
+INFO [2022-06-19 08:38:51] Assigning graphs to clusters.
+INFO [2022-06-19 08:38:52] 6041 graphs changed clusters.
+INFO [2022-06-19 08:38:52] 14.641654 percent of total graphs changed clusters.
+INFO [2022-06-19 08:38:52] The within-cluster sum of squares is 19018354.624120.
+INFO [2022-06-19 08:38:52] The root mean square error is 21.724786.
+INFO [2022-06-19 08:39:09] The Davies-Bouldin Index is 2.961500.
+INFO [2022-06-19 08:39:10] The variance ratio criterion is 13578.868341.
+INFO [2022-06-19 08:39:10] Calculating new cluster centers.
+INFO [2022-06-19 08:44:55] Starting iteration 8.
+INFO [2022-06-19 08:44:55] Calculating the distances between graphs and cluster centers.
+INFO [2022-06-19 08:58:50] Assigning graphs to clusters.
+INFO [2022-06-19 08:58:51] 4989 graphs changed clusters.
+INFO [2022-06-19 08:58:51] 12.091907 percent of total graphs changed clusters.
+INFO [2022-06-19 08:58:51] The within-cluster sum of squares is 19026356.562445.
+INFO [2022-06-19 08:58:51] The root mean square error is 21.723696.
+INFO [2022-06-19 08:59:07] The Davies-Bouldin Index is 3.034422.
+INFO [2022-06-19 08:59:08] The variance ratio criterion is 13746.114949.
+INFO [2022-06-19 08:59:08] Calculating new cluster centers.
+INFO [2022-06-19 09:03:56] Starting iteration 9.
+INFO [2022-06-19 09:03:56] Calculating the distances between graphs and cluster centers.
+INFO [2022-06-19 09:15:50] Assigning graphs to clusters.
+INFO [2022-06-19 09:15:50] 7117 graphs changed clusters.
+INFO [2022-06-19 09:15:50] 17.249570 percent of total graphs changed clusters.
+INFO [2022-06-19 09:15:50] The within-cluster sum of squares is 18676557.945248.
+INFO [2022-06-19 09:15:50] The root mean square error is 21.518272.
+INFO [2022-06-19 09:16:06] The Davies-Bouldin Index is 3.024697.
+INFO [2022-06-19 09:16:06] The variance ratio criterion is 13698.489424.
+INFO [2022-06-19 09:16:06] Calculating new cluster centers.
+INFO [2022-06-19 09:22:22] Starting iteration 10.
+INFO [2022-06-19 09:22:22] Calculating the distances between graphs and cluster centers.
+INFO [2022-06-19 09:36:55] Assigning graphs to clusters.
+INFO [2022-06-19 09:36:56] 7206 graphs changed clusters.
+INFO [2022-06-19 09:36:56] 17.465280 percent of total graphs changed clusters.
+INFO [2022-06-19 09:36:56] The within-cluster sum of squares is 19046596.754087.
+INFO [2022-06-19 09:36:56] The root mean square error is 21.750899.
+INFO [2022-06-19 09:37:13] The Davies-Bouldin Index is 3.060267.
+INFO [2022-06-19 09:37:15] The variance ratio criterion is 13706.185049.
+INFO [2022-06-19 09:37:15] Calculating new cluster centers.
+INFO [2022-06-19 09:43:13] Starting iteration 11.
+INFO [2022-06-19 09:43:13] Calculating the distances between graphs and cluster centers.
+INFO [2022-06-19 09:57:50] Assigning graphs to clusters.
+INFO [2022-06-19 09:57:51] 3755 graphs changed clusters.
+INFO [2022-06-19 09:57:51] 9.101045 percent of total graphs changed clusters.
+INFO [2022-06-19 09:57:51] The within-cluster sum of squares is 19033397.038971.
+INFO [2022-06-19 09:57:51] The root mean square error is 21.735263.
+INFO [2022-06-19 09:58:11] The Davies-Bouldin Index is 3.002035.
+INFO [2022-06-19 09:58:12] The variance ratio criterion is 14783.943349.
+INFO [2022-06-19 09:58:12] Calculating new cluster centers.
+INFO [2022-06-19 10:03:08] Starting iteration 12.
+INFO [2022-06-19 10:03:08] Calculating the distances between graphs and cluster centers.
+INFO [2022-06-19 10:18:45] Assigning graphs to clusters.
+INFO [2022-06-19 10:18:46] 4699 graphs changed clusters.
+INFO [2022-06-19 10:18:46] 11.389030 percent of total graphs changed clusters.
+INFO [2022-06-19 10:18:46] The within-cluster sum of squares is 18870495.981492.
+INFO [2022-06-19 10:18:46] The root mean square error is 21.649037.
+INFO [2022-06-19 10:19:05] The Davies-Bouldin Index is 3.089214.
+INFO [2022-06-19 10:19:05] The variance ratio criterion is 13838.973933.
+INFO [2022-06-19 10:19:05] Calculating new cluster centers.
+INFO [2022-06-19 10:25:10] Starting iteration 13.
+INFO [2022-06-19 10:25:10] Calculating the distances between graphs and cluster centers.
+INFO [2022-06-19 10:39:22] Assigning graphs to clusters.
+INFO [2022-06-19 10:39:22] 5982 graphs changed clusters.
+INFO [2022-06-19 10:39:22] 14.498655 percent of total graphs changed clusters.
+INFO [2022-06-19 10:39:22] The within-cluster sum of squares is 18803384.005724.
+INFO [2022-06-19 10:39:23] The root mean square error is 21.600852.
+INFO [2022-06-19 10:39:42] The Davies-Bouldin Index is 3.546714.
+INFO [2022-06-19 10:39:43] The variance ratio criterion is 14033.061248.
+INFO [2022-06-19 10:39:43] Calculating new cluster centers.
+INFO [2022-06-19 10:46:13] Starting iteration 14.
+INFO [2022-06-19 10:46:13] Calculating the distances between graphs and cluster centers.
+INFO [2022-06-19 11:03:10] Assigning graphs to clusters.
+INFO [2022-06-19 11:03:11] 4788 graphs changed clusters.
+INFO [2022-06-19 11:03:11] 11.604741 percent of total graphs changed clusters.
+INFO [2022-06-19 11:03:11] The within-cluster sum of squares is 18887746.402250.
+INFO [2022-06-19 11:03:11] The root mean square error is 21.658661.
+INFO [2022-06-19 11:03:30] The Davies-Bouldin Index is 3.228684.
+INFO [2022-06-19 11:03:30] The variance ratio criterion is 13520.245109.
+INFO [2022-06-19 11:03:30] Calculating new cluster centers.
+INFO [2022-06-19 11:09:33] Starting iteration 15.
+INFO [2022-06-19 11:09:33] Calculating the distances between graphs and cluster centers.
+INFO [2022-06-19 11:26:38] Assigning graphs to clusters.
+INFO [2022-06-19 11:26:39] 5364 graphs changed clusters.
+INFO [2022-06-19 11:26:39] 13.000800 percent of total graphs changed clusters.
+INFO [2022-06-19 11:26:39] The within-cluster sum of squares is 18735257.956839.
+INFO [2022-06-19 11:26:39] The root mean square error is 21.566502.
+INFO [2022-06-19 11:26:55] The Davies-Bouldin Index is 3.019309.
+INFO [2022-06-19 11:26:55] The variance ratio criterion is 13267.580221.
+INFO [2022-06-19 11:26:55] Calculating new cluster centers.
+INFO [2022-06-19 11:33:07] Starting iteration 16.
+INFO [2022-06-19 11:33:07] Calculating the distances between graphs and cluster centers.
+INFO [2022-06-19 11:50:31] Assigning graphs to clusters.
+INFO [2022-06-19 11:50:32] 3738 graphs changed clusters.
+INFO [2022-06-19 11:50:32] 9.059841 percent of total graphs changed clusters.
+INFO [2022-06-19 11:50:32] The within-cluster sum of squares is 18442968.568972.
+INFO [2022-06-19 11:50:32] The root mean square error is 21.395752.
+INFO [2022-06-19 11:50:48] The Davies-Bouldin Index is 2.887469.
+INFO [2022-06-19 11:50:49] The variance ratio criterion is 12292.095738.
+INFO [2022-06-19 11:50:49] Calculating new cluster centers.
+INFO [2022-06-19 11:56:35] Starting iteration 17.
+INFO [2022-06-19 11:56:35] Calculating the distances between graphs and cluster centers.
+INFO [2022-06-19 12:12:14] Assigning graphs to clusters.
+INFO [2022-06-19 12:12:15] 2717 graphs changed clusters.
+INFO [2022-06-19 12:12:15] 6.585230 percent of total graphs changed clusters.
+INFO [2022-06-19 12:12:15] The within-cluster sum of squares is 18300948.171132.
+INFO [2022-06-19 12:12:15] The root mean square error is 21.318241.
+INFO [2022-06-19 12:12:30] The Davies-Bouldin Index is 2.948355.
+INFO [2022-06-19 12:12:31] The variance ratio criterion is 12593.950638.
+INFO [2022-06-19 12:12:31] Calculating new cluster centers.
+INFO [2022-06-19 12:18:08] Starting iteration 18.
+INFO [2022-06-19 12:18:08] Calculating the distances between graphs and cluster centers.
+INFO [2022-06-19 12:33:26] Assigning graphs to clusters.
+INFO [2022-06-19 12:33:27] 597 graphs changed clusters.
+INFO [2022-06-19 12:33:27] 1.446957 percent of total graphs changed clusters.
+INFO [2022-06-19 12:33:27] The within-cluster sum of squares is 18269819.519133.
+INFO [2022-06-19 12:33:27] The root mean square error is 21.303542.
+INFO [2022-06-19 12:33:41] The Davies-Bouldin Index is 2.945549.
+INFO [2022-06-19 12:33:42] The variance ratio criterion is 12541.234253.
+INFO [2022-06-19 12:33:42] Percent of graphs that changed clusters is 3% or less. Stopping K-means algorithm.
+INFO [2022-06-19 12:33:42] Saving template 10 .

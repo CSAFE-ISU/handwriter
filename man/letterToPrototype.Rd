@@ -4,7 +4,7 @@
 \alias{letterToPrototype}
 \title{letterToPrototype}
 \usage{
-letterToPrototype(letter, numPathCuts = 8, imagesList)
+letterToPrototype(letter, numPathCuts = 8)
 }
 \arguments{
 \item{letter}{A graph from a handwriting sample}

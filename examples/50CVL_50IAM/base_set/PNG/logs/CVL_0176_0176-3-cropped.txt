@@ -1,3 +1,0 @@
-Document CVL_0176_0176-3-cropped.png is being processed. 	 (11 of 100)
-[1] "working on: examples/template_50CVL_50IAM/base_set/PNG/CVL_0192_0192-3-cropped.png"
-[1] "D:/GitHub/handwriter"

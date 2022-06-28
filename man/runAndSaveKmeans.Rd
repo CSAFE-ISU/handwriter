@@ -5,34 +5,37 @@
 \title{runAndSaveKmeans}
 \usage{
 runAndSaveKmeans(
-  imList,
-  centers,
-  numDistCores = 0,
+  run_number,
+  images_list,
   K,
-  iter_number,
-  numPathCuts = 8,
-  iter.max = 500,
-  numOutliers = round(0.25 * length(imList)),
-  gamma = 3,
-  results_file,
-  outfile,
-  meanGraph = "slow_change",
-  meanGraphOrder = "sequential",
-  fillClusters = "farthest"
+  centers,
+  num_path_cuts,
+  max_iters,
+  gamma,
+  num_outliers,
+  num_dist_cores,
+  run_seed,
+  run_folder,
+  template_name
 )
 }
 \arguments{
-\item{imList}{List graphs from handwriting samples}
-
-\item{centers}{List of starting cluster centers}
-
-\item{numDistCores}{Integer number of cores to use for distance calculations}
-
 \item{K}{Integer number of clusters. If numOutliers > 0, then
 there will be K+1 clusters.}
 
+\item{centers}{List of starting cluster centers}
+
+\item{gamma}{Float parameter for calculating the outlier cutoff. 
+If numOutliers is zero, gamma has no effect.}
+
+\item{imList}{List graphs from handwriting samples}
+
 \item{iter_number}{Integer iteration number. This will be used in the file name of the 
 saved clustering template.}
+
+\item{numberToRun}{Integer number of clustering templates to create}
+
+\item{numDistCores}{Integer number of cores to use for distance calculations}
 
 \item{numPathCuts}{Integer number of segments to cut each path into}
 
@@ -40,9 +43,6 @@ saved clustering template.}
 
 \item{numOutliers}{Integer number of outliers to allow. If numOutliers is zero, no outliers will be
 assigned.}
-
-\item{gamma}{Float parameter for calculating the outlier cutoff. 
-If numOutliers is zero, gamma has no effect.}
 
 \item{outfile}{String file path and name of log file}
 
@@ -54,8 +54,6 @@ graph calculations. The options are 'sequential' and 'random'}
 
 \item{fillClusters}{String choice of how to choose which graph to reassign to an empty cluster. 
 Choice are 'random' and 'farthest'}
-
-\item{numberToRun}{Integer number of clustering templates to create}
 }
 \value{
 Clustering template

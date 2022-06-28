@@ -1,0 +1,13 @@
+INFO [2022-06-26 22:50:43] Start creating new clustering template(s).
+INFO [2022-06-26 22:50:43] Loading training graphs from proc_list and imagesList.RDS
+INFO [2022-06-26 22:50:54] Starting the k-means clustering algorithm with... 
+ num_runs=2 
+ num_cores=1 
+ num_dist_cores=1 
+ K=40 
+ num_path_cuts=8 
+ max_iters=1 
+ gamma=3.000000 
+ (max) num_outliers=10315 
+ starting_seed=100
+INFO [2022-06-27 01:34:26] Savinging template(s)...

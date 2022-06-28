@@ -4,7 +4,7 @@
 \alias{meanGraphSet_slowchange}
 \title{meanGraphSet_slowchange}
 \usage{
-meanGraphSet_slowchange(imList, numPathCuts = 8, meanGraphOrder = "sequential")
+meanGraphSet_slowchange(images_list, num_path_cuts = 4)
 }
 \arguments{
 \item{imList}{List graphs}

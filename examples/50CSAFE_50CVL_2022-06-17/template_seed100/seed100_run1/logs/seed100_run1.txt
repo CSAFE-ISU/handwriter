@@ -1,0 +1,13 @@
+INFO [2022-06-26 22:51:28] Start creating template 1
+INFO [2022-06-26 22:51:28] Choosing starting cluster centers.
+INFO [2022-06-26 22:51:36] Starting iteration 1.
+INFO [2022-06-26 22:51:36] Calculating the distances between graphs and cluster centers.
+INFO [2022-06-27 00:13:11] Assigning graphs to clusters.
+INFO [2022-06-27 00:13:12] 41259 graphs changed clusters.
+INFO [2022-06-27 00:13:12] 100.000000 percent of total graphs changed clusters.
+INFO [2022-06-27 00:13:12] The within-cluster sum of squares is 50075939.440945.
+INFO [2022-06-27 00:13:12] The root mean square error is 34.839426.
+INFO [2022-06-27 00:13:18] The Davies-Bouldin Index is 5.364540.
+INFO [2022-06-27 00:13:18] The variance ratio criterion is 18272.262234.
+INFO [2022-06-27 00:13:18] The maximum number of iterations has been reached. Stopping K-means algorithm.
+INFO [2022-06-27 00:13:18] Saving template 1 .
