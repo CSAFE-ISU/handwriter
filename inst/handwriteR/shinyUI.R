@@ -144,13 +144,11 @@ ui <- shinyUI({
                               br(),
                               fileInput("features_upload", "Choose document to explore", accept = c('image/png')),
                               fluidRow(column(width=4, offset=7, actionButton("features_processhandwriting", "Process Handwriting"))),
-                              br(), hr(), hr(),
-                              h3("Batch Processing"),
-                              shinyDirButton("batch_input_dir", "Input directory", "Choose an input directory"),
-                              verbatimTextOutput("batch_input_dir", placeholder = TRUE),
-                              shinyDirButton("batch_output_dir", "Output directory", "Choose an output directory"),
-                              verbatimTextOutput("batch_output_dir", placeholder = TRUE),
-                              fluidRow(column(width=3, offset=8, actionButton("process_batch", "Process Batch")))
+                              # shinyDirButton("batch_input_dir", "Input directory", "Choose an input directory"),
+                              # verbatimTextOutput("batch_input_dir", placeholder = TRUE),
+                              # shinyDirButton("batch_output_dir", "Output directory", "Choose an output directory"),
+                              # verbatimTextOutput("batch_output_dir", placeholder = TRUE),
+                              # fluidRow(column(width=3, offset=8, actionButton("process_batch", "Process Batch")))
                               
                  ),
                  mainPanel(width = 8, 
@@ -275,7 +273,23 @@ ui <- shinyUI({
       )
       ),
       
-      
+      #BATCH PROCESSING
+      tabPanel("Batch Processing", 
+               sidebarLayout(
+                 sidebarPanel(width = 4,
+                              h3("Batch Processing"),
+                              br(),
+                              shinyDirButton("batch_input_dir", "Input directory", "Choose an input directory"),
+                              verbatimTextOutput("batch_input_dir", placeholder = TRUE),
+                              shinyDirButton("batch_output_dir", "Output directory", "Choose an output directory"),
+                              verbatimTextOutput("batch_output_dir", placeholder = TRUE),
+                              fluidRow(column(width=3, offset=8, actionButton("process_batch", "Process Batch")))
+                              
+                 ),
+                 mainPanel(width = 8, 
+                           
+                 )
+      )),
       
       #K-MEANS CLUSTERING
       tabPanel("k-means Clustering", 
@@ -345,5 +359,10 @@ ui <- shinyUI({
                  ),
                  mainPanel(width = 8, h1("PLACEHOLDER"), br(), h1("PLACEHOLDER"), br(), h1("PLACEHOLDER"), br(), h1("PLACEHOLDER"), br(), h1("PLACEHOLDER"), br(), h1("PLACEHOLDER"), br(),
                            h1("PLACEHOLDER"), br(), h1("PLACEHOLDER"), br(), h1("PLACEHOLDER"), br(), h1("PLACEHOLDER"), br(), h1("PLACEHOLDER"), br(), h1("PLACEHOLDER"), br())),
-      )),
+      ),
+      
+      #SLRs
+      tabPanel("SLRs", )
+      
+      ),
 )})

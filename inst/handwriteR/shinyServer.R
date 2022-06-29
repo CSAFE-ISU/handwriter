@@ -703,55 +703,55 @@ server <- function(input, output, session) {
   #==================================================================
   #======================== BATCH PROCESSING ========================
   #==================================================================
-  
-    shinyDirChoose(
-      input,
-      'batch_input_dir',
-      roots = c(home = '.'),
-      filetypes = c('')
-    )
-    
-    batch_input_dir <- reactive(input$batch_input_dir)
-    
-    output$batch_input_dir <- renderText({
-      global$datapath
-    })
-    
-    observeEvent(ignoreNULL = TRUE,
-                 eventExpr = {
-                   input$batch_input_dir
-                 },
-                 handlerExpr = {
-                   if (!"path" %in% names(batch_input_dir())) return()
-                   home <- normalizePath("~")
-                   global$datapath <-
-                     file.path(home, paste(unlist(batch_input_dir()$path[-1]), collapse = .Platform$file.sep))
-                 })
-    
-    
-    shinyDirChoose(
-      input,
-      'batch_output_dir',
-      roots = c(home = '.'),
-      filetypes = c('')
-    )
-    
-    batch_output_dir <- reactive(input$batch_output_dir)
-    
-    output$batch_output_dir <- renderText({
-      global$datapath
-    })
-    
-    observeEvent(ignoreNULL = TRUE,
-                 eventExpr = {
-                   input$batch_output_dir
-                 },
-                 handlerExpr = {
-                   if (!"path" %in% names(batch_output_dir())) return()
-                   home <- normalizePath("~")
-                   global$datapath <-
-                     file.path(home, paste(unlist(batch_output_dir()$path[-1]), collapse = .Platform$file.sep))
-                 })
+    # 
+    # shinyDirChoose(
+    #   input,
+    #   'batch_input_dir',
+    #   roots = c(home = '.'),
+    #   filetypes = c('')
+    # )
+    # 
+    # batch_input_dir <- reactive(input$batch_input_dir)
+    # 
+    # output$batch_input_dir <- renderText({
+    #   global$datapath
+    # })
+    # 
+    # observeEvent(ignoreNULL = TRUE,
+    #              eventExpr = {
+    #                input$batch_input_dir
+    #              },
+    #              handlerExpr = {
+    #                if (!"path" %in% names(batch_input_dir())) return()
+    #                home <- normalizePath("~")
+    #                global$datapath <-
+    #                  file.path(home, paste(unlist(batch_input_dir()$path[-1]), collapse = .Platform$file.sep))
+    #              })
+    # 
+    # 
+    # shinyDirChoose(
+    #   input,
+    #   'batch_output_dir',
+    #   roots = c(home = '.'),
+    #   filetypes = c('')
+    # )
+    # 
+    # batch_output_dir <- reactive(input$batch_output_dir)
+    # 
+    # output$batch_output_dir <- renderText({
+    #   global$datapath
+    # })
+    # 
+    # observeEvent(ignoreNULL = TRUE,
+    #              eventExpr = {
+    #                input$batch_output_dir
+    #              },
+    #              handlerExpr = {
+    #                if (!"path" %in% names(batch_output_dir())) return()
+    #                home <- normalizePath("~")
+    #                global$datapath <-
+    #                  file.path(home, paste(unlist(batch_output_dir()$path[-1]), collapse = .Platform$file.sep))
+    #              })
   
   #==================================================================
   #======================= K-MEANS CLUSTERING =======================
@@ -829,6 +829,11 @@ server <- function(input, output, session) {
                      file.path(home, paste(unlist(cluster_output_dir()$path[-1]), collapse = .Platform$file.sep))
                  })
     
+    output$cluster_graphs <- renderImage({list(src = file.path("graphs.png"), contentType = "image/png")}, deleteFile = FALSE)
+    output$cluster_unknown <- renderImage({list(src = file.path("unknown_writer_cluster_counts.png"), width = 1200, height = 375, contentType = "image/png")}, deleteFile = FALSE)
+    output$cluster_1 <- renderImage({list(src = file.path("writer1_cluster_counts.png"), width = 1200, height = 375, contentType = "image/png")}, deleteFile = FALSE)
+    output$cluster_2 <- renderImage({list(src = file.path("writer2_cluster_counts.png"), width = 1200, height = 375, contentType = "image/png")}, deleteFile = FALSE)
+    output$cluster_3 <- renderImage({list(src = file.path("writer3_cluster_counts.png"), width = 1200, height = 375, contentType = "image/png")}, deleteFile = FALSE)
   
   
   #======================================================================
@@ -855,10 +860,9 @@ server <- function(input, output, session) {
                      file.path(home, paste(unlist(triangle_input_dir()$path[-1]), collapse = .Platform$file.sep))
                  })
     
-    output$cluster_graphs <- renderImage({list(src = file.path("graphs.png"), contentType = "image/png")}, deleteFile = FALSE)
-    output$cluster_unknown <- renderImage({list(src = file.path("unknown_writer_cluster_counts.png"), width = 1200, height = 375, contentType = "image/png")}, deleteFile = FALSE)
-    output$cluster_1 <- renderImage({list(src = file.path("writer1_cluster_counts.png"), width = 1200, height = 375, contentType = "image/png")}, deleteFile = FALSE)
-    output$cluster_2 <- renderImage({list(src = file.path("writer2_cluster_counts.png"), width = 1200, height = 375, contentType = "image/png")}, deleteFile = FALSE)
-    output$cluster_3 <- renderImage({list(src = file.path("writer3_cluster_counts.png"), width = 1200, height = 375, contentType = "image/png")}, deleteFile = FALSE)
+    #=================================================================
+    #============================ SLRs ===============================
+    #=================================================================
 
+    
 }
