@@ -3,6 +3,8 @@
 #=============================================================
 
 processHandwriting_data <- reactiveValues()
+output$plot_image_name <- renderText({paste0("Name: ", values$image_name)})
+output$plot_dimensions <- renderText({paste0("Dimensions: ", values$dimensions)})
 values$plot_type <- 'nothing. Process your document to be able to plot lines, words, and graphs'
 number = ''
 
@@ -48,8 +50,6 @@ observeEvent(input$plot_upload, {
   values$plot_type <- 'nothing. Process your document to be able to plot lines, words, and graphs'
 })
 
-output$plot_image_name <- renderText({paste0("Name: ", values$image_name)})
-output$plot_dimensions <- renderText({paste0("Dimensions: ", values$dimensions)})
 
 #Plot original, un-thinned (bottom) image
 output$plot_image <- renderImage({

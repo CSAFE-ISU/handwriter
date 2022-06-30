@@ -1,5 +1,5 @@
 #==================================================================
-#======================= FEATURE EXPLORATION =======================
+#======================= FEATURE EXTRACTION =======================
 #==================================================================
 
 #UPLOAD
@@ -210,4 +210,18 @@ output$graph_dt = DT::renderDataTable({
                           
     )
   }
-  graph_table}, options = list(pageLength = 5))
+  graph_table }, options = list(pageLength = 5))
+
+
+# ==================================================================
+# ======================== BATCH PROCESSING ========================
+# ==================================================================
+
+#UPLOAD
+observeEvent(input$process_batch, {
+  datapath_list <- list(input$batch_input_dir$datapath)
+  print(datapath_list)
+  process_batch(datapath_list, '/tmp')
+  
+  
+})

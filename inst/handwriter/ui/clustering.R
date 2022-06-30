@@ -5,7 +5,7 @@ tabPanel("k-means Clustering",
                         h3("k-means Clustering"),
                         br(),
                         h5("Choose a template from the drop down, or create a new one with a new set of documents and the provided options"),
-                        selectInput("download", "Select premade template for clustering", choices = c("CVL50", "IAM50", "CVL100")),
+                        selectInput("cluster_template_select", "Select premade template for clustering", choices = c("CVL50", "IAM50", "CVL100")),
                         fileInput("cluster_template_input_dir", "Choose a template input directory", multiple = TRUE, accept = c('image/png')),
                         fluidRow(
                           column(4, numericInput("k", "K", 40)),

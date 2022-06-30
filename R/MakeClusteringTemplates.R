@@ -1,8 +1,8 @@
 make_clustering_templates = function(template_dir,
-                                    max_edges = 29, #Maximum number of edges per graph based on plot
+                                    max_edges = 30, #Maximum number of edges per graph based on plot
                                     starting_seed = 100, 
                                     K = 40, 
-                                    num_runs = 2, # number of templates to create
+                                    num_runs = 1, # number of templates to create
                                     num_cores = 1,
                                     num_dist_cores = 1, # for each template
                                     num_path_cuts = 8, # for distance calculations
