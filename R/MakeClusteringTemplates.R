@@ -326,8 +326,8 @@ runLetterKmeansParallel=function(num_runs,
                                  num_dist_cores, 
                                  starting_seed, 
                                  template_dir,
-                                 seed_folder)
-{ # Choose how many graphs to use to create the template(s)
+                                 seed_folder){ 
+  # Choose how many graphs to use to create the template(s)
   if (num_graphs == 'All'){
     images_list=full_images_list
   } else {

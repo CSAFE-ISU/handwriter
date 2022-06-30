@@ -109,8 +109,6 @@ server <- function(input, output, session) {
   observeEvent(input$upload, {
     if (length(input$upload$datapath)){
      values$upload_path <- input$upload$datapath
-     #message(paste0('input$upload$datapath in preprocessing upload box: ', input$upload$datapath))
-     #message(paste0('values$path in preprocessing upload box: ', values$path))
     }
     values$plot_type <- ''
     
@@ -131,7 +129,6 @@ server <- function(input, output, session) {
     
     values$dimensions <- paste0(info$width, 'x', info$height)
     values$image_name <- input$upload$name
-    #message(paste0('values$image_name in preprocessing upload box:  ', values$image_name))
     
     #Clean up
     values$crop_list <- list(values$image)
@@ -173,7 +170,6 @@ server <- function(input, output, session) {
     values$image <- tail(values$crop_list, 2)[[1]]
     values$crop_list <- head(values$crop_list, -1)
     
-    #message(paste0("crop list after undo crop:", values$crop_list))
     #Reset dimensions
     info <- image_info(values$image)
     values$dimensions <- paste0(info$width, 'x', info$height)
@@ -700,169 +696,33 @@ server <- function(input, output, session) {
     
     
     
-  #==================================================================
-  #======================== BATCH PROCESSING ========================
-  #==================================================================
-    # 
-    # shinyDirChoose(
-    #   input,
-    #   'batch_input_dir',
-    #   roots = c(home = '.'),
-    #   filetypes = c('')
-    # )
-    # 
-    # batch_input_dir <- reactive(input$batch_input_dir)
-    # 
-    # output$batch_input_dir <- renderText({
-    #   global$datapath
-    # })
-    # 
-    # observeEvent(ignoreNULL = TRUE,
-    #              eventExpr = {
-    #                input$batch_input_dir
-    #              },
-    #              handlerExpr = {
-    #                if (!"path" %in% names(batch_input_dir())) return()
-    #                home <- normalizePath("~")
-    #                global$datapath <-
-    #                  file.path(home, paste(unlist(batch_input_dir()$path[-1]), collapse = .Platform$file.sep))
-    #              })
-    # 
-    # 
-    # shinyDirChoose(
-    #   input,
-    #   'batch_output_dir',
-    #   roots = c(home = '.'),
-    #   filetypes = c('')
-    # )
-    # 
-    # batch_output_dir <- reactive(input$batch_output_dir)
-    # 
-    # output$batch_output_dir <- renderText({
-    #   global$datapath
-    # })
-    # 
-    # observeEvent(ignoreNULL = TRUE,
-    #              eventExpr = {
-    #                input$batch_output_dir
-    #              },
-    #              handlerExpr = {
-    #                if (!"path" %in% names(batch_output_dir())) return()
-    #                home <- normalizePath("~")
-    #                global$datapath <-
-    #                  file.path(home, paste(unlist(batch_output_dir()$path[-1]), collapse = .Platform$file.sep))
-    #              })
+  # ==================================================================
+  # ======================== BATCH PROCESSING ========================
+  # ==================================================================
+
+
   
   #==================================================================
   #======================= K-MEANS CLUSTERING =======================
   #==================================================================
   
-    shinyDirChoose(
-      input,
-      'cluster_template_input_dir',
-      roots = c(home = '.'),
-      filetypes = c('')
-    )
-    
-    cluster_template_input_dir <- reactive(input$cluster_template_input_dir)
-    
-    output$cluster_template_input_dir <- renderText({
-      global$datapath
-    })
-    
-    observeEvent(ignoreNULL = TRUE,
-                 eventExpr = {
-                   input$cluster_template_input_dir
-                 },
-                 handlerExpr = {
-                   if (!"path" %in% names(cluster_template_input_dir())) return()
-                   home <- normalizePath("~")
-                   global$datapath <-
-                     file.path(home, paste(unlist(cluster_template_input_dir()$path[-1]), collapse = .Platform$file.sep))
-                 })
-    
-    
-    
-    
-    shinyDirChoose(
-      input,
-      'cluster_closed_input_dir',
-      roots = c(home = '.'),
-      filetypes = c('')
-    )
-    
-    cluster_closed_input_dir <- reactive(cluster_closed_input_dir)
-    output$cluster_closed_input_dir <- renderText({global$datapath})
-    
-    observeEvent(ignoreNULL = TRUE,
-                 eventExpr = {
-                   input$cluster_closed_input_dir
-                 },
-                 handlerExpr = {
-                   if (!"path" %in% names(cluster_closed_input_dir())) return()
-                   home <- normalizePath("~")
-                   global$datapath <-
-                     file.path(home, paste(unlist(cluster_closed_input_dir()$path[-1]), collapse = .Platform$file.sep))
-                 })
-    
-    shinyDirChoose(
-      input,
-      'cluster_output_dir',
-      roots = c(home = '.'),
-      filetypes = c('')
-    )
-    
-    cluster_output_dir <- reactive(input$cluster_output_dir)
-    
-    output$cluster_output_dir <- renderText({
-      global$datapath
-    })
-    
-    observeEvent(ignoreNULL = TRUE,
-                 eventExpr = {
-                   input$cluster_output_dir
-                 },
-                 handlerExpr = {
-                   if (!"path" %in% names(cluster_output_dir())) return()
-                   home <- normalizePath("~")
-                   global$datapath <-
-                     file.path(home, paste(unlist(cluster_output_dir()$path[-1]), collapse = .Platform$file.sep))
-                 })
-    
-    output$cluster_graphs <- renderImage({list(src = file.path("graphs.png"), contentType = "image/png")}, deleteFile = FALSE)
-    output$cluster_unknown <- renderImage({list(src = file.path("unknown_writer_cluster_counts.png"), width = 1200, height = 375, contentType = "image/png")}, deleteFile = FALSE)
-    output$cluster_1 <- renderImage({list(src = file.path("writer1_cluster_counts.png"), width = 1200, height = 375, contentType = "image/png")}, deleteFile = FALSE)
-    output$cluster_2 <- renderImage({list(src = file.path("writer2_cluster_counts.png"), width = 1200, height = 375, contentType = "image/png")}, deleteFile = FALSE)
-    output$cluster_3 <- renderImage({list(src = file.path("writer3_cluster_counts.png"), width = 1200, height = 375, contentType = "image/png")}, deleteFile = FALSE)
+  
+  #To delete after tab is done  
+  output$cluster_graphs <- renderImage({list(src = file.path("graphs.png"), contentType = "image/png")}, deleteFile = FALSE)
+  output$cluster_unknown <- renderImage({list(src = file.path("unknown_writer_cluster_counts.png"), width = 1200, height = 375, contentType = "image/png")}, deleteFile = FALSE)
+  output$cluster_1 <- renderImage({list(src = file.path("writer1_cluster_counts.png"), width = 1200, height = 375, contentType = "image/png")}, deleteFile = FALSE)
+  output$cluster_2 <- renderImage({list(src = file.path("writer2_cluster_counts.png"), width = 1200, height = 375, contentType = "image/png")}, deleteFile = FALSE)
+  output$cluster_3 <- renderImage({list(src = file.path("writer3_cluster_counts.png"), width = 1200, height = 375, contentType = "image/png")}, deleteFile = FALSE)
   
   
   #======================================================================
   #======================= TRIANGLE DECOMPOSITION =======================
   #======================================================================
-    shinyDirChoose(
-      input,
-      'triangle_input_dir',
-      roots = c(home = '.'),
-      filetypes = c('')
-    )
     
-    triangle_input_dir <- reactive(triangle_input_dir)
-    output$triangle_input_dir <- renderText({global$datapath})
-    
-    observeEvent(ignoreNULL = TRUE,
-                 eventExpr = {
-                   input$triangle_input_dir
-                 },
-                 handlerExpr = {
-                   if (!"path" %in% names(triangle_input_dir())) return()
-                   home <- normalizePath("~")
-                   global$datapath <-
-                     file.path(home, paste(unlist(triangle_input_dir()$path[-1]), collapse = .Platform$file.sep))
-                 })
-    
-    #=================================================================
-    #============================ SLRs ===============================
-    #=================================================================
+
+  #=================================================================
+  #============================ SLRs ===============================
+  #=================================================================
 
     
 }
