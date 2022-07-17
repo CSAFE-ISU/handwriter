@@ -2,6 +2,9 @@
 #======================= FEATURE EXTRACTION =======================
 #==================================================================
 
+output$features_image_name <- renderText({paste0("Name: ", values$image_name)})
+output$features_dimensions <- renderText({paste0("Dimensions: ", values$dimensions)})
+
 #UPLOAD
 observeEvent(input$features_upload, {
   if (length(input$features_upload$datapath)){
@@ -44,8 +47,6 @@ observeEvent(input$features_processhandwriting, {
   
   path <- values$current_path
   df = list()
-  message(paste0('path after plot_processhandwriting button:  ', path))
-  message(paste0('values$path after plot_processhandwriting button:  ', values$path))
   df$image = readPNGBinary(path)
   df$thin = thinImage(df$image)
   
@@ -69,10 +70,21 @@ observeEvent(input$features_processhandwriting, {
   shinyjs::enable("plotword"); shinyjs::enable("wordnum"); shinyjs::enable("plotgraph"); shinyjs::enable("graphnum"); 
 })
 
-output$features_image_name <- renderText({paste0("Name: ", values$image_name)})
-output$features_dimensions <- renderText({paste0("Dimensions: ", values$dimensions)})
+#Download
+output$save_document_extract <- downloadHandler(
+  filename = function(){
+    paste0(tools::file_path_sans_ext(values$image_name),'_proclist.rds')
+  },
+  content = function(file) {
+    message(paste0("Writing file:", values$image_name))
+    download = isolate(processHandwriting_data$df)
+    saveRDS(download, file = file)
+  }
+)
 
 
+
+#RENDER DOCUMENT DATA TABLE
 output$document_dt = DT::renderDataTable({
   extensions="Responsive"
   req(processHandwriting_data$df)
@@ -217,11 +229,34 @@ output$graph_dt = DT::renderDataTable({
 # ======================== BATCH PROCESSING ========================
 # ==================================================================
 
+values$processed_docs = NULL
+
 #UPLOAD
 observeEvent(input$process_batch, {
   datapath_list <- list(input$batch_input_dir$datapath)
-  print(datapath_list)
-  process_batch(datapath_list, '/tmp')
-  
-  
+  name_list <- list(input$batch_input_dir$name)
+  values$processed_docs = process_batch_list(datapath_list[[1]], name_list[[1]], input$batch_select)
 })
+
+#Download
+output$save_batch <- downloadHandler(
+  filename = function(){
+    paste0("processed_batch-", Sys.Date(), ".rda")
+  },
+  content = function(file) {
+    message(paste0("Writing file: ", "processed_batch-", Sys.Date(), ".rda"))
+    download = isolate(values$processed_docs)
+    save(download, file = file)
+  }
+)
+
+output$batch_select_text <- renderText({
+  if(input$batch_select == 'none'){
+    paste0("Apply no change, direct output of processHandwriting will be returned")
+  }
+  else if(input$batch_select == 'document'){
+    paste0("Change to document level hierarchy - used for clustering")
+  }
+})
+
+

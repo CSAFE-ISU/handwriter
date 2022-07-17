@@ -34,20 +34,16 @@ make_clustering_templates = function(template_dir,
   
   # Make a master rds file that contains all of the graphs from all samples in the dataframe
   # proc_list needed for next step
-  proc_list = make_proc_list(template_dir=template_dir)
+  proc_list = make_proc_list(template_dir)
   
   # Make table of number of graphs with various numbers of loops and edges
-  strata = get_strata(proc_list = proc_list, template_dir = template_dir)
+  strata = get_strata(proc_list, template_dir)
   
-  # DISPLAY: Number of graphs with various numbers of loops and edges
-  #View(strata)
+  # Delete graphs with too many edges
+  proc_list = delete_crazy_graphs(proc_list, max_edges, template_dir)
   
-  # Delte graphs with too many edges
-  proc_list = delete_crazy_graphs(proc_list = proc_list, max_edges = max_edges, template_dir = template_dir)
-  
-  # Make images list
-  # image_list need for next 
-  images_list = make_images_list(proc_list = proc_list, template_dir)
+  # Make images list, image_list need for next 
+  images_list = make_images_list(proc_list, template_dir)
   
   # Make template(s)
   templates = make_templates(num_runs, num_cores, K, num_graphs, num_path_cuts, max_iters, gamma, 
@@ -225,16 +221,7 @@ make_images_list = function(proc_list, template_dir){
 }
 
 #make_templates
-make_templates = function(num_runs, 
-                          num_cores, 
-                          K,
-                          num_graphs,
-                          num_path_cuts, 
-                          max_iters, 
-                          gamma, 
-                          num_dist_cores, 
-                          starting_seed, 
-                          template_dir){
+make_templates = function(num_runs, num_cores, K, num_graphs, num_path_cuts, max_iters, gamma, num_dist_cores, starting_seed, template_dir){
   
   # Setup ----
   data = do_setup(template_dir = template_dir, starting_seed = starting_seed)
@@ -248,31 +235,11 @@ make_templates = function(num_runs,
   
   # Log parameters ---- 
   flog.info("Starting the k-means clustering algorithm with... \n num_runs=%d \n num_cores=%d \n num_dist_cores=%d \n K=%d \n num_path_cuts=%d \n max_iters=%d \n gamma=%f \n (max) num_outliers=%d \n starting_seed=%d", 
-            num_runs,
-            num_cores, 
-            num_dist_cores,
-            K,
-            num_path_cuts,
-            max_iters,
-            gamma,
-            num_outliers,
-            starting_seed)
+            num_runs, num_cores, num_dist_cores, K, num_path_cuts, max_iters, gamma, num_outliers, starting_seed)
   
   # Run main function ----
-  handwriterTemplates=runLetterKmeansParallel(num_runs=num_runs, 
-                                              num_cores=num_cores, 
-                                              full_images_list=full_images_list,
-                                              proc_list=proc_list,
-                                              K=K,
-                                              num_graphs=num_graphs,
-                                              num_path_cuts=num_path_cuts, 
-                                              max_iters=max_iters, 
-                                              gamma=gamma, 
-                                              num_outliers=num_outliers, 
-                                              num_dist_cores=num_dist_cores, 
-                                              starting_seed=starting_seed, 
-                                              template_dir=template_dir,
-                                              seed_folder=seed_folder)
+  handwriterTemplates=runLetterKmeansParallel(num_runs, num_cores, full_images_list, proc_list, num_graphs, K, num_path_cuts, 
+                                              max_iters, gamma, num_outliers, num_dist_cores, starting_seed, template_dir, seed_folder)
   
   # Save template(s) in a single file on the server
   flog.info("Savinging template(s)...")
@@ -313,20 +280,8 @@ make_dir = function(dir_path){
 
 #RunKLetterMeans
 # runs loop in parallel where each iteration produces a clustering template
-runLetterKmeansParallel=function(num_runs, 
-                                 num_cores, 
-                                 full_images_list,
-                                 proc_list,
-                                 num_graphs,
-                                 K, 
-                                 num_path_cuts, 
-                                 max_iters, 
-                                 gamma, 
-                                 num_outliers, 
-                                 num_dist_cores, 
-                                 starting_seed, 
-                                 template_dir,
-                                 seed_folder){ 
+runLetterKmeansParallel=function(num_runs, num_cores, full_images_list, proc_list, num_graphs, K, num_path_cuts, 
+                                 max_iters, gamma, num_outliers, num_dist_cores, starting_seed, template_dir, seed_folder){ 
   # Choose how many graphs to use to create the template(s)
   if (num_graphs == 'All'){
     images_list=full_images_list
@@ -368,10 +323,8 @@ runLetterKmeansParallel=function(num_runs,
     centers=chooseCenters(run_seed=run_seed, K=K, proc_list=proc_list, images_list=full_images_list)
     
     # Run Kmeans
-    template=runAndSaveKmeans(run_number=i, images_list=images_list, K=K, num_path_cuts=num_path_cuts, 
-                              max_iters=max_iters, gamma=gamma, num_outliers=num_outliers, 
-                              centers=centers, num_dist_cores=num_dist_cores, run_seed=run_seed, 
-                              run_folder=run_folder, template_name=template_name)
+    template=runAndSaveKmeans(i, images_list, K, centers, num_path_cuts, max_iters, gamma, 
+                              num_outliers, num_dist_cores, run_seed, run_folder, template_name)
   }
   return(resList)
 }
@@ -437,8 +390,7 @@ chooseCenters = function(run_seed, K, proc_list, images_list) {
 
 
 # Kmeans ------------------------------------------------------------------
-letterKmeansWithOutlier_parallel = function(images_list, K, centers, num_path_cuts, max_iters, gamma, 
-                                          num_outliers, num_dist_cores, run_number)
+letterKmeansWithOutlier_parallel = function(images_list, K, centers, num_path_cuts, max_iters, gamma, num_outliers, num_dist_cores, run_number)
 { 
   get('within_cluster_sum_of_squares')
   
