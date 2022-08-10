@@ -13,7 +13,7 @@ process_batch_list = function(image_batch, name_list = NULL, transform_output = 
   
   #Fix Naming (with a cute lamda function to rip)
   if(!is.null(name_list)){
-   names(document_list) =  (\(x) paste0(tools::file_path_sans_ext(name_list),'_proclist.rds')) (name_list)
+   names(document_list) =  (function(x) paste0(tools::file_path_sans_ext(name_list),'_proclist.rds')) (name_list)
   }
   
   return(document_list)

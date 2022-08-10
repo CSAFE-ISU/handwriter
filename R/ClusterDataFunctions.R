@@ -298,7 +298,7 @@ proclistToData_csafe = function(proclist, testdoc, traindocs, backuptest, oldtra
     } else {
       data = rbind(data, letter_measurements)
     }
-    #print(j)
+    print(j)
   }
   
   ## Y and Ytest
@@ -367,7 +367,7 @@ proclistToData_csafe_testonly = function(proclist, oldtrain, testdoc, backuptest
     } else {
       data = rbind(data, letter_measurements)
     }
-    #print(j)
+    print(j)
   }
   
   ## Y and Ytest
@@ -420,7 +420,7 @@ proclistToData_cvl_testonly = function(proclist, testdoc, backuptest, oldtrain)
     } else {
       data = rbind(data, letter_measurements)
     }
-    #print(j)
+    print(j)
   }
   
   ## Ytest
@@ -575,7 +575,7 @@ proclistToData_iam = function(proclist, numtest, numtrain, oldtrain, seed){
     } else {
       data = rbind(data, letter_measurements)
     }
-    #if(j%%100==0) print(j)
+    if(j%%100==0) print(j)
   }
   
   ## 
