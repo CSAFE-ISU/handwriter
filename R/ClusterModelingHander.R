@@ -132,7 +132,6 @@ smry = readRDS("data/modeldata/modeltest_samps_big.rds")
 k40_voting = lapply(smry$postprobs, function(y) {as.data.frame(t(apply(y, 1, function(x) floor(x/max(x)))))})
 sapply(k40_voting, sum)
 accuracy = k40_voting %>% postprobAccuracy()
-```
 
 
 ########
