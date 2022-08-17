@@ -12,6 +12,5 @@ LinkingTo: Rcpp, RcppArmadillo
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.2
-Imports: Rcpp, ggplot2, igraph, png, reshape2, stringr, rjson, usethis, magick, randomForest, dplyr, tidyr, foreach, doParallel, stringr, tidyverse, gridExtra, lpSolve, purrr
-
+RoxygenNote: 7.2.1
+Imports: Rcpp, ggplot2, igraph, png, reshape2, stringr, rjson, usethis, magick, randomForest, dplyr, tidyr, foreach, doParallel, stringr, tidyverse, gridExtra, lpSolve, purrr, rjags, mc2d, circular

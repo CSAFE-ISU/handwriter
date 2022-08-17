@@ -7,7 +7,7 @@
 #' @param save_folder path to folder where graphs are saved to
 #' @return saves proclist to an rds file
 getGraphs = function(image, source_folder = getwd(), save_folder = getwd()){
-  setwd(source_folder)
+  #setwd(source_folder)
   doc = proclist = list() 
   doc$image = readPNGBinary(image)
   doc$thin = thinImage(doc$image)
@@ -16,7 +16,7 @@ getGraphs = function(image, source_folder = getwd(), save_folder = getwd()){
   proclist[["thin"]] = doc$thin
   proclist[["image"]] = doc$image
   
-  setwd(save_folder)  
+  #setwd(save_folder)  
   saveRDS(object = proclist, file = paste0(save_folder, "/", substr(basename(image), start = 0, stop = nchar(basename(image))-4), "_proclist.rds"))
   gc()
 }
@@ -39,7 +39,8 @@ getGraphs = function(image, source_folder = getwd(), save_folder = getwd()){
 #' extractGraphs(sof, saf)
 #' @export
 extractGraphs = function(source_folder = getwd(), save_folder = getwd()){
-  setwd(source_folder)
+  doParallel::registerDoParallel(1)
+  #setwd(source_folder)
   filenames = as.list(list.files(source_folder, pattern = ".png"))
   
   foreach(i = 1:length(filenames)) %dopar%{

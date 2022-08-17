@@ -291,15 +291,17 @@ runLetterKmeansParallel=function(num_runs, num_cores, full_images_list, proc_lis
 
   doParallel::registerDoParallel(num_cores)
   resList=foreach(i=1:num_runs, 
-                  .export = c('make_dir', 'chooseCenters', 'runAndSaveKmeans', 
+                  .export = c('make_dir', 'chooseCenters', 'runAndSaveKmeans', 'letterToPrototype','i_to_x',
                               'letterKmeansWithOutlier_parallel', 'within_cluster_sum_of_squares', 'root_mean_square_error', 'davies_bouldin', 'variance_ratio_criterion', 'overall_meanGraph'), 
                   .packages = c('futile.logger', 'tidyr', 'dplyr', 'purrr', 'handwriter', 'parallel', 'doParallel', 'lpSolve')) %dopar% {
+    
     .GlobalEnv$letterKmeansWithOutlier_parallel <- letterKmeansWithOutlier_parallel                
     .GlobalEnv$within_cluster_sum_of_squares <- within_cluster_sum_of_squares
     .GlobalEnv$root_mean_square_error <- root_mean_square_error
     .GlobalEnv$davies_bouldin <- davies_bouldin
     .GlobalEnv$variance_ratio_criterion <- variance_ratio_criterion
     .GlobalEnv$overall_meanGraph <- overall_meanGraph
+    .GlobalEnv$letterToPrototype <- letterToPrototype
     
     # Add i to the starting seed
     run_seed=starting_seed+i-1

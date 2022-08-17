@@ -4,7 +4,6 @@
 #library(handwriter)
 
 #install.packages("handwriter")
-library(handwriter)
 
 #Create empty list, and load an image with READPNGBinary
 csafe_document = list()
