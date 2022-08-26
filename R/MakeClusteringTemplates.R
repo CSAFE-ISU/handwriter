@@ -56,6 +56,7 @@ make_clustering_templates = function(template_dir,
 #====================================================
 #============== Helper Functions ====================
 #====================================================
+
 # Make a list of all graphs (proc_list) from all selected docs and save in
 # Stage6_Cluster_Templates folder
 make_proc_list = function(template_dir){
