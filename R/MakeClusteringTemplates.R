@@ -1,3 +1,8 @@
+#'make_clustering_templates
+#' 
+#' TODO
+#' 
+#'@export
 make_clustering_templates = function(template_dir,
                                     max_edges = 30, #Maximum number of edges per graph based on plot
                                     starting_seed = 100, 
