@@ -40,15 +40,15 @@ make_clustering_templates(
 more than the maximum number will be ignored.}
 
 \item{starting_seed}{Integer seed for the random number generator. If
-`num_runs` is 1 then a single cluster template is created with the starting
-seed. If `num_runs` is greater than 1, multiple cluster templates will be
+\code{num_runs} is 1 then a single cluster template is created with the starting
+seed. If \code{num_runs} is greater than 1, multiple cluster templates will be
 created by adding 1, 2, 3, and so on to the starting seed.}
 
 \item{K}{Integer number of clusters}
 
 \item{num_runs}{Integer number of cluster templates to create}
 
-\item{num_cores}{Integer number of cores. If `num_runs` is greater than 1,
+\item{num_cores}{Integer number of cores. If \code{num_runs} is greater than 1,
 cluster templates will be created on different cores.}
 
 \item{num_dist_cores}{Integer number of cores to use for the distance
@@ -65,18 +65,16 @@ to run}
 \item{gamma}{Parameter for outliers}
 
 \item{num_graphs}{Number of graphs to use to create the cluster template.
-`All` uses all available graphs. An integer uses a random sample of graphs.}
+\code{All} uses all available graphs. An integer uses a random sample of graphs.}
 }
 \value{
 List containing the cluster template(s)
 }
 \description{
-Process the handwriting samples that you would like to use to create a new
-cluster template with `process_batch_dir()`. Place the processed handwriting
-samples in `template dir > data > template_graphs`.
-`make_clustering_templates()` applies a K-means clustering algorithm to the
-graphs in the handwriting samples and creates groups or clusters of similar
-graphs.
+\code{make_clustering_templates()} applies a K-means clustering algorithm to the
+input handwriting samples pre-processed with
+\code{\link[=process_batch_dir]{process_batch_dir()}} and saved in the input folder \verb{template_dir > data > template_graphs}. The K-means algorithm sorts the graphs in the input
+handwriting samples into groups, or clusters, of similar graphs.
 
 TODO
 }

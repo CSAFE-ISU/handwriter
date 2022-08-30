@@ -2,12 +2,11 @@
 
 #' make_clustering_templates
 #'
-#' Process the handwriting samples that you would like to use to create a new
-#' cluster template with `process_batch_dir()`. Place the processed handwriting
-#' samples in `template dir > data > template_graphs`.
 #' `make_clustering_templates()` applies a K-means clustering algorithm to the
-#' graphs in the handwriting samples and creates groups or clusters of similar
-#' graphs.
+#' input handwriting samples pre-processed with
+#' [handwriter::process_batch_dir()] and saved in the input folder `template_dir >
+#' data > template_graphs`. The K-means algorithm sorts the graphs in the input
+#' handwriting samples into groups, or clusters, of similar graphs.
 #'
 #' @param template_dir Input directory
 #' @param max_edges Maximum number of edges allowed in input graphs. Graphs with
@@ -35,6 +34,7 @@
 #'
 #' @keywords ?
 #' @export
+#' @md
 make_clustering_templates = function(template_dir,
                                     max_edges = 30, #Maximum number of edges per graph based on plot
                                     starting_seed = 100, 
@@ -66,8 +66,6 @@ make_clustering_templates = function(template_dir,
   library(tictoc)
   library(lpSolve)
   options(scipen = 999)
-  
- 
   
   # Make a master rds file that contains all of the graphs from all samples in the dataframe
   # proc_list needed for next step
