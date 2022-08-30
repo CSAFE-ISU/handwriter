@@ -68,14 +68,17 @@ to run}
 \code{All} uses all available graphs. An integer uses a random sample of graphs.}
 }
 \value{
-List containing the cluster template(s)
+List containing the cluster template(s). The list of all templates is
+saved in template_dir > starting_seed > data. Each individual template is
+saved in template_dir > starting_seed > run seed > data.
 }
 \description{
 \code{make_clustering_templates()} applies a K-means clustering algorithm to the
 input handwriting samples pre-processed with
-\code{\link[=process_batch_dir]{process_batch_dir()}} and saved in the input folder \verb{template_dir > data > template_graphs}. The K-means algorithm sorts the graphs in the input
-handwriting samples into groups, or clusters, of similar graphs.
+\code{\link[=process_batch_dir]{process_batch_dir()}} and saved in the input folder \verb{template_dir >  data > template_graphs}. The K-means algorithm sorts the graphs in the
+input handwriting samples into groups, or clusters, of similar graphs.
 
 TODO
 }
-\keyword{?}
+\keyword{clustering}
+\keyword{templates}

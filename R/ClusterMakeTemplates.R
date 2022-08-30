@@ -4,9 +4,9 @@
 #'
 #' `make_clustering_templates()` applies a K-means clustering algorithm to the
 #' input handwriting samples pre-processed with
-#' [handwriter::process_batch_dir()] and saved in the input folder `template_dir >
-#' data > template_graphs`. The K-means algorithm sorts the graphs in the input
-#' handwriting samples into groups, or clusters, of similar graphs.
+#' [process_batch_dir()] and saved in the input folder `template_dir > 
+#' data > template_graphs`. The K-means algorithm sorts the graphs in the
+#' input handwriting samples into groups, or clusters, of similar graphs.
 #'
 #' @param template_dir Input directory
 #' @param max_edges Maximum number of edges allowed in input graphs. Graphs with
@@ -30,11 +30,13 @@
 #' @param gamma Parameter for outliers
 #' @param num_graphs Number of graphs to use to create the cluster template.
 #'   `All` uses all available graphs. An integer uses a random sample of graphs.
-#' @return List containing the cluster template(s)
+#' @return List containing the cluster template(s). The list of all templates is
+#'   saved in template_dir > starting_seed > data. Each individual template is
+#'   saved in template_dir > starting_seed > run seed > data.
 #'
-#' @keywords ?
-#' @export
 #' @md
+#' @keywords clustering templates
+#' @export
 make_clustering_templates = function(template_dir,
                                     max_edges = 30, #Maximum number of edges per graph based on plot
                                     starting_seed = 100, 
@@ -95,6 +97,24 @@ make_clustering_templates = function(template_dir,
 #====================================================
 #============== Helper Functions ====================
 #====================================================
+
+#' make_proc_list
+#'
+#' process_batch_dir() needs to be run first to processes handwriting documents
+#' in a specified folder. process_batch_dir() creates an RDS file for each
+#' document that contains the extracted graphs in the document and saves the
+#' file in template_dir > data > template_graphs in rds files. make_proc_list()
+#' loads the graph RDS files from template_dir > data > template_graphs into a
+#' single list. This function also adds the graph image matrix and the number of
+#' loops and edges to each item in the list. This function also records the
+#' locations information of each graph with respect to the individual graph
+#' instead of the handwriting document.
+#'
+#' @param template_dir Input directory
+#' @return List containing graphs prepared for template creation. proc_list.rds
+#'   is saved in template_dir > data.
+#'
+#' @noRd
 make_proc_list = function(template_dir){
   tic = Sys.time()  # start timer
   
@@ -127,8 +147,18 @@ make_proc_list = function(template_dir){
   return(proc_list)
 }
 
-# Find the number of loops or edges (strata) in each graph in the select docs
-# and save in Stage6_Cluster_Templates folder
+
+#' get_strata
+#'
+#' get_strata() creates a table that shows the number of graphs in proc_list for
+#' each strata (number of loops or edges)
+#'
+#' @param proc_list List of graphs output by make_proc_list()
+#' @param template_dir Input directory
+#' @return Dataframe of number of graphs per strata. The dataframe is saved in
+#'   tempalte_dir > data.
+#'
+#' @noRd
 get_strata = function(proc_list, template_dir){
   tic = Sys.time()  # start timer
   
@@ -168,7 +198,17 @@ get_strata = function(proc_list, template_dir){
   
 }
 
-# Delete graphs with too many edges from the list of all graphs (proc_list)
+#' delete_crazy_graphs
+#'
+#' delete_crazy_graphs() removes graphs with more than max_edges from the
+#' proc_list output by make_proc_list()
+#'
+#' @param proc_list List of graphs output by make_proc_list()
+#' @param max_edges Maximum number of edges to allow in each graph
+#' @param template_dir Input directory
+#' @return List of graphs
+#'
+#' @noRd
 delete_crazy_graphs = function(proc_list, max_edges, template_dir){
   
   tic = Sys.time()  # start timer
@@ -220,7 +260,17 @@ delete_crazy_graphs = function(proc_list, max_edges, template_dir){
   return(proc_list)
 }
 
-#make_images_list
+#' make_images_list
+#'
+#' make_images_list() takes as input the proc_list output by make_proc_list().
+#' It finds the graph locations (column and row numbers) relative to the
+#' centroid of the graph image.
+#'
+#' @param proc_list List of graphs output by make_proc_list()
+#' @param template_dir Input directory
+#' @return List of graphs. The list is saved as template_dir > data > images_list.rds
+#'
+#' @noRd
 make_images_list = function(proc_list, template_dir){
   
   tic = Sys.time()  # start timer
@@ -257,7 +307,34 @@ make_images_list = function(proc_list, template_dir){
   
 }
 
-#make_templates
+#' make_templates
+#'
+#' `make_templates()` is the main internal function of make_clustering_templates()
+#'
+#' @param num_runs Integer number of cluster templates to create
+#' @param num_cores Integer number of cores. If `num_runs` is greater than 1,
+#'   cluster templates will be created on different cores.
+#' @param K Integer number of clusters
+#' @param num_graphs Number of graphs to use to create the cluster template.
+#'   `All` uses all available graphs. An integer uses a random sample of graphs.
+#' @param num_path_cuts Integer number of sections to cut each graph into for
+#'   shape comparison
+#' @param max_iters Maximum number of iterations to allow the K-means algorithm
+#'   to run
+#' @param gamma Parameter for outliers
+#' @param num_dist_cores Integer number of cores to use for the distance
+#'   calculations in the K-means algorithm. Each iteration of the K-means
+#'   algorithm calculates the distance between each input graph and each cluster
+#'   center.
+#' @param starting_seed Integer seed for the random number generator. If
+#'   `num_runs` is 1 then a single cluster template is created with the starting
+#'   seed. If `num_runs` is greater than 1, multiple cluster templates will be
+#'   created by adding 1, 2, 3, and so on to the starting seed.
+#' @param template_dir Input directory
+#' @return List containing the cluster template(s). The list of all templates is
+#'   saved in template_dir > starting_seed > data.
+#'
+#' @noRd
 make_templates = function(num_runs, 
                           num_cores, 
                           K,
@@ -315,7 +392,17 @@ make_templates = function(num_runs,
   
 }
 
-#do_setup
+#' do_setup
+#'
+#' `do_setup()` creates the folder template_dir > starting_seed. It also creates
+#' data and logs subfolders in the starting_seed folder. It loads proc_list and images_list from 
+#' template_dir > data and starts a log file.
+#'
+#' @param template_dir Input directory
+#' @param starting_seed Integer seed for the random number generator. 
+#' @return List containing proc_list and images_list
+#'
+#' @noRd
 do_setup = function(template_dir, starting_seed){
   
   # Create subfolder in template_dir if it doesn't already exist
@@ -337,6 +424,14 @@ do_setup = function(template_dir, starting_seed){
   
 }
 
+#' make_dir
+#'
+#' `make_dir()` creates the folder dir_path if it doesn't already exist. Note
+#' that dirname(dir_path) must already exist.
+#'
+#' @param dir_path Path to a directory
+#'
+#' @noRd
 make_dir = function(dir_path){
   if (!dir.exists(dir_path)){
     dir.create(dir_path)
@@ -344,8 +439,39 @@ make_dir = function(dir_path){
 }
 
 
-#RunKLetterMeans
-# runs loop in parallel where each iteration produces a clustering template
+#' runLetterKmeansParallel
+#'
+#' `runLetterKmeansParallel()` creates the number of cluster template()
+#' specified by num_runs.
+#'
+#' @param num_runs Integer number of cluster templates to create
+#' @param num_cores Integer number of cores. If `num_runs` is greater than 1,
+#'   cluster templates will be created on different cores.
+#' @param full_images_list images_list created by make_images_list()
+#' @param proc_list proc_list created by make_proc_list()
+#' @param num_graphs Number of graphs to use to create the cluster template.
+#'   `All` uses all available graphs. An integer uses a random sample of graphs.
+#' @param K Integer number of clusters
+#' @param num_path_cuts Integer number of sections to cut each graph into for
+#'   shape comparison
+#' @param max_iters Maximum number of iterations to allow the K-means algorithm
+#'   to run
+#' @param gamma Parameter for outliers
+#' @param num_outliers Fixed value round(.25*length(full_images_list))
+#' @param num_dist_cores Integer number of cores to use for the distance
+#'   calculations in the K-means algorithm. Each iteration of the K-means
+#'   algorithm calculates the distance between each input graph and each cluster
+#'   center.
+#' @param starting_seed Integer seed for the random number generator. If
+#'   `num_runs` is 1 then a single cluster template is created with the starting
+#'   seed. If `num_runs` is greater than 1, multiple cluster templates will be
+#'   created by adding 1, 2, 3, and so on to the starting seed.
+#' @param template_dir Input directory
+#' @param seed_folder Directory for the starting seed. I.e. template_dir >
+#'   starting seed
+#' @return List of cluster template(s)
+#'
+#' @noRd
 runLetterKmeansParallel=function(num_runs, 
                                  num_cores, 
                                  full_images_list,
@@ -410,7 +536,33 @@ runLetterKmeansParallel=function(num_runs,
 }
 
 
-# Helper function - calls another function to create a clustering template, then saves the template
+#' runAndSaveKmeans
+#'
+#' `runAndSaveKmeans()` creates the number of cluster template()
+#' specified by num_runs.
+#'
+#' @param run_number Integer number of current run
+#' @param num_cores Integer number of cores. If `num_runs` is greater than 1,
+#'   cluster templates will be created on different cores.
+#' @param images_list either the full images_list or a subset of graphs in images_list
+#' @param K Integer number of clusters
+#' @param centers List of K starting cluster centers output by chooseCenters()
+#' @param num_path_cuts Integer number of sections to cut each graph into for
+#'   shape comparison
+#' @param max_iters Maximum number of iterations to allow the K-means algorithm
+#'   to run
+#' @param gamma Parameter for outliers
+#' @param num_outliers Fixed value round(.25*length(full_images_list))
+#' @param num_dist_cores Integer number of cores to use for the distance
+#'   calculations in the K-means algorithm. Each iteration of the K-means
+#'   algorithm calculates the distance between each input graph and each cluster
+#'   center.
+#' @param run_seed Integer seed for the current run
+#' @param run_folder Directory path to template_dir > seed folder > run folder
+#' @param template_name Cluster template. Cluster template is saved to run_folder > data.
+#' @return List of cluster template(s)
+#'
+#' @noRd
 runAndSaveKmeans=function(run_number, images_list, K, centers, num_path_cuts, max_iters, gamma, 
                           num_outliers, num_dist_cores, run_seed, run_folder, template_name)
 {
