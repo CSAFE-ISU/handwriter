@@ -1,12 +1,13 @@
 ### Cluster Template Creation Functions
 
+
 #' make_clustering_templates
 #'
 #' `make_clustering_templates()` applies a K-means clustering algorithm to the
 #' input handwriting samples pre-processed with
 #' [process_batch_dir()] and saved in the input folder `template_dir > 
 #' data > template_graphs`. The K-means algorithm sorts the graphs in the
-#' input handwriting samples into groups, or clusters, of similar graphs.
+#' input handwriting samples into groups, or *clusters*, of similar graphs.
 #'
 #' @param template_dir Input directory
 #' @param max_edges Maximum number of edges allowed in input graphs. Graphs with
@@ -33,10 +34,11 @@
 #' @return List containing the cluster template(s). The list of all templates is
 #'   saved in template_dir > starting_seed > data. Each individual template is
 #'   saved in template_dir > starting_seed > run seed > data.
-#'
-#' @md
-#' @keywords clustering templates
+#'   
+#' @keywords clustering templates   
+#' 
 #' @export
+#' @md
 make_clustering_templates = function(template_dir,
                                     max_edges = 30, #Maximum number of edges per graph based on plot
                                     starting_seed = 100, 
@@ -97,6 +99,7 @@ make_clustering_templates = function(template_dir,
 #====================================================
 #============== Helper Functions ====================
 #====================================================
+
 
 #' make_proc_list
 #'
@@ -198,6 +201,7 @@ get_strata = function(proc_list, template_dir){
   
 }
 
+
 #' delete_crazy_graphs
 #'
 #' delete_crazy_graphs() removes graphs with more than max_edges from the
@@ -260,6 +264,7 @@ delete_crazy_graphs = function(proc_list, max_edges, template_dir){
   return(proc_list)
 }
 
+
 #' make_images_list
 #'
 #' make_images_list() takes as input the proc_list output by make_proc_list().
@@ -306,6 +311,7 @@ make_images_list = function(proc_list, template_dir){
   return(images_list)
   
 }
+
 
 #' make_templates
 #'
@@ -392,6 +398,7 @@ make_templates = function(num_runs,
   
 }
 
+
 #' do_setup
 #'
 #' `do_setup()` creates the folder template_dir > starting_seed. It also creates
@@ -423,6 +430,7 @@ do_setup = function(template_dir, starting_seed){
   return(data)
   
 }
+
 
 #' make_dir
 #'
@@ -544,7 +552,7 @@ runLetterKmeansParallel=function(num_runs,
 #' @param run_number Integer number of current run
 #' @param num_cores Integer number of cores. If `num_runs` is greater than 1,
 #'   cluster templates will be created on different cores.
-#' @param images_list either the full images_list or a subset of graphs in images_list
+#' @param images_list Either the full images_list or a subset of graphs in images_list
 #' @param K Integer number of clusters
 #' @param centers List of K starting cluster centers output by chooseCenters()
 #' @param num_path_cuts Integer number of sections to cut each graph into for
@@ -576,7 +584,22 @@ runAndSaveKmeans=function(run_number, images_list, K, centers, num_path_cuts, ma
 }
 
 
-# Starting Centers --------------------------------------------------------
+#' chooseCenters
+#'
+#' `chooseCenters()` selects starting centers for the K-means algorithm. All
+#' graphs in proc_list and images_list are sorted by strata, the number of loops
+#' and edges. For each stratum, a set number of graphs is selected as a starting
+#' cluster center. Previous experiments showed that stratified sampling produces
+#' better cluster templates than a simple random sample. Amy Crawford found the
+#' numbers hardcoded into numstrat to yield good results when K=40.
+#'
+#' @param run_number Integer number of current run
+#' @param K Integer number of clusters
+#' @param proc_list List of graphs output by make_proc_list()
+#' @param images_list List of graphs output by make_images_list()
+#' @return List of starting cluster centers
+#'
+#' @noRd
 chooseCenters = function(run_seed, K, proc_list, images_list) {
   set.seed(seed=run_seed)
   
@@ -621,7 +644,28 @@ chooseCenters = function(run_seed, K, proc_list, images_list) {
 }
 
 
-# Kmeans ------------------------------------------------------------------
+#' letterKmeansWithOutlier_parallel
+#'
+#' `letterKmeansWithOutlier_parallel()` runs the K-means clustering algorithm on
+#' images_list with centers as the starting cluster centers.
+#' 
+#' @param images_list Either the full images_list or a subset of graphs in images_list output by make_images_list()
+#' @param K Integer number of clusters
+#' @param centers List of starting cluster centers output by chooseCenters()
+#' @param num_path_cuts Integer number of sections to cut each graph into for
+#'   shape comparison
+#' @param max_iters Maximum number of iterations to allow the K-means algorithm
+#'   to run
+#' @param gamma Parameter for outliers
+#' @param num_outliers Fixed value round(.25*length(full_images_list))
+#' @param num_dist_cores Integer number of cores to use for the distance
+#'   calculations in the K-means algorithm. Each iteration of the K-means
+#'   algorithm calculates the distance between each input graph and each cluster
+#'   center.
+#' @param run_number Integer number of current run
+#' @return Cluster template
+#'
+#' @noRd
 letterKmeansWithOutlier_parallel = function(images_list, K, centers, num_path_cuts, max_iters, gamma, 
                                           num_outliers, num_dist_cores, run_number)
 { 
@@ -803,6 +847,17 @@ letterKmeansWithOutlier_parallel = function(images_list, K, centers, num_path_cu
 }
 
 
+#' meanGraphSet_slowchange
+#'
+#' `meanGraphSet_slowchange()` calculates the mean graph of the graphs in the input images_list and returns the 
+#' graph in images_list closest to the mean graph
+#' 
+#' @param images_list List of graphs contained in a specific cluster
+#' @param num_path_cuts Integer number of sections to cut each graph into for
+#'   shape comparison
+#' @return The input graph closest to the mean graph
+#'
+#' @noRd
 meanGraphSet_slowchange=function(images_list, num_path_cuts=4)
 {
   # indices=sample.int(length(images_list)) # adds graphs to mean calculations in a random order
@@ -842,6 +897,20 @@ meanGraphSet_slowchange=function(images_list, num_path_cuts=4)
 }
 
 
+#' overall_meanGraph
+#'
+#' `overall_meanGraph()` calculates the overall mean graph of the cluster
+#' centers and returns the cluster center that is closest to the overall mean
+#' graph. Calculating the true overall mean graph from every graph used to
+#' create the clustering template is too computationally expensive, so we use
+#' this as an estimation of the true overall mean.
+#'
+#' @param centers List of cluster centers
+#' @param num_path_cuts Integer number of sections to cut each graph into for
+#'   shape comparison
+#' @return The cluster center closest to the overall mean graph
+#'
+#' @noRd
 overall_meanGraph=function(centers, num_path_cuts=8)
 {
   indices=1:length(centers) # adds graphs in order
@@ -874,8 +943,22 @@ overall_meanGraph=function(centers, num_path_cuts=8)
   return(list('overall_center_dists'=dists, overall_center=centers[[retindex]]))
 }
 
-#Performance
-# Davies-Bouldin Index ----------------------------------------------------
+
+#' davies_bouldin
+#'
+#' davies_bouldin() calculates the Davies-Bouldin Index for the current
+#' iteration of the K-means algorithm
+#'
+#' @param wcd Matrix of within-cluster distances: the distances between each
+#'   graph and each cluster center
+#' @param cluster Vector of the cluster assignment for each graph
+#' @param centers List of cluster centers
+#' @param K Integer number of clusters
+#' @param num_path_cuts Integer number of sections to cut each graph into for
+#'   shape comparison
+#' @return The Davies-Bouldin Index
+#'
+#' @noRd
 davies_bouldin = function(wcd, cluster, centers, K, num_path_cuts){
   # For each cluster, calculate the average distance between the graphs in that cluster and the cluster center
   s = rep(0, K)
@@ -919,8 +1002,21 @@ davies_bouldin = function(wcd, cluster, centers, K, num_path_cuts){
 }
 
 
-# Variance Ratio Criterion ------------------------------------------------
-
+#' variance_ratio_criterion
+#'
+#' variance_ratio_criterion() calculates the varience-ratio criterion for the
+#' current iteration of the K-means algorithm
+#'
+#' @param wcd Matrix of within-cluster distances: the distances between each
+#'   graph and each cluster center
+#' @param cluster Vector of the cluster assignment for each graph
+#' @param centers List of cluster centers
+#' @param K Integer number of clusters
+#' @param num_path_cuts Integer number of sections to cut each graph into for
+#'   shape comparison
+#' @return The variance-ratio criterion
+#'
+#' @noRd
 variance_ratio_criterion = function(wcd, cluster, centers, K, num_path_cuts){
   # Count the number of graphs in each non-outlier cluster
   ni = c()
@@ -948,8 +1044,17 @@ variance_ratio_criterion = function(wcd, cluster, centers, K, num_path_cuts){
 }
 
 
-# Within-Cluster Sum of Squares -------------------------------------------
-
+#' within_cluster_sum_of_squares
+#'
+#' within_cluster_sum_of_squares() calculates the the within-cluster sum of squares for the
+#' current iteration of the K-means algorithm
+#'
+#' @param wcd Matrix of within-cluster distances: the distances between each
+#'   graph and each cluster center
+#' @param cluster Vector of the cluster assignment for each graph
+#' @return The within-cluster sum of squares
+#'
+#' @noRd
 within_cluster_sum_of_squares = function(wcd, cluster){
   # Get within cluster distances of non-outlier clusters
   wcd = wcd[cluster != -1]
@@ -961,9 +1066,17 @@ within_cluster_sum_of_squares = function(wcd, cluster){
 }
 
 
-
-# Root Mean Square Error --------------------------------------------------
-
+#' root_mean_square_error
+#'
+#' root_mean_square_error() calculates the the root mean square error for the
+#' current iteration of the K-means algorithm
+#'
+#' @param wcd Matrix of within-cluster distances: the distances between each
+#'   graph and each cluster center
+#' @param cluster Vector of the cluster assignment for each graph
+#' @return The root mean square error
+#'
+#' @noRd
 root_mean_square_error = function(wcd, cluster){
   # Get within cluster distances of non-outlier clusters
   wcd = wcd[cluster != -1]

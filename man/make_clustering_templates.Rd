@@ -76,9 +76,7 @@ saved in template_dir > starting_seed > run seed > data.
 \code{make_clustering_templates()} applies a K-means clustering algorithm to the
 input handwriting samples pre-processed with
 \code{\link[=process_batch_dir]{process_batch_dir()}} and saved in the input folder \verb{template_dir >  data > template_graphs}. The K-means algorithm sorts the graphs in the
-input handwriting samples into groups, or clusters, of similar graphs.
-
-TODO
+input handwriting samples into groups, or \emph{clusters}, of similar graphs.
 }
 \keyword{clustering}
 \keyword{templates}
