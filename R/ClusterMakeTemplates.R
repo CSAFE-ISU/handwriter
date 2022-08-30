@@ -1,11 +1,48 @@
+### Cluster Template Creation Functions
+
+#' make_clustering_templates
+#'
+#' Process the handwriting samples that you would like to use to create a new
+#' cluster template with `process_batch_dir()`. Place the processed handwriting
+#' samples in `template dir > data > template_graphs`.
+#' `make_clustering_templates()` applies a K-means clustering algorithm to the
+#' graphs in the handwriting samples and creates groups or clusters of similar
+#' graphs.
+#'
+#' @param template_dir Input directory
+#' @param max_edges Maximum number of edges allowed in input graphs. Graphs with
+#'   more than the maximum number will be ignored.
+#' @param starting_seed Integer seed for the random number generator. If
+#'   `num_runs` is 1 then a single cluster template is created with the starting
+#'   seed. If `num_runs` is greater than 1, multiple cluster templates will be
+#'   created by adding 1, 2, 3, and so on to the starting seed.
+#' @param K Integer number of clusters
+#' @param num_runs Integer number of cluster templates to create
+#' @param num_cores Integer number of cores. If `num_runs` is greater than 1,
+#'   cluster templates will be created on different cores.
+#' @param num_dist_cores Integer number of cores to use for the distance
+#'   calculations in the K-means algorithm. Each iteration of the K-means
+#'   algorithm calculates the distance between each input graph and each cluster
+#'   center.
+#' @param num_path_cuts Integer number of sections to cut each graph into for
+#'   shape comparison
+#' @param max_iters Maximum number of iterations to allow the K-means algorithm
+#'   to run
+#' @param gamma Parameter for outliers
+#' @param num_graphs Number of graphs to use to create the cluster template.
+#'   `All` uses all available graphs. An integer uses a random sample of graphs.
+#' @return List containing the cluster template(s)
+#'
+#' @keywords ?
+#' @export
 make_clustering_templates = function(template_dir,
                                     max_edges = 30, #Maximum number of edges per graph based on plot
                                     starting_seed = 100, 
                                     K = 40, 
                                     num_runs = 1, # number of templates to create
-                                    num_cores = 1,
-                                    num_dist_cores = 1, # for each template
-                                    num_path_cuts = 8, # for distance calculations
+                                    num_cores = 1, # for each template
+                                    num_dist_cores = 1, # for distance calculations
+                                    num_path_cuts = 8, 
                                     max_iters = 1, # how many iterations to let kmeans algorithm run
                                     gamma = 3, # parameter for outliers
                                     num_graphs = 'All'){ # use integer for testing with a subset of graphs or use 'All'
