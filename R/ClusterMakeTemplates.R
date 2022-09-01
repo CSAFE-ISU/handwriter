@@ -51,24 +51,10 @@ make_clustering_templates = function(template_dir,
                                     gamma = 3, # parameter for outliers
                                     num_graphs = 'All'){ # use integer for testing with a subset of graphs or use 'All'
   
-  library(handwriter)
-  library(tidyverse)
-  library(igraph)
-  library(reshape2)
-  library(gridExtra)
   library(futile.logger)
   library(parallel)
-  library(doParallel)
-  library(stringr)
-  library(foreach)
-  library(purrr)
   library(forcats)
-  library(mc2d)
-  library(gridExtra)
   library(ggrepel)
-  library(circular)
-  library(tictoc)
-  library(lpSolve)
   options(scipen = 999)
   
   # Make a master rds file that contains all of the graphs from all samples in the dataframe
