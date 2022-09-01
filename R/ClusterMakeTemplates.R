@@ -523,7 +523,7 @@ runLetterKmeansParallel=function(num_runs,
     # Run Kmeans
     template=runAndSaveKmeans(run_number=i, images_list=images_list, K=K, num_path_cuts=num_path_cuts, 
                               max_iters=max_iters, gamma=gamma, num_outliers=num_outliers, 
-                              centers=centers, num_dist_cores=num_dist_cores, run_seed=run_seed, 
+                              centers=centers, num_dist_cores=num_dist_cores, 
                               run_folder=run_folder, template_name=template_name)
   }
   return(resList)
