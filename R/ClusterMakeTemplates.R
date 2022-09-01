@@ -551,14 +551,13 @@ runLetterKmeansParallel=function(num_runs,
 #'   calculations in the K-means algorithm. Each iteration of the K-means
 #'   algorithm calculates the distance between each input graph and each cluster
 #'   center.
-#' @param run_seed Integer seed for the current run
 #' @param run_folder Directory path to template_dir > seed folder > run folder
 #' @param template_name Cluster template. Cluster template is saved to run_folder > data.
 #' @return List of cluster template(s)
 #'
 #' @noRd
 runAndSaveKmeans=function(run_number, images_list, K, centers, num_path_cuts, max_iters, gamma, 
-                          num_outliers, num_dist_cores, run_seed, run_folder, template_name)
+                          num_outliers, num_dist_cores, run_folder, template_name)
 {
   template=letterKmeansWithOutlier_parallel(run_number=run_number, images_list=images_list, K=K, 
                                             num_path_cuts=num_path_cuts, max_iters=max_iters, 
