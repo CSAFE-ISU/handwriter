@@ -51,10 +51,6 @@ make_clustering_templates = function(template_dir,
                                     gamma = 3, # parameter for outliers
                                     num_graphs = 'All'){ # use integer for testing with a subset of graphs or use 'All'
   
-  library(futile.logger)
-  library(parallel)
-  library(forcats)
-  library(ggrepel)
   options(scipen = 999)
   
   # Make a master rds file that contains all of the graphs from all samples in the dataframe
@@ -108,7 +104,7 @@ make_proc_list = function(template_dir){
   tic = Sys.time()  # start timer
   
   # List files in template directory > data > template_graphs
-  df = data.frame(graph_paths =list.files(file.path(template_dir, "data", "template_graphs"), pattern=".rds", full.name=TRUE), stringsAsFactors = FALSE)
+  df = data.frame(graph_paths =list.files(file.path(template_dir, "data", "template_graphs"), pattern=".rds", full.names=TRUE), stringsAsFactors = FALSE)
   
   proc_list = df$graph_paths %>%
     purrr::map(readRDS) %>%
@@ -224,14 +220,14 @@ delete_crazy_graphs = function(proc_list, max_edges, template_dir){
   futile.logger::flog.info("Deleting graphs with more than the max number of edges...", name="metadata")
   ok_edges = sort(as.numeric(unique(stratum0[!(stratum0 %in% c("1loop", "2loop"))])))
   num_delete = sum(ok_edges > max_edges)
-  flog.info("%d graphs deleted...", num_delete, name="metadata")
+  futile.logger::flog.info("%d graphs deleted...", num_delete, name="metadata")
   ok_edges = ok_edges[ok_edges <= max_edges]
   ok_edges = c('1loop', '2loop', ok_edges)
-  ok_df = stratum_df %>% filter(stratum0 %in% ok_edges)
+  ok_df = stratum_df %>% dplyr::filter(stratum0 %in% ok_edges)
   for (i in 1:length(proc_list)){
     # Find indices of graphs in document i with fewer than max_edges edges 
     keep_graphs = ok_df %>% 
-      filter(doc0==i)
+      dplyr::filter(doc0==i)
     keep_graphs = keep_graphs$letter
     
     # Only keep graphs in doc i with fewer than max_edges edges
