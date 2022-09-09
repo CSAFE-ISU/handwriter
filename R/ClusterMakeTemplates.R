@@ -1,36 +1,57 @@
+### Cluster Template Creation Functions
+
+
+#' make_clustering_templates
+#'
+#' `make_clustering_templates()` applies a K-means clustering algorithm to the
+#' input handwriting samples pre-processed with
+#' [process_batch_dir()] and saved in the input folder `template_dir > 
+#' data > template_graphs`. The K-means algorithm sorts the graphs in the
+#' input handwriting samples into groups, or *clusters*, of similar graphs.
+#'
+#' @param template_dir Input directory
+#' @param max_edges Maximum number of edges allowed in input graphs. Graphs with
+#'   more than the maximum number will be ignored.
+#' @param starting_seed Integer seed for the random number generator. If
+#'   `num_runs` is 1 then a single cluster template is created with the starting
+#'   seed. If `num_runs` is greater than 1, multiple cluster templates will be
+#'   created by adding 1, 2, 3, and so on to the starting seed.
+#' @param K Integer number of clusters
+#' @param num_runs Integer number of cluster templates to create
+#' @param num_cores Integer number of cores. If `num_runs` is greater than 1,
+#'   cluster templates will be created on different cores.
+#' @param num_dist_cores Integer number of cores to use for the distance
+#'   calculations in the K-means algorithm. Each iteration of the K-means
+#'   algorithm calculates the distance between each input graph and each cluster
+#'   center.
+#' @param num_path_cuts Integer number of sections to cut each graph into for
+#'   shape comparison
+#' @param max_iters Maximum number of iterations to allow the K-means algorithm
+#'   to run
+#' @param gamma Parameter for outliers
+#' @param num_graphs Number of graphs to use to create the cluster template.
+#'   `All` uses all available graphs. An integer uses a random sample of graphs.
+#' @return List containing the cluster template(s). The list of all templates is
+#'   saved in template_dir > starting_seed > data. Each individual template is
+#'   saved in template_dir > starting_seed > run seed > data.
+#'   
+#' @keywords clustering templates   
+#' 
+#' @export
+#' @md
 make_clustering_templates = function(template_dir,
                                     max_edges = 30, #Maximum number of edges per graph based on plot
                                     starting_seed = 100, 
                                     K = 40, 
                                     num_runs = 1, # number of templates to create
-                                    num_cores = 1,
-                                    num_dist_cores = 1, # for each template
-                                    num_path_cuts = 8, # for distance calculations
+                                    num_cores = 1, # for each template
+                                    num_dist_cores = 1, # for distance calculations
+                                    num_path_cuts = 8, 
                                     max_iters = 1, # how many iterations to let kmeans algorithm run
                                     gamma = 3, # parameter for outliers
                                     num_graphs = 'All'){ # use integer for testing with a subset of graphs or use 'All'
   
-  library(handwriter)
-  library(tidyverse)
-  library(igraph)
-  library(reshape2)
-  library(gridExtra)
-  library(futile.logger)
-  library(parallel)
-  library(doParallel)
-  library(stringr)
-  library(foreach)
-  library(purrr)
-  library(forcats)
-  library(mc2d)
-  library(gridExtra)
-  library(ggrepel)
-  library(circular)
-  library(tictoc)
-  library(lpSolve)
   options(scipen = 999)
-  
- 
   
   # Make a master rds file that contains all of the graphs from all samples in the dataframe
   # proc_list needed for next step
@@ -42,7 +63,7 @@ make_clustering_templates = function(template_dir,
   # DISPLAY: Number of graphs with various numbers of loops and edges
   #View(strata)
   
-  # Delte graphs with too many edges
+  # Delete graphs with too many edges
   proc_list = delete_crazy_graphs(proc_list = proc_list, max_edges = max_edges, template_dir = template_dir)
   
   # Make images list
@@ -60,15 +81,34 @@ make_clustering_templates = function(template_dir,
 #====================================================
 #============== Helper Functions ====================
 #====================================================
+
+
+#' make_proc_list
+#'
+#' process_batch_dir() needs to be run first to processes handwriting documents
+#' in a specified folder. process_batch_dir() creates an RDS file for each
+#' document that contains the extracted graphs in the document and saves the
+#' file in template_dir > data > template_graphs in rds files. make_proc_list()
+#' loads the graph RDS files from template_dir > data > template_graphs into a
+#' single list. This function also adds the graph image matrix and the number of
+#' loops and edges to each item in the list. This function also records the
+#' locations information of each graph with respect to the individual graph
+#' instead of the handwriting document.
+#'
+#' @param template_dir Input directory
+#' @return List containing graphs prepared for template creation. proc_list.rds
+#'   is saved in template_dir > data.
+#'
+#' @noRd
 make_proc_list = function(template_dir){
   tic = Sys.time()  # start timer
   
   # List files in template directory > data > template_graphs
-  df = data.frame(graph_paths =list.files(file.path(template_dir, "data", "template_graphs"), pattern=".rds", full.name=TRUE), stringsAsFactors = FALSE)
+  df = data.frame(graph_paths =list.files(file.path(template_dir, "data", "template_graphs"), pattern=".rds", full.names=TRUE), stringsAsFactors = FALSE)
   
   proc_list = df$graph_paths %>%
-    map(readRDS) %>%
-    list_merge()
+    purrr::map(readRDS) %>%
+    purrr::list_merge()
 
   # Get the image plot (binarized matrix) of each graph from each handwriting sample
   proc_list = lapply(proc_list, function(x){x$process$letterList = AddLetterImages(x$process$letterList, dim(x$image)); return(x)})
@@ -92,14 +132,24 @@ make_proc_list = function(template_dir){
   return(proc_list)
 }
 
-# Find the number of loops or edges (strata) in each graph in the select docs
-# and save in Stage6_Cluster_Templates folder
+
+#' get_strata
+#'
+#' get_strata() creates a table that shows the number of graphs in proc_list for
+#' each strata (number of loops or edges)
+#'
+#' @param proc_list List of graphs output by make_proc_list()
+#' @param template_dir Input directory
+#' @return Dataframe of number of graphs per strata. The dataframe is saved in
+#'   tempalte_dir > data.
+#'
+#' @noRd
 get_strata = function(proc_list, template_dir){
   tic = Sys.time()  # start timer
   
   metadata_file = file.path(template_dir, "logs", "metadata.txt")
-  flog.appender(appender.file(metadata_file), name='metadata')
-  flog.info("Starting making a dataframe of the number of graphs with various numbers of loops and edges...", name="metadata")
+  futile.logger::flog.appender(appender.file(metadata_file), name='metadata')
+  futile.logger::flog.info("Starting making a dataframe of the number of graphs with various numbers of loops and edges...", name="metadata")
   
   # Set Max Number of Edges Per Graph -------------------------------------------------
   # Make vectors of document #, letter #, and strata for each graph
@@ -118,29 +168,40 @@ get_strata = function(proc_list, template_dir){
   stratum_table = stratum_df %>% group_by(stratum0_fac) %>% summarize(n=n())
   
   # Save strata to csv file
-  flog.info("Saving dataframe to template_dir > data > sample_strata.rds.", name="metadata")
+  futile.logger::flog.info("Saving dataframe to template_dir > data > sample_strata.rds.", name="metadata")
   saveRDS(stratum_table, file.path(template_dir, "data", "sample_strata.rds"))
   
   # Calculate processing time
   toc = Sys.time()
   elapsed = paste0(round(as.numeric(difftime(time1 = toc, time2 = tic, units = "min")), 3), " minutes")
   metadata_file = file.path(template_dir, "logs", "metadata.txt")
-  flog.appender(appender.file(metadata_file), name='metadata')
-  flog.info("Creating and saving strata dataframe: %s", elapsed, name="metadata")
-  flog.info("Strata dataframe saved to template_dir > data > sample_strata.rds.", name="metadata")
+  futile.logger::flog.appender(appender.file(metadata_file), name='metadata')
+  futile.logger::flog.info("Creating and saving strata dataframe: %s", elapsed, name="metadata")
+  futile.logger::flog.info("Strata dataframe saved to template_dir > data > sample_strata.rds.", name="metadata")
   
   return(stratum_table)
   
 }
 
-# Delete graphs with too many edges from the list of all graphs (proc_list)
+
+#' delete_crazy_graphs
+#'
+#' delete_crazy_graphs() removes graphs with more than max_edges from the
+#' proc_list output by make_proc_list()
+#'
+#' @param proc_list List of graphs output by make_proc_list()
+#' @param max_edges Maximum number of edges to allow in each graph
+#' @param template_dir Input directory
+#' @return List of graphs
+#'
+#' @noRd
 delete_crazy_graphs = function(proc_list, max_edges, template_dir){
   
   tic = Sys.time()  # start timer
   
   metadata_file = file.path(template_dir, "logs", "metadata.txt")
-  flog.appender(appender.file(metadata_file), name='metadata')
-  flog.info("Making dataframe of strata...", name="metadata")
+  futile.logger::flog.appender(appender.file(metadata_file), name='metadata')
+  futile.logger::flog.info("Making dataframe of strata...", name="metadata")
   # Make vectors of document #, letter #, and strata for each graph
   doc0 = letter0 = stratum0 = c()
   for(i in 1:length(proc_list)){
@@ -156,17 +217,17 @@ delete_crazy_graphs = function(proc_list, max_edges, template_dir){
   stratum_df = data.frame(doc0, letter0, stratum0_fac)
   
   # Delete graphs that have more than max edges from proc_list
-  flog.info("Deleting graphs with more than the max number of edges...", name="metadata")
+  futile.logger::flog.info("Deleting graphs with more than the max number of edges...", name="metadata")
   ok_edges = sort(as.numeric(unique(stratum0[!(stratum0 %in% c("1loop", "2loop"))])))
   num_delete = sum(ok_edges > max_edges)
-  flog.info("%d graphs deleted...", num_delete, name="metadata")
+  futile.logger::flog.info("%d graphs deleted...", num_delete, name="metadata")
   ok_edges = ok_edges[ok_edges <= max_edges]
   ok_edges = c('1loop', '2loop', ok_edges)
-  ok_df = stratum_df %>% filter(stratum0 %in% ok_edges)
+  ok_df = stratum_df %>% dplyr::filter(stratum0 %in% ok_edges)
   for (i in 1:length(proc_list)){
     # Find indices of graphs in document i with fewer than max_edges edges 
     keep_graphs = ok_df %>% 
-      filter(doc0==i)
+      dplyr::filter(doc0==i)
     keep_graphs = keep_graphs$letter
     
     # Only keep graphs in doc i with fewer than max_edges edges
@@ -174,25 +235,36 @@ delete_crazy_graphs = function(proc_list, max_edges, template_dir){
   }
   
   # Save to template directory
-  flog.info("Saving updated graph list to template_dir > data > proc_list.rds", name="metadata")
+  futile.logger::flog.info("Saving updated graph list to template_dir > data > proc_list.rds", name="metadata")
   saveRDS(proc_list, file.path(template_dir, "data", "proc_list.rds"))
   
   # Calculate processing time
   toc = Sys.time()  # stop timer
   elapsed = paste0(round(as.numeric(difftime(time1 = toc, time2 = tic, units = "min")), 3), " minutes")
-  flog.info("Deleted graphs with more than %d edges: %s", max_edges, elapsed, name="metadata")
+  futile.logger::flog.info("Deleted graphs with more than %d edges: %s", max_edges, elapsed, name="metadata")
   
   return(proc_list)
 }
 
-#make_images_list
+
+#' make_images_list
+#'
+#' make_images_list() takes as input the proc_list output by make_proc_list().
+#' It finds the graph locations (column and row numbers) relative to the
+#' centroid of the graph image.
+#'
+#' @param proc_list List of graphs output by make_proc_list()
+#' @param template_dir Input directory
+#' @return List of graphs. The list is saved as template_dir > data > images_list.rds
+#'
+#' @noRd
 make_images_list = function(proc_list, template_dir){
   
   tic = Sys.time()  # start timer
   
   metadata_file = file.path(template_dir, "logs", "metadata.txt")
-  flog.appender(appender.file(metadata_file), name='metadata')
-  flog.info("Processing the image (matrix) for each graph in proc_list...", name="metadata")
+  futile.logger::flog.appender(appender.file(metadata_file), name='metadata')
+  futile.logger::flog.info("Processing the image (matrix) for each graph in proc_list...", name="metadata")
   
   # For each graph, find the locations (column and row numbers) relative to the bottom left corner of the graph image.
   images_list = NULL
@@ -210,19 +282,47 @@ make_images_list = function(proc_list, template_dir){
     return(x)
   })
   
-  flog.info("Saving list of images to template_dir > data > images_list.rds", name="metadata")
+  futile.logger::flog.info("Saving list of images to template_dir > data > images_list.rds", name="metadata")
   saveRDS(images_list, file.path(template_dir, "data", "images_list.rds"))
   
   # Calculate processing time
   toc = Sys.time()  # stop timer
   elapsed = paste0(round(as.numeric(difftime(time1 = toc, time2 = tic, units = "min")), 3), " minutes")
-  flog.info("Saved images list to template_dir > data > images_list.rds: %s", elapsed, name="metadata")
+  futile.logger::flog.info("Saved images list to template_dir > data > images_list.rds: %s", elapsed, name="metadata")
   
   return(images_list)
   
 }
 
-#make_templates
+
+#' make_templates
+#'
+#' `make_templates()` is the main internal function of make_clustering_templates()
+#'
+#' @param num_runs Integer number of cluster templates to create
+#' @param num_cores Integer number of cores. If `num_runs` is greater than 1,
+#'   cluster templates will be created on different cores.
+#' @param K Integer number of clusters
+#' @param num_graphs Number of graphs to use to create the cluster template.
+#'   `All` uses all available graphs. An integer uses a random sample of graphs.
+#' @param num_path_cuts Integer number of sections to cut each graph into for
+#'   shape comparison
+#' @param max_iters Maximum number of iterations to allow the K-means algorithm
+#'   to run
+#' @param gamma Parameter for outliers
+#' @param num_dist_cores Integer number of cores to use for the distance
+#'   calculations in the K-means algorithm. Each iteration of the K-means
+#'   algorithm calculates the distance between each input graph and each cluster
+#'   center.
+#' @param starting_seed Integer seed for the random number generator. If
+#'   `num_runs` is 1 then a single cluster template is created with the starting
+#'   seed. If `num_runs` is greater than 1, multiple cluster templates will be
+#'   created by adding 1, 2, 3, and so on to the starting seed.
+#' @param template_dir Input directory
+#' @return List containing the cluster template(s). The list of all templates is
+#'   saved in template_dir > starting_seed > data.
+#'
+#' @noRd
 make_templates = function(num_runs, 
                           num_cores, 
                           K,
@@ -245,7 +345,7 @@ make_templates = function(num_runs,
   num_outliers=round(.25*length(full_images_list))
   
   # Log parameters ---- 
-  flog.info("Starting the k-means clustering algorithm with... \n num_runs=%d \n num_cores=%d \n num_dist_cores=%d \n K=%d \n num_path_cuts=%d \n max_iters=%d \n gamma=%f \n (max) num_outliers=%d \n starting_seed=%d", 
+  futile.logger::flog.info("Starting the k-means clustering algorithm with... \n num_runs=%d \n num_cores=%d \n num_dist_cores=%d \n K=%d \n num_path_cuts=%d \n max_iters=%d \n gamma=%f \n (max) num_outliers=%d \n starting_seed=%d", 
             num_runs,
             num_cores, 
             num_dist_cores,
@@ -273,14 +373,25 @@ make_templates = function(num_runs,
                                               seed_folder=seed_folder)
   
   # Save template(s) in a single file on the server
-  flog.info("Savinging template(s)...")
+  futile.logger::flog.info("Savinging template(s)...")
   saveRDS(handwriterTemplates, file.path(seed_folder, "data", "all_templates.rds"))
   
   return(handwriterTemplates)
   
 }
 
-#do_setup
+
+#' do_setup
+#'
+#' `do_setup()` creates the folder template_dir > starting_seed. It also creates
+#' data and logs subfolders in the starting_seed folder. It loads proc_list and images_list from 
+#' template_dir > data and starts a log file.
+#'
+#' @param template_dir Input directory
+#' @param starting_seed Integer seed for the random number generator. 
+#' @return List containing proc_list and images_list
+#'
+#' @noRd
 do_setup = function(template_dir, starting_seed){
   
   # Create subfolder in template_dir if it doesn't already exist
@@ -290,11 +401,11 @@ do_setup = function(template_dir, starting_seed){
   make_dir(dir_path=file.path(seed_folder, "data"))
   
   # Start log file
-  flog.appender(appender.file(file.path(seed_folder, "logs", paste0("seed", starting_seed, ".txt"))))
-  flog.info("Start creating new clustering template(s).")
+  futile.logger::flog.appender(appender.file(file.path(seed_folder, "logs", paste0("seed", starting_seed, ".txt"))))
+  futile.logger::flog.info("Start creating new clustering template(s).")
   
   # Load proc_list and imagesList ------------------------------------------
-  flog.info("Loading training graphs from proc_list and imagesList.RDS")
+  futile.logger::flog.info("Loading training graphs from proc_list and imagesList.RDS")
   proc_list=readRDS(file.path(template_dir,"data","proc_list.RDS"))
   imagesList=readRDS(file.path(template_dir,"data","images_list.RDS"))
   data = list("proc_list" = proc_list, "images_list" = imagesList, "seed_folder" = seed_folder)
@@ -302,6 +413,15 @@ do_setup = function(template_dir, starting_seed){
   
 }
 
+
+#' make_dir
+#'
+#' `make_dir()` creates the folder dir_path if it doesn't already exist. Note
+#' that dirname(dir_path) must already exist.
+#'
+#' @param dir_path Path to a directory
+#'
+#' @noRd
 make_dir = function(dir_path){
   if (!dir.exists(dir_path)){
     dir.create(dir_path)
@@ -309,8 +429,39 @@ make_dir = function(dir_path){
 }
 
 
-#RunKLetterMeans
-# runs loop in parallel where each iteration produces a clustering template
+#' runLetterKmeansParallel
+#'
+#' `runLetterKmeansParallel()` creates the number of cluster template()
+#' specified by num_runs.
+#'
+#' @param num_runs Integer number of cluster templates to create
+#' @param num_cores Integer number of cores. If `num_runs` is greater than 1,
+#'   cluster templates will be created on different cores.
+#' @param full_images_list images_list created by make_images_list()
+#' @param proc_list proc_list created by make_proc_list()
+#' @param num_graphs Number of graphs to use to create the cluster template.
+#'   `All` uses all available graphs. An integer uses a random sample of graphs.
+#' @param K Integer number of clusters
+#' @param num_path_cuts Integer number of sections to cut each graph into for
+#'   shape comparison
+#' @param max_iters Maximum number of iterations to allow the K-means algorithm
+#'   to run
+#' @param gamma Parameter for outliers
+#' @param num_outliers Fixed value round(.25*length(full_images_list))
+#' @param num_dist_cores Integer number of cores to use for the distance
+#'   calculations in the K-means algorithm. Each iteration of the K-means
+#'   algorithm calculates the distance between each input graph and each cluster
+#'   center.
+#' @param starting_seed Integer seed for the random number generator. If
+#'   `num_runs` is 1 then a single cluster template is created with the starting
+#'   seed. If `num_runs` is greater than 1, multiple cluster templates will be
+#'   created by adding 1, 2, 3, and so on to the starting seed.
+#' @param template_dir Input directory
+#' @param seed_folder Directory for the starting seed. I.e. template_dir >
+#'   starting seed
+#' @return List of cluster template(s)
+#'
+#' @noRd
 runLetterKmeansParallel=function(num_runs, 
                                  num_cores, 
                                  full_images_list,
@@ -333,7 +484,7 @@ runLetterKmeansParallel=function(num_runs,
   }
 
   doParallel::registerDoParallel(num_cores)
-  resList=foreach(i=1:num_runs, 
+  resList=foreach::foreach(i=1:num_runs, 
                   .export = c('make_dir', 'chooseCenters', 'runAndSaveKmeans', 
                               'letterKmeansWithOutlier_parallel', 'within_cluster_sum_of_squares', 'root_mean_square_error', 'davies_bouldin', 'variance_ratio_criterion', 'overall_meanGraph'), 
                   .packages = c('futile.logger', 'tidyr', 'dplyr', 'purrr', 'handwriter', 'parallel', 'doParallel', 'lpSolve')) %dopar% {
@@ -357,39 +508,79 @@ runLetterKmeansParallel=function(num_runs,
     make_dir(dir_path=file.path(run_folder, "data"))
     
     # Start new log file for run i
-    flog.appender(appender.file(file.path(run_folder, "logs", paste0(template_name, ".txt"))), name=paste0("run", i))
-    flog.info("Start creating template %d", i, ".", name=paste0("run", i))
+    futile.logger::flog.appender(appender.file(file.path(run_folder, "logs", paste0(template_name, ".txt"))), name=paste0("run", i))
+    futile.logger::flog.info("Start creating template %d", i, ".", name=paste0("run", i))
     
     # Choose cluster centers. NOTE: Even if you are testing the code on a small number of 
     # graphs, you need to select centers from the full list of graphs.
-    flog.info("Choosing starting cluster centers.", name=paste0("run", i))
+    futile.logger::flog.info("Choosing starting cluster centers.", name=paste0("run", i))
     centers=chooseCenters(run_seed=run_seed, K=K, proc_list=proc_list, images_list=full_images_list)
     
     # Run Kmeans
     template=runAndSaveKmeans(run_number=i, images_list=images_list, K=K, num_path_cuts=num_path_cuts, 
                               max_iters=max_iters, gamma=gamma, num_outliers=num_outliers, 
-                              centers=centers, num_dist_cores=num_dist_cores, run_seed=run_seed, 
+                              centers=centers, num_dist_cores=num_dist_cores, 
                               run_folder=run_folder, template_name=template_name)
   }
   return(resList)
 }
 
 
-# Helper function - calls another function to create a clustering template, then saves the template
+#' runAndSaveKmeans
+#'
+#' `runAndSaveKmeans()` creates the number of cluster template()
+#' specified by num_runs.
+#'
+#' @param run_number Integer number of current run
+#' @param num_cores Integer number of cores. If `num_runs` is greater than 1,
+#'   cluster templates will be created on different cores.
+#' @param images_list Either the full images_list or a subset of graphs in images_list
+#' @param K Integer number of clusters
+#' @param centers List of K starting cluster centers output by chooseCenters()
+#' @param num_path_cuts Integer number of sections to cut each graph into for
+#'   shape comparison
+#' @param max_iters Maximum number of iterations to allow the K-means algorithm
+#'   to run
+#' @param gamma Parameter for outliers
+#' @param num_outliers Fixed value round(.25*length(full_images_list))
+#' @param num_dist_cores Integer number of cores to use for the distance
+#'   calculations in the K-means algorithm. Each iteration of the K-means
+#'   algorithm calculates the distance between each input graph and each cluster
+#'   center.
+#' @param run_folder Directory path to template_dir > seed folder > run folder
+#' @param template_name Cluster template. Cluster template is saved to run_folder > data.
+#' @return List of cluster template(s)
+#'
+#' @noRd
 runAndSaveKmeans=function(run_number, images_list, K, centers, num_path_cuts, max_iters, gamma, 
-                          num_outliers, num_dist_cores, run_seed, run_folder, template_name)
+                          num_outliers, num_dist_cores, run_folder, template_name)
 {
   template=letterKmeansWithOutlier_parallel(run_number=run_number, images_list=images_list, K=K, 
                                             num_path_cuts=num_path_cuts, max_iters=max_iters, 
                                             gamma=gamma, num_outliers=num_outliers, centers=centers, 
                                             num_dist_cores=num_dist_cores)
-  flog.info("Saving template %d .", run_number, name=paste0("run", run_number))
+  futile.logger::flog.info("Saving template %d .", run_number, name=paste0("run", run_number))
   saveRDS(template, file=file.path(run_folder, "data", paste0(template_name, ".rds")))
   return(template)
 }
 
 
-# Starting Centers --------------------------------------------------------
+#' chooseCenters
+#'
+#' `chooseCenters()` selects starting centers for the K-means algorithm. All
+#' graphs in proc_list and images_list are sorted by strata, the number of loops
+#' and edges. For each stratum, a set number of graphs is selected as a starting
+#' cluster center. Previous experiments showed that stratified sampling produces
+#' better cluster templates than a simple random sample. Amy Crawford found the
+#' numbers hardcoded into numstrat to yield good results when K=40.
+#'
+#' @param run_number Integer number of current run
+#' @param K Integer number of clusters
+#' @param proc_list List of graphs output by make_proc_list()
+#' @param images_list List of graphs output by make_images_list()
+#' @return List of starting cluster centers
+#'
+#' @noRd
 chooseCenters = function(run_seed, K, proc_list, images_list) {
   set.seed(seed=run_seed)
   
@@ -414,15 +605,15 @@ chooseCenters = function(run_seed, K, proc_list, images_list) {
   
   samplingdf=data.frame(doc=doc, letter=letter, stratum=stratum_a, ind=1:length(stratum_a))
   samplingdf=samplingdf %>%
-    mutate(stratumfac=factor(stratum, levels=lvls)) %>%
-    group_by(stratumfac) %>% 
-    nest() %>%            
-    ungroup() %>% 
-    arrange(stratumfac) %>%
-    mutate(n=numstrat) %>% 
-    mutate(samp=map2(data, n, sample_n)) %>% 
-    select(-data) %>%
-    unnest(samp)
+    dplyr::mutate(stratumfac=factor(stratum, levels=lvls)) %>%
+    dplyr::group_by(stratumfac) %>% 
+    tidyr::nest() %>%            
+    dplyr::ungroup() %>% 
+    dplyr::arrange(stratumfac) %>%
+    dplyr::mutate(n=numstrat) %>% 
+    dplyr::mutate(samp=map2(data, n, sample_n)) %>% 
+    dplyr::select(-data) %>%
+    tidyr::unnest(samp)
   
   # Reformat starting cluster centers as prototype graphs
   centerstarts=replicate(K, list())
@@ -434,7 +625,28 @@ chooseCenters = function(run_seed, K, proc_list, images_list) {
 }
 
 
-# Kmeans ------------------------------------------------------------------
+#' letterKmeansWithOutlier_parallel
+#'
+#' `letterKmeansWithOutlier_parallel()` runs the K-means clustering algorithm on
+#' images_list with centers as the starting cluster centers.
+#' 
+#' @param images_list Either the full images_list or a subset of graphs in images_list output by make_images_list()
+#' @param K Integer number of clusters
+#' @param centers List of starting cluster centers output by chooseCenters()
+#' @param num_path_cuts Integer number of sections to cut each graph into for
+#'   shape comparison
+#' @param max_iters Maximum number of iterations to allow the K-means algorithm
+#'   to run
+#' @param gamma Parameter for outliers
+#' @param num_outliers Fixed value round(.25*length(full_images_list))
+#' @param num_dist_cores Integer number of cores to use for the distance
+#'   calculations in the K-means algorithm. Each iteration of the K-means
+#'   algorithm calculates the distance between each input graph and each cluster
+#'   center.
+#' @param run_number Integer number of current run
+#' @return Cluster template
+#'
+#' @noRd
 letterKmeansWithOutlier_parallel = function(images_list, K, centers, num_path_cuts, max_iters, gamma, 
                                           num_outliers, num_dist_cores, run_number)
 { 
@@ -470,12 +682,12 @@ letterKmeansWithOutlier_parallel = function(images_list, K, centers, num_path_cu
   { 
     # Cluster Assignment Step ---------------------------------------------------------
     iters=iters + 1
-    flog.info("Starting iteration %d.", iters, name=paste0("run", run_number))
+    futile.logger::flog.info("Starting iteration %d.", iters, name=paste0("run", run_number))
     
-    flog.info("Calculating the distances between graphs and cluster centers.", name=paste0("run", run_number))
+    futile.logger::flog.info("Calculating the distances between graphs and cluster centers.", name=paste0("run", run_number))
     # Calculate the distance between each graph and each cluster center. If the cluster center didn't change, the distances for that
     # cluster don't need to be recalculated
-    listoflengthi=foreach(i=1:length(images_list), .export=c('getGraphDistance'), .packages = c('lpSolve')) %dopar% { # for each graph i
+    listoflengthi=foreach::foreach(i=1:length(images_list), .export=c('getGraphDistance'), .packages = c('lpSolve')) %dopar% { # for each graph i
       for(j in 1:K)  # for each cluster j
       {
         if(centerMoved[j] | centerMovedOld[j])  # if cluster j's center changed
@@ -488,7 +700,7 @@ letterKmeansWithOutlier_parallel = function(images_list, K, centers, num_path_cu
       return(vecoflengthj)
     }
     
-    flog.info("Assigning graphs to clusters.", name=paste0("run", run_number))
+    futile.logger::flog.info("Assigning graphs to clusters.", name=paste0("run", run_number))
     # put distances between graphs and cluster centers in a matrix
     dists=matrix(unlist(listoflengthi), nrow=length(images_list), ncol=K, byrow=TRUE)
     
@@ -539,54 +751,54 @@ letterKmeansWithOutlier_parallel = function(images_list, K, centers, num_path_cu
     current_changes=sum(cluster != oldCluster)
     changes=c(changes, current_changes)
     current_perc_changes=100*current_changes/n
-    flog.info("%d graphs changed clusters.", current_changes, name=paste0("run", run_number))
-    flog.info("%f percent of total graphs changed clusters.", current_perc_changes, name=paste0("run", run_number))
+    futile.logger::flog.info("%d graphs changed clusters.", current_changes, name=paste0("run", run_number))
+    futile.logger::flog.info("%f percent of total graphs changed clusters.", current_perc_changes, name=paste0("run", run_number))
     
     
     # Performance Measures ----------------------------------------------------
     # Caclulate the Within-Cluster Sum of Squares
     current_wcss = within_cluster_sum_of_squares(wcd=current_wcd, cluster=cluster)
     wcss = c(wcss, current_wcss)
-    flog.info("The within-cluster sum of squares is %f.", current_wcss, name=paste0("run", run_number))
+    futile.logger::flog.info("The within-cluster sum of squares is %f.", current_wcss, name=paste0("run", run_number))
     
     # Calculate the root mean square error
     current_rmse = root_mean_square_error(wcd=current_wcd, cluster=cluster)
     rmse = c(rmse, current_rmse)
-    flog.info("The root mean square error is %f.", current_rmse, name=paste0("run", run_number))
+    futile.logger::flog.info("The root mean square error is %f.", current_rmse, name=paste0("run", run_number))
     
     # Calculate the Davies-Bouldin Index
     current_db=davies_bouldin(wcd=current_wcd, cluster=cluster, centers=centers, K=K, num_path_cuts=num_path_cuts)
     db=c(db, current_db)
-    flog.info("The Davies-Bouldin Index is %f.", current_db, name=paste0("run", run_number))
+    futile.logger::flog.info("The Davies-Bouldin Index is %f.", current_db, name=paste0("run", run_number))
     
     # Calculate the variance ratio criterion
     current_vrc=variance_ratio_criterion(wcd=current_wcd, cluster=cluster, centers=centers, K=K, num_path_cuts=num_path_cuts)
     vrc=c(vrc, current_vrc)
-    flog.info("The variance ratio criterion is %f.", current_vrc, name=paste0("run", run_number))
+    futile.logger::flog.info("The variance ratio criterion is %f.", current_vrc, name=paste0("run", run_number))
     
     # Check Stopping Criteria -------------------------------------------------
     # Stop if the percent of graphs that changed clusters is <= 3%, if the
     # number of graphs that changed clusters has been constant for 3 consecutive
     # iterations, or if the max number of iterations has been reached
     if (current_perc_changes <=3){
-      flog.info("Percent of graphs that changed clusters is 3% or less. Stopping K-means algorithm.", name=paste0("run", run_number))
+      futile.logger::flog.info("Percent of graphs that changed clusters is 3% or less. Stopping K-means algorithm.", name=paste0("run", run_number))
       stop_reason = "3 percent"
       break
     }
     if ((length(tail(changes, n=3))==3) & (length(unique(tail(changes, n=3)))==1)){
-      flog.info("The same number of graphs have changed clusters on the last three iterations. Stopping K-means algorithm.", name=paste0("run", run_number))
+      futile.logger::flog.info("The same number of graphs have changed clusters on the last three iterations. Stopping K-means algorithm.", name=paste0("run", run_number))
       stop_reason = "flatline"
       break
     }
     if(iters >= max_iters){
-      flog.info("The maximum number of iterations has been reached. Stopping K-means algorithm.", name=paste0("run", run_number))
+      futile.logger::flog.info("The maximum number of iterations has been reached. Stopping K-means algorithm.", name=paste0("run", run_number))
       stop_reason = "max iterations"
       break
     }
     
     
     # Update Centers Step -------------------------------------------------------------
-    flog.info("Calculating new cluster centers.", name=paste0("run", run_number))
+    futile.logger::flog.info("Calculating new cluster centers.", name=paste0("run", run_number))
     # Record whether each graph changed clusters
     whichChanged=!(oldCluster == cluster)
     
@@ -616,6 +828,17 @@ letterKmeansWithOutlier_parallel = function(images_list, K, centers, num_path_cu
 }
 
 
+#' meanGraphSet_slowchange
+#'
+#' `meanGraphSet_slowchange()` calculates the mean graph of the graphs in the input images_list and returns the 
+#' graph in images_list closest to the mean graph
+#' 
+#' @param images_list List of graphs contained in a specific cluster
+#' @param num_path_cuts Integer number of sections to cut each graph into for
+#'   shape comparison
+#' @return The input graph closest to the mean graph
+#'
+#' @noRd
 meanGraphSet_slowchange=function(images_list, num_path_cuts=4)
 {
   # indices=sample.int(length(images_list)) # adds graphs to mean calculations in a random order
@@ -655,6 +878,20 @@ meanGraphSet_slowchange=function(images_list, num_path_cuts=4)
 }
 
 
+#' overall_meanGraph
+#'
+#' `overall_meanGraph()` calculates the overall mean graph of the cluster
+#' centers and returns the cluster center that is closest to the overall mean
+#' graph. Calculating the true overall mean graph from every graph used to
+#' create the clustering template is too computationally expensive, so we use
+#' this as an estimation of the true overall mean.
+#'
+#' @param centers List of cluster centers
+#' @param num_path_cuts Integer number of sections to cut each graph into for
+#'   shape comparison
+#' @return The cluster center closest to the overall mean graph
+#'
+#' @noRd
 overall_meanGraph=function(centers, num_path_cuts=8)
 {
   indices=1:length(centers) # adds graphs in order
@@ -687,8 +924,22 @@ overall_meanGraph=function(centers, num_path_cuts=8)
   return(list('overall_center_dists'=dists, overall_center=centers[[retindex]]))
 }
 
-#Performance
-# Davies-Bouldin Index ----------------------------------------------------
+
+#' davies_bouldin
+#'
+#' davies_bouldin() calculates the Davies-Bouldin Index for the current
+#' iteration of the K-means algorithm
+#'
+#' @param wcd Matrix of within-cluster distances: the distances between each
+#'   graph and each cluster center
+#' @param cluster Vector of the cluster assignment for each graph
+#' @param centers List of cluster centers
+#' @param K Integer number of clusters
+#' @param num_path_cuts Integer number of sections to cut each graph into for
+#'   shape comparison
+#' @return The Davies-Bouldin Index
+#'
+#' @noRd
 davies_bouldin = function(wcd, cluster, centers, K, num_path_cuts){
   # For each cluster, calculate the average distance between the graphs in that cluster and the cluster center
   s = rep(0, K)
@@ -732,8 +983,21 @@ davies_bouldin = function(wcd, cluster, centers, K, num_path_cuts){
 }
 
 
-# Variance Ratio Criterion ------------------------------------------------
-
+#' variance_ratio_criterion
+#'
+#' variance_ratio_criterion() calculates the varience-ratio criterion for the
+#' current iteration of the K-means algorithm
+#'
+#' @param wcd Matrix of within-cluster distances: the distances between each
+#'   graph and each cluster center
+#' @param cluster Vector of the cluster assignment for each graph
+#' @param centers List of cluster centers
+#' @param K Integer number of clusters
+#' @param num_path_cuts Integer number of sections to cut each graph into for
+#'   shape comparison
+#' @return The variance-ratio criterion
+#'
+#' @noRd
 variance_ratio_criterion = function(wcd, cluster, centers, K, num_path_cuts){
   # Count the number of graphs in each non-outlier cluster
   ni = c()
@@ -761,8 +1025,17 @@ variance_ratio_criterion = function(wcd, cluster, centers, K, num_path_cuts){
 }
 
 
-# Within-Cluster Sum of Squares -------------------------------------------
-
+#' within_cluster_sum_of_squares
+#'
+#' within_cluster_sum_of_squares() calculates the the within-cluster sum of squares for the
+#' current iteration of the K-means algorithm
+#'
+#' @param wcd Matrix of within-cluster distances: the distances between each
+#'   graph and each cluster center
+#' @param cluster Vector of the cluster assignment for each graph
+#' @return The within-cluster sum of squares
+#'
+#' @noRd
 within_cluster_sum_of_squares = function(wcd, cluster){
   # Get within cluster distances of non-outlier clusters
   wcd = wcd[cluster != -1]
@@ -774,9 +1047,17 @@ within_cluster_sum_of_squares = function(wcd, cluster){
 }
 
 
-
-# Root Mean Square Error --------------------------------------------------
-
+#' root_mean_square_error
+#'
+#' root_mean_square_error() calculates the the root mean square error for the
+#' current iteration of the K-means algorithm
+#'
+#' @param wcd Matrix of within-cluster distances: the distances between each
+#'   graph and each cluster center
+#' @param cluster Vector of the cluster assignment for each graph
+#' @return The root mean square error
+#'
+#' @noRd
 root_mean_square_error = function(wcd, cluster){
   # Get within cluster distances of non-outlier clusters
   wcd = wcd[cluster != -1]
