@@ -261,8 +261,7 @@ bool checkStep6(const arma::mat &img, int row, int col)
 {
   int connectivityCounter = 0;
   int blackNeighborCounter = 0;
-  arma::vec ring = zeros<arma::vec>(9);
-  ring << img(row, col) << img(row, col+1) << img(row, col+2) << img(row+1, col+2) << img(row+2, col+2) << img(row+2, col+1) << img(row+2, col) << img(row+1, col) << img(row, col);
+  arma::vec ring( { img(row, col), img(row, col+1), img(row, col+2), img(row+1, col+2), img(row+2, col+2), img(row+2, col+1), img(row+2, col), img(row+1, col), img(row, col) });
   for(int i = 0; i < 8; i++)
   {
     if(ring(i) == 1 && ring(i+1) == 0)
