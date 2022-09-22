@@ -246,7 +246,7 @@ solveLP = function(dists)
   b = rep(1, 2 * dims)
   
   # Solve the optimatize problem
-  x = lp(
+  x = lpSolve::lp(
     direction = "min",  # direction of optimatization
     objective.in = costs,  # coefficients of objective function
     const.mat = A,  # matrix of constraints
