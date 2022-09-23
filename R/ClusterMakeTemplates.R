@@ -53,6 +53,10 @@ make_clustering_templates = function(template_dir,
   
   options(scipen = 999)
   
+  # make sub-folders
+  make_dir(file.path(template_dir, "data"))
+  make_dir(file.path(template_dir, "logs"))
+  
   # Make a master rds file that contains all of the graphs from all samples in the dataframe
   # proc_list needed for next step
   proc_list = make_proc_list(template_dir=template_dir)
@@ -148,7 +152,7 @@ get_strata = function(proc_list, template_dir){
   tic = Sys.time()  # start timer
   
   metadata_file = file.path(template_dir, "logs", "metadata.txt")
-  futile.logger::flog.appender(appender.file(metadata_file), name='metadata')
+  futile.logger::flog.appender(futile.logger::appender.file(metadata_file), name='metadata')
   futile.logger::flog.info("Starting making a dataframe of the number of graphs with various numbers of loops and edges...", name="metadata")
   
   # Set Max Number of Edges Per Graph -------------------------------------------------
@@ -165,7 +169,9 @@ get_strata = function(proc_list, template_dir){
   # Make dataframe of strata
   stratum0_fac = factor(stratum0, levels = c("1loop", "2loop", sort(as.numeric(unique(stratum0[!(stratum0 %in% c("1loop", "2loop"))])))))
   stratum_df = data.frame(doc0, letter0, stratum0_fac)
-  stratum_table = stratum_df %>% group_by(stratum0_fac) %>% summarize(n=n())
+  stratum_table = stratum_df %>% 
+    dplyr::group_by(stratum0_fac) %>% 
+    dplyr::summarize(n=dplyr::n())
   
   # Save strata to csv file
   futile.logger::flog.info("Saving dataframe to template_dir > data > sample_strata.rds.", name="metadata")
@@ -175,7 +181,7 @@ get_strata = function(proc_list, template_dir){
   toc = Sys.time()
   elapsed = paste0(round(as.numeric(difftime(time1 = toc, time2 = tic, units = "min")), 3), " minutes")
   metadata_file = file.path(template_dir, "logs", "metadata.txt")
-  futile.logger::flog.appender(appender.file(metadata_file), name='metadata')
+  futile.logger::flog.appender(futile.logger::appender.file(metadata_file), name='metadata')
   futile.logger::flog.info("Creating and saving strata dataframe: %s", elapsed, name="metadata")
   futile.logger::flog.info("Strata dataframe saved to template_dir > data > sample_strata.rds.", name="metadata")
   
@@ -200,7 +206,7 @@ delete_crazy_graphs = function(proc_list, max_edges, template_dir){
   tic = Sys.time()  # start timer
   
   metadata_file = file.path(template_dir, "logs", "metadata.txt")
-  futile.logger::flog.appender(appender.file(metadata_file), name='metadata')
+  futile.logger::flog.appender(futile.logger::appender.file(metadata_file), name='metadata')
   futile.logger::flog.info("Making dataframe of strata...", name="metadata")
   # Make vectors of document #, letter #, and strata for each graph
   doc0 = letter0 = stratum0 = c()
@@ -263,7 +269,7 @@ make_images_list = function(proc_list, template_dir){
   tic = Sys.time()  # start timer
   
   metadata_file = file.path(template_dir, "logs", "metadata.txt")
-  futile.logger::flog.appender(appender.file(metadata_file), name='metadata')
+  futile.logger::flog.appender(futile.logger::appender.file(metadata_file), name='metadata')
   futile.logger::flog.info("Processing the image (matrix) for each graph in proc_list...", name="metadata")
   
   # For each graph, find the locations (column and row numbers) relative to the bottom left corner of the graph image.
@@ -401,7 +407,7 @@ do_setup = function(template_dir, starting_seed){
   make_dir(dir_path=file.path(seed_folder, "data"))
   
   # Start log file
-  futile.logger::flog.appender(appender.file(file.path(seed_folder, "logs", paste0("seed", starting_seed, ".txt"))))
+  futile.logger::flog.appender(futile.logger::appender.file(file.path(seed_folder, "logs", paste0("seed", starting_seed, ".txt"))))
   futile.logger::flog.info("Start creating new clustering template(s).")
   
   # Load proc_list and imagesList ------------------------------------------
@@ -508,7 +514,7 @@ runLetterKmeansParallel=function(num_runs,
     make_dir(dir_path=file.path(run_folder, "data"))
     
     # Start new log file for run i
-    futile.logger::flog.appender(appender.file(file.path(run_folder, "logs", paste0(template_name, ".txt"))), name=paste0("run", i))
+    futile.logger::flog.appender(futile.logger::appender.file(file.path(run_folder, "logs", paste0(template_name, ".txt"))), name=paste0("run", i))
     futile.logger::flog.info("Start creating template %d", i, ".", name=paste0("run", i))
     
     # Choose cluster centers. NOTE: Even if you are testing the code on a small number of 
