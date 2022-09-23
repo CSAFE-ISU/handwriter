@@ -1,3 +1,74 @@
+#' @export
+format_model_data <- function(proc_list, writer_indices, doc_indices) {
+  # get cluster fill counts
+  cluster_fill_counts <- get_cluster_fill_counts(proc_list, writer_indices, doc_indices)
+  
+  # get cluster assignment, slope, and pc_rotation for each letter in each model doc
+  model_graphs <- get_letter_measurements(proc_list, writer_indices, doc_indices)
+  
+  data = list(bucketData = cluster_fill_counts, measData = model_graphs)
+  return(data)
+}
+
+
+get_letter_measurements <- function(proc_list, writer_indices, doc_indices) {
+  # get doc names from proclist
+  model_docs <- sapply(proc_list, function(x) x$docname)
+  
+  # get writer ids
+  writers <- as.numeric(sapply(model_docs, function(x) substr(x, start = writer_indices[1], stop = writer_indices[2])))
+  docs <- sapply(model_docs, function(x) substr(x, start = doc_indices[1], stop = doc_indices[2]), USE.NAMES = FALSE)
+  
+  for(j in 1:length(proc_list)){ # for each doc
+    # initialize dataframe
+    letter_measurements = data.frame(matrix(ncol = 1, nrow = length(proc_list[[j]]$process$letterList)))
+    names(letter_measurements) = c("writer")
+    
+    # add writer and doc names
+    letter_measurements$writer = writers[j]
+    letter_measurements$doc = docs[j]
+    
+    # add cluster assignment
+    letter_measurements$cluster = sapply(proc_list[[j]]$process$letterList, function(x){x$cluster})
+    
+    # add other measurements
+    letter_measurements$slope = sapply(proc_list[[j]]$process$letterList, function(x){x$characterFeatures$slope})
+    letter_measurements$pc_rotation = sapply(proc_list[[j]]$process$letterList, function(x){xv = x$characterFeatures$xvar; yv = x$characterFeatures$yvar; cv = x$characterFeatures$covar; eig = eigen(cbind(c(xv, cv), c(cv, yv)), symmetric = TRUE); return(angle(t(as.matrix(eig$vectors[,1])), as.matrix(c(1,0))))});
+    letter_measurements$pc_wrapped = letter_measurements$pc_rotation*2
+    
+    # add to master dataframe
+    if(j == 1){
+      df = letter_measurements
+    } else {
+      df = rbind(df, letter_measurements)
+    }
+  }
+  
+  # make writer and cluster factors and sort
+  df = df %>% 
+    dplyr::mutate(writer = factor(writer, levels = unique(writer)), 
+                  cluster = factor(cluster)) %>%
+    dplyr::arrange(writer, doc, cluster)
+  
+  return(df)
+}
+
+
+get_cluster_fill_counts <- function(proc_list, writer_indices, doc_indices){
+  # get cluster assignments for each graph
+  graphs <- get_letter_measurements(proc_list, writer_indices, doc_indices)
+  
+  # count number of graphs in each cluster for each writer
+  cluster_fill_counts <- graphs %>% 
+    dplyr::group_by(writer, doc, cluster) %>%
+    dplyr::summarise(n = n()) %>%
+    tidyr::spread(key = cluster, value = n, fill = 0)
+  
+  return(cluster_fill_counts)
+}
+
+
+# OLD? --------------------------------------------------------------------
 modelquantities_wrappedcauchy_share = function(bucketData, measData, a, b, c, d, e)
 {
   dat = list(Y = bucketData[,-c(1,2)],         # multinomial data
