@@ -275,7 +275,16 @@ void countWBTransitions(const arma::mat &img, uvec checkList, vec &toWhite)
   for(int i = 0; i < checkList.n_elem; i++)
   {
     cell = checkList[i];
-    neighborInd = { cell - 1, cell + n - 1, cell + n, cell + n + 1, cell + 1, cell - n + 1, cell - n, cell - n - 1, cell - 1 };
+    neighborInd.at(0) = cell - 1;
+    neighborInd.at(1) = cell + n - 1;
+    neighborInd.at(2) = cell + n;
+    neighborInd.at(3) = cell + n + 1;
+    neighborInd.at(4) = cell + 1;
+    neighborInd.at(5) = cell - n + 1;
+    neighborInd.at(6) = cell - n;
+    neighborInd.at(7) = cell - n - 1;
+    neighborInd.at(8) = cell - 1;
+    // neighborInd = { cell - 1, cell + n - 1, cell + n, cell + n + 1, cell + 1, cell - n + 1, cell - n, cell - n - 1, cell - 1 };
     counter = 0;
     for(int j = 0; j < 8; j++)
     {
