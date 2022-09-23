@@ -1,12 +1,31 @@
+#' format_model_data
+#'
+#' `format_model_data()` formats the data need for the rjags model.
+#'
+#' @param proc_list List of processed handwriting from a set of documents created by 
+#'   `get_clusterassignment()`. Each item in the list contains the extracted graphs and from a document.
+#' @param writer_indices Vector of start and end indices for the writer id in the document names.
+#' @param doc_indices Vector of start and end indices for the document id in the document names.
+#' @param a Scalar
+#' @param b Scalar
+#' @param c Scalar
+#' @param d Scalar
+#' @param e Scalar
+#' @return List of data formated for rjags.
+#' 
 #' @export
-format_model_data <- function(proc_list, writer_indices, doc_indices) {
+#' @md
+format_model_data <- function(proc_list, writer_indices, doc_indices, a, b, c, d, e) {
+  
+  # get cluster assignment, slope, and pc_rotation for each letter in each model doc
+  graph_measurements <- get_letter_measurements(proc_list, writer_indices, doc_indices)
+  
   # get cluster fill counts
   cluster_fill_counts <- get_cluster_fill_counts(proc_list, writer_indices, doc_indices)
   
-  # get cluster assignment, slope, and pc_rotation for each letter in each model doc
-  model_graphs <- get_letter_measurements(proc_list, writer_indices, doc_indices)
+  # format data for rjags
+  data <- format_wrapped_cauchy_data(cluster_fill_counts, graph_measurements, a, b, c, d, e)
   
-  data = list(bucketData = cluster_fill_counts, measData = model_graphs)
   return(data)
 }
 
@@ -54,6 +73,7 @@ get_letter_measurements <- function(proc_list, writer_indices, doc_indices) {
 }
 
 
+#' @export
 get_cluster_fill_counts <- function(proc_list, writer_indices, doc_indices){
   # get cluster assignments for each graph
   graphs <- get_letter_measurements(proc_list, writer_indices, doc_indices)
@@ -67,6 +87,29 @@ get_cluster_fill_counts <- function(proc_list, writer_indices, doc_indices){
   return(cluster_fill_counts)
 }
 
+
+format_wrapped_cauchy_data = function(cluster_fill_counts, graph_measurements, a, b, c, d, e)
+{
+  data = list(Y = cluster_fill_counts[,-c(1,2)],         # multinomial data
+              G = ncol(cluster_fill_counts[,-c(1,2)]),   # number of clusters (40)
+              D = nrow(cluster_fill_counts[,-c(1,2)]),   # total number of documents
+              W = length(unique(cluster_fill_counts$writer)), # number of unique writers
+              #docwise
+              docN = apply(cluster_fill_counts[,-c(1,2)], FUN = sum, MARGIN =  1),  # number of letters in each doc, e.g. N[1] = 354
+              docwriter = as.numeric(as.factor(cluster_fill_counts$writer)),  # vector of writers for each document
+              #letterwise
+              zero_vec = rep(0, times = length(graph_measurements$pc_wrapped)),
+              ones = rep(1, times = length(graph_measurements$pc_wrapped)),
+              Gsmall = length(unique(graph_measurements$cluster)), # number of clusters (20)
+              numletters = length(graph_measurements$pc_wrapped), # total number of letters 
+              pc_wrapped = graph_measurements$pc_wrapped, #principal component rotation observations
+              letterwriter = as.numeric(graph_measurements$writer), #vector of writers for each letter
+              lettercluster = as.numeric(graph_measurements$cluster), #vector of cluster assignments, one for each letter
+              zero_mat = matrix(0, nrow = length(unique(cluster_fill_counts$writer)), ncol = length(unique(graph_measurements$cluster))),
+              a = a, b = b, c = c, d = d, e = e)
+  
+  return(data)
+}
 
 # OLD? --------------------------------------------------------------------
 modelquantities_wrappedcauchy_share = function(bucketData, measData, a, b, c, d, e)
