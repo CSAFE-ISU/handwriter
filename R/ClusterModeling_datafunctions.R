@@ -2,17 +2,20 @@
 #'
 #' `format_model_data()` formats the data need for the rjags model.
 #'
-#' @param proc_list List of processed handwriting from a set of documents created by 
-#'   `get_clusterassignment()`. Each item in the list contains the extracted graphs and from a document.
-#' @param writer_indices Vector of start and end indices for the writer id in the document names.
-#' @param doc_indices Vector of start and end indices for the document id in the document names.
+#' @param proc_list List of processed handwriting from a set of documents
+#'   created by `get_clusterassignment()`. Each item in the list contains the
+#'   extracted graphs from a document.
+#' @param writer_indices Vector of start and end indices for the writer id in
+#'   the document names.
+#' @param doc_indices Vector of start and end indices for the document id in the
+#'   document names.
 #' @param a Scalar
 #' @param b Scalar
 #' @param c Scalar
 #' @param d Scalar
 #' @param e Scalar
 #' @return List of data formated for rjags.
-#' 
+#'
 #' @export
 #' @md
 format_model_data <- function(proc_list, writer_indices, doc_indices, a, b, c, d, e) {
@@ -29,7 +32,22 @@ format_model_data <- function(proc_list, writer_indices, doc_indices, a, b, c, d
   return(data)
 }
 
-
+#' get_letter_measurements
+#'
+#' `get_letter_measurements()` makes a data frame that shows the cluster
+#' assignment, slope, principal component rotation angle, and wrapped principal
+#' component rotation angle for each graph in each document in `proc_list`.
+#'
+#' @param proc_list List of processed handwriting from a set of documents
+#'   created by `get_clusterassignment()`. Each item in the list contains the
+#'   extracted graphs from a document.
+#' @param writer_indices Vector of start and end indices for the writer id in
+#'   the document names.
+#' @param doc_indices Vector of start and end indices for the document id in the
+#'   document names.
+#' @return A data frame of graph measurements for each graph in `proc_list`.
+#'
+#' @noRd
 get_letter_measurements <- function(proc_list, writer_indices, doc_indices) {
   # get doc names from proclist
   model_docs <- sapply(proc_list, function(x) x$docname)
@@ -72,7 +90,20 @@ get_letter_measurements <- function(proc_list, writer_indices, doc_indices) {
   return(df)
 }
 
-
+#' get_cluster_fill_counts
+#'
+#' `get_cluster_fill_counts` counts the number of graphs assigned to each
+#' cluster in the cluster template for each document in `proc_list`.
+#'
+#' @param proc_list List of processed handwriting from a set of documents
+#'   created by `get_clusterassignment()`. Each item in the list contains the
+#'   extracted graphs from a document.
+#' @param writer_indices Vector of start and end indices for the writer id in
+#'   the document names.
+#' @param doc_indices Vector of start and end indices for the document id in the
+#'   document names.
+#' @return A data frame of cluster fill counts for each document in `proc_list`.
+#'
 #' @export
 get_cluster_fill_counts <- function(proc_list, writer_indices, doc_indices){
   # get cluster assignments for each graph
@@ -81,7 +112,7 @@ get_cluster_fill_counts <- function(proc_list, writer_indices, doc_indices){
   # count number of graphs in each cluster for each writer
   cluster_fill_counts <- graphs %>% 
     dplyr::group_by(writer, doc, cluster) %>%
-    dplyr::summarise(n = n()) %>%
+    dplyr::summarise(n = dplyr::n()) %>%
     tidyr::spread(key = cluster, value = n, fill = 0)
   
   return(cluster_fill_counts)
@@ -99,7 +130,6 @@ format_wrapped_cauchy_data = function(cluster_fill_counts, graph_measurements, a
               docwriter = as.numeric(as.factor(cluster_fill_counts$writer)),  # vector of writers for each document
               #letterwise
               zero_vec = rep(0, times = length(graph_measurements$pc_wrapped)),
-              ones = rep(1, times = length(graph_measurements$pc_wrapped)),
               Gsmall = length(unique(graph_measurements$cluster)), # number of clusters (20)
               numletters = length(graph_measurements$pc_wrapped), # total number of letters 
               pc_wrapped = graph_measurements$pc_wrapped, #principal component rotation observations

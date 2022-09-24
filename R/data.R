@@ -65,3 +65,56 @@
 #' twoSent_processList = processHandwriting(twoSent_document$thin, dim(twoSent_document$image))
 #' }
 "twoSent"
+
+#' Example of list of model training data for the hierarchical model
+#'
+#' @format List created by `get_clusterassignment` with extra fields removed to
+#'   make the example file smaller. 
+#' @examples
+#' writer_indices = c(2,5)
+#' doc_indices = c(7,18)
+#' model_data = format_model_data(example_model_proc_list, 
+#'      writer_indices, 
+#'      doc_indices,  
+#'      a = 2, b = 0.25, c = 2, d = 2, e = 0.5)
+"example_model_proc_list"
+
+#' Example of model training data formatted for the hierarchical model
+#'
+#' @format A named list created by `format_model_data` with 19 items:
+#' \describe{
+#'   \item{Y}{data frame of cluster fill counts for each document}
+#'   \item{G}{number of clusters}
+#'   \item{D}{number of documents}
+#'   \item{W}{number of writers}
+#'   \item{docN}{number of graphs in each document}
+#'   \item{docwriter}{writer id of each document}
+#'   \item{zero_vec}{vector of zeros for used for the zeros-trick}
+#'   \item{Gsmall}{number of non-empty clusters}
+#'   \item{numletters}{total number of graphs}
+#'   \item{pc_wrapped}{principal component rotation angle of each graph}
+#'   \item{letterwriter}{writer id of each graph}
+#'   \item{lettercluster}{cluster assignment of each graph}
+#'   \item{zero_mat}{matrix of zeros for the zeros-trick}
+#'   \item{a}{parameter}
+#'   \item{b}{parameter}
+#'   \item{c}{parameter}
+#'   \item{d}{parameter}
+#'   \item{e}{paramter}
+#' }
+#' @examples
+#' \dontrun{
+#' m = jags.model(textConnection(model_wrapped_cauchy), 
+#'                data = example_model_training_data, 
+#'                n.chains = 1)
+#' }
+"example_model_training_data"
+
+#' RJAGS Wrapped Cauchy Model
+#'
+#' @format Wrapped Cauchy model written in RJAGS syntax.
+#' @examples
+#' \dontrun{
+#' m = jags.model(textConnection(model_wrapped_cauchy), data = example_model_training_data, n.chains = 1)
+#' }
+"example_model_training_data"

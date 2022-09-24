@@ -1,45 +1,38 @@
-library(foreach)
-library(doParallel) 
-
-
-############################################################################################################################################
-## MODEL 
-############################################################################################################################################
-model_wrappedcauchy_share = "
+model_wrapped_cauchy = "
 model {
-for(letter in 1:numletters){                          /* numletters = num unique letters with measurements */
-  nll_datamodel[letter] = -log( (1-pow(rho[letterwriter[letter], lettercluster[letter]],2)) / (2*pi*(1+pow(rho[letterwriter[letter], lettercluster[letter]],2)-2*rho[letterwriter[letter], lettercluster[letter]]*cos(pc_wrapped[letter]-mu[letterwriter[letter], lettercluster[letter]]))) ) + C
-  zero_vec[letter] ~ dpois( nll_datamodel[letter] )
-}
-
-
-# Priors for wrapped cauchy
-for(g in 1:Gsmall){    
-  gamma[g] ~ dgamma(a, b) 
-  eta[g] ~ dunif(0,2*pi)
-  for(w in 1:W){                                      /* W = num unique writers */
-    mu[w,g]  ~ dunif(0,2*pi)
-    nld_locationparam[w,g] = -log( (1-pow(e,2)) / (2*pi*(1+pow(e,2)-2*e*cos(mu[w,g]-eta[g]))) ) + C
-    zero_mat[w,g] ~ dpois(nld_locationparam[w,g])
-    rho[w,g] ~ dbeta(c,d) 
+  for(letter in 1:numletters){                          /* numletters = num unique letters with measurements */
+    nll_datamodel[letter] = -log( (1-pow(rho[letterwriter[letter], lettercluster[letter]],2)) / (2*pi*(1+pow(rho[letterwriter[letter], lettercluster[letter]],2)-2*rho[letterwriter[letter], lettercluster[letter]]*cos(pc_wrapped[letter]-mu[letterwriter[letter], lettercluster[letter]]))) ) + C
+    zero_vec[letter] ~ dpois( nll_datamodel[letter] )
   }
-}
 
-for (w in 1:W) {                                      /* W = num unique writers */
-  theta[w,1:G] ~ ddirch(gamma[1:G] + 0.001)
-}
+  # Priors for wrapped cauchy
+  for(g in 1:Gsmall){    
+    gamma[g] ~ dgamma(a, b) 
+    eta[g] ~ dunif(0,2*pi)
+    for(w in 1:W){                                      /* W = num unique writers */
+      mu[w,g]  ~ dunif(0,2*pi)
+      nld_locationparam[w,g] = -log( (1-pow(e,2)) / (2*pi*(1+pow(e,2)-2*e*cos(mu[w,g]-eta[g]))) ) + C
+      zero_mat[w,g] ~ dpois(nld_locationparam[w,g])
+      rho[w,g] ~ dbeta(c,d) 
+    }
+  }
 
-for(d in 1:D) {                                       /* D = num unique documents */
-  Y[d,1:G] ~ dmulti(theta[docwriter[d],1:G], docN[d])
-}
+  for (w in 1:W) {                                      /* W = num unique writers */
+    theta[w,1:G] ~ ddirch(gamma[1:G] + 0.001)
+  }
+  
+  for(d in 1:D) {                                       /* D = num unique documents */
+    Y[d,1:G] ~ dmulti(theta[docwriter[d],1:G], docN[d])
+  }
 
-# other values
-C    = 30   # for the ones's trick
-pi   = 3.14159
-pi_1 = -pi
+  # other values
+  C    = 30   # for the ones's trick
+  pi   = 3.14159
+  pi_1 = -pi
 }"
 
 
+# UNUSED? -----------------------------------------------------------------
 posteriopredictive_wrappedcauchy = function(modeldat, samps, newdocs, numCores = 2, logdocname = "postpred_log"){ #mcmc_samples = coda samples c('theta')
   niter = nrow(samps$thetas)
   thetas = array(dim = c(niter, modeldat$G, modeldat$W))    # 3 dim array, a row for each mcmc iter, a column for each cluster, and a layer for each writer
