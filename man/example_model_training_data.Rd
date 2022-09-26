@@ -26,25 +26,14 @@ A named list created by `format_model_data` with 19 items:
   \item{d}{parameter}
   \item{e}{paramter}
 }
-
-Wrapped Cauchy model written in RJAGS syntax.
 }
 \usage{
-example_model_training_data
-
 example_model_training_data
 }
 \description{
 Example of model training data formatted for the hierarchical model
-
-RJAGS Wrapped Cauchy Model
 }
 \examples{
-rjags_model = textConnection(model_wrapped_cauchy)
-model_data = example_model_training_data
-m = rjags::jags.model(rjags_model, data = model_data, 1)
-rjags_model = textConnection(model_wrapped_cauchy)
-model_data = example_model_training_data
-m = rjags::jags.model(rjags_model, model_data, 1)
+draws = fit_model(example_model_training_data, 4000)
 }
 \keyword{datasets}

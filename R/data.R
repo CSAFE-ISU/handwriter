@@ -103,9 +103,7 @@
 #'   \item{e}{paramter}
 #' }
 #' @examples
-#' rjags_model = textConnection(model_wrapped_cauchy)
-#' model_data = example_model_training_data
-#' m = rjags::jags.model(rjags_model, data = model_data, 1)
+#' draws = fit_model(example_model_training_data, 4000)
 "example_model_training_data"
 
 #' RJAGS Wrapped Cauchy Model
@@ -114,5 +112,5 @@
 #' @examples
 #' rjags_model = textConnection(model_wrapped_cauchy)
 #' model_data = example_model_training_data
-#' m = rjags::jags.model(rjags_model, model_data, 1)
-"example_model_training_data"
+#' m = rjags::jags.model(file=rjags_model, data=model_data, n.chains=1)
+"model_wrapped_cauchy"
