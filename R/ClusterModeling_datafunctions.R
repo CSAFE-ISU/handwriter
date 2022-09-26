@@ -34,7 +34,22 @@ format_model_data <- function(proc_list, writer_indices, doc_indices, a, b, c, d
   cluster_fill_counts <- get_cluster_fill_counts(proc_list, writer_indices, doc_indices)
   
   # format data for rjags
-  data <- format_wrapped_cauchy_data(cluster_fill_counts, graph_measurements, a, b, c, d, e)
+  data <- list(Y = cluster_fill_counts[,-c(1,2)],         # multinomial data
+              G = ncol(cluster_fill_counts[,-c(1,2)]),   # number of clusters (40)
+              D = nrow(cluster_fill_counts[,-c(1,2)]),   # total number of documents
+              W = length(unique(cluster_fill_counts$writer)), # number of unique writers
+              #docwise
+              docN = as.integer(apply(cluster_fill_counts[,-c(1,2)], FUN = sum, MARGIN =  1)),  # number of letters in each doc, e.g. N[1] = 354
+              docwriter = as.integer(cluster_fill_counts$writer),  # vector of writers for each document
+              #letterwise
+              zero_vec = rep(0, times = length(graph_measurements$pc_wrapped)),
+              Gsmall = length(unique(graph_measurements$cluster)), # number of clusters (20)
+              numletters = length(graph_measurements$pc_wrapped), # total number of letters 
+              pc_wrapped = graph_measurements$pc_wrapped, #principal component rotation observations
+              letterwriter = as.integer(graph_measurements$writer), #vector of writers for each letter
+              lettercluster = as.integer(graph_measurements$cluster), #vector of cluster assignments, one for each letter
+              zero_mat = matrix(0, nrow = length(unique(cluster_fill_counts$writer)), ncol = length(unique(graph_measurements$cluster))),
+              a = a, b = b, c = c, d = d, e = e)
   
   return(data)
 }
@@ -60,7 +75,7 @@ get_letter_measurements <- function(proc_list, writer_indices, doc_indices) {
   model_docs <- sapply(proc_list, function(x) x$docname)
   
   # get writer ids
-  writers <- as.numeric(sapply(model_docs, function(x) substr(x, start = writer_indices[1], stop = writer_indices[2])))
+  writers <- as.integer(sapply(model_docs, function(x) substr(x, start = writer_indices[1], stop = writer_indices[2])))
   docs <- sapply(model_docs, function(x) substr(x, start = doc_indices[1], stop = doc_indices[2]), USE.NAMES = FALSE)
   
   for(j in 1:length(proc_list)){ # for each doc
@@ -90,8 +105,6 @@ get_letter_measurements <- function(proc_list, writer_indices, doc_indices) {
   
   # make writer and cluster factors and sort
   df = df %>% 
-    dplyr::mutate(writer = factor(writer, levels = unique(writer)), 
-                  cluster = factor(cluster)) %>%
     dplyr::arrange(writer, doc, cluster)
   
   return(df)
@@ -120,33 +133,12 @@ get_cluster_fill_counts <- function(proc_list, writer_indices, doc_indices){
   cluster_fill_counts <- graphs %>% 
     dplyr::group_by(writer, doc, cluster) %>%
     dplyr::summarise(n = dplyr::n()) %>%
-    tidyr::spread(key = cluster, value = n, fill = 0)
+    dplyr::mutate(n = as.integer(n)) %>%
+    tidyr::pivot_wider(names_from = cluster, values_from = n, values_fill = 0)
   
   return(cluster_fill_counts)
 }
 
-
-format_wrapped_cauchy_data = function(cluster_fill_counts, graph_measurements, a, b, c, d, e)
-{
-  data = list(Y = cluster_fill_counts[,-c(1,2)],         # multinomial data
-              G = ncol(cluster_fill_counts[,-c(1,2)]),   # number of clusters (40)
-              D = nrow(cluster_fill_counts[,-c(1,2)]),   # total number of documents
-              W = length(unique(cluster_fill_counts$writer)), # number of unique writers
-              #docwise
-              docN = apply(cluster_fill_counts[,-c(1,2)], FUN = sum, MARGIN =  1),  # number of letters in each doc, e.g. N[1] = 354
-              docwriter = as.numeric(as.factor(cluster_fill_counts$writer)),  # vector of writers for each document
-              #letterwise
-              zero_vec = rep(0, times = length(graph_measurements$pc_wrapped)),
-              Gsmall = length(unique(graph_measurements$cluster)), # number of clusters (20)
-              numletters = length(graph_measurements$pc_wrapped), # total number of letters 
-              pc_wrapped = graph_measurements$pc_wrapped, #principal component rotation observations
-              letterwriter = as.numeric(graph_measurements$writer), #vector of writers for each letter
-              lettercluster = as.numeric(graph_measurements$cluster), #vector of cluster assignments, one for each letter
-              zero_mat = matrix(0, nrow = length(unique(cluster_fill_counts$writer)), ncol = length(unique(graph_measurements$cluster))),
-              a = a, b = b, c = c, d = d, e = e)
-  
-  return(data)
-}
 
 # OLD? --------------------------------------------------------------------
 modelquantities_wrappedcauchy_share = function(bucketData, measData, a, b, c, d, e)
