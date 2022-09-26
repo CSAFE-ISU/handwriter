@@ -1,4 +1,74 @@
-model_wrapped_cauchy = "
+#' fit_model
+#'
+#' `fit_model()` fits a Bayesian hierarchical model to `model_training_data` and
+#' draws samples from the model with MCMC.
+#'
+#' @param model_training_data A list of input data formatted with
+#'   `format_model_data` for rjags
+#' @param num_iters An integer number of iterations of MCMC.
+#' @return A list of data frames of MCMC draws.
+#' 
+#' @examples
+#' draws <- fit_model(example_model_training_data, 4000)
+#'
+#' @keywords model
+#'
+#' @export
+#' @md
+fit_model <- function(model_training_data, num_iters) {
+  # fit model with rjags
+  m = rjags::jags.model(textConnection(model_wrapped_cauchy), data = model_training_data, n.chains = 1)
+  
+  # mcmc draws
+  fit = rjags::coda.samples(m, c("theta", "gamma", "mu", "rho", "eta", "nll_datamodel", "nld_locationparam"), n.iter = num_iters)
+  
+  # format draws
+  draws = as.data.frame(fit[[1]])
+  draws = list(thetas = draws[,grep(x = colnames(draws), pattern =  "theta")],
+               mus = draws[,grep(x = colnames(draws), pattern =  "mu")],
+               gammas = draws[,grep(x = colnames(draws), pattern =  "gamma")],
+               rhos = draws[,grep(x = colnames(draws), pattern =  "rho")],
+               etas = draws[,grep(x = colnames(draws), pattern =  "^eta")],
+               nll_datamodel = draws[,grep(x = colnames(draws), pattern =  "nll_datamodel")],
+               nld_locationparam = draws[,grep(x = colnames(draws), pattern =  "nld_locationparam")])
+  return(draws)
+}  
+
+
+#' drop_burnin
+#'
+#' `drop_burnin()` removes the burn-in from the MCMC draws.
+#'
+#' @param draws A list of dataframes of MCMC draws created by `fit_model()`
+#' @param burn_in An integer number of starting iterations of MCMC to drop.
+#' @return A list of data frames of MCMC draws with burn-in dropped.
+#'
+#' @examples
+#' draws <- fit_model(example_model_training_data, 4000)
+#' draws <- drop_burnin(draws, 1000)
+#' 
+#' @keywords model
+#'
+#' @export
+#' @md
+drop_burnin <- function(draws, burn_in){
+  # get number of draws
+  num_iters <- nrow(draws$thetas)
+  
+  # remove burn-in
+  draws$thetas <- draws$thetas[(burn_in+1):num_iters,] 
+  draws$mus <- draws$mus[(burn_in+1):num_iters,]
+  draws$gammas <- draws$gammas[(burn_in+1):num_iters,] 
+  draws$rhos <- draws$rhos[(burn_in+1):num_iters,]
+  draws$etas <- draws$etas[(burn_in+1):num_iters,]
+  draws$nll_datamodel <- draws$nll_datamodel[(burn_in+1):num_iters,]
+  draws$nld_locationparam <- draws$nld_locationparam[(burn_in+1):num_iters,]
+  
+  return(draws)
+}
+
+
+model_wrapped_cauchy <- "
 model {
   for(letter in 1:numletters){                          /* numletters = num unique letters with measurements */
     nll_datamodel[letter] = -log( (1-pow(rho[letterwriter[letter], lettercluster[letter]],2)) / (2*pi*(1+pow(rho[letterwriter[letter], lettercluster[letter]],2)-2*rho[letterwriter[letter], lettercluster[letter]]*cos(pc_wrapped[letter]-mu[letterwriter[letter], lettercluster[letter]]))) ) + C

@@ -33,3 +33,11 @@ List of data formated for rjags.
 \description{
 \code{format_model_data()} formats the data need for the rjags model.
 }
+\examples{
+writer_indices = c(2,5)
+doc_indices = c(7,18)
+format_model_data(example_model_proc_list, 
+                  writer_indices, doc_indices,  
+                  a = 2, b = 0.25, c = 2, d = 2, e = 0.5)
+
+}

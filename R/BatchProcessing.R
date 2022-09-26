@@ -1,7 +1,5 @@
 #' process_batch_list
 #'
-#'
-#'
 #' @param batch_input_dir Input directory as a list from shiny
 #' @param transform_output
 #' @return 
@@ -20,8 +18,6 @@ process_batch_list = function(image_batch, name_list = NULL, transform_output = 
 }
 
 #' process_batch_dir
-#'
-#'
 #'
 #' @param batch_input_dir Input directory as a list of datapaths or a directory
 #' @param batch_output_dir Output directory

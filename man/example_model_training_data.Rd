@@ -40,13 +40,11 @@ Example of model training data formatted for the hierarchical model
 RJAGS Wrapped Cauchy Model
 }
 \examples{
-\dontrun{
-m = jags.model(textConnection(model_wrapped_cauchy), 
-               data = example_model_training_data, 
-               n.chains = 1)
-}
-\dontrun{
-m = jags.model(textConnection(model_wrapped_cauchy), data = example_model_training_data, n.chains = 1)
-}
+rjags_model = textConnection(model_wrapped_cauchy)
+model_data = example_model_training_data
+m = rjags::jags.model(rjags_model, data = model_data, 1)
+rjags_model = textConnection(model_wrapped_cauchy)
+model_data = example_model_training_data
+m = rjags::jags.model(rjags_model, model_data, 1)
 }
 \keyword{datasets}
