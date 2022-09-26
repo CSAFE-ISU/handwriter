@@ -95,4 +95,5 @@ draws <- drop_burnin(draws, burn_in = 1000)
 # usethis::use_data(example_questioned_proc_list, overwrite = TRUE)
 
 questioned_data <- format_questioned_data(example_questioned_proc_list, writer_indices, doc_indices)
+posteriors <- analyze_questioned_documents(example_model_training_data, draws, questioned_data, num_cores = 4)
 

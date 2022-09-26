@@ -2,6 +2,7 @@
 
 export(AddLetterImages)
 export(SaveAllLetterPlots)
+export(analyze_questioned_documents)
 export(create_words)
 export(crop)
 export(drop_burnin)

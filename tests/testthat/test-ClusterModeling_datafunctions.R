@@ -94,7 +94,9 @@ test_that("get letter measurements works", {
 
 # get_cluster_fill_counts -------------------------------------------------
 test_that("get cluster fill counts works", {
-  cluster_counts <- get_cluster_fill_counts(example_model_proc_list, writer_indices, doc_indices)
+  cluster_counts <- get_cluster_fill_counts(proc_list=example_model_proc_list, 
+                                            writer_indices=c(2,5), 
+                                            doc_indices=c(7,18))
   # check data frame
   expect_s3_class(cluster_counts, "data.frame")
   # check column names
