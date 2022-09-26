@@ -14,7 +14,7 @@
 #' @param c Scalar
 #' @param d Scalar
 #' @param e Scalar
-#' @return List of data formated for rjags.
+#' @return List of data formatted for rjags.
 #' 
 #' @examples
 #' writer_indices = c(2,5)
@@ -53,6 +53,40 @@ format_model_data <- function(proc_list, writer_indices, doc_indices, a, b, c, d
   
   return(data)
 }
+
+
+#' format_questioned_data
+#'
+#' `format_questioned_data()` formats the questioned data for analysis with the hierarchical model.
+#'
+#' @param proc_list List of processed handwriting from a set of questioned documents
+#'   created by `get_clusterassignment()`. Each item in the list contains the
+#'   extracted graphs from a document.
+#' @param writer_indices Vector of start and end indices for the writer id in
+#'   the document names.
+#' @param doc_indices Vector of start and end indices for the document id in the
+#'   document names.
+#' @return List of data formatted analysis.
+#' 
+#' @examples
+#' writer_indices = c(2,5)
+#' doc_indices = c(7,18)
+#' format_questioned_data(example_model_proc_list, writer_indices, doc_indices)
+#'
+#' @export
+#' @md
+format_questioned_data <- function(proc_list, writer_indices, doc_indices) {
+  
+  # get cluster assignment, slope, and pc_rotation for each letter in each model doc
+  graph_measurements <- get_letter_measurements(proc_list, writer_indices, doc_indices)
+  
+  # get cluster fill counts
+  cluster_fill_counts <- get_cluster_fill_counts(proc_list, writer_indices, doc_indices)
+  
+  data <- list("graph_measurements"=graph_measurements, "cluster_fill_counts"=cluster_fill_counts)
+  return(data)
+}
+
 
 #' get_letter_measurements
 #'

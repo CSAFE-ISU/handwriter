@@ -79,6 +79,12 @@
 #'      a = 2, b = 0.25, c = 2, d = 2, e = 0.5)
 "example_model_proc_list"
 
+#' Example of list of questioned documents' data for the hierarchical model
+#'
+#' @format List created by `get_clusterassignment` with extra fields removed to
+#'   make the example file smaller. 
+"example_questioned_proc_list"
+
 #' Example of model training data formatted for the hierarchical model
 #'
 #' @format A named list created by `format_model_data` with 19 items:
@@ -114,3 +120,9 @@
 #' model_data = example_model_training_data
 #' m = rjags::jags.model(file=rjags_model, data=model_data, n.chains=1)
 "model_wrapped_cauchy"
+
+#' Example of list of questioned documents' data for the hierarchical model
+#'
+#' @format List created by `get_clusterassignment` with extra fields removed to
+#'   make the example file smaller. 
+"example_questioned_proc_list"

@@ -28,7 +28,7 @@ document names.}
 \item{e}{Scalar}
 }
 \value{
-List of data formated for rjags.
+List of data formatted for rjags.
 }
 \description{
 \code{format_model_data()} formats the data need for the rjags model.

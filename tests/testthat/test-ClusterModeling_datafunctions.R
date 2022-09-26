@@ -109,3 +109,33 @@ test_that("get cluster fill counts works", {
   expect_vector(cluster_counts$"5", ptype = integer())
 })
 
+
+# format_questioned_data --------------------------------------------------
+test_that("formatted questioned data is a named list with correct names", {
+  data <- format_questioned_data(proc_list=example_questioned_proc_list, 
+                                 writer_indices=c(2,5), 
+                                 doc_indices=c(7,18))
+  # check names
+  expect_named(data, c("graph_measurements", "cluster_fill_counts"))
+  
+  # check data frames
+  expect_s3_class(data$graph_measurements, "data.frame")
+  expect_s3_class(data$cluster_fill_counts, "data.frame")
+  
+  # check number of rows
+  expect_equal(nrow(data$graph_measurements), sum(data$cluster_fill_counts[,-c(1,2)]))
+  
+  # check vectors
+  expect_vector(data$graph_measurements$writer, ptype = integer())
+  expect_vector(data$graph_measurements$doc, ptype = character())
+  expect_vector(data$graph_measurements$cluster, ptype = integer())
+  expect_vector(data$graph_measurements$slope, ptype = numeric())
+  expect_vector(data$graph_measurements$pc_rotation, ptype = numeric())
+  expect_vector(data$graph_measurements$pc_wrapped, ptype = numeric())
+  expect_vector(data$cluster_fill_counts$writer, ptype = integer())
+  expect_vector(data$cluster_fill_counts$doc, ptype = character())
+  
+  # check cluster labels
+  expect_gte(min(data$graph_measurements$cluster), 1)
+})
+

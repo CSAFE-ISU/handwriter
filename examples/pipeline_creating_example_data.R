@@ -56,6 +56,7 @@ model_data <- format_model_data(example_model_proc_list, writer_indices, doc_ind
 # usethis::use_data(example_model_training_data, overwrite = TRUE)
 
 
+
 # Fit Model ---------------------------------------------------------------
 # usethis::use_data(model_wrapped_cauchy)
 
@@ -64,9 +65,34 @@ draws <- drop_burnin(draws, burn_in = 1000)
 
 
 # questioned documents ----------------------------------------------------
+# get cluster assignments
+# template <- readRDS(file.path(main_dir, "template_seed100", "data", "all_templates.rds"))
+# questioned_proc_list <- get_clusterassignment(clustertemplate = template[[1]], input_dir = file.path(main_dir, "data", "questioned_graphs"))
+# saveRDS(questioned_proc_list, file.path(main_dir, "template_seed100", "seed100_run1", "data", "questioned_proc_list.rds"))
+# questioned_proc_list <- readRDS(file.path(main_dir, "template_seed100", "seed100_run1", "data", "questioned_proc_list.rds"))
 
-# questioned data
-questioned_proc_list <- get_clusterassignment(clustertemplate = template[[1]], input_dir = file.path(main_dir, "data", "questioned_graphs"))
-saveRDS(questioned_proc_list, file.path(main_dir, "template_seed100", "seed100_run1", "data", "questioned_proc_list.rds"))
-questioned_proc_list <- readRDS(file.path(main_dir, "template_seed100", "seed100_run1", "data", "questioned_proc_list.rds"))
+# Example data
+# example_data <- list()
+# for (i in 1:length(questioned_proc_list)){
+#   example_doc <- list()
+#   example_doc$docname <- questioned_proc_list[[i]]$docname
+# 
+#   # graph-level features
+#   example_doc$process$letterList <- list()
+#   for (j in 1:length(questioned_proc_list[[i]]$process$letterList)){
+#     temp_letter <- list()
+#     temp_letter$cluster <- questioned_proc_list[[i]]$proces$letterList[[j]]$cluster
+#     temp_letter$characterFeatures$slope <- questioned_proc_list[[i]]$proces$letterList[[j]]$characterFeatures$slope
+#     temp_letter$characterFeatures$xvar <- questioned_proc_list[[i]]$proces$letterList[[j]]$characterFeatures$xvar
+#     temp_letter$characterFeatures$yvar <- questioned_proc_list[[i]]$proces$letterList[[j]]$characterFeatures$yvar
+#     temp_letter$characterFeatures$covar <- questioned_proc_list[[i]]$proces$letterList[[j]]$characterFeatures$covar
+#     example_doc$process$letterList <- append(example_doc$process$letterList, list(temp_letter))
+#   }
+#   example_data <- append(example_data, list(example_doc))
+# }
+
+# example_questioned_proc_list <- example_data
+# usethis::use_data(example_questioned_proc_list, overwrite = TRUE)
+
+questioned_data <- format_questioned_data(example_questioned_proc_list, writer_indices, doc_indices)
 
