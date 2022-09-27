@@ -12,7 +12,8 @@ main_dir <- "/Users/stephanie/Documents/non_version_control/CSAFE_test_template"
 # create cluster template
 # template <- make_clustering_templates(template_dir = main_dir, starting_seed = 100, K = 5, num_dist_cores = 4, max_iters = 3, num_graphs = 1000, num_runs=1)
 # template <- readRDS(file.path(main_dir, "template_seed100", "data", "all_templates.rds"))
-
+# example_template <- template
+# usethis::use_data(example_template)
 
 # Model Training Data -----------------------------------------------------
 # Cluster Assignments
