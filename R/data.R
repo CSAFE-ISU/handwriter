@@ -126,3 +126,17 @@
 #' @format List created by `get_clusterassignment` with extra fields removed to
 #'   make the example file smaller. 
 "example_questioned_proc_list"
+
+#' Example of questioned data formatted for the hierarchical model
+#'
+#' @format A named list created by `format_questioned_data` with 19 items:
+#'   \describe{ 
+#'   \item{graph_measurements}{data frame that shows the writer ID,
+#'   document ID, slope, principal component rotation angle, and wrapped
+#'   principal rotation angle for each graph } 
+#'   \item{cluster_fill_counts}{data frame that shows the number of graphs 
+#'   assigned to each cluster for each document.}
+#'   }
+#' @examples
+#' draws = fit_model(example_model_training_data, 4000)
+"example_questioned_data"
