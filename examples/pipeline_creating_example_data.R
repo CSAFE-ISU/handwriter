@@ -5,12 +5,12 @@
 # and template_dir > data > questioned_graphs folders.
 
 
-main_dir <- "/Volumes/research/csafe-handwriting/Data_Processing/Stage6_Cluster_Templates/test_template"
+main_dir <- "/Users/stephanie/Documents/non_version_control/CSAFE_test_template"
 
 
 # Cluster Template --------------------------------------------------------
 # create cluster template
-# template <- make_clustering_templates(template_dir = main_dir, starting_seed = 100, K = 5, num_dist_cores = 4, max_iters = 3, num_graphs = 1000)
+# template <- make_clustering_templates(template_dir = main_dir, starting_seed = 100, K = 5, num_dist_cores = 4, max_iters = 3, num_graphs = 1000, num_runs=1)
 # template <- readRDS(file.path(main_dir, "template_seed100", "data", "all_templates.rds"))
 
 
