@@ -115,17 +115,18 @@ model {
 #' @param draws MCMC draws created with `fit_model()`
 #' @param questioned_data A list questioned documents's data formatted with
 #'   `format_questioned_data()`.
-#' @param num_cores An integer number of cores to use for parallel processing with the
-#'   `doParallel` package.
-#' @return A list of posterior probabilities of writership for each questioned document.
+#' @param num_cores An integer number of cores to use for parallel processing
+#'   with the `doParallel` package.
+#' @return A list of likelihoods, votes, and posterior probabilities of
+#'   writership for each questioned document.
 #'
 #' @examples
 #' \dontrun{
 #' draws <- fit_model(model_training_data = example_model_training_data, num_iters = 4000)
 #' draws <- drop_burnin(draws, burn_in = 1000)
-#' draws <- analyze_questioned_documents(example_model_training_data, 
-#'                                       draws, 
-#'                                       example_questioned_data, 
+#' draws <- analyze_questioned_documents(example_model_training_data,
+#'                                       draws,
+#'                                       example_questioned_data,
 #'                                       num_cores = 4)
 #' }
 #'
@@ -164,8 +165,9 @@ analyze_questioned_documents <- function(model_training_data, draws, questioned_
 
   # list writers
   writers <- unique(questioned_data$graph_measurements$writer)
-
-  ls <- foreach::foreach(m = 1:nrow(questioned_data$cluster_fill_counts)) %dopar% {
+  
+  # obtain posterior samples of model parameters
+  likelihoods_list <- foreach::foreach(m = 1:nrow(questioned_data$cluster_fill_counts)) %dopar% {
     # filter docs for current writer
     m_qdoc <- questioned_data$graph_measurements %>% dplyr::filter(writer == writers[m])
     m_cluster <- as.numeric(m_qdoc$cluster)
@@ -173,7 +175,6 @@ analyze_questioned_documents <- function(model_training_data, draws, questioned_
     # make a circular object
     m_pcrot <- circular::circular(m_qdoc$pc_wrapped, units = "radians", modulo = "2pi")
 
-    # calculate the posterior probability for each model training writer
     if (length(m_cluster) > 0) {
       for (i in 1:model_training_data$W) { # i is writer, j is graph
         dmult[, i] <- mc2d::dmultinomial(x = questioned_data$cluster_fill_counts[m, -c(1, 2)], prob = thetas[, , i], log = TRUE)
@@ -188,8 +189,19 @@ analyze_questioned_documents <- function(model_training_data, draws, questioned_
       }
       nn <- dmult + abs(max(colMeans(dmult)))
     }
-    postprobs <- as.data.frame(exp(nn) / rowSums(exp(nn)))
-    return(postprobs)
+    likelihoods <- as.data.frame(exp(nn) / rowSums(exp(nn)))
+    colnames(likelihoods) <- paste0("known_writer_", writers)
+    return(likelihoods)
   }
-  return(ls)
+  names(likelihoods_list) <- paste0("w", questioned_data$cluster_fill_counts$writer, "_", questioned_data$cluster_fill_counts$doc)
+  
+  # tally votes
+  votes <- lapply(likelihoods_list, function(y) {as.data.frame(t(apply(y, 1, function(x) floor(x/max(x)))))})
+  votes <- lapply(votes, function(x) colSums(x))
+    
+  # calculate posterior probability of writership
+  posterior_probabilities <- lapply(votes, function(x) x / niter)
+  
+  analysis <- list("likelihoods" = likelihoods_list, "votes" = votes, "posterior_probabilities" = posterior_probabilities)
+  return(analysis)
 }

@@ -34,6 +34,6 @@ example_model_training_data
 Example of model training data formatted for the hierarchical model
 }
 \examples{
-draws = fit_model(example_model_training_data, 4000)
+draws <- fit_model(example_model_training_data, 4000)
 }
 \keyword{datasets}

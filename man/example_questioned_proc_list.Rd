@@ -21,4 +21,13 @@ Example of list of questioned documents' data for the hierarchical model
 
 Example of list of questioned documents' data for the hierarchical model
 }
+\examples{
+writer_indices <- c(2, 5)
+doc_indices <- c(7, 18)
+model_data <- format_questioned_data(
+  example_questioned_proc_list,
+  writer_indices,
+  doc_indices
+)
+}
 \keyword{datasets}

@@ -20,11 +20,12 @@ analyze_questioned_documents(
 \item{questioned_data}{A list questioned documents's data formatted with
 \code{format_questioned_data()}.}
 
-\item{num_cores}{An integer number of cores to use for parallel processing with the
-\code{doParallel} package.}
+\item{num_cores}{An integer number of cores to use for parallel processing
+with the \code{doParallel} package.}
 }
 \value{
-A list of posterior probabilities of writership for each questioned document.
+A list of likelihoods, votes, and posterior probabilities of
+writership for each questioned document.
 }
 \description{
 \code{analyze_questioned_documents()} estimates the posterior probability of
@@ -35,9 +36,9 @@ model created with \code{fit_model()}.
 \dontrun{
 draws <- fit_model(model_training_data = example_model_training_data, num_iters = 4000)
 draws <- drop_burnin(draws, burn_in = 1000)
-draws <- analyze_questioned_documents(example_model_training_data, 
-                                      draws, 
-                                      example_questioned_data, 
+draws <- analyze_questioned_documents(example_model_training_data,
+                                      draws,
+                                      example_questioned_data,
                                       num_cores = 4)
 }
 

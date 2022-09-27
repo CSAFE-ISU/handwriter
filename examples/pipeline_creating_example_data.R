@@ -64,12 +64,13 @@ draws <- fit_model(model_training_data = example_model_training_data, num_iters 
 draws <- drop_burnin(draws, burn_in = 1000)
 
 
+
 # questioned documents ----------------------------------------------------
 # get cluster assignments
-# template <- readRDS(file.path(main_dir, "template_seed100", "data", "all_templates.rds"))
-# questioned_proc_list <- get_clusterassignment(clustertemplate = template[[1]], input_dir = file.path(main_dir, "data", "questioned_graphs"))
-# saveRDS(questioned_proc_list, file.path(main_dir, "template_seed100", "seed100_run1", "data", "questioned_proc_list.rds"))
-# questioned_proc_list <- readRDS(file.path(main_dir, "template_seed100", "seed100_run1", "data", "questioned_proc_list.rds"))
+template <- readRDS(file.path(main_dir, "template_seed100", "data", "all_templates.rds"))
+questioned_proc_list <- get_clusterassignment(clustertemplate = template[[1]], input_dir = file.path(main_dir, "data", "questioned_graphs"))
+saveRDS(questioned_proc_list, file.path(main_dir, "template_seed100", "seed100_run1", "data", "questioned_proc_list.rds"))
+questioned_proc_list <- readRDS(file.path(main_dir, "template_seed100", "seed100_run1", "data", "questioned_proc_list.rds"))
 
 # Example data
 # example_data <- list()
@@ -94,6 +95,11 @@ draws <- drop_burnin(draws, burn_in = 1000)
 # example_questioned_proc_list <- example_data
 # usethis::use_data(example_questioned_proc_list, overwrite = TRUE)
 
-questioned_data <- format_questioned_data(example_questioned_proc_list, writer_indices, doc_indices)
-posteriors <- analyze_questioned_documents(example_model_training_data, draws, questioned_data, num_cores = 4)
+# questioned_data <- format_questioned_data(example_questioned_proc_list, writer_indices, doc_indices)
+# example_questioned_data <- questioned_data
+# usethis::use_data(example_questioned_data)
+
+analysis <- analyze_questioned_documents(example_model_training_data, draws, example_questioned_data, num_cores = 4)
+example_analysis <- analysis
+usethis::use_data(example_analysis)
 

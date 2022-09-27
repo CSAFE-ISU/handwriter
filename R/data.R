@@ -1,27 +1,27 @@
-#data documentation
+# data documentation
 
 #' Cursive written word: csafe
 #'
 #' @format Binary image matrix. 111 rows and 410 columns.
 #' @examples
-#' csafe_document = list()
-#' csafe_document$image = csafe
+#' csafe_document <- list()
+#' csafe_document$image <- csafe
 #' plotImage(csafe_document$image)
-#' csafe_document$thin = thinImage(csafe_document$image)
+#' csafe_document$thin <- thinImage(csafe_document$image)
 #' plotImageThinned(csafe_document$image, csafe_document$thin)
-#' csafe_processList = processHandwriting(csafe_document$thin, dim(csafe_document$image))
+#' csafe_processList <- processHandwriting(csafe_document$thin, dim(csafe_document$image))
 "csafe"
 
 #' Cursive written word: London
 #'
 #' @format Binary image matrix. 148 rows and 481 columns.
 #' @examples
-#' london_document = list()
-#' london_document$image = london
+#' london_document <- list()
+#' london_document$image <- london
 #' plotImage(london_document$image)
-#' london_document$thin = thinImage(london_document$image)
+#' london_document$thin <- thinImage(london_document$image)
 #' plotImageThinned(london_document$image, london_document$thin)
-#' london_processList = processHandwriting(london_document$thin, dim(london_document$image))
+#' london_processList <- processHandwriting(london_document$thin, dim(london_document$image))
 "london"
 
 #' Full page image of the handwritten London letter.
@@ -29,12 +29,12 @@
 #' @format Binary image matrix. 1262 rows and 1162 columns.
 #' @examples
 #' \dontrun{
-#' message_document = list()
-#' message_document$image = message
+#' message_document <- list()
+#' message_document$image <- message
 #' plotImage(message_document$image)
-#' message_document$thin = thinImage(message_document$image)
+#' message_document$thin <- thinImage(message_document$image)
 #' plotImageThinned(message_document$image, message_document$thin)
-#' message_processList = processHandwriting(message_document$thin, dim(message_document$image))
+#' message_processList <- processHandwriting(message_document$thin, dim(message_document$image))
 #' }
 "message"
 
@@ -43,46 +43,47 @@
 #' @format Binary image matrix. 811 rows and 1590 columns.
 #' @examples
 #' \dontrun{
-#' nature1_document = list()
-#' nature1_document$image = nature1
+#' nature1_document <- list()
+#' nature1_document$image <- nature1
 #' plotImage(nature1_document$image)
-#' nature1_document$thin = thinImage(nature1_document$image)
+#' nature1_document$thin <- thinImage(nature1_document$image)
 #' plotImageThinned(nature1_document$image, nature1_document$thin)
-#' nature1_processList = processHandwriting(nature1_document$thin, dim(nature1_document$image))
+#' nature1_processList <- processHandwriting(nature1_document$thin, dim(nature1_document$image))
 #' }
 "nature1"
 
-#'Two sentence printed example handwriting
+#' Two sentence printed example handwriting
 #'
 #' @format Binary image matrix. 396 rows and 1947 columns
 #' @examples
 #' \dontrun{
-#' twoSent_document = list()
-#' twoSent_document$image = twoSent
+#' twoSent_document <- list()
+#' twoSent_document$image <- twoSent
 #' plotImage(twoSent_document$image)
-#' twoSent_document$thin = thinImage(twoSent_document$image)
+#' twoSent_document$thin <- thinImage(twoSent_document$image)
 #' plotImageThinned(twoSent_document$image, twoSent_document$thin)
-#' twoSent_processList = processHandwriting(twoSent_document$thin, dim(twoSent_document$image))
+#' twoSent_processList <- processHandwriting(twoSent_document$thin, dim(twoSent_document$image))
 #' }
 "twoSent"
 
 #' Example of list of model training data for the hierarchical model
 #'
 #' @format List created by `get_clusterassignment` with extra fields removed to
-#'   make the example file smaller. 
+#'   make the example file smaller.
 #' @examples
-#' writer_indices = c(2,5)
-#' doc_indices = c(7,18)
-#' model_data = format_model_data(example_model_proc_list, 
-#'      writer_indices, 
-#'      doc_indices,  
-#'      a = 2, b = 0.25, c = 2, d = 2, e = 0.5)
+#' writer_indices <- c(2, 5)
+#' doc_indices <- c(7, 18)
+#' model_data <- format_model_data(example_model_proc_list,
+#'   writer_indices,
+#'   doc_indices,
+#'   a = 2, b = 0.25, c = 2, d = 2, e = 0.5
+#' )
 "example_model_proc_list"
 
 #' Example of list of questioned documents' data for the hierarchical model
 #'
 #' @format List created by `get_clusterassignment` with extra fields removed to
-#'   make the example file smaller. 
+#'   make the example file smaller.
 "example_questioned_proc_list"
 
 #' Example of model training data formatted for the hierarchical model
@@ -109,34 +110,70 @@
 #'   \item{e}{paramter}
 #' }
 #' @examples
-#' draws = fit_model(example_model_training_data, 4000)
+#' draws <- fit_model(example_model_training_data, 4000)
 "example_model_training_data"
 
 #' RJAGS Wrapped Cauchy Model
 #'
 #' @format Wrapped Cauchy model written in RJAGS syntax.
 #' @examples
-#' rjags_model = textConnection(model_wrapped_cauchy)
-#' model_data = example_model_training_data
-#' m = rjags::jags.model(file=rjags_model, data=model_data, n.chains=1)
+#' rjags_model <- textConnection(model_wrapped_cauchy)
+#' model_data <- example_model_training_data
+#' m <- rjags::jags.model(file = rjags_model, data = model_data, n.chains = 1)
 "model_wrapped_cauchy"
 
 #' Example of list of questioned documents' data for the hierarchical model
 #'
 #' @format List created by `get_clusterassignment` with extra fields removed to
-#'   make the example file smaller. 
+#'   make the example file smaller.
+#' @examples
+#' writer_indices <- c(2, 5)
+#' doc_indices <- c(7, 18)
+#' model_data <- format_questioned_data(
+#'   example_questioned_proc_list,
+#'   writer_indices,
+#'   doc_indices
+#' )
 "example_questioned_proc_list"
 
 #' Example of questioned data formatted for the hierarchical model
 #'
-#' @format A named list created by `format_questioned_data` with 19 items:
-#'   \describe{ 
+#' @format A named list created by `format_questioned_data` with 2 items:
+#'   \describe{
 #'   \item{graph_measurements}{data frame that shows the writer ID,
 #'   document ID, slope, principal component rotation angle, and wrapped
-#'   principal rotation angle for each graph } 
-#'   \item{cluster_fill_counts}{data frame that shows the number of graphs 
+#'   principal rotation angle for each graph }
+#'   \item{cluster_fill_counts}{data frame that shows the number of graphs
 #'   assigned to each cluster for each document.}
 #'   }
 #' @examples
-#' draws = fit_model(example_model_training_data, 4000)
+#' draws <- fit_model(example_model_training_data, 4000)
+#' analysis <- analyze_questioned_documents(example_model_training_data,
+#'   draws,
+#'   example_questioned_data,
+#'   num_cores = 4
+#' )
+#'
 "example_questioned_data"
+
+#' Example of writership analysis
+#'
+#' @format A named list created by `analyze_questioned_documents` with 3 items:
+#'   \describe{
+#'   \item{likelihoods}{list of data frames where each data frame
+#'   contains the likelihoods for a questioned document for each MCMC iteration.}
+#'   \item{votes}{list of vote tallys for each questioned document.}
+#'   \item{posterior_probabilites}{list of posterior probabilities of writership
+#'   for each questioned document and each known writer in the closed set used to train the
+#'   hierarchical model.}
+#'   }
+#' @examples
+#' \dontrun{
+#' draws <- fit_model(example_model_training_data, 4000)
+#' analysis <- analyze_questioned_documents(example_model_training_data,
+#'   draws,
+#'   example_questioned_data,
+#'   num_cores = 4
+#' )
+#' }
+"example_analysis"

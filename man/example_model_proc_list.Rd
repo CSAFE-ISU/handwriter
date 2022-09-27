@@ -15,11 +15,12 @@ example_model_proc_list
 Example of list of model training data for the hierarchical model
 }
 \examples{
-writer_indices = c(2,5)
-doc_indices = c(7,18)
-model_data = format_model_data(example_model_proc_list, 
-     writer_indices, 
-     doc_indices,  
-     a = 2, b = 0.25, c = 2, d = 2, e = 0.5)
+writer_indices <- c(2, 5)
+doc_indices <- c(7, 18)
+model_data <- format_model_data(example_model_proc_list,
+  writer_indices,
+  doc_indices,
+  a = 2, b = 0.25, c = 2, d = 2, e = 0.5
+)
 }
 \keyword{datasets}
