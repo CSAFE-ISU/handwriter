@@ -456,9 +456,14 @@ chooseCenters <- function(run_seed, K, template_proc_list, template_images_list)
   # 5 graphs with 1 edge, 6 graphs with 2 edges, and so on. NOTE: numstrat must sum to # of
   # clusters K.
   numstrat <- c(5, 2, 5, 6, 5, 3, 2, 2, 2, rep(1, 8))
-  # Adjust numstrat to be the same length as lvls by either adding or
-  # subtracting trailing zeros on the right.
-  numstrat <- c(numstrat, rep(0, length(lvls) - length(numstrat)))
+  if (length(lvls) > length(numstrat)){
+    # Add trailing zeros to make numstrat the same length as lvls
+    numstrat <- c(numstrat, rep(0, length(lvls) - length(numstrat)))
+  } else if (length(lvls) < length(numstrat)){
+    # Drop trailing items in numstrat to make it the same length as lvls
+    numstrat <- numstrat[1:length(lvls)]
+  }
+
 
   samplingdf <- data.frame(doc = doc, letter = letter, stratum = stratum_a, ind = 1:length(stratum_a))
   samplingdf <- samplingdf %>%

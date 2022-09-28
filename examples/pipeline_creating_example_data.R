@@ -65,7 +65,6 @@ draws <- fit_model(model_training_data = example_model_training_data, num_iters 
 draws <- drop_burnin(draws, burn_in = 1000)
 
 
-
 # questioned documents ----------------------------------------------------
 # get cluster assignments
 template <- readRDS(file.path(main_dir, "template_seed100", "data", "all_templates.rds"))

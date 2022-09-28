@@ -1,3 +1,45 @@
+#' plot_posterior_probabilities
+#'
+#' Creates a tile plot of posterior probabilities of writership for each
+#' questioned document and each known writer analyzed with
+#' [`analyze_questioned_documents()`]. 
+#'
+#' @param analysis A named list of analysis results from [`analyze_questioned_documents()`].
+#' @return A tile plot of posterior probabilities of writership.
+#' 
+#' @examples 
+#' \dontrun{
+#' draws <- fit_model(example_model_training_data, num_iters = 4000)
+#' draws <- drop_burnin(draws, 1000)
+#' analysis <- analyze_questioned_documents(example_model_training_data, draws, example_questioned_data, num_cores = 4)
+#' }
+#' 
+#' @md
+plot_posterior_probabilities <- function(analysis) {
+  # data frame of posterior probabilities
+  pp <- as.data.frame(analysis$posterior_probabilities)
+  pp <- cbind("known_writer" = rownames(pp), data.frame(pp, row.names=NULL))  # change rownames to column
+  pp = pp %>% 
+    tidyr::pivot_longer(cols = -known_writer, 
+                        names_to = "questioned_document", 
+                        values_to = "posterior_probability")
+  
+  # plot
+  p = pp %>%
+    ggplot2::ggplot(aes(x = known_writer, y = questioned_document, fill=posterior_probability)) + 
+    geom_tile() +
+    scale_fill_gradient2("Probability ", low="grey90", midpoint = 0, high="steelblue") +
+    ylab("Questioned Document") + 
+    xlab("Known writer") + 
+    theme_bw()+
+    theme(legend.position="right", axis.text.x = element_text(angle=90, hjust=0, vjust=.5))
+  return(p)
+}
+
+
+
+# UNUSED? -----------------------------------------------------------------
+
 #' Plot relative bucket frequencies.
 #'
 #' Takes a Ybucket (either train or test) from the \code{proclistToData} function and plots relative bucket frequencies broken down by document and writer.
