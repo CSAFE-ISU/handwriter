@@ -4,7 +4,16 @@
 \alias{format_model_data}
 \title{format_model_data}
 \usage{
-format_model_data(proc_list, writer_indices, doc_indices, a, b, c, d, e)
+format_model_data(
+  proc_list,
+  writer_indices,
+  doc_indices,
+  a = 2,
+  b = 0.25,
+  c = 2,
+  d = 2,
+  e = 0.5
+)
 }
 \arguments{
 \item{proc_list}{List of processed handwriting from a set of documents

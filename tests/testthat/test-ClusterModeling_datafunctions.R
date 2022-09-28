@@ -48,6 +48,10 @@ test_that("in formatted model data vectors are the correct type and length", {
   expect_equal(data$zero_vec, rep(0, data$numletters)) 
   expect_vector(data$pc_wrapped, ptype=numeric(), size=data$numletters)
   expect_vector(data$letterwriter, ptype=integer(), size=data$numletters)
+  
+  # check that docwriter is not writer IDs but instead numbers writers 1,2,...,data$W
+  expect_equal(1:data$W, unique(data$docwriter))
+  expect_equal(1:data$W, unique(data$letterwriter))
 })
 
 test_that("formatted model cluster data", {

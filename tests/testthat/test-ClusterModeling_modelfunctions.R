@@ -1,6 +1,8 @@
 test_that("fit model works", {
+  # format model training data
+  mtd <- format_model_data(example_model_proc_list, writer_indices = c(2,5), doc_indices = c(7,18))
   iters <- 2000
-  draws <- fit_model(model_training_data = example_model_training_data, num_iters = iters)
+  draws <- fit_model(model_training_data = mtd, num_iters = iters)
   
   # check named list
   expect_named(draws, c("thetas", "mus", "gammas", "rhos", "etas", "nll_datamodel", "nld_locationparam"))
@@ -51,7 +53,7 @@ test_that("analyze questioned documents works", {
   analysis <- analyze_questioned_documents(example_model_training_data, draws, example_questioned_data, num_cores = 4)
   
   # expect named list
-  expect_named(analysis, c("posterior_samples", "votes", "posterior_probabilities"))
+  expect_named(analysis, c("likelihoods", "votes", "posterior_probabilities"))
   
   # check vote totals
   sapply(analysis$votes, function(x) expect_equal(sum(x), iters-burnin))
