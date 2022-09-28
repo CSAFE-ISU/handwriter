@@ -68,7 +68,7 @@
 
 #' Example of list of model training data for the hierarchical model
 #'
-#' @format List created by `get_clusterassignment` with extra fields removed to
+#' @format List created by [`get_clusterassignment`] with extra fields removed to
 #'   make the example file smaller.
 #' @examples
 #' writer_indices <- c(2, 5)
@@ -78,17 +78,19 @@
 #'   doc_indices,
 #'   a = 2, b = 0.25, c = 2, d = 2, e = 0.5
 #' )
+#' @md
 "example_model_proc_list"
 
 #' Example of list of questioned documents' data for the hierarchical model
 #'
-#' @format List created by `get_clusterassignment` with extra fields removed to
+#' @format List created by [`get_clusterassignment`] with extra fields removed to
 #'   make the example file smaller.
+#' @md
 "example_questioned_proc_list"
 
 #' Example of model training data formatted for the hierarchical model
 #'
-#' @format A named list created by `format_model_data` with 19 items:
+#' @format A named list created by [`format_model_data`] with 19 items:
 #' \describe{
 #'   \item{Y}{data frame of cluster fill counts for each document}
 #'   \item{G}{number of clusters}
@@ -111,6 +113,7 @@
 #' }
 #' @examples
 #' draws <- fit_model(example_model_training_data, 4000)
+#' @md
 "example_model_training_data"
 
 #' RJAGS Wrapped Cauchy Model
@@ -124,7 +127,7 @@
 
 #' Example of list of questioned documents' data for the hierarchical model
 #'
-#' @format List created by `get_clusterassignment` with extra fields removed to
+#' @format List created by [`get_clusterassignment`] with extra fields removed to
 #'   make the example file smaller.
 #' @examples
 #' writer_indices <- c(2, 5)
@@ -134,11 +137,12 @@
 #'   writer_indices,
 #'   doc_indices
 #' )
+#' @md
 "example_questioned_proc_list"
 
 #' Example of questioned data formatted for the hierarchical model
 #'
-#' @format A named list created by `format_questioned_data` with 2 items:
+#' @format A named list created by [`format_questioned_data`] with 2 items:
 #'   \describe{
 #'   \item{graph_measurements}{data frame that shows the writer ID,
 #'   document ID, slope, principal component rotation angle, and wrapped
@@ -154,11 +158,12 @@
 #'   num_cores = 4
 #' )
 #'
+#' @md
 "example_questioned_data"
 
 #' Example of writership analysis
 #'
-#' @format A named list created by `analyze_questioned_documents` with 3 items:
+#' @format A named list created by [`analyze_questioned_documents`] with 3 items:
 #'   \describe{
 #'   \item{likelihoods}{list of data frames where each data frame
 #'   contains the likelihoods for a questioned document for each MCMC iteration.}
@@ -176,4 +181,39 @@
 #'   num_cores = 4
 #' )
 #' }
+#' @md
 "example_analysis"
+
+#' Example template
+#'
+#' @format A list containing a single cluster template created by
+#'   [`make_clustering_templates()`]. The cluster template was created by
+#'   sorting a stratified sample of 1000 graphs from 10 training documents into
+#'   5 clusters with a K-means algorithm. The cluster template is a named list
+#'   with 14 items: 
+#'   \describe{
+#'   \item{cluster}{A vector of cluster assignments
+#'   for each graph used to create the cluster template.} 
+#'   \item{centers}{A list of graphs used as the starting cluster centers for the K-means algorithm.}
+#'   \item{K}{The number of clusters to build (5) with the K-means algorithm.}
+#'   \item{n}{The number of training graphs to use (1000) in the K-means algorithm.}
+#'   \item{docnames}{A vector of the file names of the training documents.}
+#'   \item{iters}{The maximum number of iterations for the K-means algorithm (3).}
+#'   \item{changes}{A vector of the number of graphs that changed clusters on each iteration of the K-means algorithm.}
+#'   \item{outlierCutoff}{A vector of the outlier cutoff values calculated on each iteration of the K-means algorithm.}
+#'   \item{stop_reason}{The reason the K-means algorithm terminated.}
+#'   \item{wcd}{A matrix of the within cluster distances on each iteration of the K-means algorithm. More specifically, the distance between each graph
+#'   and the center of the cluster to which it was assigned  on each iteration.}
+#'   \item{wcss}{A vector of the within-cluster sum of squares on each iteration of the K-means algorithm.}
+#'   \item{rmse}{A vector of the root-mean square error on each iteration of the K-means algorithm.}
+#'   \item{DaviesBouldinIndex}{The Davies-Bouldin index on each iteration of the K-means algorithm.}
+#'   \item{VarianceRatioCriterion}{The variance-ratio criterion on each iteration of the K-means algorithm.}
+#'   }
+#' @examples
+#' \dontrun{
+#' # get cluster assignments for model training documents
+#' model_dir <- "path/to/model_training_docs"
+#' model_proc_list <- get_clusterassignment(example_template, model_dir)
+#' }
+#' @md
+"example_template"

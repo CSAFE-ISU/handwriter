@@ -5,14 +5,14 @@
 \alias{example_questioned_data}
 \title{Example of questioned data formatted for the hierarchical model}
 \format{
-A named list created by `format_questioned_data` with 2 items:
-  \describe{
-  \item{graph_measurements}{data frame that shows the writer ID,
-  document ID, slope, principal component rotation angle, and wrapped
-  principal rotation angle for each graph }
-  \item{cluster_fill_counts}{data frame that shows the number of graphs
-  assigned to each cluster for each document.}
-  }
+A named list created by \code{\link{format_questioned_data}} with 2 items:
+\describe{
+\item{graph_measurements}{data frame that shows the writer ID,
+document ID, slope, principal component rotation angle, and wrapped
+principal rotation angle for each graph }
+\item{cluster_fill_counts}{data frame that shows the number of graphs
+assigned to each cluster for each document.}
+}
 }
 \usage{
 example_questioned_data

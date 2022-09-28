@@ -5,8 +5,8 @@
 \alias{example_model_proc_list}
 \title{Example of list of model training data for the hierarchical model}
 \format{
-List created by `get_clusterassignment` with extra fields removed to
-  make the example file smaller.
+List created by \code{\link{get_clusterassignment}} with extra fields removed to
+make the example file smaller.
 }
 \usage{
 example_model_proc_list

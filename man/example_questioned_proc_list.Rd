@@ -5,11 +5,11 @@
 \alias{example_questioned_proc_list}
 \title{Example of list of questioned documents' data for the hierarchical model}
 \format{
-List created by `get_clusterassignment` with extra fields removed to
-  make the example file smaller.
+List created by \code{\link{get_clusterassignment}} with extra fields removed to
+make the example file smaller.
 
-List created by `get_clusterassignment` with extra fields removed to
-  make the example file smaller.
+List created by \code{\link{get_clusterassignment}} with extra fields removed to
+make the example file smaller.
 }
 \usage{
 example_questioned_proc_list

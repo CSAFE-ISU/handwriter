@@ -5,15 +5,15 @@
 \alias{example_analysis}
 \title{Example of writership analysis}
 \format{
-A named list created by `analyze_questioned_documents` with 3 items:
-  \describe{
-  \item{likelihoods}{list of data frames where each data frame
-  contains the likelihoods for a questioned document for each MCMC iteration.}
-  \item{votes}{list of vote tallys for each questioned document.}
-  \item{posterior_probabilites}{list of posterior probabilities of writership
-  for each questioned document and each known writer in the closed set used to train the
-  hierarchical model.}
-  }
+A named list created by \code{\link{analyze_questioned_documents}} with 3 items:
+\describe{
+\item{likelihoods}{list of data frames where each data frame
+contains the likelihoods for a questioned document for each MCMC iteration.}
+\item{votes}{list of vote tallys for each questioned document.}
+\item{posterior_probabilites}{list of posterior probabilities of writership
+for each questioned document and each known writer in the closed set used to train the
+hierarchical model.}
+}
 }
 \usage{
 example_analysis
