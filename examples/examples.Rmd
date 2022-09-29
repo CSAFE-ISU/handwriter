@@ -1,23 +1,30 @@
 ---
-title: "Pipeline with Toy Data"
+title: "Handwriting Analysis with Toy Data"
 output: html_document
 date: '2022-09-28'
 ---
 
 ```{r setup, include=FALSE}
+library(handwriter)
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## Toy Datasets
 
-- Cluster template: 
-    - K=5 clusters
-    - Stratified sample of 1000 graphs from 10 London Letters
-- Model training documents:
-    - 10
+Let's use handwritten documents from the [CSAFE Handwriting Database](https://data.csafe.iastate.edu/HandwritingDatabase/) to perform handwriting analysis with the handwriter package. The handwriter package contains three toy datasets: one for creating a clustering template; one for training the Bayesian hierarchical model; and one for questioned documents.
 
+-   The template training images are scans of handwritten prompts from 10 randomly selected writers from the CSAFE Handwriting Database. The prompt from each writer is the London Letter prompt from the first session and the first repetition.
+-   The model training images are scans of handwritten prompts from 5 randomly selected CSAFE writers. For each writer, the prompts are the 3 Wizard of Oz prompts from the first session. These 5 writers are distinct from the 10 template training writers.
+-   The questioned images are scans of the Wizard of Oz prompt from the first session and the first repetition from the 5 model training writers.
 
-## Fit Amy's Full Hierarchical Model
+These images are located in the handwriter package in the following folders:
+
+-   `r system.file("extdata/example_images/template_training_images", package = "handwriter")`
+-   `r system.file("extdata/example_images/model_training_images", package = "handwriter")`
+- `r system.file("extdata/example_images/template_training_images", package = "handwriter")`
+
+## Fit the Full Bayesian Hierarchical Model
+
 ```{r}
 md <- format_model_data(proc_list=example_model_proc_list, 
                         writer_indices=c(2,5), 
@@ -28,6 +35,7 @@ draws <- drop_burnin(draws, 1000)
 ```
 
 ## Analyze Questioned Documents
+
 ```{r}
 # questioned documents ----
 qd <- format_questioned_data(proc_list = example_questioned_proc_list,
@@ -37,4 +45,3 @@ analysis <- analyze_questioned_documents(md, draws, qd, num_cores = 4)
 
 plot_posterior_probabilities(analysis)
 ```
-

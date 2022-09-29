@@ -14,6 +14,7 @@
 #' analysis <- analyze_questioned_documents(example_model_training_data, draws, example_questioned_data, num_cores = 4)
 #' }
 #' 
+#' @export
 #' @md
 plot_posterior_probabilities <- function(analysis) {
   # data frame of posterior probabilities
