@@ -2,9 +2,9 @@
 #'
 #' `format_model_data()` formats the data need for the rjags model.
 #'
-#' @param proc_list List of processed handwriting from a set of documents
+#' @param model_proc_list List of processed handwriting from a set of documents
 #'   created by `get_clusterassignment()`. Each item in the list contains the
-#'   extracted graphs from a document.
+#'   extracted graphs from a document. These processed documents will be used to train a model.
 #' @param writer_indices Vector of start and end indices for the writer id in
 #'   the document names.
 #' @param doc_indices Vector of start and end indices for the document id in the
@@ -25,96 +25,19 @@
 #'
 #' @export
 #' @md
-format_model_data <- function(proc_list, writer_indices, doc_indices, a = 2, b = 0.25, c = 2, d = 2, e = 0.5) {
+format_model_data <- function(model_proc_list, writer_indices, doc_indices, a = 2, b = 0.25, c = 2, d = 2, e = 0.5) {
   
-  # get cluster assignment, slope, and pc_rotation for each letter in each model doc
-  graph_measurements <- get_letter_measurements(proc_list, writer_indices, doc_indices)
-  
-  # get cluster fill counts
-  cluster_fill_counts <- get_cluster_fill_counts(proc_list, writer_indices, doc_indices)
-  
-  # format data for rjags
-  data <- list(Y = cluster_fill_counts[,-c(1,2)],         # multinomial data
-              G = ncol(cluster_fill_counts[,-c(1,2)]),   # number of clusters (40)
-              D = nrow(cluster_fill_counts[,-c(1,2)]),   # total number of documents
-              W = length(unique(cluster_fill_counts$writer)), # number of unique writers
-              #docwise
-              docN = as.integer(apply(cluster_fill_counts[,-c(1,2)], FUN = sum, MARGIN =  1)),  # number of letters in each doc, e.g. N[1] = 354
-              docwriter = as.integer(as.factor(cluster_fill_counts$writer)),  # vector of writers for each document numbered 1,2,...,W
-              #letterwise
-              zero_vec = rep(0, times = length(graph_measurements$pc_wrapped)),
-              Gsmall = length(unique(graph_measurements$cluster)), # number of clusters (20)
-              numletters = length(graph_measurements$pc_wrapped), # total number of letters 
-              pc_wrapped = graph_measurements$pc_wrapped, #principal component rotation observations
-              letterwriter = as.integer(as.factor(graph_measurements$writer)), #vector of writers for each letter
-              lettercluster = as.integer(graph_measurements$cluster), #vector of cluster assignments, one for each letter
-              zero_mat = matrix(0, nrow = length(unique(cluster_fill_counts$writer)), ncol = length(unique(graph_measurements$cluster))),
-              a = a, b = b, c = c, d = d, e = e)
-  
-  return(data)
-}
-
-
-#' format_questioned_data
-#'
-#' `format_questioned_data()` formats the questioned data for analysis with the hierarchical model.
-#'
-#' @param proc_list List of processed handwriting from a set of questioned documents
-#'   created by `get_clusterassignment()`. Each item in the list contains the
-#'   extracted graphs from a document.
-#' @param writer_indices Vector of start and end indices for the writer id in
-#'   the document names.
-#' @param doc_indices Vector of start and end indices for the document id in the
-#'   document names.
-#' @return List of data formatted analysis.
-#' 
-#' @examples
-#' writer_indices = c(2,5)
-#' doc_indices = c(7,18)
-#' format_questioned_data(example_model_proc_list, writer_indices, doc_indices)
-#'
-#' @export
-#' @md
-format_questioned_data <- function(proc_list, writer_indices, doc_indices) {
-  
-  # get cluster assignment, slope, and pc_rotation for each letter in each model doc
-  graph_measurements <- get_letter_measurements(proc_list, writer_indices, doc_indices)
-  
-  # get cluster fill counts
-  cluster_fill_counts <- get_cluster_fill_counts(proc_list, writer_indices, doc_indices)
-  
-  data <- list("graph_measurements"=graph_measurements, "cluster_fill_counts"=cluster_fill_counts)
-  return(data)
-}
-
-
-#' get_letter_measurements
-#'
-#' `get_letter_measurements()` makes a data frame that shows the cluster
-#' assignment, slope, principal component rotation angle, and wrapped principal
-#' component rotation angle for each graph in each document in `proc_list`.
-#'
-#' @param proc_list List of processed handwriting from a set of documents
-#'   created by `get_clusterassignment()`. Each item in the list contains the
-#'   extracted graphs from a document.
-#' @param writer_indices Vector of start and end indices for the writer id in
-#'   the document names.
-#' @param doc_indices Vector of start and end indices for the document id in the
-#'   document names.
-#' @return A data frame of graph measurements for each graph in `proc_list`.
-#'
-#' @noRd
-get_letter_measurements <- function(proc_list, writer_indices, doc_indices) {
+  # get cluster assignment, slope, and pc_rotation for each graph in each model doc ----
   # get doc names from proclist
-  model_docs <- sapply(proc_list, function(x) x$docname)
+  model_docs <- sapply(model_proc_list, function(x) x$docname)
   
   # get writer ids
   writers <- as.integer(sapply(model_docs, function(x) substr(x, start = writer_indices[1], stop = writer_indices[2])))
   docs <- sapply(model_docs, function(x) substr(x, start = doc_indices[1], stop = doc_indices[2]), USE.NAMES = FALSE)
   
-  for(j in 1:length(proc_list)){ # for each doc
+  for(j in 1:length(model_proc_list)){ # for each doc
     # initialize dataframe
-    letter_measurements = data.frame(matrix(ncol = 1, nrow = length(proc_list[[j]]$process$letterList)))
+    letter_measurements = data.frame(matrix(ncol = 1, nrow = length(model_proc_list[[j]]$process$letterList)))
     names(letter_measurements) = c("writer")
     
     # add writer and doc names
@@ -122,55 +45,156 @@ get_letter_measurements <- function(proc_list, writer_indices, doc_indices) {
     letter_measurements$doc = docs[j]
     
     # add cluster assignment
-    letter_measurements$cluster = sapply(proc_list[[j]]$process$letterList, function(x){x$cluster})
+    letter_measurements$cluster = sapply(model_proc_list[[j]]$process$letterList, function(x){x$cluster})
     
     # add other measurements
-    letter_measurements$slope = sapply(proc_list[[j]]$process$letterList, function(x){x$characterFeatures$slope})
-    letter_measurements$pc_rotation = sapply(proc_list[[j]]$process$letterList, function(x){xv = x$characterFeatures$xvar; yv = x$characterFeatures$yvar; cv = x$characterFeatures$covar; eig = eigen(cbind(c(xv, cv), c(cv, yv)), symmetric = TRUE); return(angle(t(as.matrix(eig$vectors[,1])), as.matrix(c(1,0))))});
+    letter_measurements$slope = sapply(model_proc_list[[j]]$process$letterList, function(x){x$characterFeatures$slope})
+    letter_measurements$pc_rotation = sapply(model_proc_list[[j]]$process$letterList, function(x){xv = x$characterFeatures$xvar; yv = x$characterFeatures$yvar; cv = x$characterFeatures$covar; eig = eigen(cbind(c(xv, cv), c(cv, yv)), symmetric = TRUE); return(angle(t(as.matrix(eig$vectors[,1])), as.matrix(c(1,0))))});
     letter_measurements$pc_wrapped = letter_measurements$pc_rotation*2
     
     # add to master dataframe
     if(j == 1){
-      df = letter_measurements
+      graph_measurements = letter_measurements
     } else {
-      df = rbind(df, letter_measurements)
+      graph_measurements = rbind(graph_measurements, letter_measurements)
     }
   }
   
-  # make writer and cluster factors and sort
-  df = df %>% 
-    dplyr::arrange(writer, doc, cluster)
+  # if clusters aren't numbered sequentially, relabel them
+  if (length(unique(graph_measurements$cluster)) < max(graph_measurements$cluster)){
+    graph_measurements <- graph_measurements %>% dplyr::rename("old_cluster" = cluster)
+    cluster_lookup <- data.frame("old_cluster" = sort(unique(graph_measurements$old_cluster)), "cluster" = 1:length(unique(graph_measurements$old_cluster)))
+    graph_measurements <- graph_measurements %>% dplyr::left_join(cluster_lookup, by = "old_cluster")
+  }
   
-  return(df)
-}
-
-#' get_cluster_fill_counts
-#'
-#' `get_cluster_fill_counts` counts the number of graphs assigned to each
-#' cluster in the cluster template for each document in `proc_list`.
-#'
-#' @param proc_list List of processed handwriting from a set of documents
-#'   created by `get_clusterassignment()`. Each item in the list contains the
-#'   extracted graphs from a document.
-#' @param writer_indices Vector of start and end indices for the writer id in
-#'   the document names.
-#' @param doc_indices Vector of start and end indices for the document id in the
-#'   document names.
-#' @return A data frame of cluster fill counts for each document in `proc_list`.
-#'
-#' @export
-get_cluster_fill_counts <- function(proc_list, writer_indices, doc_indices){
-  # get cluster assignments for each graph
-  graphs <- get_letter_measurements(proc_list, writer_indices, doc_indices)
-  
+  # get cluster fill counts ----
   # count number of graphs in each cluster for each writer
-  cluster_fill_counts <- graphs %>% 
+  cluster_fill_counts <- graph_measurements %>% 
     dplyr::group_by(writer, doc, cluster) %>%
     dplyr::summarise(n = dplyr::n()) %>%
     dplyr::mutate(n = as.integer(n)) %>%
     tidyr::pivot_wider(names_from = cluster, values_from = n, values_fill = 0)
   
-  return(cluster_fill_counts)
+  # sort columns
+  cols <- c(colnames(cluster_fill_counts[,c(1,2)]), sort(colnames(cluster_fill_counts[,-c(1,2)])))
+  cluster_fill_counts <- cluster_fill_counts[,cols]
+  
+  # format data for rjags ----
+  rjags_data <- list(Y = cluster_fill_counts[,-c(1,2)],         # multinomial data
+                     G = ncol(cluster_fill_counts[,-c(1,2)]),   # number of clusters (40)
+                     D = nrow(cluster_fill_counts[,-c(1,2)]),   # total number of documents
+                     W = length(unique(cluster_fill_counts$writer)), # number of unique writers
+                     #docwise
+                     docN = as.integer(apply(cluster_fill_counts[,-c(1,2)], FUN = sum, MARGIN =  1)),  # number of letters in each doc, e.g. N[1] = 354
+                     docwriter = as.integer(as.factor(cluster_fill_counts$writer)),  # vector of writers for each document numbered 1,2,...,W
+                     #letterwise
+                     zero_vec = rep(0, times = length(graph_measurements$pc_wrapped)),
+                     Gsmall = length(unique(graph_measurements$cluster)), # number of clusters (20)
+                     numletters = length(graph_measurements$pc_wrapped), # total number of letters 
+                     pc_wrapped = graph_measurements$pc_wrapped, #principal component rotation observations
+                     letterwriter = as.integer(as.factor(graph_measurements$writer)), #vector of writers for each letter
+                     lettercluster = as.integer(graph_measurements$cluster), #vector of cluster assignments, one for each letter
+                     zero_mat = matrix(0, nrow = length(unique(cluster_fill_counts$writer)), ncol = length(unique(graph_measurements$cluster))),
+                     a = a, b = b, c = c, d = d, e = e)
+  
+  data <- list("graph_measurements"=graph_measurements, 
+               "cluster_fill_counts"=cluster_fill_counts,
+               "rjags_data"=rjags_data)
+  return(data)
+}
+
+
+#' format_questioned_data
+#'
+#' `format_questioned_data()` formats the questioned data for analysis with the
+#' hierarchical model.
+#'
+#' @param formatted_model_data A list of formatted model training output by
+#'   [`format_model_data()`]. If clusters used by the model training graphs were
+#'   not numbered sequentially, [`format_model_data()`] relabels the clusters to
+#'   make them sequential. This is necessary so that the [`fit_model()`]
+#'   function can use the cluster numbers as indices when fitting the model with
+#'   RJAGS. `format_questioned_data()` will relabel the clusters to match the
+#'   labels used by the model training graphs.
+#' @param questioned_proc_list List of processed handwriting from a set of questioned
+#'   documents created by `get_clusterassignment()`. Each item in the list
+#'   contains the extracted graphs from a document.
+#' @param writer_indices Vector of start and end indices for the writer id in
+#'   the document names.
+#' @param doc_indices Vector of start and end indices for the document id in the
+#'   document names.
+#' @return List of data formatted analysis.
+#'
+#' @examples
+#' writer_indices = c(2,5)
+#' doc_indices = c(7,18)
+#' format_questioned_data(example_model_proc_list, writer_indices, doc_indices)
+#'
+#' @export
+#' @md
+format_questioned_data <- function(formatted_model_data, questioned_proc_list, writer_indices, doc_indices) {
+  
+  # get cluster assignment, slope, and pc_rotation for each graph in each questioned doc ----
+  # get doc names from proclist
+  questioned_docs <- sapply(questioned_proc_list, function(x) x$docname)
+  
+  # get writer ids
+  writers <- as.integer(sapply(questioned_docs, function(x) substr(x, start = writer_indices[1], stop = writer_indices[2])))
+  docs <- sapply(questioned_docs, function(x) substr(x, start = doc_indices[1], stop = doc_indices[2]), USE.NAMES = FALSE)
+  
+  for(j in 1:length(questioned_proc_list)){ # for each doc
+    # initialize dataframe
+    letter_measurements = data.frame(matrix(ncol = 1, nrow = length(questioned_proc_list[[j]]$process$letterList)))
+    names(letter_measurements) = c("writer")
+    
+    # add writer and doc names
+    letter_measurements$writer = writers[j]
+    letter_measurements$doc = docs[j]
+    
+    # add cluster assignment
+    letter_measurements$cluster = sapply(questioned_proc_list[[j]]$process$letterList, function(x){x$cluster})
+    
+    # add other measurements
+    letter_measurements$slope = sapply(questioned_proc_list[[j]]$process$letterList, function(x){x$characterFeatures$slope})
+    letter_measurements$pc_rotation = sapply(questioned_proc_list[[j]]$process$letterList, function(x){xv = x$characterFeatures$xvar; yv = x$characterFeatures$yvar; cv = x$characterFeatures$covar; eig = eigen(cbind(c(xv, cv), c(cv, yv)), symmetric = TRUE); return(angle(t(as.matrix(eig$vectors[,1])), as.matrix(c(1,0))))});
+    letter_measurements$pc_wrapped = letter_measurements$pc_rotation*2
+    
+    # add to master dataframe
+    if(j == 1){
+      graph_measurements = letter_measurements
+    } else {
+      graph_measurements = rbind(graph_measurements, letter_measurements)
+    }
+  }
+  
+  # if model clusters were relabled, relabel the questioned clusters
+  if (any(names(formatted_model_data$graph_measurements) == 'old_cluster')){
+    # make lookup table from model cluster data
+    cluster_lookup <- formatted_model_data$graph_measurements %>%
+      dplyr::select(old_cluster, cluster) %>%
+      dplyr::distinct()
+    # store clusters as old clusters
+    graph_measurements <- graph_measurements %>% 
+      dplyr::rename("old_cluster" = cluster)
+    # get new cluster labels
+    graph_measurements <- graph_measurements %>%
+      dplyr::left_join(cluster_lookup, by = "old_cluster")
+  }
+  
+  # get cluster fill counts ----
+  # count number of graphs in each cluster for each writer
+  cluster_fill_counts <- graph_measurements %>% 
+    dplyr::group_by(writer, doc, cluster) %>%
+    dplyr::summarise(n = dplyr::n()) %>%
+    dplyr::mutate(n = as.integer(n)) %>%
+    tidyr::pivot_wider(names_from = cluster, values_from = n, values_fill = 0)
+  
+  # sort columns
+  cols <- c(colnames(cluster_fill_counts[,c(1,2)]), sort(colnames(cluster_fill_counts[,-c(1,2)])))
+  cluster_fill_counts <- cluster_fill_counts[,cols]
+  
+  data <- list("graph_measurements"=graph_measurements, 
+               "cluster_fill_counts"=cluster_fill_counts)
 }
 
 

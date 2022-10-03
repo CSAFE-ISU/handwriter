@@ -5,7 +5,7 @@
 \title{format_model_data}
 \usage{
 format_model_data(
-  proc_list,
+  model_proc_list,
   writer_indices,
   doc_indices,
   a = 2,
@@ -16,9 +16,9 @@ format_model_data(
 )
 }
 \arguments{
-\item{proc_list}{List of processed handwriting from a set of documents
+\item{model_proc_list}{List of processed handwriting from a set of documents
 created by \code{get_clusterassignment()}. Each item in the list contains the
-extracted graphs from a document.}
+extracted graphs from a document. These processed documents will be used to train a model.}
 
 \item{writer_indices}{Vector of start and end indices for the writer id in
 the document names.}

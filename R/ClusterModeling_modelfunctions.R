@@ -138,23 +138,23 @@ analyze_questioned_documents <- function(model_training_data, draws, questioned_
 
   # initialize
   niter <- nrow(draws$thetas)
-  thetas <- array(dim = c(niter, model_training_data$G, model_training_data$W)) # 3 dim array, a row for each mcmc iter, a column for each cluster, and a layer for each writer
-  mus <- rhos <- array(dim = c(niter, model_training_data$Gsmall, model_training_data$W)) # 3 dim array, a row for each mcmc iter, a column for each cluster, and a layer for each writer
-  dmult <- dwc_sums <- data.frame(matrix(nrow = niter, ncol = model_training_data$W))
-  layered_wc_params <- array(dim = c(niter, model_training_data$Gsmall, 2))
+  thetas <- array(dim = c(niter, model_training_data$rjags_data$G, model_training_data$rjags_data$W)) # 3 dim array, a row for each mcmc iter, a column for each cluster, and a layer for each writer
+  mus <- rhos <- array(dim = c(niter, model_training_data$rjags_data$Gsmall, model_training_data$rjags_data$W)) # 3 dim array, a row for each mcmc iter, a column for each cluster, and a layer for each writer
+  dmult <- dwc_sums <- data.frame(matrix(nrow = niter, ncol = model_training_data$rjags_data$W))
+  layered_wc_params <- array(dim = c(niter, model_training_data$rjags_data$Gsmall, 2))
   ls <- list()
 
   # reshape variables
   flat_theta <- as.data.frame(cbind(iters = 1:niter, draws$thetas))
   flat_mus <- as.data.frame(cbind(iters = 1:niter, draws$mus))
   flat_rhos <- as.data.frame(cbind(iters = 1:niter, draws$rhos))
-  for (i in 1:model_training_data$W) { # i is writer, j is graph
-    for (j in 1:model_training_data$G) {
+  for (i in 1:model_training_data$rjags_data$W) { # i is writer, j is graph
+    for (j in 1:model_training_data$rjags_data$G) {
       thetas[, j, i] <- flat_theta[1:niter, as.character(paste0("theta[", i, ",", j, "]"))]
     }
   }
-  for (i in 1:model_training_data$W) { # i is writer, j is graph
-    for (j in 1:model_training_data$Gsmall) {
+  for (i in 1:model_training_data$rjags_data$W) { # i is writer, j is graph
+    for (j in 1:model_training_data$rjags_data$Gsmall) {
       mus[, j, i] <- flat_mus[1:niter, as.character(paste0("mu[", i, ",", j, "]"))]
       rhos[, j, i] <- flat_rhos[1:niter, as.character(paste0("rho[", i, ",", j, "]"))]
     }
@@ -176,7 +176,7 @@ analyze_questioned_documents <- function(model_training_data, draws, questioned_
     m_pcrot <- circular::circular(m_qdoc$pc_wrapped, units = "radians", modulo = "2pi")
 
     if (length(m_cluster) > 0) {
-      for (i in 1:model_training_data$W) { # i is writer, j is graph
+      for (i in 1:model_training_data$rjags_data$W) { # i is writer, j is graph
         dmult[, i] <- mc2d::dmultinomial(x = questioned_data$cluster_fill_counts[m, -c(1, 2)], prob = thetas[, , i], log = TRUE)
         layered_wc_params[, , 1] <- mus[, , i]
         layered_wc_params[, , 2] <- rhos[, , i]
@@ -184,7 +184,7 @@ analyze_questioned_documents <- function(model_training_data, draws, questioned_
       }
       nn <- dmult + dwc_sums + abs(max(colMeans(dmult + dwc_sums)))
     } else if (length(m_cluster) == 0) {
-      for (i in 1:model_training_data$W) { # i is writer, j is graph
+      for (i in 1:model_training_data$rjags_data$W) { # i is writer, j is graph
         dmult[, i] <- dmultinomial(x = questioned_data$cluster_fill_counts[m, -c(1, 2)], prob = thetas[, , i], log = TRUE)
       }
       nn <- dmult + abs(max(colMeans(dmult)))

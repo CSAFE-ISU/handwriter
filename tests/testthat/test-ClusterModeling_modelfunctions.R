@@ -2,7 +2,7 @@ test_that("fit model works", {
   # format model training data
   mtd <- format_model_data(example_model_proc_list, writer_indices = c(2,5), doc_indices = c(7,18))
   iters <- 2000
-  draws <- fit_model(model_training_data = mtd, num_iters = iters)
+  draws <- fit_model(model_training_data = mtd$rjags_data, num_iters = iters)
   
   # check named list
   expect_named(draws, c("thetas", "mus", "gammas", "rhos", "etas", "nll_datamodel", "nld_locationparam"))

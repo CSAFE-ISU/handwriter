@@ -4,12 +4,25 @@
 \alias{format_questioned_data}
 \title{format_questioned_data}
 \usage{
-format_questioned_data(proc_list, writer_indices, doc_indices)
+format_questioned_data(
+  formatted_model_data,
+  questioned_proc_list,
+  writer_indices,
+  doc_indices
+)
 }
 \arguments{
-\item{proc_list}{List of processed handwriting from a set of questioned documents
-created by \code{get_clusterassignment()}. Each item in the list contains the
-extracted graphs from a document.}
+\item{formatted_model_data}{A list of formatted model training output by
+\code{\link[=format_model_data]{format_model_data()}}. If clusters used by the model training graphs were
+not numbered sequentially, \code{\link[=format_model_data]{format_model_data()}} relabels the clusters to
+make them sequential. This is necessary so that the \code{\link[=fit_model]{fit_model()}}
+function can use the cluster numbers as indices when fitting the model with
+RJAGS. \code{format_questioned_data()} will relabel the clusters to match the
+labels used by the model training graphs.}
+
+\item{questioned_proc_list}{List of processed handwriting from a set of questioned
+documents created by \code{get_clusterassignment()}. Each item in the list
+contains the extracted graphs from a document.}
 
 \item{writer_indices}{Vector of start and end indices for the writer id in
 the document names.}
@@ -21,7 +34,8 @@ document names.}
 List of data formatted analysis.
 }
 \description{
-\code{format_questioned_data()} formats the questioned data for analysis with the hierarchical model.
+\code{format_questioned_data()} formats the questioned data for analysis with the
+hierarchical model.
 }
 \examples{
 writer_indices = c(2,5)

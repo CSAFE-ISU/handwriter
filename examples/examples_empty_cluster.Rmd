@@ -1,0 +1,168 @@
+---
+title: "Handwriting Analysis with Toy Data
+output:
+  pdf_document: default
+  html_document: default
+date: '2022-09-28'
+---
+
+```{r setup, include=FALSE}
+library(handwriter)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Toy Datasets
+
+Let's use handwritten documents from the [CSAFE Handwriting Database](https://data.csafe.iastate.edu/HandwritingDatabase/) to perform handwriting analysis with the handwriter package. The handwriter package contains three toy datasets: one for creating a clustering template; one for training the Bayesian hierarchical model; and one for questioned documents.
+
+-   The template training images are scans of handwritten prompts from 10 randomly selected writers from the CSAFE Handwriting Database. The prompt from each writer is the London Letter prompt from the first session and the first repetition.
+-   The model training images are scans of handwritten prompts from 5 randomly selected CSAFE writers. For each writer, the prompts are the 3 Wizard of Oz prompts from the first session. These 5 writers are distinct from the 10 template training writers.
+-   The questioned images are scans of the Wizard of Oz prompt from the first session and the first repetition from the 5 model training writers.
+
+These images are located in the handwriter package in the following folders:
+
+-   `r system.file("extdata/example_images/template_training_images", package = "handwriter")`
+-   `r system.file("extdata/example_images/model_training_images", package = "handwriter")`
+-   `r system.file("extdata/example_images/template_training_images", package = "handwriter")`
+
+## Create a Clustering Template
+Start by creating a new directory that will hold the handwriting analysis data.
+```{r}
+# path to main directory
+main_dir <- "/Users/stephanie/Documents/non_version_control/CSAFE_toy_datasets"
+
+# create folder if it doesn't already exist
+if (!dir.exists(main_dir)){dir.create(main_dir)}
+```
+
+Process the handwriting images with [`process_batch_dir()`]. Specify where to save the processed handwriting. I like to save them in a subfolder of the main directory. The [`process_batch_dir()`] function will create this folder automatically if it doesn't already exist.
+```{r}
+# get the path to the handwriter image directory
+template_images_dir <- system.file("extdata/example_images/template_training_images", package = "handwriter")
+
+# choose where to save the processed 
+template_graphs_dir <- file.path(main_dir, "data", "template_graphs")
+```
+
+```{r, message = FALSE}
+# process the handwriting
+# process_batch_dir(image_batch = template_images_dir,
+#                   batch_output_dir = template_graphs_dir,
+#                   transform_output = 'document')
+```
+
+Create a new clustering template from the processed template training images. The new template will be saved in a subdirectory of the main directory.
+```{r}
+start_seed <- 100
+run <- 1
+# template <- make_clustering_templates(template_dir = main_dir,
+#                                       K = 10,
+#                                       num_dist_cores = 4,
+#                                       max_iters = 3,
+#                                       num_graphs = 1000,
+#                                       num_runs = run,
+#                                       starting_seed = start_seed)
+```
+
+
+## Fit the Full Bayesian Hierarchical Model
+Process the handwriting images with [`process_batch_dir()`]. Specify where to save the processed handwriting. I like to save them in a subfolder of the main directory. The [`process_batch_dir()`] function will create this folder automatically if it doesn't already exist.
+```{r}
+# get the path to the handwriter image directory
+model_images_dir <- system.file("extdata/example_images/model_training_images", 
+                                package = "handwriter")
+
+# choose where to save the processed handwriting
+model_graphs_dir <- file.path(main_dir, "data", "model_graphs")
+```
+
+```{r, message = FALSE}
+# process the handwriting
+# process_batch_dir(image_batch = model_images_dir,
+#                   batch_output_dir = model_graphs_dir,
+#                   transform_output = 'document')
+```
+
+Assign each graph from the processed handwriting to a cluster in the clustering template. The output of [`make_clustering_templates()`] is a list of template(s). We access the first, and only in this case, template in the list with template[[1]].
+```{r}
+# assign model graphs to clusters
+# m_proc_list <- get_clusterassignment(clustertemplate = template[[1]], 
+#                                      input_dir = model_graphs_dir)
+# saveRDS(m_proc_list, file.path(main_dir,
+#                                paste0("template_seed", start_seed),
+#                                paste0("seed", start_seed + run - 1, "_run", run),
+#                                "data",
+#                                "model_cluster_proc_list.rds"))
+```
+
+Get the data model training data ready for the model. The model needs to know which writer wrote which document. We get this information for the image file names. Each file name has the format `w0001_s01_pLND_r01`. The writer ID starts at character 2 and ends at character 5 so we input `writer_indices=c(2,5)`. The model also asks for a name for each document to distinguish between documents written by the same writer. We use `s01_pLND_r01` for the document name so we enter `doc_indices=c(7,18).` We could use the entire file name as the document name if we want. Lastly, we choose values for the model parameters: a=2, b=0.25, c=2, d=2, and e=0.5. 
+```{r}
+# load cluster assignments
+m_proc_list <- readRDS(file.path(main_dir,
+                                 paste0("template_seed", start_seed),
+                                 paste0("seed", start_seed + run - 1, "_run", run),
+                                 "data",
+                                 "model_cluster_proc_list.rds"))
+
+# format data
+md <- format_model_data(model_proc_list=m_proc_list, 
+                        writer_indices=c(2,5), 
+                        doc_indices=c(7,18), 
+                        a=2, b=0.25, c=2, d=2, e=0.5)
+```
+
+Fit the Bayesian hierarchical model and drop burn-in.
+```{r}
+draws <- fit_model(md$rjags_data, num_iters = 4000)
+draws <- drop_burnin(draws, 1000)
+```
+
+## Analyze Questioned Documents
+Process the questioned documents.
+```{r}
+# get the path to the handwriter image directory
+questioned_images_dir <- system.file("extdata/example_images/questioned_images", 
+                                     package = "handwriter")
+
+# choose where to save the processed handwriting
+questioned_graphs_dir <- file.path(main_dir, "data", "questioned_graphs")
+```
+
+```{r, message = FALSE}
+# process the handwriting
+# process_batch_dir(image_batch = questioned_images_dir,
+#                   batch_output_dir = questioned_graphs_dir,
+#                   transform_output = 'document')
+```
+
+Get the cluster assignments for the graphs in the questioned documents.
+```{r}
+# q_proc_list <- get_clusterassignment(clustertemplate = template[[1]], input_dir = questioned_graphs_dir)
+# saveRDS(q_proc_list, file.path(main_dir,
+#                                paste0("template_seed", start_seed),
+#                                paste0("seed", start_seed + run - 1, "_run", run),
+#                                "data",
+#                                "questioned_cluster_proc_list.rds"))
+```
+
+Format the questioned document data so that it can be used with the model.
+```{r}
+# load questioned cluster assignments
+q_proc_list <- readRDS(file.path(main_dir,
+                                 paste0("template_seed", start_seed),
+                                 paste0("seed", start_seed + run - 1, "_run", run),
+                                 "data",
+                                 "questioned_cluster_proc_list.rds"))
+
+qd <- format_questioned_data(formatted_model_data = md,
+                             questioned_proc_list = q_proc_list,
+                             writer_indices=c(2,5), 
+                             doc_indices=c(7,18))
+```
+
+Use the fitted model to analyze the questioned documents and plot the posterior probabilities of writership.
+```{r}
+analysis <- analyze_questioned_documents(md, draws, qd, num_cores = 4)
+
+plot_posterior_probabilities(analysis)
+```
