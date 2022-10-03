@@ -167,7 +167,7 @@ analyze_questioned_documents <- function(model_training_data, draws, questioned_
   writers <- unique(questioned_data$graph_measurements$writer)
   
   # obtain posterior samples of model parameters
-  likelihoods_list <- foreach::foreach(m = 1:nrow(questioned_data$cluster_fill_counts)) %dopar% {
+  likelihood_evals <- foreach::foreach(m = 1:nrow(questioned_data$cluster_fill_counts)) %dopar% {
     # filter docs for current writer
     m_qdoc <- questioned_data$graph_measurements %>% dplyr::filter(writer == writers[m])
     m_cluster <- as.numeric(m_qdoc$cluster)
@@ -193,15 +193,17 @@ analyze_questioned_documents <- function(model_training_data, draws, questioned_
     colnames(likelihoods) <- paste0("known_writer_", writers)
     return(likelihoods)
   }
-  names(likelihoods_list) <- paste0("w", questioned_data$cluster_fill_counts$writer, "_", questioned_data$cluster_fill_counts$doc)
+  names(likelihood_evals) <- paste0("w", questioned_data$cluster_fill_counts$writer, "_", questioned_data$cluster_fill_counts$doc)
   
   # tally votes
-  votes <- lapply(likelihoods_list, function(y) {as.data.frame(t(apply(y, 1, function(x) floor(x/max(x)))))})
+  votes <- lapply(likelihood_evals, function(y) {as.data.frame(t(apply(y, 1, function(x) floor(x/max(x)))))})
   votes <- lapply(votes, function(x) colSums(x))
     
   # calculate posterior probability of writership
   posterior_probabilities <- lapply(votes, function(x) x / niter)
+  posterior_probabilities <- as.data.frame(posterior_probabilities)
+  posterior_probabilities <- cbind("known_writer" = rownames(posterior_probabilities), data.frame(posterior_probabilities, row.names=NULL))  # change rownames to column
   
-  analysis <- list("likelihoods" = likelihoods_list, "votes" = votes, "posterior_probabilities" = posterior_probabilities)
+  analysis <- list("likelihood_evals" = likelihood_evals, "votes" = votes, "posterior_probabilities" = posterior_probabilities)
   return(analysis)
 }

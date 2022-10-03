@@ -48,6 +48,7 @@ get_clusterassignment = function(clustertemplate, input_dir){
     }
     cat(round(i/length(proclist), 2), "\n")
   }
+
   return(proclist)
 }
 

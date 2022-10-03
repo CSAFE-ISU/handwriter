@@ -73,20 +73,20 @@
 #' @examples
 #' writer_indices <- c(2, 5)
 #' doc_indices <- c(7, 18)
-#' model_data <- format_model_data(example_model_proc_list,
+#' model_data <- format_model_data(example_model_clusters,
 #'   writer_indices,
 #'   doc_indices,
 #'   a = 2, b = 0.25, c = 2, d = 2, e = 0.5
 #' )
 #' @md
-"example_model_proc_list"
+"example_model_clusters"
 
 #' Example of list of questioned documents' data for the hierarchical model
 #'
 #' @format List created by [`get_clusterassignment`] with extra fields removed to
 #'   make the example file smaller.
 #' @md
-"example_questioned_proc_list"
+"example_questioned_clusters"
 
 #' Example of model training data formatted for the hierarchical model
 #'
@@ -112,16 +112,16 @@
 #'   \item{e}{paramter}
 #' }
 #' @examples
-#' draws <- fit_model(example_model_training_data, 4000)
+#' draws <- fit_model(example_model_data, 4000)
 #' @md
-"example_model_training_data"
+"example_model_data"
 
 #' RJAGS Wrapped Cauchy Model
 #'
 #' @format Wrapped Cauchy model written in RJAGS syntax.
 #' @examples
 #' rjags_model <- textConnection(model_wrapped_cauchy)
-#' model_data <- example_model_training_data
+#' model_data <- example_model_data
 #' m <- rjags::jags.model(file = rjags_model, data = model_data, n.chains = 1)
 "model_wrapped_cauchy"
 
@@ -133,12 +133,12 @@
 #' writer_indices <- c(2, 5)
 #' doc_indices <- c(7, 18)
 #' model_data <- format_questioned_data(
-#'   example_questioned_proc_list,
+#'   example_questioned_clusters,
 #'   writer_indices,
 #'   doc_indices
 #' )
 #' @md
-"example_questioned_proc_list"
+"example_questioned_clusters"
 
 #' Example of questioned data formatted for the hierarchical model
 #'
@@ -151,8 +151,8 @@
 #'   assigned to each cluster for each document.}
 #'   }
 #' @examples
-#' draws <- fit_model(example_model_training_data, 4000)
-#' analysis <- analyze_questioned_documents(example_model_training_data,
+#' draws <- fit_model(example_model_data, 4000)
+#' analysis <- analyze_questioned_documents(example_model_data,
 #'   draws,
 #'   example_questioned_data,
 #'   num_cores = 4
@@ -184,7 +184,7 @@
 #' @md
 "example_analysis"
 
-#' Example template
+#' Example cluster template
 #'
 #' @format A list containing a single cluster template created by
 #'   [`make_clustering_templates()`]. The cluster template was created by
@@ -216,4 +216,4 @@
 #' model_proc_list <- get_clusterassignment(example_template, model_dir)
 #' }
 #' @md
-"example_template"
+"example_cluster_template"

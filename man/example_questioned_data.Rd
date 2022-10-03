@@ -21,8 +21,8 @@ example_questioned_data
 Example of questioned data formatted for the hierarchical model
 }
 \examples{
-draws <- fit_model(example_model_training_data, 4000)
-analysis <- analyze_questioned_documents(example_model_training_data,
+draws <- fit_model(example_model_data, 4000)
+analysis <- analyze_questioned_documents(example_model_data,
   draws,
   example_questioned_data,
   num_cores = 4

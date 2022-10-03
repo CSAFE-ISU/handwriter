@@ -46,9 +46,9 @@ template_graphs_dir <- file.path(main_dir, "data", "template_graphs")
 
 ```{r, message = FALSE}
 # process the handwriting
-# process_batch_dir(image_batch = template_images_dir,
-#                   batch_output_dir = template_graphs_dir,
-#                   transform_output = 'document')
+process_batch_dir(image_batch = template_images_dir,
+                  batch_output_dir = template_graphs_dir,
+                  transform_output = 'document')
 ```
 
 Create a new clustering template from the processed template training images. The new template will be saved in a subdirectory of the main directory.
@@ -78,21 +78,21 @@ model_graphs_dir <- file.path(main_dir, "data", "model_graphs")
 
 ```{r, message = FALSE}
 # process the handwriting
-# process_batch_dir(image_batch = model_images_dir,
-#                   batch_output_dir = model_graphs_dir,
-#                   transform_output = 'document')
+process_batch_dir(image_batch = model_images_dir,
+                  batch_output_dir = model_graphs_dir,
+                  transform_output = 'document')
 ```
 
 Assign each graph from the processed handwriting to a cluster in the clustering template. The output of [`make_clustering_templates()`] is a list of template(s). We access the first, and only in this case, template in the list with template[[1]].
 ```{r}
 # assign model graphs to clusters
-# m_proc_list <- get_clusterassignment(clustertemplate = template[[1]], 
-#                                      input_dir = model_graphs_dir)
-# saveRDS(m_proc_list, file.path(main_dir,
-#                                paste0("template_seed", start_seed),
-#                                paste0("seed", start_seed + run - 1, "_run", run),
-#                                "data",
-#                                "model_cluster_proc_list.rds"))
+m_proc_list <- get_clusterassignment(clustertemplate = template[[1]],
+                                     input_dir = model_graphs_dir)
+saveRDS(m_proc_list, file.path(main_dir,
+                               paste0("template_seed", start_seed),
+                               paste0("seed", start_seed + run - 1, "_run", run),
+                               "data",
+                               "model_cluster_proc_list.rds"))
 ```
 
 Get the data model training data ready for the model. The model needs to know which writer wrote which document. We get this information for the image file names. Each file name has the format `w0001_s01_pLND_r01`. The writer ID starts at character 2 and ends at character 5 so we input `writer_indices=c(2,5)`. The model also asks for a name for each document to distinguish between documents written by the same writer. We use `s01_pLND_r01` for the document name so we enter `doc_indices=c(7,18).` We could use the entire file name as the document name if we want. Lastly, we choose values for the model parameters: a=2, b=0.25, c=2, d=2, and e=0.5. 
@@ -130,19 +130,19 @@ questioned_graphs_dir <- file.path(main_dir, "data", "questioned_graphs")
 
 ```{r, message = FALSE}
 # process the handwriting
-# process_batch_dir(image_batch = questioned_images_dir,
-#                   batch_output_dir = questioned_graphs_dir,
-#                   transform_output = 'document')
+process_batch_dir(image_batch = questioned_images_dir,
+                  batch_output_dir = questioned_graphs_dir,
+                  transform_output = 'document')
 ```
 
 Get the cluster assignments for the graphs in the questioned documents.
 ```{r}
-# q_proc_list <- get_clusterassignment(clustertemplate = template[[1]], input_dir = questioned_graphs_dir)
-# saveRDS(q_proc_list, file.path(main_dir,
-#                                paste0("template_seed", start_seed),
-#                                paste0("seed", start_seed + run - 1, "_run", run),
-#                                "data",
-#                                "questioned_cluster_proc_list.rds"))
+q_proc_list <- get_clusterassignment(clustertemplate = template[[1]], input_dir = questioned_graphs_dir)
+saveRDS(q_proc_list, file.path(main_dir,
+                               paste0("template_seed", start_seed),
+                               paste0("seed", start_seed + run - 1, "_run", run),
+                               "data",
+                               "questioned_cluster_proc_list.rds"))
 ```
 
 Format the questioned document data so that it can be used with the model.
