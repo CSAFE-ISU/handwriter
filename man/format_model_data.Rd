@@ -45,7 +45,7 @@ List of data formatted for rjags.
 \examples{
 writer_indices = c(2,5)
 doc_indices = c(7,18)
-format_model_data(example_model_proc_list, 
+format_model_data(example_model_clusters, 
                   writer_indices, doc_indices,  
                   a = 2, b = 0.25, c = 2, d = 2, e = 0.5)
 

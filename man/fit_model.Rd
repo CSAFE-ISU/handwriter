@@ -20,7 +20,7 @@ A list of data frames of MCMC draws.
 draws samples from the model with MCMC.
 }
 \examples{
-draws <- fit_model(example_model_training_data, 4000)
+draws <- fit_model(example_model_data, 1000)
 
 }
 \keyword{model}

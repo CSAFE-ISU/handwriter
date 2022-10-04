@@ -34,9 +34,9 @@ model created with \code{fit_model()}.
 }
 \examples{
 \dontrun{
-draws <- fit_model(model_training_data = example_model_training_data, num_iters = 4000)
+draws <- fit_model(model_training_data = example_model_data, num_iters = 4000)
 draws <- drop_burnin(draws, burn_in = 1000)
-draws <- analyze_questioned_documents(example_model_training_data,
+draws <- analyze_questioned_documents(example_model_data,
                                       draws,
                                       example_questioned_data,
                                       num_cores = 4)
