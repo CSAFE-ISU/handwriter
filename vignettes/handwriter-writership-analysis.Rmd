@@ -44,7 +44,8 @@ if(!dir.exists(main_dir)){dir.create(main_dir)}
 ```
 
 ## Create a clustering template
-**Summarize the training docs**
+**TO DO: Summarize the training docs**
+
 We will use the example template training documents included in the handwriter package. Get the file path to these documents.
 ```{r}
 template_images_dir <- system.file("extdata/example_images/template_training_images", 
@@ -76,11 +77,11 @@ template_list <- make_clustering_templates(template_dir = main_dir,
 - **Implement template quality measure**
 
 ## Fit a Bayesian Hierarchical Model
-**Summarize the training docs**
+**TO DO: Summarize the training docs**
 
-The next step is to fit a Bayesian hierarchical model **add reference to Amy's paper**. 
+**TO DO: add reference to Amy's paper**
 
-We will use the model training handwriting documents included in handwriter. Get the file path to these documents.
+The next step is to fit a Bayesian hierarchical model. We will use the model training handwriting documents included in handwriter. Get the file path to these documents.
 ```{r}
 model_images_dir <- system.file("extdata/example_images/model_training_images", 
                                 package = "handwriter")
@@ -102,7 +103,7 @@ model_clusters <- get_clusterassignment(clustertemplate = template_list[[1]],
 
 Format the model training data for the hierarchical model. The writer IDs are recorded in the model training documents' filenames in characters 2-5. The remainder of the filename can be use as the document name to distinguish between multiple documents from the same writer. The 6th character is an underscore, so we choose to omit it here.
 
-**Explain model parameters**
+**TO DO: Explain model parameters**
 ```{r}
 model_data <- format_model_data(model_proc_list=model_clusters, 
                                 writer_indices=c(2,5), 
@@ -164,7 +165,7 @@ analysis <- analyze_questioned_documents(model_training_data = model_data,
 ```
 
 Plot the posterior probabilities of writership.
-```{r}
+```{r out.width="100%", fig.cap="Posterior probabilities of writership."}
 plot_posterior_probabilities(analysis)
 ```
 
