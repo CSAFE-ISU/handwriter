@@ -196,3 +196,18 @@ format_questioned_data <- function(formatted_model_data, questioned_proc_list, w
   data <- list("graph_measurements"=graph_measurements, 
                "cluster_fill_counts"=cluster_fill_counts)
 }
+
+#' angle
+#'
+#' `angle()` gives a value in (-pi,pi), where negative values come from unit vectors below the x axis (kinda weird/not traditional)
+#' https://stackoverflow.com/questions/1897704/angle-between-two-vectors-in-r
+#'
+#' @param N a vector
+#' @param M a vector
+#' @return an angle value in (-pi,pi)
+#' 
+#' @noRd
+angle <- function(N,M){                                
+  theta = atan2(N[2],N[1]) - atan2(M[2],M[1])
+  ifelse(theta>0,as.numeric(theta),theta+pi)
+}

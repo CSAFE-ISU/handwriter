@@ -3,10 +3,10 @@
 \docType{data}
 \name{example_questioned_clusters}
 \alias{example_questioned_clusters}
-\title{Example of list of questioned documents' data for the hierarchical model}
+\title{Example questioned documents with with cluster assignments.}
 \format{
-List created by \code{\link{get_clusterassignment}} with extra fields removed to
-make the example file smaller.
+List created by \code{\link{get_clusterassignment}} with extra fields removed
+to make the example file smaller.
 
 List created by \code{\link{get_clusterassignment}} with extra fields removed to
 make the example file smaller.
@@ -17,9 +17,11 @@ example_questioned_clusters
 example_questioned_clusters
 }
 \description{
-Example of list of questioned documents' data for the hierarchical model
-
-Example of list of questioned documents' data for the hierarchical model
+The example questioned documents are included in the package. They are
+located in \code{system.file("extdata/example_images/template_training_images", package = "handwriter")}. The documents were first processed with
+\code{\link{process_batch_dir}} then their processed graphs where assigned to the
+nearest cluster in the example cluster template with
+\code{\link{get_clusterassignment}}.
 }
 \examples{
 writer_indices <- c(2, 5)

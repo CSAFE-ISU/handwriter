@@ -3,16 +3,21 @@
 \docType{data}
 \name{example_model_clusters}
 \alias{example_model_clusters}
-\title{Example of list of model training data for the hierarchical model}
+\title{Example model training data with cluster assignments.}
 \format{
-List created by \code{\link{get_clusterassignment}} with extra fields removed to
-make the example file smaller.
+List created by \code{\link{get_clusterassignment}} with extra fields removed
+to make the example file smaller.
 }
 \usage{
 example_model_clusters
 }
 \description{
-Example of list of model training data for the hierarchical model
+The model training handwriting documents used for this example are included
+in the package. They are located in
+\code{system.file("extdata/example_images/template_training_images", package = "handwriter")}. The documents were first processed with
+\code{\link{process_batch_dir}} then their processed graphs where assigned to the
+nearest cluster in the example cluster template with
+\code{\link{get_clusterassignment}}.
 }
 \examples{
 writer_indices <- c(2, 5)
@@ -22,5 +27,7 @@ model_data <- format_model_data(example_model_clusters,
   doc_indices,
   a = 2, b = 0.25, c = 2, d = 2, e = 0.5
 )
+draws <- fit_model(model_data$rjags_data, num_iters = 2000)
+draws <- drop_burnin(draws, 1000)
 }
 \keyword{datasets}

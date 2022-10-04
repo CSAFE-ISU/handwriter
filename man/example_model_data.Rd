@@ -3,7 +3,7 @@
 \docType{data}
 \name{example_model_data}
 \alias{example_model_data}
-\title{Example of model training data formatted for the hierarchical model}
+\title{Example of formatted model data}
 \format{
 A named list created by \code{\link{format_model_data}} with 19 items:
 \describe{
@@ -31,7 +31,7 @@ A named list created by \code{\link{format_model_data}} with 19 items:
 example_model_data
 }
 \description{
-Example of model training data formatted for the hierarchical model
+Example of formatted model data
 }
 \examples{
 draws <- fit_model(example_model_data, 4000)

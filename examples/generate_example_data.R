@@ -6,6 +6,7 @@ main_dir <- "/Users/stephanie/Documents/non_version_control/CSAFE_example_data"
 start_seed <- 100
 run <- 1
 
+
 make_example_template <- function(main_dir, run, start_seed) {
   # create folder if it doesn't already exist
   if (!dir.exists(main_dir)){dir.create(main_dir)}
@@ -32,6 +33,7 @@ make_example_template <- function(main_dir, run, start_seed) {
   
   usethis::use_data(example_cluster_template)
 }
+
 
 make_example_model_clusters <- function(main_dir, start_seed, run) {
   # get the path to the handwriter image directory
@@ -91,7 +93,7 @@ make_example_questioned_data <- function() {
                                                               questioned_proc_list = example_questioned_clusters,
                                                               writer_indices=c(2,5), 
                                                               doc_indices=c(7,18))
-  usethis::use_data(example_questioned_data)
+  usethis::use_data(example_questioned_data, overwrite = TRUE)
 }
 
 
@@ -105,5 +107,5 @@ make_example_analysis <- function(num_cores) {
                                            draws = draws, 
                                            questioned_data = example_questioned_data, 
                                            num_cores = num_cores)
-  usethis::use_data(example_analysis)
+  usethis::use_data(example_analysis, overwrite = TRUE)
 }
