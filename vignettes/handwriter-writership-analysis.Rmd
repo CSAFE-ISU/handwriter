@@ -77,9 +77,11 @@ template_list <- make_clustering_templates(template_dir = main_dir,
 - **Implement template quality measure**
 
 ## Fit a Bayesian Hierarchical Model
-**TO DO: Summarize the training docs**
+**TO DO: 
 
-**TO DO: add reference to Amy's paper**
+- **Summarize the training docs**
+- **add reference to Amy's paper**
+- **Discuss model - mention that priors assume each writer in closed set is equally likely**
 
 The next step is to fit a Bayesian hierarchical model. We will use the model training handwriting documents included in handwriter. Get the file path to these documents.
 ```{r}
@@ -161,7 +163,7 @@ Use the fitted model to estimate the posterior probability of writership.
 analysis <- analyze_questioned_documents(model_training_data = model_data, 
                                          draws = draws, 
                                          questioned_data = questioned_data, 
-                                         num_cores = 5)
+                                         num_cores = 2)
 ```
 
 Plot the posterior probabilities of writership.
