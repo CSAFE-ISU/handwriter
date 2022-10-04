@@ -1,6 +1,6 @@
 test_that("fit model works", {
   # format model training data
-  mtd <- format_model_data(example_model_proc_list, writer_indices = c(2,5), doc_indices = c(7,18))
+  mtd <- format_model_data(example_model_clusters, writer_indices = c(2,5), doc_indices = c(7,18))
   iters <- 2000
   draws <- fit_model(model_training_data = mtd$rjags_data, num_iters = iters)
   
@@ -29,7 +29,7 @@ test_that("fit model works", {
 test_that("drop burn-in works", {
   iters <- 2000
   burnin <- 1000
-  draws <- fit_model(model_training_data = example_model_training_data, num_iters = iters)
+  draws <- fit_model(model_training_data = example_model_data$rjags_data, num_iters = iters)
   draws <- drop_burnin(draws, burn_in = burnin)
   
   # check named list
@@ -48,17 +48,17 @@ test_that("drop burn-in works", {
 test_that("analyze questioned documents works", {
   iters <- 4000
   burnin <- 1000
-  draws <- fit_model(model_training_data = example_model_training_data, num_iters = iters)
+  draws <- fit_model(model_training_data = example_model_data$rjags_data, num_iters = iters)
   draws <- drop_burnin(draws, burn_in = burnin)
-  analysis <- analyze_questioned_documents(example_model_training_data, draws, example_questioned_data, num_cores = 4)
+  analysis <- analyze_questioned_documents(example_model_data, draws, example_questioned_data, num_cores = 2)
   
   # expect named list
-  expect_named(analysis, c("likelihoods", "votes", "posterior_probabilities"))
+  expect_named(analysis, c("likelihood_evals", "votes", "posterior_probabilities"))
   
   # check vote totals
   sapply(analysis$votes, function(x) expect_equal(sum(x), iters-burnin))
 
   # check posterior probability totals
-  sapply(analysis$posterior_probabilities, function(x) expect_equal(sum(x), 1))
+  sapply(analysis$posterior_probabilities[,-1], function(x) expect_equal(sum(x), 1))
   
 })

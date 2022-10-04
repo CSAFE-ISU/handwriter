@@ -1,6 +1,6 @@
 # format_model_data -------------------------------------------------------
 test_that("format model data works", {
-  data <- format_model_data(model_proc_list=example_model_proc_list, 
+  data <- format_model_data(model_proc_list=example_model_clusters, 
                             writer_indices=c(2,5), 
                             doc_indices=c(7,18), 
                             a=2, b=0.25, c=2, d=2, e=0.5)
@@ -10,7 +10,7 @@ test_that("format model data works", {
 })
 
 test_that("model data formated for rjags has the correct format", {  
-  data <- format_model_data(model_proc_list=example_model_proc_list, 
+  data <- format_model_data(model_proc_list=example_model_clusters, 
                             writer_indices=c(2,5), 
                             doc_indices=c(7,18), 
                             a=2, b=0.25, c=2, d=2, e=0.5)
@@ -38,19 +38,18 @@ test_that("model data formated for rjags has the correct format", {
   expect_equal(data$rjags_data$zero_vec, rep(0, data$rjags_data$numletters)) 
   expect_vector(data$rjags_data$pc_wrapped, ptype=numeric(), size=data$rjags_data$numletters)
   expect_vector(data$rjags_data$letterwriter, ptype=integer(), size=data$rjags_data$numletters)
+  expect_vector(data$rjags_data$lettercluster, ptype=integer(), size=data$rjags_data$numletters)
   
   # check that docwriter is not writer IDs but instead numbers writers 1,2,...,data$W
   expect_equal(1:data$rjags_data$W, unique(data$rjags_data$docwriter))
   expect_equal(1:data$rjags_data$W, unique(data$rjags_data$letterwriter))
   
-  # check vector of integers
-  expect_vector(data$rjags_data$lettercluster, ptype=integer(), size=data$rjags_data$numletters)
-  
-  expect_equal(data$rjags_data$zero_mat, matrix(0, nrow=data$rjags_data$Gsmall, ncol=data$rjags_data$Gsmall))
+  # check matrix
+  expect_equal(data$rjags_data$zero_mat, matrix(0, nrow=data$rjags_data$W, ncol=data$rjags_data$Gsmall))
 })
 
 test_that("clusters in formatted model data are labeled sequentially",{
-  data <- format_model_data(model_proc_list=example_model_proc_list, 
+  data <- format_model_data(model_proc_list=example_model_clusters, 
                             writer_indices=c(2,5), 
                             doc_indices=c(7,18), 
                             a=2, b=0.25, c=2, d=2, e=0.5)
@@ -64,13 +63,13 @@ test_that("clusters in formatted model data are labeled sequentially",{
 
 # format_questioned_data --------------------------------------------------
 test_that("formatted questioned data is formatted correctly", {
-  model_data <- format_model_data(model_proc_list=example_model_proc_list, 
+  model_data <- format_model_data(model_proc_list=example_model_clusters, 
                             writer_indices=c(2,5), 
                             doc_indices=c(7,18), 
                             a=2, b=0.25, c=2, d=2, e=0.5)
   
   data <- format_questioned_data(formatted_model_data=model_data,
-                                 questioned_proc_list=example_questioned_proc_list, 
+                                 questioned_proc_list=example_questioned_clusters, 
                                  writer_indices=c(2,5), 
                                  doc_indices=c(7,18))
   # check names
