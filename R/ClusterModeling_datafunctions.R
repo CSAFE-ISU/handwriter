@@ -210,4 +210,5 @@ format_questioned_data <- function(formatted_model_data, questioned_proc_list, w
 angle <- function(N,M){                                
   theta = atan2(N[2],N[1]) - atan2(M[2],M[1])
   ifelse(theta>0,as.numeric(theta),theta+pi)
+  return(theta)
 }

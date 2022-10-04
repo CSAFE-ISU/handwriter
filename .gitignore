@@ -9,3 +9,4 @@ docs-local
 _bookdown_files/
 inst/model1/data/
 isnt/model2/data/
+inst/doc

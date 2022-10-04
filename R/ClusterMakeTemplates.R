@@ -58,8 +58,6 @@ make_clustering_templates <- function(template_dir,
   seed_folder <- file.path(template_dir, paste0("template_seed", starting_seed))
 
   # Make proclist ----
-  # Make a master rds file that contains all of the graphs from all samples in the dataframe
-  # template_proc_list needed for next step
   template_proc_list <- make_proc_list(template_dir = template_dir)
 
   # Delete large graphs ----
