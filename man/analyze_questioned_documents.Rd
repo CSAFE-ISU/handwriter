@@ -4,15 +4,10 @@
 \alias{analyze_questioned_documents}
 \title{analyze_questioned_documents}
 \usage{
-analyze_questioned_documents(
-  model_training_data,
-  draws,
-  questioned_data,
-  num_cores
-)
+analyze_questioned_documents(model_data, draws, questioned_data, num_cores)
 }
 \arguments{
-\item{model_training_data}{A list of input data formatted with
+\item{model_data}{A list of input data formatted with
 \code{format_model_data} for rjags}
 
 \item{draws}{MCMC draws created with \code{fit_model()}}
@@ -34,7 +29,7 @@ model created with \code{fit_model()}.
 }
 \examples{
 \dontrun{
-draws <- fit_model(model_training_data = example_model_data$rjags_data, num_iters = 4000)
+draws <- fit_model(model_data = example_model_data, num_iters = 4000)
 draws <- drop_burnin(draws, burn_in = 1000)
 draws <- analyze_questioned_documents(example_model_data,
                                       draws,

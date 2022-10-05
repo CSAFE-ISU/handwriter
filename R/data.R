@@ -127,7 +127,7 @@
 #'   doc_indices,
 #'   a = 2, b = 0.25, c = 2, d = 2, e = 0.5
 #' )
-#' draws <- fit_model(model_data$rjags_data, num_iters = 2000)
+#' draws <- fit_model(model_data = model_data, num_iters = 2000)
 #' draws <- drop_burnin(draws, 1000)
 #' @md
 "example_model_clusters"
@@ -170,7 +170,7 @@
 #'   \item{e}{paramter}
 #' }
 #' @examples
-#' draws <- fit_model(example_model_data$rjags_data, 4000)
+#' draws <- fit_model(model_data = example_model_data, num_iters = 4000)
 #' @md
 "example_model_data"
 
@@ -208,7 +208,7 @@
 #'   assigned to each cluster for each document.}
 #'   }
 #' @examples
-#' draws <- fit_model(example_model_data$rjags_data, 4000)
+#' draws <- fit_model(model_data = example_model_data, num_iters = 4000)
 #' analysis <- analyze_questioned_documents(example_model_data,
 #'   draws,
 #'   example_questioned_data,
@@ -231,7 +231,7 @@
 #'   }
 #' @examples
 #' \dontrun{
-#' draws <- fit_model(example_model_data$rjags_data, 4000)
+#' draws <- fit_model(model_data = example_model_data, num_iters = 4000)
 #' analysis <- analyze_questioned_documents(example_model_data,
 #'   draws,
 #'   example_questioned_data,

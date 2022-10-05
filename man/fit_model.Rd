@@ -4,10 +4,10 @@
 \alias{fit_model}
 \title{fit_model}
 \usage{
-fit_model(model_training_data, num_iters)
+fit_model(model_data, num_iters)
 }
 \arguments{
-\item{model_training_data}{A list of input data formatted with
+\item{model_data}{A list of input data formatted with
 \code{format_model_data} for rjags}
 
 \item{num_iters}{An integer number of iterations of MCMC.}
@@ -20,7 +20,7 @@ A list of data frames of MCMC draws.
 draws samples from the model with MCMC.
 }
 \examples{
-draws <- fit_model(example_model_data$rjags_data, 1000)
+draws <- fit_model(model_data = example_model_data, num_iters = 1000)
 
 }
 \keyword{model}

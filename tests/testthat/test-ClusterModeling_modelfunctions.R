@@ -48,9 +48,12 @@ test_that("drop burn-in works", {
 test_that("analyze questioned documents works", {
   iters <- 4000
   burnin <- 1000
-  draws <- fit_model(model_training_data = example_model_data$rjags_data, num_iters = iters)
+  draws <- fit_model(model_data = example_model_data, num_iters = iters)
   draws <- drop_burnin(draws, burn_in = burnin)
-  analysis <- analyze_questioned_documents(example_model_data, draws, example_questioned_data, num_cores = 2)
+  analysis <- analyze_questioned_documents(example_model_data, 
+                                           draws, 
+                                           example_questioned_data, 
+                                           num_cores = 2)
   
   # expect named list
   expect_named(analysis, c("likelihood_evals", "votes", "posterior_probabilities"))

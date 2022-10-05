@@ -27,7 +27,7 @@ model_data <- format_model_data(example_model_clusters,
   doc_indices,
   a = 2, b = 0.25, c = 2, d = 2, e = 0.5
 )
-draws <- fit_model(model_data$rjags_data, num_iters = 2000)
+draws <- fit_model(model_data = model_data, num_iters = 2000)
 draws <- drop_burnin(draws, 1000)
 }
 \keyword{datasets}
