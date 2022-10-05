@@ -34,6 +34,6 @@ example_model_data
 Example of formatted model data
 }
 \examples{
-draws <- fit_model(example_model_data, 4000)
+draws <- fit_model(example_model_data$rjags_data, 4000)
 }
 \keyword{datasets}

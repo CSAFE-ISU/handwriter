@@ -15,7 +15,7 @@ RJAGS Wrapped Cauchy Model
 }
 \examples{
 rjags_model <- textConnection(model_wrapped_cauchy)
-model_data <- example_model_data
+model_data <- example_model_data$rjags_data
 m <- rjags::jags.model(file = rjags_model, data = model_data, n.chains = 1)
 }
 \keyword{datasets}

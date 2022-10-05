@@ -18,7 +18,7 @@ A list of data frames of MCMC draws with burn-in dropped.
 \code{drop_burnin()} removes the burn-in from the MCMC draws.
 }
 \examples{
-draws <- fit_model(example_model_data, 4000)
+draws <- fit_model(example_model_data$rjags_data, 4000)
 draws <- drop_burnin(draws, 1000)
 
 }

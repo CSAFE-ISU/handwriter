@@ -170,7 +170,7 @@
 #'   \item{e}{paramter}
 #' }
 #' @examples
-#' draws <- fit_model(example_model_data, 4000)
+#' draws <- fit_model(example_model_data$rjags_data, 4000)
 #' @md
 "example_model_data"
 
@@ -179,7 +179,7 @@
 #' @format Wrapped Cauchy model written in RJAGS syntax.
 #' @examples
 #' rjags_model <- textConnection(model_wrapped_cauchy)
-#' model_data <- example_model_data
+#' model_data <- example_model_data$rjags_data
 #' m <- rjags::jags.model(file = rjags_model, data = model_data, n.chains = 1)
 "model_wrapped_cauchy"
 
@@ -190,11 +190,10 @@
 #' @examples
 #' writer_indices <- c(2, 5)
 #' doc_indices <- c(7, 18)
-#' model_data <- format_questioned_data(
-#'   example_questioned_clusters,
-#'   writer_indices,
-#'   doc_indices
-#' )
+#' model_data <- format_questioned_data(formatted_model_data=example_model_data,
+#' questioned_proc_list=example_questioned_clusters, 
+#' writer_indices=c(2,5), 
+#' doc_indices=c(7,18))
 #' @md
 "example_questioned_clusters"
 
@@ -209,11 +208,11 @@
 #'   assigned to each cluster for each document.}
 #'   }
 #' @examples
-#' draws <- fit_model(example_model_data, 4000)
+#' draws <- fit_model(example_model_data$rjags_data, 4000)
 #' analysis <- analyze_questioned_documents(example_model_data,
 #'   draws,
 #'   example_questioned_data,
-#'   num_cores = 4
+#'   num_cores = 2
 #' )
 #'
 #' @md
@@ -232,11 +231,11 @@
 #'   }
 #' @examples
 #' \dontrun{
-#' draws <- fit_model(example_model_training_data, 4000)
-#' analysis <- analyze_questioned_documents(example_model_training_data,
+#' draws <- fit_model(example_model_data$rjags_data, 4000)
+#' analysis <- analyze_questioned_documents(example_model_data,
 #'   draws,
 #'   example_questioned_data,
-#'   num_cores = 4
+#'   num_cores = 2
 #' )
 #' }
 #' @md

@@ -40,6 +40,9 @@ hierarchical model.
 \examples{
 writer_indices = c(2,5)
 doc_indices = c(7,18)
-format_questioned_data(example_model_clusters, writer_indices, doc_indices)
+format_questioned_data(example_model_data,
+example_questioned_clusters,
+writer_indices, 
+doc_indices)
 
 }

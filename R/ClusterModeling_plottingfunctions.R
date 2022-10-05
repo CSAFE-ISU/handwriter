@@ -9,7 +9,7 @@
 #' 
 #' @examples 
 #' \dontrun{
-#' draws <- fit_model(example_model_data, num_iters = 4000)
+#' draws <- fit_model(example_model_data$rjags_data, num_iters = 4000)
 #' draws <- drop_burnin(draws, 1000)
 #' analysis <- analyze_questioned_documents(example_model_data, draws, example_questioned_data, num_cores = 4)
 #' }

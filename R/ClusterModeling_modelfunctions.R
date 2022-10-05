@@ -9,7 +9,7 @@
 #' @return A list of data frames of MCMC draws.
 #'
 #' @examples
-#' draws <- fit_model(example_model_data, 1000)
+#' draws <- fit_model(example_model_data$rjags_data, 1000)
 #'
 #' @keywords model
 #'
@@ -46,7 +46,7 @@ fit_model <- function(model_training_data, num_iters) {
 #' @return A list of data frames of MCMC draws with burn-in dropped.
 #'
 #' @examples
-#' draws <- fit_model(example_model_data, 4000)
+#' draws <- fit_model(example_model_data$rjags_data, 4000)
 #' draws <- drop_burnin(draws, 1000)
 #'
 #' @keywords model
@@ -122,7 +122,7 @@ model {
 #'
 #' @examples
 #' \dontrun{
-#' draws <- fit_model(model_training_data = example_model_data, num_iters = 4000)
+#' draws <- fit_model(model_training_data = example_model_data$rjags_data, num_iters = 4000)
 #' draws <- drop_burnin(draws, burn_in = 1000)
 #' draws <- analyze_questioned_documents(example_model_data,
 #'                                       draws,

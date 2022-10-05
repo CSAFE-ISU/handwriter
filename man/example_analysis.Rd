@@ -23,11 +23,11 @@ Example of writership analysis
 }
 \examples{
 \dontrun{
-draws <- fit_model(example_model_training_data, 4000)
-analysis <- analyze_questioned_documents(example_model_training_data,
+draws <- fit_model(example_model_data$rjags_data, 4000)
+analysis <- analyze_questioned_documents(example_model_data,
   draws,
   example_questioned_data,
-  num_cores = 4
+  num_cores = 2
 )
 }
 }

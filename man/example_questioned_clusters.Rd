@@ -26,10 +26,9 @@ nearest cluster in the example cluster template with
 \examples{
 writer_indices <- c(2, 5)
 doc_indices <- c(7, 18)
-model_data <- format_questioned_data(
-  example_questioned_clusters,
-  writer_indices,
-  doc_indices
-)
+model_data <- format_questioned_data(formatted_model_data=example_model_data,
+questioned_proc_list=example_questioned_clusters, 
+writer_indices=c(2,5), 
+doc_indices=c(7,18))
 }
 \keyword{datasets}
