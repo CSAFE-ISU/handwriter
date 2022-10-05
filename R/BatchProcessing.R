@@ -1,7 +1,5 @@
 #' process_batch_list
 #'
-#'
-#'
 #' @param batch_input_dir Input directory as a list from shiny
 #' @param transform_output
 #' @return 
@@ -21,8 +19,6 @@ process_batch_list = function(image_batch, name_list = NULL, transform_output = 
 
 #' process_batch_dir
 #'
-#'
-#'
 #' @param batch_input_dir Input directory as a list of datapaths or a directory
 #' @param batch_output_dir Output directory
 #' @param transform_output
@@ -37,7 +33,7 @@ process_batch_dir = function(image_batch, batch_output_dir = '.', transform_outp
   document_list = lapply(file_list, read_and_process, transform_output)
   
   #Save as RDS while renaming with _proclist suffix
-  if (!dir.exists(batch_output_dir)) dir.create(batch_output_dir)
+  if (!dir.exists(batch_output_dir)) dir.create(batch_output_dir, recursive = TRUE)
   for(i in 1:length(document_list)){
     saveRDS(document_list[[i]], file=paste0(batch_output_dir, '/', paste0(tools::file_path_sans_ext(document_list[[i]]$docname),'_proclist.rds')))
   }
@@ -57,7 +53,7 @@ read_and_process = function(image_name, transform_output){
   
   document$image = readPNGBinary(image_name)
   document$thin = thinImage(document$image)
-  processList = processHandwriting(csafe_document$thin, dim(csafe_document$image))
+  processList = processHandwriting(document$thin, dim(document$image))
   
   if(transform_output == 'document'){
     document$process = processList

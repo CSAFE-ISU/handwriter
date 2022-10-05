@@ -5,7 +5,25 @@ makeassignment = function(imageListElement, templateCenterList, outliercut){
 }
 
 
-get_clusterassignment = function(clustertemplate, proclist){
+#' Title
+#'
+#' @param clustertemplate Cluster template created with `make_clustering_templates`
+#' @param input_dir Directory containing handwriting processed with `process_batch_list` or `process_batch_dir`
+#'
+#' @return list of processed handwriting with cluster assignments for each graph
+#' @export
+#'
+get_clusterassignment = function(clustertemplate, input_dir){
+  
+  # list files in input dir
+  input_paths = list.files(input_dir, full.names = TRUE)
+  df = data.frame(input_paths, stringsAsFactors = FALSE)
+  
+  # load processed handwriting
+  proclist =  df$input_paths %>%
+    purrr::map(readRDS) %>%
+    purrr::list_merge()
+  
   for(i in 1:length(proclist)){
     proclist_mod = proclist[[i]]
     proclist_mod$process$letterList = AddLetterImages(proclist[[i]]$process$letterList, dim(proclist[[i]]$image))
@@ -30,6 +48,7 @@ get_clusterassignment = function(clustertemplate, proclist){
     }
     cat(round(i/length(proclist), 2), "\n")
   }
+
   return(proclist)
 }
 

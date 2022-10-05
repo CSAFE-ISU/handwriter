@@ -1,0 +1,111 @@
+# choose main directory ----
+# path to main directory
+main_dir <- "/Users/stephanie/Documents/non_version_control/CSAFE_example_data"
+
+# choose starting seed and run number
+start_seed <- 100
+run <- 1
+
+
+make_example_template <- function(main_dir, run, start_seed) {
+  # create folder if it doesn't already exist
+  if (!dir.exists(main_dir)){dir.create(main_dir)}
+  
+  # create cluster template ----
+  # get the path to the handwriter image directory
+  template_images_dir <- system.file("extdata/example_images/template_training_images", package = "handwriter")
+  
+  # choose where to save the processed 
+  template_graphs_dir <- file.path(main_dir, "data", "template_graphs")
+  
+  # process the handwriting
+  process_batch_dir(image_batch = template_images_dir,
+                    batch_output_dir = template_graphs_dir,
+                    transform_output = 'document')
+  
+  example_cluster_template <- make_clustering_templates(template_dir = main_dir,
+                                        K = 10,
+                                        num_dist_cores = 4,
+                                        max_iters = 3,
+                                        num_graphs = 1000,
+                                        num_runs = run,
+                                        starting_seed = start_seed)
+  
+  usethis::use_data(example_cluster_template)
+}
+
+
+make_example_model_clusters <- function(main_dir, start_seed, run) {
+  # get the path to the handwriter image directory
+  model_images_dir <- system.file("extdata/example_images/model_training_images", 
+                                  package = "handwriter")
+  
+  # choose where to save the processed handwriting
+  model_graphs_dir <- file.path(main_dir, 
+                                paste0("template_seed", start_seed),
+                                paste0("seed", start_seed + run - 1, "_run", run),
+                                "data", 
+                                "model_graphs")
+  
+  # process the handwriting
+  # process_batch_dir(image_batch = model_images_dir,
+  #                   batch_output_dir = model_graphs_dir,
+  #                   transform_output = 'document')
+  
+  # assign model graphs to clusters
+  example_model_clusters <- get_clusterassignment(clustertemplate = example_cluster_template[[1]],
+                                                  input_dir = model_graphs_dir)
+  usethis::use_data(example_model_clusters, overwrite = TRUE)
+}
+
+
+make_example_model_data <- function() {
+  example_model_data <- format_model_data(model_proc_list=example_model_clusters, 
+                                          writer_indices=c(2,5), 
+                                          doc_indices=c(7,18), 
+                                          a=2, b=0.25, c=2, d=2, e=0.5)
+  usethis::use_data(example_model_data, overwrite = TRUE)
+}
+
+
+make_example_questioned_clusters <- function(main_dir) {
+  # get the path to the handwriter image directory
+  questioned_images_dir <- system.file("extdata/example_images/questioned_images", 
+                                       package = "handwriter")
+  
+  # choose where to save the processed handwriting
+  questioned_graphs_dir <- file.path(main_dir, "data", "questioned_graphs")
+  
+  # process the handwriting
+  process_batch_dir(image_batch = questioned_images_dir,
+                    batch_output_dir = questioned_graphs_dir,
+                    transform_output = 'document')
+  
+  # get cluster assignments
+  example_questioned_clusters <- get_clusterassignment(clustertemplate = example_cluster_template[[1]], 
+                                                       input_dir = questioned_graphs_dir)
+  usethis::use_data(example_questioned_clusters)
+}
+
+
+make_example_questioned_data <- function() {
+  example_questioned_data <- format_questioned_data(formatted_model_data = example_model_data,
+                                                              questioned_proc_list = example_questioned_clusters,
+                                                              writer_indices=c(2,5), 
+                                                              doc_indices=c(7,18))
+  usethis::use_data(example_questioned_data, overwrite = TRUE)
+}
+
+
+make_example_analysis <- function(num_cores) {
+  # fit model
+  draws <- fit_model(example_model_data$rjags_data, num_iters = 4000)
+  draws <- drop_burnin(draws, 1000)
+  
+  # analyze questioned documents
+  example_analysis <- analyze_questioned_documents(model_training_data = example_model_data, 
+                                           draws = draws, 
+                                           questioned_data = example_questioned_data, 
+                                           num_cores = num_cores)
+  usethis::use_data(example_analysis, overwrite = TRUE)
+}

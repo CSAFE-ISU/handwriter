@@ -15,12 +15,12 @@ Two sentence printed example handwriting
 }
 \examples{
 \dontrun{
-twoSent_document = list()
-twoSent_document$image = twoSent
+twoSent_document <- list()
+twoSent_document$image <- twoSent
 plotImage(twoSent_document$image)
-twoSent_document$thin = thinImage(twoSent_document$image)
+twoSent_document$thin <- thinImage(twoSent_document$image)
 plotImageThinned(twoSent_document$image, twoSent_document$thin)
-twoSent_processList = processHandwriting(twoSent_document$thin, dim(twoSent_document$image))
+twoSent_processList <- processHandwriting(twoSent_document$thin, dim(twoSent_document$image))
 }
 }
 \keyword{datasets}

@@ -34,9 +34,11 @@ getGraphs = function(image, source_folder = getwd(), save_folder = getwd()){
 #' @param save_folder path to folder where graphs are saved to
 #' @return saves graphs in an rds file
 #' @examples 
+#' \dontrun{
 #' sof = "path to folder containing .png images"
 #' saf = "path to folder where graphs will be saved to"
 #' extractGraphs(sof, saf)
+#' }
 #' @export
 extractGraphs = function(source_folder = getwd(), save_folder = getwd()){
   doParallel::registerDoParallel(1)

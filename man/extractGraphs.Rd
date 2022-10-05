@@ -18,7 +18,9 @@ saves graphs in an rds file
 extractGraphs
 }
 \examples{
+\dontrun{
 sof = "path to folder containing .png images"
 saf = "path to folder where graphs will be saved to"
 extractGraphs(sof, saf)
+}
 }
