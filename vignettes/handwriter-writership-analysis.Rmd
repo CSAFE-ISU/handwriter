@@ -64,7 +64,7 @@ Create a cluster template with `K=10` clusters. Choose the number of cores you w
 ```{r}
 template_list <- make_clustering_templates(template_dir = main_dir,
                                            K = 10,
-                                           num_dist_cores = 4,
+                                           num_dist_cores = 2,
                                            max_iters = 3,
                                            num_graphs = 1000,
                                            starting_seed = 100,
