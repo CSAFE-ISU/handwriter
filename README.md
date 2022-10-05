@@ -31,4 +31,4 @@ handwriter is a project of the Center for Statistics and Applications in Forensi
 
 
 #### Who do I contact?
-For questions, comments, and concerns please contact lead maintainer James at [jamesetay1@gmail.com](jamesetay1@gmail.com).
+For questions, comments, and concerns please contact us at [csafe@iastate.edu](csafe@iastate.edu) with subject line including [handwriter].
