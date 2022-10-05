@@ -1,0 +1,52 @@
+---
+title: "cluster-template-quality-measure"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{cluster-template-quality-measure}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(handwriter)
+```
+
+```{r}
+main_dir <- "/Users/stephanie/Documents/CSAFE_template_quality_measure"
+
+# create the directory if it doesn't already exist
+if(!dir.exists(main_dir)){dir.create(main_dir)}
+```
+
+```{r}
+template_images_dir <- system.file("extdata/example_images/template_training_images", 
+                                   package = "handwriter")
+```
+
+```{r}
+# process the handwriting
+process_batch_dir(image_batch = template_images_dir,
+                  batch_output_dir = file.path(main_dir, "data", "template_graphs"),
+                  transform_output = 'document')
+```
+
+
+```{r}
+template_list <- make_clustering_templates(template_dir = main_dir,
+                                           writer_indices = c(2,5),
+                                           K = 10,
+                                           num_dist_cores = 2,
+                                           max_iters = 3,
+                                           num_graphs = 1000,
+                                           starting_seed = 100,
+                                           num_runs = 1)
+```
+
+

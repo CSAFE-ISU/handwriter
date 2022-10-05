@@ -1,8 +1,8 @@
 test_that("fit model works", {
   # format model training data
-  mtd <- format_model_data(example_model_clusters, writer_indices = c(2,5), doc_indices = c(7,18))
+  model_data <- format_model_data(example_model_clusters, writer_indices = c(2,5), doc_indices = c(7,18))
   iters <- 2000
-  draws <- fit_model(model_training_data = mtd$rjags_data, num_iters = iters)
+  draws <- fit_model(model_data = model_data, num_iters = iters)
   
   # check named list
   expect_named(draws, c("thetas", "mus", "gammas", "rhos", "etas", "nll_datamodel", "nld_locationparam"))
@@ -29,7 +29,7 @@ test_that("fit model works", {
 test_that("drop burn-in works", {
   iters <- 2000
   burnin <- 1000
-  draws <- fit_model(model_training_data = example_model_data$rjags_data, num_iters = iters)
+  draws <- fit_model(model_data = example_model_data, num_iters = iters)
   draws <- drop_burnin(draws, burn_in = burnin)
   
   # check named list
