@@ -10,6 +10,7 @@
 #' input handwriting samples into groups, or *clusters*, of similar graphs.
 #'
 #' @param template_dir Input directory
+#' @param writer_indices A vector of the starting and ending location of the writer ID in the file name.
 #' @param max_edges Maximum number of edges allowed in input graphs. Graphs with
 #'   more than the maximum number will be ignored.
 #' @param starting_seed Integer seed for the random number generator. If
@@ -35,20 +36,39 @@
 #'   saved in template_dir > starting_seed > data. Each individual template is
 #'   saved in template_dir > starting_seed > run seed > data.
 #'
+#' @examples
+#' \dontrun{
+#' main_dir <- "path/to/folder"
+#' template_images_dir <- system.file("extdata/example_images/template_training_images", 
+#'                                    package = "handwriter")
+#' process_batch_dir(image_batch = template_images_dir,
+#                    batch_output_dir = file.path(main_dir, "data", "template_graphs"),
+#                    transform_output = 'document')
+#' template_list <- make_clustering_templates(template_dir = main_dir,
+#'                                            writer_indices = c(2,5), 
+#'                                            K = 10, 
+#'                                            num_dist_cores = 2, 
+#'                                            max_iters = 3,
+#'                                            num_graphs = 1000, 
+#'                                            starting_seed = 100, 
+#'                                            num_runs = 1)
+#' }  
+#'
 #' @keywords clustering templates
 #'
 #' @export
 #' @md
 make_clustering_templates <- function(template_dir,
-                                      max_edges = 30, # Maximum number of edges per graph based on plot
+                                      writer_indices,
+                                      max_edges = 30,
                                       starting_seed = 100,
                                       K = 40,
-                                      num_runs = 1, # number of templates to create
-                                      num_cores = 1, # for each template
-                                      num_dist_cores = 1, # for distance calculations
+                                      num_runs = 1,
+                                      num_cores = 1,
+                                      num_dist_cores = 1,
                                       num_path_cuts = 8,
-                                      max_iters = 1, # how many iterations to let kmeans algorithm run
-                                      gamma = 3, # parameter for outliers
+                                      max_iters = 1,
+                                      gamma = 3,
                                       num_graphs = "All") { # use integer for testing with a subset of graphs or use 'All'
 
   options(scipen = 999)
@@ -68,14 +88,25 @@ make_clustering_templates <- function(template_dir,
   template_proc_list <- delete_crazy_graphs(template_proc_list = template_proc_list, max_edges = max_edges, template_dir = template_dir)
 
   # Make images list ----
-  full_template_images_list <- make_images_list(template_proc_list = template_proc_list, template_dir)
+  full_template_images_list <- make_images_list(template_proc_list = template_proc_list, 
+                                                template_dir = template_dir,
+                                                writer_indices = writer_indices)
 
   # Set outliers parameter
   num_outliers <- round(.25 * length(full_template_images_list))
 
   # Log parameters ----
   futile.logger::flog.info(
-    "Starting the k-means clustering algorithm with... \n num_runs=%d \n num_cores=%d \n num_dist_cores=%d \n K=%d \n num_path_cuts=%d \n max_iters=%d \n gamma=%f \n (max) num_outliers=%d \n starting_seed=%d",
+    "Starting the k-means clustering algorithm with... \n 
+    num_runs=%d \n 
+    num_cores=%d \n 
+    num_dist_cores=%d \n 
+    K=%d \n 
+    num_path_cuts=%d \n 
+    max_iters=%d \n 
+    gamma=%f \n (max) 
+    num_outliers=%d \n 
+    starting_seed=%d",
     num_runs,
     num_cores,
     num_dist_cores,
@@ -91,7 +122,18 @@ make_clustering_templates <- function(template_dir,
   if (num_graphs == "All") {
     template_images_list <- full_template_images_list
   } else {
-    template_images_list <- full_template_images_list[1:num_graphs]
+    
+    stratified_sample <- function(full_template_images_list, num_graphs){
+      # randomly select (num_graphs / (# docs per writer * # writers) graphs from each document
+      df <- data.frame(writer = sapply(full_template_images_list, function(x) x$writer),
+                       docname = sapply(full_template_images_list, function(x) x$docname),
+                       graph_num = 1:length(full_template_images_list))
+      D <- length(unique(df$docname))
+      df <- df %>% dplyr::group_by(docname) %>% dplyr::slice_sample(n = floor(num_graphs/D))
+      template_images_list <- full_template_images_list[df$graph_num]
+      return(template_images_list)
+    }
+    template_images_list <- stratified_sample(full_template_images_list, num_graphs)
   }
 
   doParallel::registerDoParallel(num_cores)
@@ -339,7 +381,7 @@ delete_crazy_graphs <- function(template_proc_list, max_edges, template_dir) {
 #' @return List of graphs. The list is saved as template_dir > data > template_images_list.rds
 #'
 #' @noRd
-make_images_list <- function(template_proc_list, template_dir) {
+make_images_list <- function(template_proc_list, template_dir, writer_indices) {
   tic <- Sys.time() # start timer
 
   metadata_file <- file.path(template_dir, "logs", "metadata.txt")
@@ -353,6 +395,18 @@ make_images_list <- function(template_proc_list, template_dir) {
     template_images_list <- c(template_images_list, lapply(template_proc_list[[i]]$process$letterList, function(x) {
       centeredImage(x)
     }))
+  }
+  
+  # Add writer and docname to images list
+  docname <- NULL
+  for (i in 1:length(template_proc_list)){
+   docname <- c(docname, lapply(template_proc_list[[i]]$process$letterList, function(x) {
+      template_proc_list[[i]]$docname
+    }))
+  }
+  for (i in 1:length(template_images_list)){
+    template_images_list[[i]]$docname <- docname[[i]]
+    template_images_list[[i]]$writer <- substr(docname[[i]], start = writer_indices[1], stop = writer_indices[2])
   }
 
   # For each graph, find the locations (column and row numbers) relative to centroid of the graph image.
@@ -471,7 +525,7 @@ chooseCenters <- function(run_seed, K, template_proc_list, template_images_list)
     dplyr::ungroup() %>%
     dplyr::arrange(stratumfac) %>%
     dplyr::mutate(n = numstrat) %>%
-    dplyr::mutate(samp = map2(data, n, sample_n)) %>%
+    dplyr::mutate(samp = map2(data, n, dplyr::sample_n)) %>%
     dplyr::select(-data) %>%
     tidyr::unnest(samp)
 
@@ -680,11 +734,12 @@ letterKmeansWithOutlier_parallel <- function(template_proc_list, template_images
     # store current cluster assignments
     oldCluster <- cluster
   }
-  # get list of docs
-  docnames <- sapply(template_proc_list, function(x) x$docname)
+  # list docs and writers
+  docnames <- sapply(template_images_list, function(x) x$docname)
+  writers <- sapply(template_images_list, function(x) x$writer)
 
   return(list(
-    cluster = cluster, centers = centers, K = K, n = n, docnames = docnames, iters = iters, changes = changes, outlierCutoff = outlierCutoff,
+    cluster = cluster, centers = centers, K = K, n = n, docnames = docnames, writers = writers, iters = iters, changes = changes, outlierCutoff = outlierCutoff,
     stop_reason = stop_reason, wcd = wcd, wcss = wcss, rmse = rmse, DaviesBouldinIndex = db, VarianceRatioCriterion = vrc
   ))
 }

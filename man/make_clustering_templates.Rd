@@ -6,6 +6,7 @@
 \usage{
 make_clustering_templates(
   template_dir,
+  writer_indices,
   max_edges = 30,
   starting_seed = 100,
   K = 40,
@@ -20,6 +21,8 @@ make_clustering_templates(
 }
 \arguments{
 \item{template_dir}{Input directory}
+
+\item{writer_indices}{A vector of the starting and ending location of the writer ID in the file name.}
 
 \item{max_edges}{Maximum number of edges allowed in input graphs. Graphs with
 more than the maximum number will be ignored.}
@@ -62,6 +65,23 @@ saved in template_dir > starting_seed > run seed > data.
 input handwriting samples pre-processed with
 \code{\link[=process_batch_dir]{process_batch_dir()}} and saved in the input folder \verb{template_dir > data > template_graphs}. The K-means algorithm sorts the graphs in the
 input handwriting samples into groups, or \emph{clusters}, of similar graphs.
+}
+\examples{
+\dontrun{
+main_dir <- "path/to/folder"
+template_images_dir <- system.file("extdata/example_images/template_training_images", 
+                                   package = "handwriter")
+process_batch_dir(image_batch = template_images_dir,
+template_list <- make_clustering_templates(template_dir = main_dir,
+                                           writer_indices = c(2,5), 
+                                           K = 10, 
+                                           num_dist_cores = 2, 
+                                           max_iters = 3,
+                                           num_graphs = 1000, 
+                                           starting_seed = 100, 
+                                           num_runs = 1)
+}  
+
 }
 \keyword{clustering}
 \keyword{templates}
