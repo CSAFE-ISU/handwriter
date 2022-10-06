@@ -124,11 +124,12 @@ make_clustering_templates <- function(template_dir,
   } else {
     
     stratified_sample <- function(full_template_images_list, num_graphs){
-      # randomly select (num_graphs / total # writers) graphs from each writer
+      # randomly select (num_graphs / (# docs per writer * # writers) graphs from each document
       df <- data.frame(writer = sapply(full_template_images_list, function(x) x$writer),
+                       docname = sapply(full_template_images_list, function(x) x$docname),
                        graph_num = 1:length(full_template_images_list))
-      W <- length(unique(df$writer))
-      df <- df %>% dplyr::group_by(writer) %>% dplyr::slice_sample(n = floor(num_graphs/W))
+      D <- length(unique(df$docname))
+      df <- df %>% dplyr::group_by(docname) %>% dplyr::slice_sample(n = floor(num_graphs/D))
       template_images_list <- full_template_images_list[df$graph_num]
       return(template_images_list)
     }
@@ -396,17 +397,16 @@ make_images_list <- function(template_proc_list, template_dir, writer_indices) {
     }))
   }
   
-  # Add writer to images list
-  writer <- NULL
-  for (i in 1:length(template_proc_list))
-  { # extract writer id from docname in proclist
-    writer <- c(writer, lapply(template_proc_list[[i]]$process$letterList, function(x) {
-      docname <- template_proc_list[[i]]$docname
-      return(substr(docname, start = writer_indices[1], stop = writer_indices[2]))
+  # Add writer and docname to images list
+  docname <- NULL
+  for (i in 1:length(template_proc_list)){
+   docname <- c(docname, lapply(template_proc_list[[i]]$process$letterList, function(x) {
+      template_proc_list[[i]]$docname
     }))
   }
   for (i in 1:length(template_images_list)){
-    template_images_list[[i]]$writer <- writer[[i]]
+    template_images_list[[i]]$docname <- docname[[i]]
+    template_images_list[[i]]$writer <- substr(docname[[i]], start = writer_indices[1], stop = writer_indices[2])
   }
 
   # For each graph, find the locations (column and row numbers) relative to centroid of the graph image.
@@ -735,7 +735,7 @@ letterKmeansWithOutlier_parallel <- function(template_proc_list, template_images
     oldCluster <- cluster
   }
   # list docs and writers
-  docnames <- sapply(template_proc_list, function(x) x$docname)
+  docnames <- sapply(template_images_list, function(x) x$docname)
   writers <- sapply(template_images_list, function(x) x$writer)
 
   return(list(
