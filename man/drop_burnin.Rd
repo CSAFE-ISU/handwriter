@@ -7,7 +7,7 @@
 drop_burnin(model, burn_in)
 }
 \arguments{
-\item{burn_in}{An integer number of starting iterations of MCMC to drop.}
+\item{burn_in}{An integer number of starting iterations to drop from each MCMC chain.}
 
 \item{draws}{A list of dataframes of MCMC draws created by \code{fit_model()}}
 }

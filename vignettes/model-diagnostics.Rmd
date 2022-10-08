@@ -22,21 +22,31 @@ library(handwriter)
 ```{r}
 model <- fit_model(model_data = example_model_data,
                    num_iters = 2000,
-                   num_chains = 4)
+                   num_chains = 2)
 ```
 ## Trace Plots
 
 Display a trace plot for every variable in the chain with a separate plot per variable.
 ```{r}
-coda::traceplot(model, col=1:3)
+coda::traceplot(model)
 ```
 
 Display a trace plot for a single variable.
 ```{r}
-plot_trace(model=model, chain=1, variable="mu[2,2]")
+plot_trace(model=model, chain=2, variable="mu[2,5]")
 ```
 
 ```{r}
-coda::gelman.diag(model, multivariate=FALSE)
+gelman <- coda::gelman.diag(model, multivariate=FALSE)
 ```
+
+## Drop burn-in
+```{r}
+model <- drop_burnin(model, burn_in = 1000)
+```
+
+```{r}
+gelman_wo_burnin <- coda::gelman.diag(model, multivariate=FALSE)
+```
+
 

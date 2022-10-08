@@ -45,7 +45,7 @@ fit_model <- function(model_data, num_iters, num_chains = 1) {
 #'
 #' @export
 #' @md
-drop_burnin <- funciton(model, burn_in){
+drop_burnin <- function(model, burn_in){
   model <- lapply(model, function(x) coda::as.mcmc(x[(burn_in+1):coda::niter(x), ]))
   return(model)
 }
