@@ -4,8 +4,9 @@
 #' draws samples from the model with MCMC.
 #'
 #' @param model_data A list of input data formatted with
-#'   `format_model_data` for rjags
+#'   `format_model_data` for rjags.
 #' @param num_iters An integer number of iterations of MCMC.
+#' @param num_chains An integer number of chains to use.
 #' @return A list of data frames of MCMC draws.
 #'
 #' @examples
@@ -15,27 +16,16 @@
 #'
 #' @export
 #' @md
-fit_model <- function(model_data, num_iters) {
+fit_model <- function(model_data, num_iters, num_chains = 1) {
   rjags_data <- model_data$rjags_data
   
   # fit model with rjags
-  m <- rjags::jags.model(textConnection(model_wrapped_cauchy), data = rjags_data, n.chains = 1)
+  model <- rjags::jags.model(textConnection(model_wrapped_cauchy), data = rjags_data, n.chains = num_chains)
 
   # mcmc draws
-  fit <- rjags::coda.samples(m, c("theta", "gamma", "mu", "rho", "eta", "nll_datamodel", "nld_locationparam"), n.iter = num_iters)
+  model <- rjags::coda.samples(model, c("theta", "gamma", "mu", "rho", "eta", "nll_datamodel", "nld_locationparam"), n.iter = num_iters)
 
-  # format draws
-  draws <- as.data.frame(fit[[1]])
-  draws <- list(
-    thetas = draws[, grep(x = colnames(draws), pattern = "theta")],
-    mus = draws[, grep(x = colnames(draws), pattern = "mu")],
-    gammas = draws[, grep(x = colnames(draws), pattern = "gamma")],
-    rhos = draws[, grep(x = colnames(draws), pattern = "rho")],
-    etas = draws[, grep(x = colnames(draws), pattern = "^eta")],
-    nll_datamodel = draws[, grep(x = colnames(draws), pattern = "nll_datamodel")],
-    nld_locationparam = draws[, grep(x = colnames(draws), pattern = "nld_locationparam")]
-  )
-  return(draws)
+  return(model)
 }
 
 
@@ -55,7 +45,10 @@ fit_model <- function(model_data, num_iters) {
 #'
 #' @export
 #' @md
-drop_burnin <- function(draws, burn_in) {
+drop_burnin <- function(model, burn_in) {
+  # format draws
+  draws <- format_draws(model, chain)
+  
   # get number of draws
   num_iters <- nrow(draws$thetas)
 
@@ -210,4 +203,29 @@ analyze_questioned_documents <- function(model_data, draws, questioned_data, num
   
   analysis <- list("likelihood_evals" = likelihood_evals, "votes" = votes, "posterior_probabilities" = posterior_probabilities)
   return(analysis)
+}
+
+#' format_draws
+#'
+#' `format_draws()` formats the coda samples output by [`fit_model()`] into a
+#' more convenient list of data frames.
+#'
+#' @param model MCMC draws from a model fit with [`fit_model()`].
+#' @param chain Integer number of MCMC chain.
+#' @return MCMC draws formatted into a list of dataframes.
+#' 
+#' @noRd
+format_draws <- function(model, chain){
+  draws <- as.data.frame(model[[chain]])
+  draws <- list(
+    thetas = draws[, grep(x = colnames(draws), pattern = "theta")],
+    mus = draws[, grep(x = colnames(draws), pattern = "mu")],
+    gammas = draws[, grep(x = colnames(draws), pattern = "gamma")],
+    rhos = draws[, grep(x = colnames(draws), pattern = "rho")],
+    etas = draws[, grep(x = colnames(draws), pattern = "^eta")],
+    nll_datamodel = draws[, grep(x = colnames(draws), pattern = "nll_datamodel")],
+    nld_locationparam = draws[, grep(x = colnames(draws), pattern = "nld_locationparam")]
+  )
+  
+  return(draws)
 }

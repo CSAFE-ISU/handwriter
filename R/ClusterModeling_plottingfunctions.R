@@ -33,3 +33,47 @@ plot_posterior_probabilities <- function(analysis) {
     theme(legend.position="right", axis.text.x = element_text(angle=90, hjust=0, vjust=.5))
   return(p)
 }
+
+
+#' Plot Trace
+#'
+#' Create a traceplot for a single variable in an MCMC object created by
+#' [`fit_model`].
+#'
+#' @param model An MCMC object created by [`fit_model`]
+#' @param chain An integer chain number
+#' @param variable The name of a variable in the MCMC object
+#' @return ggplot line plot 
+#'
+#' @examples
+#' \dontrun{
+#' draws <- fit_model(example_model_data, num_iters = 1000, num_chains = 1)
+#' plot_trace(model = draws, chain = 1, variable = "theta[1,1]")
+#' }
+#'
+#' @export
+#' @md
+plot_trace <- function(model, chain, variable){
+  # format MCMC draws from fitted model
+  draws <- format_draws(model, chain)
+  
+  # get parameter name from variable (E.g. theta[1,1] -> theta) and add an s on
+  # the end
+  param <- paste0(sub("\\[.*", "", variable), "s")
+  
+  # select data frame for variable 
+  p <- draws[param][[1]]
+  # add iteration column to data frame
+  p['iteration'] <- 1:nrow(p)
+  
+  # rename variable column. ggplot doesn't like names with brackets
+  colnames(p)[colnames(p) == variable] <- "y"
+  
+  # plot
+  p <- p %>% 
+    ggplot2::ggplot(aes(x=iteration, y=y)) + 
+    geom_line() + 
+    labs(y=variable)
+  
+  return(p)
+}

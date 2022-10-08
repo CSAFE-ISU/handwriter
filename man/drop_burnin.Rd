@@ -4,12 +4,12 @@
 \alias{drop_burnin}
 \title{drop_burnin}
 \usage{
-drop_burnin(draws, burn_in)
+drop_burnin(model, burn_in)
 }
 \arguments{
-\item{draws}{A list of dataframes of MCMC draws created by \code{fit_model()}}
-
 \item{burn_in}{An integer number of starting iterations of MCMC to drop.}
+
+\item{draws}{A list of dataframes of MCMC draws created by \code{fit_model()}}
 }
 \value{
 A list of data frames of MCMC draws with burn-in dropped.
