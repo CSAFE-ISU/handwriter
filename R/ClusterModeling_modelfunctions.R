@@ -34,7 +34,7 @@ fit_model <- function(model_data, num_iters, num_chains = 1) {
 #' `drop_burnin()` removes the burn-in from the MCMC draws.
 #'
 #' @param draws A list of dataframes of MCMC draws created by `fit_model()`
-#' @param burn_in An integer number of starting iterations of MCMC to drop.
+#' @param burn_in An integer number of starting iterations to drop from each MCMC chain.
 #' @return A list of data frames of MCMC draws with burn-in dropped.
 #'
 #' @examples
@@ -45,23 +45,9 @@ fit_model <- function(model_data, num_iters, num_chains = 1) {
 #'
 #' @export
 #' @md
-drop_burnin <- function(model, burn_in) {
-  # format draws
-  draws <- format_draws(model, chain)
-  
-  # get number of draws
-  num_iters <- nrow(draws$thetas)
-
-  # remove burn-in
-  draws$thetas <- draws$thetas[(burn_in + 1):num_iters, ]
-  draws$mus <- draws$mus[(burn_in + 1):num_iters, ]
-  draws$gammas <- draws$gammas[(burn_in + 1):num_iters, ]
-  draws$rhos <- draws$rhos[(burn_in + 1):num_iters, ]
-  draws$etas <- draws$etas[(burn_in + 1):num_iters, ]
-  draws$nll_datamodel <- draws$nll_datamodel[(burn_in + 1):num_iters, ]
-  draws$nld_locationparam <- draws$nld_locationparam[(burn_in + 1):num_iters, ]
-
-  return(draws)
+drop_burnin <- funciton(model, burn_in){
+  model <- lapply(model, function(x) coda::as.mcmc(x[(burn_in+1):coda::niter(x), ]))
+  return(model)
 }
 
 
