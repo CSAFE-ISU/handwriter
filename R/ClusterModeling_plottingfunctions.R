@@ -55,7 +55,7 @@ plot_posterior_probabilities <- function(analysis) {
 #' @md
 plot_trace <- function(model, chain, variable){
   # format MCMC draws from fitted model
-  draws <- format_draws(model, chain)
+  draws <- format_draws(model)
   
   # get parameter name from variable (E.g. theta[1,1] -> theta) and add an s on
   # the end

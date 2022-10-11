@@ -115,12 +115,15 @@ model {
 #'
 #' @export
 #' @md
-analyze_questioned_documents <- function(model_data, draws, questioned_data, num_cores) {
+analyze_questioned_documents <- function(model_data, model, questioned_data, num_cores) {
   
   rjags_data <- model_data$rjags_data
   
+  # convert mcmc objects into dataframes and combine chains 
+  model <- format_draws(model = model)
+  
   # initialize
-  niter <- nrow(draws$thetas)
+  niter <- nrow(model$thetas)
   thetas <- array(dim = c(niter, rjags_data$G, rjags_data$W)) # 3 dim array, a row for each mcmc iter, a column for each cluster, and a layer for each writer
   mus <- rhos <- array(dim = c(niter, rjags_data$Gsmall, rjags_data$W)) # 3 dim array, a row for each mcmc iter, a column for each cluster, and a layer for each writer
   dmult <- dwc_sums <- data.frame(matrix(nrow = niter, ncol = rjags_data$W))
@@ -128,9 +131,9 @@ analyze_questioned_documents <- function(model_data, draws, questioned_data, num
   ls <- list()
 
   # reshape variables
-  flat_theta <- as.data.frame(cbind(iters = 1:niter, draws$thetas))
-  flat_mus <- as.data.frame(cbind(iters = 1:niter, draws$mus))
-  flat_rhos <- as.data.frame(cbind(iters = 1:niter, draws$rhos))
+  flat_theta <- as.data.frame(cbind(iters = 1:niter, model$thetas))
+  flat_mus <- as.data.frame(cbind(iters = 1:niter, model$mus))
+  flat_rhos <- as.data.frame(cbind(iters = 1:niter, model$rhos))
   for (i in 1:rjags_data$W) { # i is writer, j is graph
     for (j in 1:rjags_data$G) {
       thetas[, j, i] <- flat_theta[1:niter, as.character(paste0("theta[", i, ",", j, "]"))]
@@ -194,24 +197,42 @@ analyze_questioned_documents <- function(model_data, draws, questioned_data, num
 #' format_draws
 #'
 #' `format_draws()` formats the coda samples output by [`fit_model()`] into a
-#' more convenient list of data frames.
+#' more convenient matrix.
 #'
 #' @param model MCMC draws from a model fit with [`fit_model()`].
-#' @param chain Integer number of MCMC chain.
 #' @return MCMC draws formatted into a list of dataframes.
 #' 
 #' @noRd
-format_draws <- function(model, chain){
-  draws <- as.data.frame(model[[chain]])
-  draws <- list(
-    thetas = draws[, grep(x = colnames(draws), pattern = "theta")],
-    mus = draws[, grep(x = colnames(draws), pattern = "mu")],
-    gammas = draws[, grep(x = colnames(draws), pattern = "gamma")],
-    rhos = draws[, grep(x = colnames(draws), pattern = "rho")],
-    etas = draws[, grep(x = colnames(draws), pattern = "^eta")],
-    nll_datamodel = draws[, grep(x = colnames(draws), pattern = "nll_datamodel")],
-    nld_locationparam = draws[, grep(x = colnames(draws), pattern = "nld_locationparam")]
-  )
+format_draws <- function(model){
+  
+  # convert mcmc object to list of data frames
+  draws_to_dataframe <- function(model_chain){
+    draws <- as.data.frame(model_chain)
+    draws <- list(
+      thetas = draws[, grep(x = colnames(draws), pattern = "theta")],
+      mus = draws[, grep(x = colnames(draws), pattern = "mu")],
+      gammas = draws[, grep(x = colnames(draws), pattern = "gamma")],
+      rhos = draws[, grep(x = colnames(draws), pattern = "rho")],
+      etas = draws[, grep(x = colnames(draws), pattern = "^eta")],
+      nll_datamodel = draws[, grep(x = colnames(draws), pattern = "nll_datamodel")],
+      nld_locationparam = draws[, grep(x = colnames(draws), pattern = "nld_locationparam")]
+    )
+    return(draws)
+  }
+  
+  # make data frames for each chain and each variable group
+  draws_list <- lapply(model, function(x) draws_to_dataframe(x))
+  
+  # combine data frames from different chains by variable group
+  vars <- c("thetas", "mus", "gammas", "rhos", "etas", "nll_datamodel", "nld_locationparam")
+  draws <- list()
+  for (i in 1:length(vars)){
+    temp <- draws_list[[1]][[vars[i]]]
+    for (j in 2:length(draws_list)){
+      temp <- rbind(temp, draws_list[[j]][[vars[i]]])
+    }
+    draws[[vars[i]]] <- temp
+  }
   
   return(draws)
 }
