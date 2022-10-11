@@ -224,14 +224,18 @@ format_draws <- function(model){
   draws_list <- lapply(model, function(x) draws_to_dataframe(x))
   
   # combine data frames from different chains by variable group
-  vars <- c("thetas", "mus", "gammas", "rhos", "etas", "nll_datamodel", "nld_locationparam")
-  draws <- list()
-  for (i in 1:length(vars)){
-    temp <- draws_list[[1]][[vars[i]]]
-    for (j in 2:length(draws_list)){
-      temp <- rbind(temp, draws_list[[j]][[vars[i]]])
+  if (length(draws_list) > 1) {
+    vars <- c("thetas", "mus", "gammas", "rhos", "etas", "nll_datamodel", "nld_locationparam")
+    draws <- list()
+    for (i in 1:length(vars)){
+      temp <- draws_list[[1]][[vars[i]]]
+      for (j in 2:length(draws_list)){
+        temp <- rbind(temp, draws_list[[j]][[vars[i]]])
+      }
+      draws[[vars[i]]] <- temp
     }
-    draws[[vars[i]]] <- temp
+  } else {
+    draws <- draws_list
   }
   
   return(draws)

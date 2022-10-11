@@ -37,23 +37,23 @@ plot_posterior_probabilities <- function(analysis) {
 
 #' Plot Trace
 #'
-#' Create a traceplot for a single variable in an MCMC object created by
-#' [`fit_model`].
+#' Create a traceplot for all chains for a single variable in an MCMC object
+#' created by [`fit_model`]. If the model contains more than one chain, the
+#' chains will be combined by pasting them together.
 #'
 #' @param model An MCMC object created by [`fit_model`]
-#' @param chain An integer chain number
 #' @param variable The name of a variable in the MCMC object
-#' @return ggplot line plot 
+#' @return ggplot line plot
 #'
 #' @examples
 #' \dontrun{
 #' draws <- fit_model(example_model_data, num_iters = 1000, num_chains = 1)
-#' plot_trace(model = draws, chain = 1, variable = "theta[1,1]")
+#' plot_trace(model = draws, variable = "theta[1,1]")
 #' }
 #'
 #' @export
 #' @md
-plot_trace <- function(model, chain, variable){
+plot_trace <- function(model, variable){
   # format MCMC draws from fitted model
   draws <- format_draws(model)
   
@@ -62,7 +62,7 @@ plot_trace <- function(model, chain, variable){
   param <- paste0(sub("\\[.*", "", variable), "s")
   
   # select data frame for variable 
-  p <- draws[param][[1]]
+  p <- draws[[param]]
   # add iteration column to data frame
   p['iteration'] <- 1:nrow(p)
   

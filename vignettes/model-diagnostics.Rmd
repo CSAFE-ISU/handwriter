@@ -21,7 +21,7 @@ library(handwriter)
 ## Fit model using example data
 ```{r}
 model <- fit_model(model_data = example_model_data,
-                   num_iters = 2000,
+                   num_iters = 1000,
                    num_chains = 2)
 ```
 ## Trace Plots
@@ -33,7 +33,7 @@ Display a trace plot for every variable in the chain with a separate plot per va
 
 Display a trace plot for a single variable.
 ```{r}
-p <- plot_trace(model=model, chain=2, variable="mu[1,2]")
+plot_trace(model=model, variable="mu[1,2]")
 ```
 
 ```{r}
@@ -42,7 +42,7 @@ p <- plot_trace(model=model, chain=2, variable="mu[1,2]")
 
 ## Drop burn-in
 ```{r}
-model <- drop_burnin(model, burn_in = 1000)
+model <- drop_burnin(model, burn_in = 500)
 ```
 
 ```{r}
