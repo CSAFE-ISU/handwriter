@@ -4,12 +4,10 @@
 \alias{plot_trace}
 \title{Plot Trace}
 \usage{
-plot_trace(model, chain, variable)
+plot_trace(model, variable)
 }
 \arguments{
 \item{model}{An MCMC object created by \code{\link{fit_model}}}
-
-\item{chain}{An integer chain number}
 
 \item{variable}{The name of a variable in the MCMC object}
 }
@@ -17,13 +15,12 @@ plot_trace(model, chain, variable)
 ggplot line plot
 }
 \description{
-Create a traceplot for a single variable in an MCMC object created by
-\code{\link{fit_model}}.
+Create a traceplot for all chains for a single variable in an MCMC object
+created by \code{\link{fit_model}}. If the model contains more than one chain, the
+chains will be combined by pasting them together.
 }
 \examples{
-\dontrun{
-draws <- fit_model(example_model_data, num_iters = 1000, num_chains = 1)
-plot_trace(model = draws, chain = 1, variable = "theta[1,1]")
-}
+draws <- fit_model(example_model_data, num_iters = 500, num_chains = 1)
+plot_trace(model = draws, variable = "theta[1,1]")
 
 }

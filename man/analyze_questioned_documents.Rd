@@ -4,15 +4,15 @@
 \alias{analyze_questioned_documents}
 \title{analyze_questioned_documents}
 \usage{
-analyze_questioned_documents(model_data, draws, questioned_data, num_cores)
+analyze_questioned_documents(model_data, model, questioned_data, num_cores)
 }
 \arguments{
 \item{model_data}{A list of input data formatted with
 \code{format_model_data} for rjags}
 
-\item{draws}{MCMC draws created with \code{fit_model()}}
+\item{model}{A list of MCMC draws from a model fit with \code{\link[=fit_model]{fit_model()}}.}
 
-\item{questioned_data}{A list questioned documents's data formatted with
+\item{questioned_data}{A list of questioned documents' data formatted with
 \code{format_questioned_data()}.}
 
 \item{num_cores}{An integer number of cores to use for parallel processing
@@ -28,14 +28,18 @@ writership for the questioned documents using MCMC draws from a hierarchical
 model created with \code{fit_model()}.
 }
 \examples{
-\dontrun{
-draws <- fit_model(model_data = example_model_data, num_iters = 4000)
-draws <- drop_burnin(draws, burn_in = 1000)
-draws <- analyze_questioned_documents(example_model_data,
-                                      draws,
-                                      example_questioned_data,
-                                      num_cores = 4)
-}
+model <- fit_model(
+  model_data = example_model_data,
+  num_iters = 500,
+  num_chains = 1
+)
+model <- drop_burnin(model = model, burn_in = 250)
+analysis <- analyze_questioned_documents(
+  model_data = example_model_data,
+  model = model,
+  questioned_data = example_questioned_data,
+  num_cores = 2
+)
 
 }
 \keyword{model}

@@ -22,7 +22,18 @@ A list of data frames of MCMC draws.
 draws samples from the model with MCMC.
 }
 \examples{
-draws <- fit_model(model_data = example_model_data, num_iters = 1000)
+model <- fit_model(
+  model_data = example_model_data,
+  num_iters = 500,
+  num_chains = 1
+)
+model <- drop_burnin(model = model, burn_in = 250)
+analysis <- analyze_questioned_documents(
+  model_data = example_model_data,
+  model = model,
+  questioned_data = example_questioned_data,
+  num_cores = 2
+)
 
 }
 \keyword{model}

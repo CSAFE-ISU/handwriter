@@ -10,7 +10,18 @@
 #' @return A list of data frames of MCMC draws.
 #'
 #' @examples
-#' draws <- fit_model(model_data = example_model_data, num_iters = 1000)
+#' model <- fit_model(
+#'   model_data = example_model_data,
+#'   num_iters = 500,
+#'   num_chains = 1
+#' )
+#' model <- drop_burnin(model = model, burn_in = 250)
+#' analysis <- analyze_questioned_documents(
+#'   model_data = example_model_data,
+#'   model = model,
+#'   questioned_data = example_questioned_data,
+#'   num_cores = 2
+#' )
 #'
 #' @keywords model
 #'
@@ -18,7 +29,7 @@
 #' @md
 fit_model <- function(model_data, num_iters, num_chains = 1) {
   rjags_data <- model_data$rjags_data
-  
+
   # fit model with rjags
   model <- rjags::jags.model(textConnection(model_wrapped_cauchy), data = rjags_data, n.chains = num_chains)
 
@@ -33,20 +44,18 @@ fit_model <- function(model_data, num_iters, num_chains = 1) {
 #'
 #' `drop_burnin()` removes the burn-in from the MCMC draws.
 #'
-#' @param draws A list of dataframes of MCMC draws created by `fit_model()`
+#' @param model A list of MCMC draws from a model fit with [`fit_model()`].
 #' @param burn_in An integer number of starting iterations to drop from each MCMC chain.
 #' @return A list of data frames of MCMC draws with burn-in dropped.
 #'
-#' @examples
-#' draws <- fit_model(model_data = example_model_data, num_iters = 4000)
-#' draws <- drop_burnin(draws, 1000)
+#' @inherit fit_model examples
 #'
 #' @keywords model
 #'
 #' @export
 #' @md
-drop_burnin <- function(model, burn_in){
-  model <- lapply(model, function(x) coda::as.mcmc(x[(burn_in+1):coda::niter(x), ]))
+drop_burnin <- function(model, burn_in) {
+  model <- lapply(model, function(x) coda::as.mcmc(x[(burn_in + 1):coda::niter(x), ]))
   return(model)
 }
 
@@ -93,35 +102,26 @@ model {
 #'
 #' @param model_data A list of input data formatted with
 #'   `format_model_data` for rjags
-#' @param draws MCMC draws created with `fit_model()`
-#' @param questioned_data A list questioned documents's data formatted with
+#' @param model A list of MCMC draws from a model fit with [`fit_model()`].
+#' @param questioned_data A list of questioned documents' data formatted with
 #'   `format_questioned_data()`.
 #' @param num_cores An integer number of cores to use for parallel processing
 #'   with the `doParallel` package.
 #' @return A list of likelihoods, votes, and posterior probabilities of
 #'   writership for each questioned document.
 #'
-#' @examples
-#' \dontrun{
-#' draws <- fit_model(model_data = example_model_data, num_iters = 4000)
-#' draws <- drop_burnin(draws, burn_in = 1000)
-#' draws <- analyze_questioned_documents(example_model_data,
-#'                                       draws,
-#'                                       example_questioned_data,
-#'                                       num_cores = 4)
-#' }
+#' @inherit fit_model examples
 #'
 #' @keywords model
 #'
 #' @export
 #' @md
 analyze_questioned_documents <- function(model_data, model, questioned_data, num_cores) {
-  
   rjags_data <- model_data$rjags_data
-  
-  # convert mcmc objects into dataframes and combine chains 
+
+  # convert mcmc objects into dataframes and combine chains
   model <- format_draws(model = model)
-  
+
   # initialize
   niter <- nrow(model$thetas)
   thetas <- array(dim = c(niter, rjags_data$G, rjags_data$W)) # 3 dim array, a row for each mcmc iter, a column for each cluster, and a layer for each writer
@@ -151,7 +151,7 @@ analyze_questioned_documents <- function(model_data, model, questioned_data, num
 
   # list writers
   writers <- unique(questioned_data$graph_measurements$writer)
-  
+
   # obtain posterior samples of model parameters
   likelihood_evals <- foreach::foreach(m = 1:nrow(questioned_data$cluster_fill_counts)) %dopar% {
     # filter docs for current writer
@@ -180,16 +180,18 @@ analyze_questioned_documents <- function(model_data, model, questioned_data, num
     return(likelihoods)
   }
   names(likelihood_evals) <- paste0("w", questioned_data$cluster_fill_counts$writer, "_", questioned_data$cluster_fill_counts$doc)
-  
+
   # tally votes
-  votes <- lapply(likelihood_evals, function(y) {as.data.frame(t(apply(y, 1, function(x) floor(x/max(x)))))})
+  votes <- lapply(likelihood_evals, function(y) {
+    as.data.frame(t(apply(y, 1, function(x) floor(x / max(x)))))
+  })
   votes <- lapply(votes, function(x) colSums(x))
-    
+
   # calculate posterior probability of writership
   posterior_probabilities <- lapply(votes, function(x) x / niter)
   posterior_probabilities <- as.data.frame(posterior_probabilities)
-  posterior_probabilities <- cbind("known_writer" = rownames(posterior_probabilities), data.frame(posterior_probabilities, row.names=NULL))  # change rownames to column
-  
+  posterior_probabilities <- cbind("known_writer" = rownames(posterior_probabilities), data.frame(posterior_probabilities, row.names = NULL)) # change rownames to column
+
   analysis <- list("likelihood_evals" = likelihood_evals, "votes" = votes, "posterior_probabilities" = posterior_probabilities)
   return(analysis)
 }
@@ -199,14 +201,14 @@ analyze_questioned_documents <- function(model_data, model, questioned_data, num
 #' `format_draws()` formats the coda samples output by [`fit_model()`] into a
 #' more convenient matrix.
 #'
-#' @param model MCMC draws from a model fit with [`fit_model()`].
+#' @param model A list of MCMC draws from a model fit with [`fit_model()`].
 #' @return MCMC draws formatted into a list of dataframes.
-#' 
+#'
 #' @noRd
-format_draws <- function(model){
-  
+format_draws <- function(model) {
+
   # convert mcmc object to list of data frames
-  draws_to_dataframe <- function(model_chain){
+  draws_to_dataframe <- function(model_chain) {
     draws <- as.data.frame(model_chain)
     draws <- list(
       thetas = draws[, grep(x = colnames(draws), pattern = "theta")],
@@ -219,24 +221,24 @@ format_draws <- function(model){
     )
     return(draws)
   }
-  
+
   # make data frames for each chain and each variable group
   draws_list <- lapply(model, function(x) draws_to_dataframe(x))
-  
+
   # combine data frames from different chains by variable group
   if (length(draws_list) > 1) {
     vars <- c("thetas", "mus", "gammas", "rhos", "etas", "nll_datamodel", "nld_locationparam")
     draws <- list()
-    for (i in 1:length(vars)){
+    for (i in 1:length(vars)) {
       temp <- draws_list[[1]][[vars[i]]]
-      for (j in 2:length(draws_list)){
+      for (j in 2:length(draws_list)) {
         temp <- rbind(temp, draws_list[[j]][[vars[i]]])
       }
       draws[[vars[i]]] <- temp
     }
   } else {
-    draws <- draws_list
+    draws <- draws_list[[1]]
   }
-  
+
   return(draws)
 }
