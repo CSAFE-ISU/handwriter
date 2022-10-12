@@ -30,15 +30,30 @@ process_batch_list = function(image_list, output_dir, transform_output = 'docume
 #' @keywords ?
 #' @export
 process_batch_dir = function(input_dir, output_dir = '.', transform_output = 'document'){
-  file_list = list.files(batch_input_dir, full.names = TRUE)
+  file_list = list.files(input_dir, full.names = TRUE)
   
-  document_list = lapply(file_list, read_and_process, transform_output)
+  if (!dir.exists(output_dir)) dir.create(output_dir, recursive = TRUE)
   
   #Save as RDS while renaming with _proclist suffix
-  if (!dir.exists(batch_output_dir)) dir.create(batch_output_dir, recursive = TRUE)
-  for(i in 1:length(document_list)){
-    saveRDS(document_list[[i]], 
-            file=paste0(batch_output_dir, '/', paste0(tools::file_path_sans_ext(document_list[[i]]$docname),'_proclist.rds')))
+  # Skip if a processed file with that name already exists in output_dir
+  document_list <- list()
+  counter <- 1
+  for(i in 1:length(file_list)){
+    if (!file.exists(file_list[[i]])){
+      doc <- read_and_process(file_list[[i]], transform_output)
+      saveRDS(doc, 
+              file=paste0(output_dir, '/', paste0(tools::file_path_sans_ext(doc$docname),'_proclist.rds')))
+      document_list[[counter]] <- doc
+      counter <- counter + 1
+    }
+  }
+  
+  # Load all processed docs in output folder
+  output_list <- data.frame(graph_paths = list.files(output_dir, full.names = TRUE))
+  if (length(document_list) < length(output_list$graph_paths)){
+    document_list <- output_list$graph_paths %>%
+      purrr::map(readRDS) %>%
+      purrr::list_merge()
   }
   
   return(document_list)
