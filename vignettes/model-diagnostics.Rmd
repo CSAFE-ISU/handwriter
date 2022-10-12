@@ -1,0 +1,65 @@
+---
+title: "model-diagnostics"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{model-diagnostics}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(handwriter)
+```
+
+## Fit model using example data
+```{r}
+model <- fit_model(model_data = example_model_data,
+                   num_iters = 1000,
+                   num_chains = 2)
+```
+## Trace Plots
+
+Display a trace plot for every variable in the chain with a separate plot per variable.
+```{r}
+# coda::traceplot(model)
+```
+
+Display a trace plot for a single variable.
+```{r}
+plot_trace(model=model, variable="mu[1,2]")
+```
+
+```{r}
+# gelman <- coda::gelman.diag(model, multivariate=FALSE)
+```
+
+## Drop burn-in
+```{r}
+model <- drop_burnin(model, burn_in = 500)
+```
+
+```{r}
+# gelman_wo_burnin <- coda::gelman.diag(model, multivariate=FALSE)
+```
+
+## Analyze questioned documents
+```{r}
+analysis <- analyze_questioned_documents(model_data = example_model_data, 
+                                         model = model,
+                                         questioned_data = example_questioned_data,
+                                         num_cores = 5)
+```
+
+```{r}
+plot_posterior_probabilities(analysis = analysis)
+```
+
+
+

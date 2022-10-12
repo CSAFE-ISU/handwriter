@@ -4,12 +4,12 @@
 \alias{drop_burnin}
 \title{drop_burnin}
 \usage{
-drop_burnin(draws, burn_in)
+drop_burnin(model, burn_in)
 }
 \arguments{
-\item{draws}{A list of dataframes of MCMC draws created by \code{fit_model()}}
+\item{model}{A list of MCMC draws from a model fit with \code{\link[=fit_model]{fit_model()}}.}
 
-\item{burn_in}{An integer number of starting iterations of MCMC to drop.}
+\item{burn_in}{An integer number of starting iterations to drop from each MCMC chain.}
 }
 \value{
 A list of data frames of MCMC draws with burn-in dropped.
@@ -18,8 +18,18 @@ A list of data frames of MCMC draws with burn-in dropped.
 \code{drop_burnin()} removes the burn-in from the MCMC draws.
 }
 \examples{
-draws <- fit_model(model_data = example_model_data, num_iters = 4000)
-draws <- drop_burnin(draws, 1000)
+model <- fit_model(
+  model_data = example_model_data,
+  num_iters = 500,
+  num_chains = 1
+)
+model <- drop_burnin(model = model, burn_in = 250)
+analysis <- analyze_questioned_documents(
+  model_data = example_model_data,
+  model = model,
+  questioned_data = example_questioned_data,
+  num_cores = 2
+)
 
 }
 \keyword{model}

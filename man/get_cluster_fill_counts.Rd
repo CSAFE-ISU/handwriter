@@ -7,7 +7,7 @@
 get_cluster_fill_counts(df)
 }
 \arguments{
-\item{df}{A data frame with a columns \code{writer}, \code{doc}, and \code{cluster}. Each
+\item{df}{A data frame with columns \code{writer}, \code{doc}, and \code{cluster}. Each
 row corresponding to a graph and lists the writer of that graph, the document
 from which the graph was obtained, and the cluster to which that graph is assigned.}
 }

@@ -120,15 +120,34 @@
 #' @format List created by [`get_clusterassignment`] with extra fields removed
 #'   to make the example file smaller.
 #' @examples
-#' writer_indices <- c(2, 5)
-#' doc_indices <- c(7, 18)
-#' model_data <- format_model_data(example_model_clusters,
-#'   writer_indices,
-#'   doc_indices,
+#' model_data <- format_model_data(
+#'   model_proc_list = example_model_clusters,
+#'   writer_indices = c(2, 5),
+#'   doc_indices = c(7, 18),
 #'   a = 2, b = 0.25, c = 2, d = 2, e = 0.5
 #' )
-#' draws <- fit_model(model_data = model_data, num_iters = 2000)
-#' draws <- drop_burnin(draws, 1000)
+#' model <- fit_model(
+#'   model_data = model_data,
+#'   num_iters = 500,
+#'   num_chains = 1
+#' )
+#' model <- drop_burnin(
+#'   model = model,
+#'   burn_in = 250
+#' )
+#' q_data <- format_questioned_data(
+#'   formatted_model_data = model_data,
+#'   questioned_proc_list = example_questioned_clusters,
+#'   writer_indices = c(2, 5),
+#'   doc_indices = c(7, 18)
+#' )
+#' analysis <- analyze_questioned_documents(
+#'   model_data = model_data,
+#'   model = model,
+#'   questioned_data = q_data,
+#'   num_cores = 2
+#' )
+#'
 #' @md
 "example_model_clusters"
 
@@ -143,6 +162,9 @@
 #'
 #' @format List created by [`get_clusterassignment`] with extra fields removed
 #'   to make the example file smaller.
+#'
+#' @inherit example_model_clusters examples
+#'
 #' @md
 "example_questioned_clusters"
 
@@ -169,8 +191,8 @@
 #'   \item{d}{parameter}
 #'   \item{e}{paramter}
 #' }
-#' @examples
-#' draws <- fit_model(model_data = example_model_data, num_iters = 4000)
+#' @inherit example_model_clusters examples
+#'
 #' @md
 "example_model_data"
 
@@ -183,20 +205,6 @@
 #' m <- rjags::jags.model(file = rjags_model, data = model_data, n.chains = 1)
 "model_wrapped_cauchy"
 
-#' Example of list of questioned documents' data for the hierarchical model
-#'
-#' @format List created by [`get_clusterassignment`] with extra fields removed to
-#'   make the example file smaller.
-#' @examples
-#' writer_indices <- c(2, 5)
-#' doc_indices <- c(7, 18)
-#' model_data <- format_questioned_data(formatted_model_data=example_model_data,
-#' questioned_proc_list=example_questioned_clusters, 
-#' writer_indices=c(2,5), 
-#' doc_indices=c(7,18))
-#' @md
-"example_questioned_clusters"
-
 #' Example of questioned data formatted for the hierarchical model
 #'
 #' @format A named list created by [`format_questioned_data`] with 2 items:
@@ -207,13 +215,8 @@
 #'   \item{cluster_fill_counts}{data frame that shows the number of graphs
 #'   assigned to each cluster for each document.}
 #'   }
-#' @examples
-#' draws <- fit_model(model_data = example_model_data, num_iters = 4000)
-#' analysis <- analyze_questioned_documents(example_model_data,
-#'   draws,
-#'   example_questioned_data,
-#'   num_cores = 2
-#' )
+#'
+#' @inherit example_model_clusters examples
 #'
 #' @md
 "example_questioned_data"
@@ -229,15 +232,9 @@
 #'   for each questioned document and each known writer in the closed set used to train the
 #'   hierarchical model.}
 #'   }
+#'
 #' @examples
-#' \dontrun{
-#' draws <- fit_model(model_data = example_model_data, num_iters = 4000)
-#' analysis <- analyze_questioned_documents(example_model_data,
-#'   draws,
-#'   example_questioned_data,
-#'   num_cores = 2
-#' )
-#' }
+#' plot_posterior_probabilities(analysis = example_analysis)
+#'
 #' @md
 "example_analysis"
-

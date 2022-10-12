@@ -18,10 +18,18 @@ questioned document and each known writer analyzed with
 \code{\link[=analyze_questioned_documents]{analyze_questioned_documents()}}.
 }
 \examples{
-\dontrun{
-draws <- fit_model(example_model_data$rjags_data, num_iters = 4000)
-draws <- drop_burnin(draws, 1000)
-analysis <- analyze_questioned_documents(example_model_data, draws, example_questioned_data, num_cores = 4)
-}
+model <- fit_model(
+  model_data = example_model_data,
+  num_iters = 500,
+  num_chains = 1
+)
+model <- drop_burnin(model = model, burn_in = 250)
+analysis <- analyze_questioned_documents(
+  model_data = example_model_data,
+  model = model,
+  questioned_data = example_questioned_data,
+  num_cores = 2
+)
+plot_posterior_probabilities(analysis = analysis)
 
 }

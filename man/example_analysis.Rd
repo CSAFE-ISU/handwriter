@@ -22,13 +22,7 @@ example_analysis
 Example of writership analysis
 }
 \examples{
-\dontrun{
-draws <- fit_model(model_data = example_model_data, num_iters = 4000)
-analysis <- analyze_questioned_documents(example_model_data,
-  draws,
-  example_questioned_data,
-  num_cores = 2
-)
-}
+plot_posterior_probabilities(analysis = example_analysis)
+
 }
 \keyword{datasets}
