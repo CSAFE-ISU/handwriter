@@ -20,7 +20,7 @@ created by \code{\link{fit_model}}. If the model contains more than one chain, t
 chains will be combined by pasting them together.
 }
 \examples{
-draws <- fit_model(example_model_data, num_iters = 500, num_chains = 1)
-plot_trace(model = draws, variable = "theta[1,1]")
+model <- fit_model(example_model_data, num_iters = 500, num_chains = 1)
+plot_trace(model = model, variable = "theta[1,1]")
 
 }
