@@ -7,7 +7,12 @@
 read_and_process(image_name, transform_output)
 }
 \arguments{
-\item{image_name}{Input directory}
+\item{image_name}{The file path to an image}
+
+\item{transform_output}{The type of transformation to perform on the output}
+}
+\value{
+A list of the processed image components
 }
 \description{
 read_and_process
