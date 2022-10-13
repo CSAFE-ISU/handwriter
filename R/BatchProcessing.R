@@ -32,17 +32,19 @@ process_batch_list = function(image_list, output_dir, transform_output = 'docume
 process_batch_dir = function(input_dir, output_dir = '.', transform_output = 'document'){
   file_list = list.files(input_dir, full.names = TRUE)
   
-  if (!dir.exists(output_dir)) dir.create(output_dir, recursive = TRUE)
+  if (!dir.exists(output_dir)) {dir.create(output_dir, recursive = TRUE)}
   
   #Save as RDS while renaming with _proclist suffix
   # Skip if a processed file with that name already exists in output_dir
   document_list <- list()
   counter <- 1
   for(i in 1:length(file_list)){
-    if (!file.exists(file_list[[i]])){
+    # format path and file name for output
+    outfile <- file.path(output_dir, paste0(tools::file_path_sans_ext(basename(file_list[[i]])),'_proclist.rds'))
+    # if output file doesn't already exist, process the input file
+    if (!file.exists(outfile)){
       doc <- read_and_process(file_list[[i]], transform_output)
-      saveRDS(doc, 
-              file=paste0(output_dir, '/', paste0(tools::file_path_sans_ext(doc$docname),'_proclist.rds')))
+      saveRDS(doc, file=outfile)
       document_list[[counter]] <- doc
       counter <- counter + 1
     }
