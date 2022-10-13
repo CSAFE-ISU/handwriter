@@ -2,6 +2,16 @@
 #======================= K-MEANS CLUSTERING =======================
 #==================================================================
 
+cluster <- reactiveValues()
+
+observeEvent(input$c_upload_proc_list, {
+  cluster$c_proc_list_path <- list(input$c_upload_proc_list$datapath)[[1]]
+  cluster$c_template_proc_list <- readRDS(cluster$c_proc_list_path)
+})
+
+
+output$c_datapath <- renderPrint({ cluster$c_proc_list_path })
+output$c_template_proc_list <- renderPrint({ cluster$c_template_proc_list[[1]] })
 
 #To delete after tab is done  
 output$cluster_graphs <- renderImage({list(src = file.path("images/graphs.png"), contentType = "image/png")}, deleteFile = FALSE)
