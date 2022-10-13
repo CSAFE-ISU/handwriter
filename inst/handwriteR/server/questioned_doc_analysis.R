@@ -14,14 +14,15 @@ observe({
 })
 
 # BUTTON:
-observeEvent(input$q_process_template_images, {
+observeEvent(input$q_make_templates, {
+  # process images if they haven't already been processed
   analysis$q_template_proc_list <- process_batch_dir(input_dir = analysis$q_template_images_dir,
                                                      output_dir = file.path(analysis$q_main_dir, "data", "template_graphs"),
                                                      transform_output = 'document')
-})
-
-# BUTTON:
-observeEvent(input$q_make_templates, {
+  # update list of graphs
+  analysis$q_template_graphs_docnames <- list.files(analysis$q_template_graphs_dir)
+  
+  # make templates
   analysis$templates <- make_clustering_templates(template_dir = analysis$q_main_dir,
                                                   writer_indices = c(2,5),
                                                   max_edges = 30,
@@ -34,6 +35,7 @@ observeEvent(input$q_make_templates, {
                                                   max_iters = input$q_max_iters,
                                                   gamma = 3,
                                                   num_graphs = input$q_num_graphs)
+  
 })
 
 
@@ -44,5 +46,11 @@ output$q_template_images_dir <- renderText({ analysis$q_template_images_dir })
 output$q_template_images_docnames <- renderPrint({ list.files(analysis$q_template_images_dir) })
 
 output$q_template_graphs_dir <- renderPrint({ analysis$q_template_graphs_dir })
-output$q_template_graphs_docnames <- renderPrint({ list.files(analysis$q_template_graphs_dir) })
+output$q_template_graphs_docnames <- renderPrint({ 
+  if (is.null(analysis$q_template_graphs_docnames)){
+    list.files(analysis$q_template_graphs_dir)
+  } else {
+    analysis$q_template_graphs_docnames
+  }
+})
 

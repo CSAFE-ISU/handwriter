@@ -6,14 +6,11 @@ tabPanel("Analyze Questioned Documents",
                         
                         # make template
                         h4("Cluster Template"),
-                        actionButton("q_process_template_images", "Process template training documents"),
-                        br(),
-                        br(),
-                        numericInput("q_num_runs", "number of templates", value=1, min=1, max=20, step=1),
-                        numericInput("q_starting_seed", "seed", value=100, min=1, step=1),
-                        numericInput("q_K", "number of clusters", value=5, min=3, max=60, step=1),
-                        numericInput("q_max_iters", "max iterations", value=1, min=1, max=500, step=1),
-                        numericInput("q_num_cores", "number of cores", value=5, min=1, step=1),
+                        fluidRow(column(width = 3, numericInput("q_num_runs", "number of templates", value=1, min=1, max=20, step=1))),
+                        fluidRow(column(width = 3, numericInput("q_starting_seed", "seed", value=100, min=1, step=1))),
+                        fluidRow(column(width = 3, numericInput("q_K", "number of clusters", value=5, min=3, max=60, step=1))),
+                        fluidRow(column(width = 3,numericInput("q_max_iters", "max iterations", value=1, min=1, max=500, step=1))),
+                        fluidRow(column(width = 3,numericInput("q_num_cores", "number of cores", value=5, min=1, step=1))),
                         radioButtons("q_num_graphs", "number of graphs", selected = 1000,
                                      choices = c(1000, 5000, "All")),
                         actionButton("q_make_templates", "Make template(s)")
@@ -33,7 +30,6 @@ tabPanel("Analyze Questioned Documents",
                                           verbatimTextOutput("q_template_graphs_dir"),
                                           helpText("Processed Files:"),
                                           verbatimTextOutput("q_template_graphs_docnames")),
-                                 tabPanel("Table", tableOutput("table"))
                      )
            ),
          ),
