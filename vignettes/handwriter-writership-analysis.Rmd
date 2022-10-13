@@ -63,7 +63,6 @@ process_batch_dir(image_batch = template_images_dir,
 Create a cluster template with `K=10` clusters. Choose the number of cores you would like to use with `num_dist_cores`. The input `max_iters` determines how many iterations the K-means algorithm could perform. In practice, we recommend using at least 20 iterations. Here will will use `max_iters=3` in interest of speed. Again, in interest of speed for this example we will only use 1000 graphs for creating the cluster template. In practice, use `num_graphs = 'All'` to use all available training graphs. Choose a starting seed. These seed determines the starting cluster centers for the K-means algorithm. Because we are randomly selecting 1000 graphs, rerunning this function with the same seed will use the same starting cluster centers but will likely have a different sample of 1000 graphs so the end result would be a different cluster template. Choose the number of cluster templates to create with `num_runs`. If the starting seed is 100 and `num_runs=3` then cluster templates will be created with seeds 100, 101, and 102. 
 ```{r}
 template_list <- make_clustering_templates(template_dir = main_dir,
-                                           writer_indices = c(2,5),
                                            K = 10,
                                            num_dist_cores = 2,
                                            max_iters = 3,
