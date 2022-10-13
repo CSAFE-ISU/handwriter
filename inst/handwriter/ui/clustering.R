@@ -1,7 +1,7 @@
-tabPanel("k-means Clustering", 
+tabPanel("K-Means Clustering", 
          sidebarLayout(
            sidebarPanel(width = 4,
-                        h3("k-means Clustering"),
+                        h3("K-Means Clustering"),
                         br(),
                         h5("Choose a template from the drop down, or create a new one with a new set of documents and the provided options"),
                         selectInput("cluster_template_select", "Select premade template for clustering", choices = c("CVL50", "IAM50", "CVL100")),

@@ -7,15 +7,8 @@
 #'
 #' @keywords ?
 #' @export
-process_batch_list = function(image_list, output_dir, transform_output = 'document'){
+process_batch_list = function(image_list, transform_output = 'document'){
   document_list = lapply(image_list, read_and_process, transform_output)
-  
-  #Save as RDS while renaming with _proclist suffix
-  if (!dir.exists(batch_output_dir)) dir.create(batch_output_dir, recursive = TRUE)
-  for(i in 1:length(document_list)){
-    saveRDS(document_list[[i]], 
-            file=paste0(batch_output_dir, '/', paste0(tools::file_path_sans_ext(document_list[[i]]$docname),'_proclist.rds')))
-  }
   
   return(document_list)
 }

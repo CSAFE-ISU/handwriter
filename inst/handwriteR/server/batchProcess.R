@@ -234,8 +234,7 @@ values$processed_docs = NULL
 #UPLOAD
 observeEvent(input$process_batch, {
   datapath_list <- list(input$batch_input_dir$datapath)
-  name_list <- list(input$batch_input_dir$name)
-  values$processed_docs = process_batch_list(datapath_list[[1]], name_list[[1]], input$batch_select)
+  values$processed_docs = process_batch_list(datapath_list[[1]], input$batch_select)
 })
 
 #Download
@@ -245,8 +244,8 @@ output$save_batch <- downloadHandler(
   },
   content = function(file) {
     message(paste0("Writing file: ", "processed_batch-", Sys.Date(), ".rda"))
-    download = isolate(values$processed_docs)
-    save(download, file = file)
+    proc_list = isolate(values$processed_docs)
+    save(proc_list, file = file)
   }
 )
 

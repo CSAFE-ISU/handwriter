@@ -1,19 +1,9 @@
 #EXTRACT FEATURES TAB
 
-tabPanel("Extract Features",
+tabPanel("Batch Process",
          sidebarLayout(
            sidebarPanel(width = 4,
-                        h3("Extract Features"),
-                        br(),
-                        h4("Current document:"),
-                        fluidRow(column(width=11, offset=1, textOutput("features_image_name"))),
-                        fluidRow(column(width=11, offset=1, textOutput("features_dimensions"))),
-                        br(),
-                        fileInput("features_upload", "Choose document to explore", accept = c('image/png')),
-                        fluidRow(column(width=2, offset=1, actionButton("features_processhandwriting", "Process Document")),
-                                 column(width = 2, offset = 1, downloadButton("save_document_extract", "Save Document"))),
-                        br(), hr(), hr(),
-                        h3("Batch Processing"),
+                        h3("Batch Process"),
                         br(),
                         fileInput("batch_input_dir", "Choose an input directory", multiple = TRUE, accept = c('image/png')),
                         selectInput("batch_select", "Select a transformation for data once processed", choices = c("none", "document")),
