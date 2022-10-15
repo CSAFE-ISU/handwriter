@@ -42,10 +42,6 @@ server <- function(input, output, session) {
   source(file.path("server", "tooltips.R"), local = TRUE)$value
   source(file.path("server", "preProcess.R"), local = TRUE)$value
   source(file.path("server", "plot.R"), local = TRUE)$value
-  source(file.path("server", "extractFeatures.R"), local = TRUE)$value
-  source(file.path("server", "clustering.R"), local = TRUE)$value
   source(file.path("server", "questioned_doc_analysis.R"), local = TRUE)$value
-  source(file.path("server", "triangleDecomposition.R"), local = TRUE)$value
-  source(file.path("server", "slr.R"), local = TRUE)$value
   
 }
