@@ -30,11 +30,18 @@ tabPanel("Analyze Questioned Documents",
 
                         # fit model
                         h4("Fit Hierarchical Model"),
-                        actionButton("q_get_model_clusters", "Get cluster assignments"),
-                        br(),
-                        downloadButton("q_save_model_clusters", "Save cluster assignments"),
-                        br(),
-                        fileInput("q_load_model_data", "Load cluster assignments", multiple = FALSE, accept = c('rds')),
+                        bsCollapse(id="collapseModels",
+                                   bsCollapsePanel("Cluster Assignments",
+                                                   actionButton("q_get_model_clusters", "Get cluster assignments"),
+                                                   br(),
+                                                   br(),
+                                                   downloadButton("q_save_model_clusters", "Save cluster assignments"),
+                                                   br(),
+                                                   br(),
+                                                   fileInput("q_load_model_data", "Load cluster assignments", multiple = FALSE, accept = c('rds')),
+                                                   style = "default")),
+                        
+                        
 
            ),
            mainPanel(width = 8, 
@@ -57,10 +64,16 @@ tabPanel("Analyze Questioned Documents",
                                           helpText("Selected template:"),
                                           verbatimTextOutput("q_selected_template")),
                                  tabPanel("Model",
-                                          helpText("Model Training Documents:"),
-                                          verbatimTextOutput("q_model_images_docnames"),
-                                          helpText("Cluster Fill Counts:"),
-                                          DTOutput("q_cluster_fill_counts"))
+                                          tabsetPanel(
+                                            tabPanel("Model Training Documents",
+                                                     verbatimTextOutput("q_model_images_docnames")
+                                                     ), 
+                                            tabPanel("Cluster Assignments",
+                                                     helpText("Cluster Fill Counts:"),
+                                                     DTOutput("q_cluster_fill_counts")
+                                                     )
+                                            ),
+                                          )
                      )
            ),
          ),
