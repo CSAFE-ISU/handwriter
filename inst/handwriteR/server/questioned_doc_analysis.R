@@ -1,12 +1,10 @@
-#==================================================================
-#======================= QUESTIONED DOC ANALYSIS ==================
-#==================================================================
-
 analysis <- reactiveValues(q_main_dir = "/Users/stephanie/Documents/shiny_example",
                            q_template_images_dir = "/Users/stephanie/Documents/shiny_example/data/template_images",
                            q_template_graphs_dir = "/Users/stephanie/Documents/shiny_example/data/template_graphs",
                            q_templates = NULL,
                            q_template_file = NULL,
+                           q_template_names = NULL,
+                           q_template_current = NULL,
                            q_model_images_dir = "/Users/stephanie/Documents/shiny_example/data/model_images",
                            q_model_graphs_dir = "/Users/stephanie/Documents/shiny_example/data/model_graphs",
                            q_model_data = NULL)
@@ -25,18 +23,24 @@ observeEvent(input$q_load_model_data, {
   analysis$q_model_data <- readRDS(analysis$q_model_data_file)
 })
 
-# UPDATE: ----
+# UPDATE: template directories, template_num, template_names, model directories ----
 observe({
   analysis$q_main_dir <- input$q_main_dir
   
-  # template
+  # template directorys
   analysis$q_template_images_dir <- file.path(analysis$q_main_dir, "data", "template_images")
   analysis$q_template_graphs_dir <- file.path(analysis$q_main_dir, "data", "template_graphs")
+  
+  # template number selections
   if (!is.null(analysis$q_templates)){
-    updateSelectInput(session, "q_template_num", choices = 1:length(analysis$q_templates))
+    updateSelectInput(session, "q_loaded_template_num", choices = 1:length(analysis$q_templates))
+    updateSelectInput(session, "q_created_template_num", choices = 1:length(analysis$q_templates))
   } else {
-    updateSelectInput(session, "q_template_num", choices = c(NA))
+    updateSelectInput(session, "q_loaded_template_num", choices = c(NA))
+    updateSelectInput(session, "q_created_template_num", choices = c(NA))
   }
+  
+  # names of loaded templates
   if (!is.null(analysis$q_templates)){
     template_names <- c()
     for (i in 1:length(analysis$q_templates)){
@@ -53,7 +57,19 @@ observe({
   analysis$q_model_graphs_dir <- file.path(analysis$q_main_dir, "data", "model_graphs")
 })
 
-# BUTTON: make templates
+# UPDATE: selected template ----
+observeEvent(input$q_loaded_template_num, {
+  analysis$q_template_current <- input$q_loaded_template_num
+  # update choice in create templates panel
+  updateSelectInput(session, "q_created_template_num", choices = 1:length(analysis$q_templates), selected = input$q_loaded_template_num)
+})
+observeEvent(input$q_created_template_num, {
+  analysis$q_template_current <- input$q_created_template_num
+  # update choice in load templates panel
+  updateSelectInput(session, "q_loaded_template_num", choices = 1:length(analysis$q_templates), selected = input$q_created_template_num)
+})
+
+# BUTTON: make templates ----
 observeEvent(input$q_make_templates, {
   # process images if they haven't already been processed
   analysis$q_template_proc_list <- process_batch_dir(input_dir = analysis$q_template_images_dir,
@@ -108,14 +124,14 @@ output$q_save_model_clusters <- downloadHandler(
   }
 )
 
-# RENDER:
+# RENDER: main directory ----
 output$q_main_dir <- renderText({ analysis$q_main_dir })
 
-# template images
+# RENDER: template images directory and file names ----
 output$q_template_images_dir <- renderText({ analysis$q_template_images_dir })
 output$q_template_images_docnames <- renderPrint({ list.files(analysis$q_template_images_dir) })
 
-# template graphs
+# RENDER: template graphs directory and file names ----
 output$q_template_graphs_dir <- renderPrint({ analysis$q_template_graphs_dir })
 output$q_template_graphs_docnames <- renderPrint({ 
   if (is.null(analysis$q_template_graphs_docnames)){
@@ -125,19 +141,23 @@ output$q_template_graphs_docnames <- renderPrint({
   }
 })
 
-# templates
+# RENDER: templates names ----
 output$q_template_names <- renderPrint({ 
-  if(!is.null(analysis$q_template_names)){
-    analysis$q_template_names
-  } 
-})
-output$q_selected_template <- renderPrint({ 
   if (!is.null(analysis$q_template_names)){
-    analysis$q_template_names[as.integer(input$q_template_num)] 
+    analysis$q_template_names
   }
 })
 
-# model
+# RENDER: selected template name ----
+output$q_selected_template <- renderPrint({ 
+  if (!is.null(analysis$q_template_names) && !is.null(analysis$q_template_current)){
+    analysis$q_template_names[as.integer(analysis$q_template_current)] 
+  }
+})
+
+# RENDER: model images file names
 output$q_model_images_docnames <- renderPrint({ list.files(analysis$q_model_images_dir) })
+
+# RENDER: model cluster fill counts table
 output$q_cluster_fill_counts <- renderDT({ analysis$q_model_data$cluster_fill_counts })
 
