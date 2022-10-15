@@ -1,9 +1,9 @@
 #PREPROCESS TAB
 
-tabPanel("Pre-process", 
+tabPanel("Pre-process Documents", 
          sidebarLayout(
            sidebarPanel(width = 4,
-                        h2("Pre-process"),
+                        h2("Pre-process Documents"),
                         br(),
                         h4("Current document:"),
                         fluidRow(column(width=11, offset=1, textOutput("image_name"))),

@@ -1,9 +1,10 @@
 #PLOT TAB
 
-tabPanel("Plot",
+tabPanel("Explore How Handwriter Works",
          sidebarLayout(
            sidebarPanel(width = 4,
-                        h2("Plotting"),
+                        h2("Explore How Handwriter Works"),
+                        p("Handwriter decomposes handwriting into component shapes called graphs."),
                         br(),
                         h4("Current document:"),
                         fluidRow(column(width=11, offset=1, textOutput("plot_image_name"))),

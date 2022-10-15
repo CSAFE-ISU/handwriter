@@ -16,8 +16,8 @@ ui <- shinyUI({
       title = "handwriter",
       
       source(file.path("ui", "intro.R"), local = TRUE)$value,
-      source(file.path("ui", "preProcess.R"), local = TRUE)$value,
       source(file.path("ui", "plot.R"), local = TRUE)$value,
+      source(file.path("ui", "preProcess.R"), local = TRUE)$value,
       source(file.path("ui", "questioned_doc_analysis.R"), local = TRUE)$value,
     )
   )
