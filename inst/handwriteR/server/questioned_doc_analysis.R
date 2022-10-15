@@ -9,16 +9,23 @@ analysis <- reactiveValues(q_main_dir = "/Users/stephanie/Documents/shiny_exampl
                            q_template_file = NULL,
                            q_model_images_dir = "/Users/stephanie/Documents/shiny_example/data/model_images",
                            q_model_graphs_dir = "/Users/stephanie/Documents/shiny_example/data/model_graphs",
-                           q_cluster_fill_counts = NULL)
+                           q_model_data = NULL)
 
-# UPLOAD: templates
+# UPLOAD: templates ----
 observeEvent(input$q_load_templates, {
   file <- input$q_load_templates
   analysis$q_template_file <- file$datapath
   analysis$q_templates <- readRDS(analysis$q_template_file)
 })
 
-# UPDATE:
+# UPLOAD: model data ----
+observeEvent(input$q_load_model_data, {
+  file <- input$q_load_model_data
+  analysis$q_model_data_file <- file$datapath
+  analysis$q_model_data <- readRDS(analysis$q_model_data_file)
+})
+
+# UPDATE: ----
 observe({
   analysis$q_main_dir <- input$q_main_dir
   
@@ -70,7 +77,7 @@ observeEvent(input$q_make_templates, {
                                                   num_graphs = input$q_num_graphs)
 })
 
-# BUTTON: fit model
+# BUTTON: get model cluster assignments
 observeEvent(input$q_get_model_clusters, {
   # process images if they haven't already been processed
   analysis$q_model_proc_list <- process_batch_dir(input_dir = analysis$q_model_images_dir,
@@ -88,7 +95,18 @@ observeEvent(input$q_get_model_clusters, {
                                              a=2, b=0.25, c=2, d=2, e=0.5)
 })
 
-
+# BUTTON: save model cluster assignments ----
+#Download
+output$q_save_model_clusters <- downloadHandler(
+  filename = function(){
+    paste0("model_clusters_", Sys.Date(), ".rds")
+  },
+  content = function(file) {
+    message(paste0("Writing file: ", "model_clusters_", Sys.Date(), ".rds"))
+    download = isolate(analysis$q_model_data)
+    saveRDS(download, file = file)
+  }
+)
 
 # RENDER:
 output$q_main_dir <- renderText({ analysis$q_main_dir })
@@ -122,5 +140,4 @@ output$q_selected_template <- renderPrint({
 # model
 output$q_model_images_docnames <- renderPrint({ list.files(analysis$q_model_images_dir) })
 output$q_cluster_fill_counts <- renderDT({ analysis$q_model_data$cluster_fill_counts })
-
 

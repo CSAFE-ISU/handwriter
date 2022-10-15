@@ -21,7 +21,11 @@ tabPanel("Analyze Questioned Documents",
                         
                         # fit model
                         h4("Fit Hierarchical Model"),
-                        actionButton("q_get_model_clusters", "Get cluster assignments")
+                        actionButton("q_get_model_clusters", "Get cluster assignments"),
+                        br(),
+                        downloadButton("q_save_model_clusters", "Save cluster assignments"),
+                        br(),
+                        fileInput("q_load_model_data", "Load cluster assignments", multiple = FALSE, accept = c('rds')),
 
            ),
            mainPanel(width = 8, 
