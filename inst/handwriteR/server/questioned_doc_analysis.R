@@ -337,6 +337,21 @@ output$q_template_cluster_fill_counts <- renderPlot({
   }
 })
 
+# RENDER: plot clusters ----
+output$q_plot_clusters <- renderImage({
+  # A temp file to save the output.
+  # This file will be removed later by renderImage
+  outfile <- 
+    image_read("images/template.png") %>%
+    image_write(tempfile(fileext = '.png'), format = "png")
+  
+  # Return a list containing the filename
+  list(src = outfile,
+       contentType = 'image/png',
+       width = 600,
+       alt = "This is alternate text")
+}, deleteFile = TRUE)
+
 # RENDER: model images file names ----
 output$q_model_images_docnames <- renderPrint({ list.files(analysis$q_model_images_dir) })
 
