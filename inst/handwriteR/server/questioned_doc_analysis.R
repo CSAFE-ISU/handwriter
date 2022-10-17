@@ -23,7 +23,14 @@ observeEvent(input$q_load_model_data, {
   analysis$q_model_data <- readRDS(analysis$q_model_data_file)
 })
 
-# UPDATE: template directories, template_num, template_names, model directories ----
+# UPLOAD: model ----
+observeEvent(input$q_load_model, {
+  file <- input$q_load_model
+  analysis$q_model_file <- file$datapath
+  analysis$q_model <- readRDS(analysis$q_model_file)
+})
+
+# UPDATE: template directories, template_num, template_names ----
 observe({
   analysis$q_main_dir <- input$q_main_dir
   
@@ -51,10 +58,20 @@ observe({
   } else {
     analysis$q_template_names <- NULL
   }
-  
+})
+
+# UPDATE: model images and graphs directories, model variables for trace plot
+observe({
   # model
   analysis$q_model_images_dir <- file.path(analysis$q_main_dir, "data", "model_images")
   analysis$q_model_graphs_dir <- file.path(analysis$q_main_dir, "data", "model_graphs")
+  
+  # trace plot variables
+  if (!is.null(analysis$q_model)){
+    updateSelectInput(session, "q_trace_variable", choices = names(as.data.frame(analysis$q_model[[1]])))
+  } else {
+    updateSelectInput(session, "q_trace_variable", choices = c(NA))
+  }
 })
 
 # UPDATE: selected template ----
@@ -111,7 +128,7 @@ observeEvent(input$q_get_model_clusters, {
                                              a=2, b=0.25, c=2, d=2, e=0.5)
 })
 
-# BUTTON: save model cluster assignments ----
+# BUTTON: save model data ----
 #Download
 output$q_save_model_clusters <- downloadHandler(
   filename = function(){
@@ -120,6 +137,26 @@ output$q_save_model_clusters <- downloadHandler(
   content = function(file) {
     message(paste0("Writing file: ", "model_clusters_", Sys.Date(), ".rds"))
     download = isolate(analysis$q_model_data)
+    saveRDS(download, file = file)
+  }
+)
+
+# BUTTON: fit model ----
+observeEvent(input$q_fit_model, {
+  analysis$q_model <- fit_model(model_data = analysis$q_model_data,
+                                num_iters = input$q_num_mcmc_iters,
+                                num_chains = input$q_num_chains)
+})
+
+# BUTTON: save model ----
+#Download
+output$q_save_model <- downloadHandler(
+  filename = function(){
+    paste0("model_", Sys.Date(), ".rds")
+  },
+  content = function(file) {
+    message(paste0("Writing file: ", "model_", Sys.Date(), ".rds"))
+    download = isolate(analysis$q_model)
     saveRDS(download, file = file)
   }
 )
@@ -155,9 +192,18 @@ output$q_selected_template <- renderPrint({
   }
 })
 
-# RENDER: model images file names
+# RENDER: model images file names ----
 output$q_model_images_docnames <- renderPrint({ list.files(analysis$q_model_images_dir) })
 
-# RENDER: model cluster fill counts table
+# RENDER: model cluster fill counts table ----
 output$q_cluster_fill_counts <- renderDT({ analysis$q_model_data$cluster_fill_counts })
 
+# RENDER: check model ----
+output$q_is_mcmc <- renderPrint({ coda::is.mcmc.list(analysis$q_model) })
+
+# RENDER: trace plot ----
+output$q_trace_plot <- renderPlot({
+  if (!is.null(analysis$q_model) && !is.na(input$q_trace_variable)){
+    plot_trace(model=analysis$q_model, variable=input$q_trace_variable)
+  }
+})

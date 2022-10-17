@@ -6,13 +6,15 @@ tabPanel("Analyze Questioned Documents",
                                  this directory."),
                         hr(),
                         
-                        # make template
+                        # templates ----
                         h4("Cluster Template"),
                         bsCollapse(id = "collapseTemplates",
+                                   # load templates ----
                                    bsCollapsePanel("Load Templates", 
                                                    fileInput("q_load_templates", "Load template(s)", multiple = FALSE, accept = c('rds')),
                                                    selectInput("q_loaded_template_num", "Select template number", choices = c(NA)),
                                                    style = "default"),
+                                   # create templates ----
                                    bsCollapsePanel("Create Templates",
                                                    fluidRow(column(width = 4, numericInput("q_num_runs", "# templates", value=1, min=1, max=20, step=1)),
                                                             column(width = 4, numericInput("q_starting_seed", "seed", value=100, min=1, step=1)),
@@ -28,9 +30,10 @@ tabPanel("Analyze Questioned Documents",
                                                    style = "default")),
                         hr(),
 
-                        # fit model
+                        # model ----
                         h4("Fit Hierarchical Model"),
                         bsCollapse(id="collapseModels",
+                                   # cluster assignments ----
                                    bsCollapsePanel("Cluster Assignments",
                                                    actionButton("q_get_model_clusters", "Get cluster assignments"),
                                                    br(),
@@ -39,10 +42,26 @@ tabPanel("Analyze Questioned Documents",
                                                    br(),
                                                    br(),
                                                    fileInput("q_load_model_data", "Load cluster assignments", multiple = FALSE, accept = c('rds')),
-                                                   style = "default")),
+                                                   style = "default"),
+                                   # fit model ----
+                                   bsCollapsePanel("Fit Model",
+                                                   fluidRow(column(width = 4, numericInput("q_num_mcmc_iters", "# iterations", value=50, step=1, min=1)),
+                                                            column(width = 4, numericInput("q_num_chains", "# chains", value=1, step=1, min=1))),
+                                                   actionButton("q_fit_model", "Fit model"),
+                                                   downloadButton("q_save_model", "Save model"),
+                                                   br(),
+                                                   br(),
+                                                   fileInput("q_load_model", "Load model", multiple = FALSE, accept = c('rds')),
+                                                   hr(),
+                                                   h4("Model Diagnostics"),
+                                                   h5("Trace Plots"),
+                                                   selectInput("q_trace_variable", "Select variable to view trace plot", choices = c(NA)),
+                                                   style = "default")
+                                   ),
+                        hr(),
                         
-                        
-
+                        # questioned docs ----
+                        h4("Questioned Documents"),
            ),
            mainPanel(width = 8, 
                      
@@ -71,6 +90,10 @@ tabPanel("Analyze Questioned Documents",
                                             tabPanel("Cluster Assignments",
                                                      helpText("Cluster Fill Counts:"),
                                                      DTOutput("q_cluster_fill_counts")
+                                                     ),
+                                            tabPanel("Hierarchical Model",
+                                                     helpText("Trace Plot"),
+                                                     plotOutput("q_trace_plot")
                                                      )
                                             ),
                                           )
