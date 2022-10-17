@@ -75,7 +75,8 @@ tabPanel("Analyze Questioned Documents",
                                                    style = "default"),
                                    # fit model ----
                                    bsCollapsePanel("Analyze Documents",
-                                                   "Test",
+                                                   numericInput("q_questioned_num_cores", "# cores", value=5, step=1, min=1, max=10),
+                                                   actionButton("q_analyze_questioned_docs", "Analyze questioned document(s)"),
                                                    style = "default")
                         ),
            ),
@@ -123,6 +124,8 @@ tabPanel("Analyze Questioned Documents",
                                                      DTOutput("q_questioned_cluster_fill_counts")
                                             ),
                                             tabPanel("Analysis",
+                                                     helpText("Posterior Probabilities of Writership"),
+                                                     DTOutput("q_posterior_probabilities")
                                             )
                                           )
                                           )

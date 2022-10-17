@@ -66,6 +66,15 @@ observe({
   }
 })
 
+# ENABLE/DISABLE: analyze questioned docs ----
+observe({
+  if (!is.null(analysis$q_questioned_data) && !is.null(analysis$q_model_data) && !is.null(analysis$q_model)){
+    shinyjs::enable("q_analyze_questioned_docs")
+  } else {
+    shinyjs::disable("q_analyze_questioned_docs")
+  }
+})
+
 # UPLOAD: templates ----
 observeEvent(input$q_load_templates, {
   file <- input$q_load_templates
@@ -262,6 +271,15 @@ output$q_save_questioned_data <- downloadHandler(
   }
 )
 
+# BUTTON: analyze questioned documents ----
+observeEvent(input$q_analyze_questioned_docs, {
+  analysis$q_analysis <- analyze_questioned_documents(model_data = analysis$q_model_data, 
+                                                      model = analysis$q_model, 
+                                                      questioned_data = analysis$q_questioned_data, 
+                                                      num_cores = input$q_questioned_num_cores)
+})
+
+
 # RENDER: main directory ----
 output$q_main_dir <- renderText({ analysis$q_main_dir })
 
@@ -314,3 +332,6 @@ output$q_questioned_images_docnames <- renderPrint({ list.files(analysis$q_quest
 
 # RENDER: model cluster fill counts table ----
 output$q_questioned_cluster_fill_counts <- renderDT({ analysis$q_questioned_data$cluster_fill_counts })
+
+# RENDER: posterior probabilities table ----
+output$q_posterior_probabilities <- renderDT({ analysis$q_analysis$posterior_probabilities })

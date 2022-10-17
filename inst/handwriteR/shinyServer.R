@@ -21,6 +21,7 @@ server <- function(input, output, session) {
   shinyjs::disable("q_save_model")
   shinyjs::disable("q_get_questioned_data")
   shinyjs::disable("q_save_questioned_data")
+  shinyjs::disable("q_analyze_questioned_docs")
   
   global <- reactiveValues(datapath = getwd())
   
