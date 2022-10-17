@@ -335,10 +335,21 @@ output$q_questioned_cluster_fill_counts <- renderDT({ analysis$q_questioned_data
 
 # RENDER: posterior probabilities table ----
 output$q_post_probs_table <- renderDT({ 
-  df <- t(analysis$q_analysis$posterior_probabilities)
-  known_writer_colnames <- df[1,]
-  df <- df[2:nrow(df), ]
-  df <- cbind(rownames(df), data.frame(df, row.names=NULL))
-  colnames(df) <- c("questioned_doc", known_writer_colnames)
-  df
+  if (!is.null(analysis$q_analysis)){
+    # transpose data frame so questioned docs are rows instead of columns
+    df <- t(analysis$q_analysis$posterior_probabilities)
+    # grab known writers from the first row (caused by transposing matrix)
+    known_writer_colnames <- df[1,]
+    # drop known writers rows
+    df <- df[2:nrow(df), ]
+    # change questioned docs from row names to column
+    df <- cbind(rownames(df), data.frame(df, row.names=NULL))
+    # rename columns
+    colnames(df) <- c("questioned_doc", known_writer_colnames)
+    df
+  }
+})
+
+output$q_post_probs_plot <- renderPlot({
+  if (!is.null(analysis$q_analysis)){ plot_posterior_probabilities(analysis$q_analysis) }
 })
