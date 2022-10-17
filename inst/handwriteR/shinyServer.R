@@ -7,8 +7,20 @@ server <- function(input, output, session) {
   #=================== GLOBAL SET UP ======================
   #========================================================
   
-  #Disable buttons
-  shinyjs::disable("reset_crop"); shinyjs::disable("undo_crop"); shinyjs::disable("save_mask"); shinyjs::disable("reset_mask"); shinyjs::disable("undo_mask")
+  # DISABLE BUTTONS: pre-processing tab ----
+  shinyjs::disable("reset_crop"); 
+  shinyjs::disable("undo_crop"); 
+  shinyjs::disable("save_mask"); 
+  shinyjs::disable("reset_mask"); 
+  shinyjs::disable("undo_mask");
+  
+  # DISABLE BUTTONS: questioned doc analysis tab ----
+  shinyjs::disable("q_get_model_clusters")
+  shinyjs::disable("q_save_model_clusters")
+  shinyjs::disable("q_fit_model")
+  shinyjs::disable("q_save_model")
+  shinyjs::disable("q_get_questioned_data")
+  shinyjs::disable("q_save_questioned_data")
   
   global <- reactiveValues(datapath = getwd())
   

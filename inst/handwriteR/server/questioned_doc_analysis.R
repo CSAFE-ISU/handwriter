@@ -12,6 +12,60 @@ analysis <- reactiveValues(q_main_dir = "/Users/stephanie/Documents/shiny_exampl
                            q_questioned_graphs_dir = "/Users/stephanie/Documents/shiny_example/data/questioned_graphs",
                            q_questioned_data = NULL)
 
+# ENABLE/DISABLE: get model data ----
+observe({
+  if (!is.null(analysis$q_templates)){
+    shinyjs::enable("q_get_model_clusters")
+  } else {
+    shinyjs::disable("q_get_model_clusters")
+  }
+})
+
+# ENABLE/DISABLE: save model data ----
+observe({
+  if (!is.null(analysis$q_model_data)){
+    shinyjs::enable("q_save_model_clusters")
+  } else {
+    shinyjs::disable("q_save_model_clusters")
+  }
+})
+
+# ENABLE/DISABLE: fit model ----
+observe({
+  if (!is.null(analysis$q_model_data)){
+    shinyjs::enable("q_fit_model")
+  } else {
+    shinyjs::disable("q_fit_model")
+  }
+})
+
+# ENABLE/DISABLE: save model ----
+observe({
+  if (!is.null(analysis$q_model)){
+    shinyjs::enable("q_save_model")
+  } else {
+    shinyjs::disable("q_save_model")
+  }
+})
+
+# ENABLE/DISABLE: get questioned data ----
+observe({
+  if (!is.null(analysis$q_templates) && !is.null(analysis$q_model_data)){
+    shinyjs::enable("q_get_questioned_data")
+  } else {
+    shinyjs::disable("q_get_questioned_data")
+  }
+})
+
+# ENABLE/DISABLE: save questioned data ----
+observe({
+  if (!is.null(analysis$q_questioned_data)){
+    shinyjs::enable("q_save_questioned_data")
+  } else {
+    shinyjs::disable("q_save_questioned_data")
+  }
+})
+
 # UPLOAD: templates ----
 observeEvent(input$q_load_templates, {
   file <- input$q_load_templates
@@ -31,6 +85,13 @@ observeEvent(input$q_load_model, {
   file <- input$q_load_model
   analysis$q_model_file <- file$datapath
   analysis$q_model <- readRDS(analysis$q_model_file)
+})
+
+# UPLOAD: questioned data ----
+observeEvent(input$q_load_questioned_data, {
+  file <- input$q_load_questioned_data
+  analysis$q_questioned_data_file <- file$datapath
+  analysis$q_questioned_data <- readRDS(analysis$q_questioned_data_file)
 })
 
 # UPDATE: template directories, template_num, template_names ----
@@ -188,6 +249,18 @@ observeEvent(input$q_get_questioned_data, {
                                                        doc_indices=c(7,18))
 })
 
+# BUTTON: save questioned data ----
+#Download
+output$q_save_questioned_data <- downloadHandler(
+  filename = function(){
+    paste0("questioned_data_", Sys.Date(), ".rds")
+  },
+  content = function(file) {
+    message(paste0("Writing file: ", "questioned_data_", Sys.Date(), ".rds"))
+    download = isolate(analysis$q_questioned_data)
+    saveRDS(download, file = file)
+  }
+)
 
 # RENDER: main directory ----
 output$q_main_dir <- renderText({ analysis$q_main_dir })
