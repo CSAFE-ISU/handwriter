@@ -125,7 +125,7 @@ tabPanel("Analyze Questioned Documents",
                                             ),
                                             tabPanel("Analysis",
                                                      helpText("Posterior Probabilities of Writership"),
-                                                     DTOutput("q_posterior_probabilities")
+                                                     DTOutput("q_post_probs_table")
                                             )
                                           )
                                           )

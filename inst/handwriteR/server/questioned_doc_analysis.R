@@ -334,4 +334,11 @@ output$q_questioned_images_docnames <- renderPrint({ list.files(analysis$q_quest
 output$q_questioned_cluster_fill_counts <- renderDT({ analysis$q_questioned_data$cluster_fill_counts })
 
 # RENDER: posterior probabilities table ----
-output$q_posterior_probabilities <- renderDT({ analysis$q_analysis$posterior_probabilities })
+output$q_post_probs_table <- renderDT({ 
+  df <- t(analysis$q_analysis$posterior_probabilities)
+  known_writer_colnames <- df[1,]
+  df <- df[2:nrow(df), ]
+  df <- cbind(rownames(df), data.frame(df, row.names=NULL))
+  colnames(df) <- c("questioned_doc", known_writer_colnames)
+  df
+})
