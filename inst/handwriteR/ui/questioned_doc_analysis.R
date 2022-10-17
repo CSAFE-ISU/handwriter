@@ -62,6 +62,22 @@ tabPanel("Analyze Questioned Documents",
                         
                         # questioned docs ----
                         h4("Questioned Documents"),
+                        bsCollapse(id="collapseQuestioned",
+                                   # cluster assignments ----
+                                   bsCollapsePanel("Cluster Assignments",
+                                                   actionButton("q_get_questioned_data", "Get cluster assignments"),
+                                                   br(),
+                                                   br(),
+                                                   downloadButton("q_save_questioned_data", "Save cluster assignments"),
+                                                   br(),
+                                                   br(),
+                                                   fileInput("q_load_questioned_data", "Load cluster assignments", multiple = FALSE, accept = c('rds')),
+                                                   style = "default"),
+                                   # fit model ----
+                                   bsCollapsePanel("Analyze Documents",
+                                                   "Test",
+                                                   style = "default")
+                        ),
            ),
            mainPanel(width = 8, 
                      
@@ -96,6 +112,19 @@ tabPanel("Analyze Questioned Documents",
                                                      plotOutput("q_trace_plot")
                                                      )
                                             ),
+                                          ),
+                                 tabPanel("Questioned Documents",
+                                          tabsetPanel(
+                                            tabPanel("Questioned Documents",
+                                                     verbatimTextOutput("q_questioned_images_docnames")
+                                            ), 
+                                            tabPanel("Cluster Assignments",
+                                                     helpText("Cluster Fill Counts:"),
+                                                     DTOutput("q_questioned_cluster_fill_counts")
+                                            ),
+                                            tabPanel("Analysis",
+                                            )
+                                          )
                                           )
                      )
            ),

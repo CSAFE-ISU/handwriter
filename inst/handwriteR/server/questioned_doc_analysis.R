@@ -7,7 +7,10 @@ analysis <- reactiveValues(q_main_dir = "/Users/stephanie/Documents/shiny_exampl
                            q_template_current = NULL,
                            q_model_images_dir = "/Users/stephanie/Documents/shiny_example/data/model_images",
                            q_model_graphs_dir = "/Users/stephanie/Documents/shiny_example/data/model_graphs",
-                           q_model_data = NULL)
+                           q_model_data = NULL,
+                           q_questioned_images_dir = "/Users/stephanie/Documents/shiny_example/data/questioned_images",
+                           q_questioned_graphs_dir = "/Users/stephanie/Documents/shiny_example/data/questioned_graphs",
+                           q_questioned_data = NULL)
 
 # UPLOAD: templates ----
 observeEvent(input$q_load_templates, {
@@ -60,7 +63,19 @@ observe({
   }
 })
 
-# UPDATE: model images and graphs directories, model variables for trace plot
+# UPDATE: selected template ----
+observeEvent(input$q_loaded_template_num, {
+  analysis$q_template_current <- input$q_loaded_template_num
+  # update choice in create templates panel
+  updateSelectInput(session, "q_created_template_num", choices = 1:length(analysis$q_templates), selected = input$q_loaded_template_num)
+})
+observeEvent(input$q_created_template_num, {
+  analysis$q_template_current <- input$q_created_template_num
+  # update choice in load templates panel
+  updateSelectInput(session, "q_loaded_template_num", choices = 1:length(analysis$q_templates), selected = input$q_created_template_num)
+})
+
+# UPDATE: model images and graphs directories, model variables for trace plot ----
 observe({
   # model
   analysis$q_model_images_dir <- file.path(analysis$q_main_dir, "data", "model_images")
@@ -74,26 +89,20 @@ observe({
   }
 })
 
-# UPDATE: selected template ----
-observeEvent(input$q_loaded_template_num, {
-  analysis$q_template_current <- input$q_loaded_template_num
-  # update choice in create templates panel
-  updateSelectInput(session, "q_created_template_num", choices = 1:length(analysis$q_templates), selected = input$q_loaded_template_num)
-})
-observeEvent(input$q_created_template_num, {
-  analysis$q_template_current <- input$q_created_template_num
-  # update choice in load templates panel
-  updateSelectInput(session, "q_loaded_template_num", choices = 1:length(analysis$q_templates), selected = input$q_created_template_num)
+# UPDATE: questioned images and graphs directories ----
+observe({
+  analysis$q_questioned_images_dir <- file.path(analysis$q_main_dir, "data", "questioned_images")
+  analysis$q_questioned_graphs_dir <- file.path(analysis$q_main_dir, "data", "questioned_graphs")
 })
 
 # BUTTON: make templates ----
 observeEvent(input$q_make_templates, {
   # process images if they haven't already been processed
-  analysis$q_template_proc_list <- process_batch_dir(input_dir = analysis$q_template_images_dir,
+  analysis$q_questioned_proc_list <- process_batch_dir(input_dir = analysis$q_template_images_dir,
                                                      output_dir = file.path(analysis$q_main_dir, "data", "template_graphs"),
                                                      transform_output = 'document')
   # update list of graphs
-  analysis$q_template_graphs_docnames <- list.files(analysis$q_template_graphs_dir)
+  analysis$q_questioned_graphs_docnames <- list.files(analysis$q_questioned_graphs_dir)
   
   # make templates
   analysis$q_templates <- make_clustering_templates(template_dir = analysis$q_main_dir,
@@ -110,7 +119,7 @@ observeEvent(input$q_make_templates, {
                                                   num_graphs = input$q_num_graphs)
 })
 
-# BUTTON: get model cluster assignments
+# BUTTON: get model data ----
 observeEvent(input$q_get_model_clusters, {
   # process images if they haven't already been processed
   analysis$q_model_proc_list <- process_batch_dir(input_dir = analysis$q_model_images_dir,
@@ -118,7 +127,7 @@ observeEvent(input$q_get_model_clusters, {
                                                      transform_output = 'document')
   
   # get cluster assignments using current template
-  analysis$q_model_clusters <- get_clusterassignment(clustertemplate = analysis$q_templates[[1]],
+  analysis$q_model_clusters <- get_clusterassignment(clustertemplate = analysis$q_templates[[as.integer(analysis$q_template_current)]],
                                                      input_dir = analysis$q_model_graphs_dir)
   
   # format model data
@@ -160,6 +169,25 @@ output$q_save_model <- downloadHandler(
     saveRDS(download, file = file)
   }
 )
+
+# BUTTON: get questioned data ----
+observeEvent(input$q_get_questioned_data, {
+  # process images if they haven't already been processed
+  analysis$q_questioned_proc_list <- process_batch_dir(input_dir = analysis$q_questioned_images_dir,
+                                                       output_dir = analysis$q_questioned_graphs_dir,
+                                                       transform_output = 'document')
+  
+  # get cluster assignments using current template
+  analysis$q_questioned_clusters <- get_clusterassignment(clustertemplate = analysis$q_templates[[as.integer(analysis$q_template_current)]],
+                                                          input_dir = analysis$q_questioned_graphs_dir)
+  
+  # format questioned data
+  analysis$q_questioned_data <- format_questioned_data(formatted_model_data = analysis$q_model_data,
+                                                       questioned_proc_list = analysis$q_questioned_clusters,
+                                                       writer_indices=c(2,5), 
+                                                       doc_indices=c(7,18))
+})
+
 
 # RENDER: main directory ----
 output$q_main_dir <- renderText({ analysis$q_main_dir })
@@ -207,3 +235,9 @@ output$q_trace_plot <- renderPlot({
     plot_trace(model=analysis$q_model, variable=input$q_trace_variable)
   }
 })
+
+# RENDER: questioned images file names ----
+output$q_questioned_images_docnames <- renderPrint({ list.files(analysis$q_questioned_images_dir) })
+
+# RENDER: model cluster fill counts table ----
+output$q_questioned_cluster_fill_counts <- renderDT({ analysis$q_questioned_data$cluster_fill_counts })
