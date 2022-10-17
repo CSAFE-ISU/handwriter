@@ -165,6 +165,15 @@ observe({
   analysis$q_questioned_graphs_dir <- file.path(analysis$q_main_dir, "data", "questioned_graphs")
 })
 
+# BUTTON: use default template ----
+observeEvent(input$q_default_templates, {
+  # use example template that comes with handwriter
+  analysis$q_templates <- example_cluster_template
+  
+  # set template number
+  analysis$q_template_current <- 1
+})
+
 # BUTTON: make templates ----
 observeEvent(input$q_make_templates, {
   # process images if they haven't already been processed
@@ -279,13 +288,16 @@ observeEvent(input$q_analyze_questioned_docs, {
                                                       num_cores = input$q_questioned_num_cores)
 })
 
-
-# RENDER: main directory ----
-output$q_main_dir <- renderText({ analysis$q_main_dir })
-
-# RENDER: template images directory and file names ----
+# RENDER: template images directory and file names (from directory not current template) ----
 output$q_template_images_dir <- renderText({ analysis$q_template_images_dir })
 output$q_template_images_docnames <- renderPrint({ list.files(analysis$q_template_images_dir) })
+
+# RENDER: template documents (from current template not directory) ----
+output$q_template_docnames <- renderPrint({ 
+  if (!is.null(analysis$q_templates)){
+    unique(analysis$q_templates[[as.integer(analysis$q_template_current)]]$docnames)
+  }
+})
 
 # RENDER: template graphs directory and file names ----
 output$q_template_graphs_dir <- renderPrint({ analysis$q_template_graphs_dir })
@@ -308,6 +320,20 @@ output$q_template_names <- renderPrint({
 output$q_selected_template <- renderPrint({ 
   if (!is.null(analysis$q_template_names) && !is.null(analysis$q_template_current)){
     analysis$q_template_names[as.integer(analysis$q_template_current)] 
+  }
+})
+
+# RENDER: plot template cluster fill counts ----
+output$q_template_cluster_fill_counts <- renderPlot({
+  if (!is.null(analysis$q_templates)){
+    clusters <- data.frame(cluster = analysis$q_templates[[as.integer(analysis$q_template_current)]]$cluster)
+    df <- clusters %>% 
+      mutate(cluster = as.factor(cluster)) %>%
+      group_by(cluster) %>%
+      summarize(count = n())
+    
+    ggplot2::ggplot(df, aes(x=cluster, y=count)) +
+      geom_bar(stat = "identity")
   }
 })
 

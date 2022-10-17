@@ -9,6 +9,11 @@ tabPanel("Analyze Questioned Documents",
                         # templates ----
                         h4("Cluster Template"),
                         bsCollapse(id = "collapseTemplates",
+                                   # use default template ----
+                                   bsCollapsePanel("Default Template", 
+                                                   helpText("The default template has K=10 clusters."),
+                                                   actionButton("q_default_templates", "Use default template"),
+                                                   style = "default"),
                                    # load templates ----
                                    bsCollapsePanel("Load Templates", 
                                                    fileInput("q_load_templates", "Load template(s)", multiple = FALSE, accept = c('rds')),
@@ -83,27 +88,25 @@ tabPanel("Analyze Questioned Documents",
            mainPanel(width = 8, 
                      
                      tabsetPanel(type = "tabs",
-                                 tabPanel("Overview", h4("Main directory:"),
-                                          verbatimTextOutput("q_main_dir")),
-                                 tabPanel("Cluster Templates", 
-                                          h4("Template Training Documents:"),
-                                          helpText("Directory:"),
-                                          verbatimTextOutput("q_template_images_dir"),
-                                          helpText("Files:"),
+                                 tabPanel("Documents", 
+                                          helpText("Cluster template training documents:"),
                                           verbatimTextOutput("q_template_images_docnames"),
-                                          helpText("Processed Directory:"),
-                                          verbatimTextOutput("q_template_graphs_dir"),
-                                          helpText("Processed Files:"),
-                                          verbatimTextOutput("q_template_graphs_docnames"),
+                                          helpText("Model training documents:"),
+                                          verbatimTextOutput("q_model_images_docnames"),
+                                          helpText("Questioned documents:"),
+                                          verbatimTextOutput("q_questioned_images_docnames")
+                                          ),
+                                 tabPanel("Cluster Templates", 
                                           helpText("Loaded templates:"),
                                           verbatimTextOutput("q_template_names"),
                                           helpText("Selected template:"),
-                                          verbatimTextOutput("q_selected_template")),
+                                          verbatimTextOutput("q_selected_template"),
+                                          helpText("Template training documents"),
+                                          verbatimTextOutput("q_template_docnames"),
+                                          helpText("Cluster fill counts for template training documents:"),
+                                          plotOutput("q_template_cluster_fill_counts")),
                                  tabPanel("Model",
                                           tabsetPanel(
-                                            tabPanel("Model Training Documents",
-                                                     verbatimTextOutput("q_model_images_docnames")
-                                                     ), 
                                             tabPanel("Cluster Assignments",
                                                      helpText("Cluster Fill Counts:"),
                                                      DTOutput("q_cluster_fill_counts")
@@ -116,9 +119,6 @@ tabPanel("Analyze Questioned Documents",
                                           ),
                                  tabPanel("Questioned Documents",
                                           tabsetPanel(
-                                            tabPanel("Questioned Documents",
-                                                     verbatimTextOutput("q_questioned_images_docnames")
-                                            ), 
                                             tabPanel("Cluster Assignments",
                                                      helpText("Cluster Fill Counts:"),
                                                      DTOutput("q_questioned_cluster_fill_counts")
@@ -132,7 +132,7 @@ tabPanel("Analyze Questioned Documents",
                                                      
                                             )
                                           )
-                                          )
+                              )
                      )
            ),
          ),
