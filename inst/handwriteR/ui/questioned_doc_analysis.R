@@ -115,7 +115,7 @@ tabPanel("Analyze Questioned Documents",
                                                                      imageOutput("q_plot_clusters"),
                                                                      style = "default")
                                           ),
-                                          ),
+                                 ),
                                  tabPanel("Model",
                                           bsCollapse(id="collapseDisplayModel",
                                                      bsCollapsePanel("Cluster Assignments",
@@ -123,29 +123,30 @@ tabPanel("Analyze Questioned Documents",
                                                                      DTOutput("q_cluster_fill_counts"),
                                                                      style = "default"
                                                      ),
-                                            bsCollapsePanel("Hierarchical Model",
-                                                     helpText("Trace Plot"),
-                                                     plotOutput("q_trace_plot"),
-                                                     style = "default"
+                                                     bsCollapsePanel("Hierarchical Model",
+                                                                     helpText("Trace Plot"),
+                                                                     plotOutput("q_trace_plot"),
+                                                                     style = "default"
                                                      )
-                                            ),
                                           ),
+                                 ),
                                  tabPanel("Questioned Documents",
-                                          tabsetPanel(
-                                            tabPanel("Cluster Assignments",
-                                                     helpText("Cluster Fill Counts:"),
-                                                     DTOutput("q_questioned_cluster_fill_counts")
-                                            ),
-                                            tabPanel("Analysis",
-                                                     helpText("Posterior Probabilities of Writership"),
-                                                     plotOutput("q_post_probs_plot"),
-                                                     br(),
-                                                     br(),
-                                                     DTOutput("q_post_probs_table"),
-                                                     
-                                            )
+                                          bsCollapse(id="collapseDisplayQuestioned",
+                                                     bsCollapsePanel("Cluster Assignments",
+                                                                     helpText("Cluster Fill Counts:"),
+                                                                     DTOutput("q_questioned_cluster_fill_counts"),
+                                                                     style = "default"
+                                                     ),
+                                                     bsCollapsePanel("Analysis",
+                                                                     helpText("Posterior Probabilities of Writership"),
+                                                                     plotOutput("q_post_probs_plot"),
+                                                                     br(),
+                                                                     br(),
+                                                                     DTOutput("q_post_probs_table"),
+                                                                     style = "default"
+                                                     )
                                           )
-                              )
+                                 )
                      )
            ),
          ),
