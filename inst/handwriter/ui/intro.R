@@ -4,11 +4,11 @@ tabPanel("Intro",
          h1("Welcome to handwriter!"),
          h3("handwriter is a handwritten document analysis tool created by CSAFE"),
          br(), br(),
-         h3("Whats avaialble:"),
+         h3("What's available:"),
          tags$div(tags$ul(
-           tags$li("Explore how handwriter works | Plot a document as well as its lines, words, or graphs"),
-           tags$li("Pre-process documents | Use rotation, resizing, cropping, and masking to clean up your data"),
-           tags$li("Analyze questioned documents | Use a Bayesian hierarchical model to estimate posterior probabilities of writership for questioned documents.")
+           tags$li("Explore how handwriter works | See how handwriter decomposes handwriting into component shapes called graphs"),
+           tags$li("Pre-process documents | Rotate, crop, and mask to clean up your data for use with handwriter"),
+           tags$li("Analyze questioned documents | Perform writership analysis on questioned documnets")
          ), style = "font-size: 15px"), 
          hr(),
          br(),br(),

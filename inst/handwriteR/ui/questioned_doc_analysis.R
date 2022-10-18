@@ -139,10 +139,10 @@ tabPanel("Analyze Questioned Documents",
                                                      ),
                                                      bsCollapsePanel("Analysis",
                                                                      helpText("Posterior Probabilities of Writership"),
-                                                                     plotOutput("q_post_probs_plot"),
-                                                                     br(),
-                                                                     br(),
                                                                      DTOutput("q_post_probs_table"),
+                                                                     br(),
+                                                                     br(),
+                                                                     plotOutput("q_post_probs_plot"),
                                                                      style = "default"
                                                      )
                                           )
