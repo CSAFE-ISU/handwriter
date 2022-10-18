@@ -117,14 +117,16 @@ tabPanel("Analyze Questioned Documents",
                                           ),
                                           ),
                                  tabPanel("Model",
-                                          tabsetPanel(
-                                            tabPanel("Cluster Assignments",
-                                                     helpText("Cluster Fill Counts:"),
-                                                     DTOutput("q_cluster_fill_counts")
+                                          bsCollapse(id="collapseDisplayModel",
+                                                     bsCollapsePanel("Cluster Assignments",
+                                                                     helpText("Cluster Fill Counts:"),
+                                                                     DTOutput("q_cluster_fill_counts"),
+                                                                     style = "default"
                                                      ),
-                                            tabPanel("Hierarchical Model",
+                                            bsCollapsePanel("Hierarchical Model",
                                                      helpText("Trace Plot"),
-                                                     plotOutput("q_trace_plot")
+                                                     plotOutput("q_trace_plot"),
+                                                     style = "default"
                                                      )
                                             ),
                                           ),
