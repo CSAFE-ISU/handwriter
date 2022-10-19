@@ -34,7 +34,7 @@ tabPanel("Analyze Questioned Documents",
                                                    selectInput("q_created_template_num", "Select template number", choices = c(NA)),
                                                    style = "default")),
                         hr(),
-
+                        
                         # model ----
                         h4("Fit Hierarchical Model"),
                         bsCollapse(id="collapseModels",
@@ -62,7 +62,7 @@ tabPanel("Analyze Questioned Documents",
                                                    h5("Trace Plots"),
                                                    selectInput("q_trace_variable", "Select variable to view trace plot", choices = c(NA)),
                                                    style = "default")
-                                   ),
+                        ),
                         hr(),
                         
                         # questioned docs ----

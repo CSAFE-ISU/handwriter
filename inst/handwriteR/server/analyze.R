@@ -1,3 +1,8 @@
+#=============================================================
+#======================= ANALYZE =============================
+#=============================================================
+
+
 analysis <- reactiveValues(q_main_dir = "/Users/stephanie/Documents/shiny_example",
                            q_template_images_dir = "/Users/stephanie/Documents/shiny_example/data/template_images",
                            q_template_graphs_dir = "/Users/stephanie/Documents/shiny_example/data/template_graphs",
@@ -178,32 +183,32 @@ observeEvent(input$q_default_templates, {
 observeEvent(input$q_make_templates, {
   # process images if they haven't already been processed
   analysis$q_questioned_proc_list <- process_batch_dir(input_dir = analysis$q_template_images_dir,
-                                                     output_dir = file.path(analysis$q_main_dir, "data", "template_graphs"),
-                                                     transform_output = 'document')
+                                                       output_dir = file.path(analysis$q_main_dir, "data", "template_graphs"),
+                                                       transform_output = 'document')
   # update list of graphs
   analysis$q_questioned_graphs_docnames <- list.files(analysis$q_questioned_graphs_dir)
   
   # make templates
   analysis$q_templates <- make_clustering_templates(template_dir = analysis$q_main_dir,
-                                                  writer_indices = c(2,5),
-                                                  max_edges = 30,
-                                                  starting_seed = input$q_starting_seed,
-                                                  K = input$q_K,
-                                                  num_runs = input$q_num_runs,
-                                                  num_cores = 1,
-                                                  num_dist_cores = input$q_num_cores,
-                                                  num_path_cuts = 8,
-                                                  max_iters = input$q_max_iters,
-                                                  gamma = 3,
-                                                  num_graphs = input$q_num_graphs)
+                                                    writer_indices = c(2,5),
+                                                    max_edges = 30,
+                                                    starting_seed = input$q_starting_seed,
+                                                    K = input$q_K,
+                                                    num_runs = input$q_num_runs,
+                                                    num_cores = 1,
+                                                    num_dist_cores = input$q_num_cores,
+                                                    num_path_cuts = 8,
+                                                    max_iters = input$q_max_iters,
+                                                    gamma = 3,
+                                                    num_graphs = input$q_num_graphs)
 })
 
 # BUTTON: get model data ----
 observeEvent(input$q_get_model_clusters, {
   # process images if they haven't already been processed
   analysis$q_model_proc_list <- process_batch_dir(input_dir = analysis$q_model_images_dir,
-                                                     output_dir = analysis$q_model_graphs_dir,
-                                                     transform_output = 'document')
+                                                  output_dir = analysis$q_model_graphs_dir,
+                                                  transform_output = 'document')
   
   # get cluster assignments using current template
   analysis$q_model_clusters <- get_clusterassignment(clustertemplate = analysis$q_templates[[as.integer(analysis$q_template_current)]],

@@ -52,6 +52,6 @@ server <- function(input, output, session) {
   source(file.path("server", "tooltips.R"), local = TRUE)$value
   source(file.path("server", "explore.R"), local = TRUE)$value
   source(file.path("server", "preProcess.R"), local = TRUE)$value
-  source(file.path("server", "questioned_doc_analysis.R"), local = TRUE)$value
+  source(file.path("server", "analyze.R"), local = TRUE)$value
   
 }
