@@ -351,6 +351,21 @@ output$q_model_images_docnames <- renderPrint({ list.files(analysis$q_model_imag
 # RENDER: model cluster fill counts table ----
 output$q_cluster_fill_counts <- renderDT({ analysis$q_model_data$cluster_fill_counts })
 
+# RENDER: model cluster fill counts plot ----
+output$q_model_cluster_counts_plot <- renderPlot({
+  if (!is.null(analysis$q_model_data)){
+    cc <- analysis$q_model_data$cluster_fill_counts
+    cc <- cc %>% 
+      tidyr::pivot_longer(cols=-c(1,2), names_to = "cluster", values_to = "count") %>%
+      mutate(writer = factor(writer))
+    
+    cc %>% 
+      ggplot2::ggplot(aes(x=cluster, y=count, color = writer)) +
+      geom_line(position=position_dodge(width=0.5)) +
+      geom_point(position=position_dodge(width=0.5)) 
+  }
+})
+
 # RENDER: check model ----
 output$q_is_mcmc <- renderPrint({ coda::is.mcmc.list(analysis$q_model) })
 
@@ -364,7 +379,22 @@ output$q_trace_plot <- renderPlot({
 # RENDER: questioned images file names ----
 output$q_questioned_images_docnames <- renderPrint({ list.files(analysis$q_questioned_images_dir) })
 
-# RENDER: model cluster fill counts table ----
+# RENDER: questioned cluster fill counts plot ----
+output$q_model_cluster_counts_plot <- renderPlot({
+  if (!is.null(analysis$q_questioned_data)){
+    cc <- analysis$q_questioned_data$cluster_fill_counts
+    cc <- cc %>% 
+      tidyr::pivot_longer(cols=-c(1,2), names_to = "cluster", values_to = "count") %>%
+      mutate(writer = factor(writer))
+    
+    cc %>% 
+      ggplot2::ggplot(aes(x=cluster, y=count, color = writer)) +
+      geom_line(position=position_dodge(width=0.5)) +
+      geom_point(position=position_dodge(width=0.5)) 
+  }
+})
+
+# RENDER: questioned cluster fill counts table ----
 output$q_questioned_cluster_fill_counts <- renderDT({ analysis$q_questioned_data$cluster_fill_counts })
 
 # RENDER: posterior probabilities table ----
