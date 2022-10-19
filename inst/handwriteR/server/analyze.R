@@ -8,18 +8,18 @@ analysis <- reactiveValues()
 # ENABLE/DISABLE: get model data ----
 observe({
   if (!is.null(analysis$q_templates)){
-    shinyjs::enable("q_get_model_clusters")
+    shinyjs::enable("q_get_model_data")
   } else {
-    shinyjs::disable("q_get_model_clusters")
+    shinyjs::disable("q_get_model_data")
   }
 })
 
 # ENABLE/DISABLE: save model data ----
 observe({
   if (!is.null(analysis$q_model_data)){
-    shinyjs::enable("q_save_model_clusters")
+    shinyjs::enable("q_save_model_data")
   } else {
-    shinyjs::disable("q_save_model_clusters")
+    shinyjs::disable("q_save_model_data")
   }
 })
 
@@ -192,7 +192,7 @@ observeEvent(input$q_make_templates, {
 })
 
 # BUTTON: get model data ----
-observeEvent(input$q_get_model_clusters, {
+observeEvent(input$q_get_model_data, {
   # process images if they haven't already been processed
   analysis$q_model_proc_list <- process_batch_dir(input_dir = analysis$q_model_images_dir,
                                                   output_dir = analysis$q_model_graphs_dir,
@@ -211,7 +211,7 @@ observeEvent(input$q_get_model_clusters, {
 
 # BUTTON: save model data ----
 #Download
-output$q_save_model_clusters <- downloadHandler(
+output$q_save_model_data <- downloadHandler(
   filename = function(){
     paste0("model_clusters_", Sys.Date(), ".rds")
   },
