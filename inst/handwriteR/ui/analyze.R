@@ -1,7 +1,7 @@
 tabPanel("Analyze Questioned Documents", 
          sidebarLayout(
            sidebarPanel(width = 4,
-                        textInput("q_main_dir", "Main directory", "/Users/stephanie/Documents/shiny_example"),
+                        textInput("q_main_dir", "Main directory", value = getwd()),
                         helpText("All cluster template(s), fitted models, and other related documents will be stored in
                                  this directory."),
                         hr(),

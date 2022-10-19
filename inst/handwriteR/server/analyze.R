@@ -3,19 +3,7 @@
 #=============================================================
 
 
-analysis <- reactiveValues(q_main_dir = "/Users/stephanie/Documents/shiny_example",
-                           q_template_images_dir = "/Users/stephanie/Documents/shiny_example/data/template_images",
-                           q_template_graphs_dir = "/Users/stephanie/Documents/shiny_example/data/template_graphs",
-                           q_templates = NULL,
-                           q_template_file = NULL,
-                           q_template_names = NULL,
-                           q_template_current = NULL,
-                           q_model_images_dir = "/Users/stephanie/Documents/shiny_example/data/model_images",
-                           q_model_graphs_dir = "/Users/stephanie/Documents/shiny_example/data/model_graphs",
-                           q_model_data = NULL,
-                           q_questioned_images_dir = "/Users/stephanie/Documents/shiny_example/data/questioned_images",
-                           q_questioned_graphs_dir = "/Users/stephanie/Documents/shiny_example/data/questioned_graphs",
-                           q_questioned_data = NULL)
+analysis <- reactiveValues()
 
 # ENABLE/DISABLE: get model data ----
 observe({
@@ -83,8 +71,8 @@ observe({
 # UPLOAD: templates ----
 observeEvent(input$q_load_templates, {
   file <- input$q_load_templates
-  analysis$q_template_file <- file$datapath
-  analysis$q_templates <- readRDS(analysis$q_template_file)
+  q_template_file <- file$datapath
+  analysis$q_templates <- readRDS(q_template_file)
 })
 
 # UPLOAD: model data ----
