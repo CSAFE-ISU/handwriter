@@ -5,7 +5,7 @@
 processHandwriting_data <- reactiveValues()
 output$plot_image_name <- renderText({paste0("Name: ", values$image_name)})
 output$plot_dimensions <- renderText({paste0("Dimensions: ", values$dimensions)})
-values$plot_type <- 'nothing. Process your document to be able to plot lines, words, and graphs'
+values$plot_type <- 'nothing. Process your document to show lines, words, and graphs.'
 number = ''
 
 #Disable buttons until document is processed
@@ -47,7 +47,7 @@ observeEvent(input$plot_upload, {
   shinyjs::disable("plotnodes"); shinyjs::disable("plotbreaks"); shinyjs::disable("plotline"); shinyjs::disable("linenum"); 
   shinyjs::disable("plotword"); shinyjs::disable("wordnum"); shinyjs::disable("plotgraph"); shinyjs::disable("graphnum");
   
-  values$plot_type <- 'nothing. Process your document to be able to plot lines, words, and graphs'
+  values$plot_type <- 'nothing. Process your document to show lines, words, and graphs.'
 })
 
 
