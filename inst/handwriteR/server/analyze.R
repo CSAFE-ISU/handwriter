@@ -7,7 +7,7 @@ analysis <- reactiveValues()
 
 # ENABLE/DISABLE: get model data ----
 observe({
-  if (!is.null(analysis$q_templates)){
+  if (!is.null(analysis$q_templates) && (length(list.files(analysis$q_model_images_dir)) > 0)){
     shinyjs::enable("q_get_model_data")
   } else {
     shinyjs::disable("q_get_model_data")
@@ -43,7 +43,8 @@ observe({
 
 # ENABLE/DISABLE: get questioned data ----
 observe({
-  if (!is.null(analysis$q_templates) && !is.null(analysis$q_model_data)){
+  if (!is.null(analysis$q_templates) && !is.null(analysis$q_model_data) && 
+      (length(list.files(analysis$q_questioned_images_dir)) > 0)){
     shinyjs::enable("q_get_questioned_data")
   } else {
     shinyjs::disable("q_get_questioned_data")
@@ -78,22 +79,22 @@ observeEvent(input$q_load_templates, {
 # UPLOAD: model data ----
 observeEvent(input$q_load_model_data, {
   file <- input$q_load_model_data
-  analysis$q_model_data_file <- file$datapath
-  analysis$q_model_data <- readRDS(analysis$q_model_data_file)
+  q_model_data_file <- file$datapath
+  analysis$q_model_data <- readRDS(q_model_data_file)
 })
 
 # UPLOAD: model ----
 observeEvent(input$q_load_model, {
   file <- input$q_load_model
-  analysis$q_model_file <- file$datapath
-  analysis$q_model <- readRDS(analysis$q_model_file)
+  q_model_file <- file$datapath
+  analysis$q_model <- readRDS(q_model_file)
 })
 
 # UPLOAD: questioned data ----
 observeEvent(input$q_load_questioned_data, {
   file <- input$q_load_questioned_data
-  analysis$q_questioned_data_file <- file$datapath
-  analysis$q_questioned_data <- readRDS(analysis$q_questioned_data_file)
+  q_questioned_data_file <- file$datapath
+  analysis$q_questioned_data <- readRDS(q_questioned_data_file)
 })
 
 # UPDATE: template directories, template_num, template_names ----
@@ -353,17 +354,15 @@ output$q_cluster_fill_counts <- renderDT({ analysis$q_model_data$cluster_fill_co
 
 # RENDER: model cluster fill counts plot ----
 output$q_model_cluster_counts_plot <- renderPlot({
-  if (!is.null(analysis$q_model_data)){
     cc <- analysis$q_model_data$cluster_fill_counts
     cc <- cc %>% 
       tidyr::pivot_longer(cols=-c(1,2), names_to = "cluster", values_to = "count") %>%
-      mutate(writer = factor(writer))
+      dplyr::mutate(writer = factor(writer))
     
     cc %>% 
       ggplot2::ggplot(aes(x=cluster, y=count, color = writer)) +
       geom_line(position=position_dodge(width=0.5)) +
       geom_point(position=position_dodge(width=0.5)) 
-  }
 })
 
 # RENDER: check model ----
@@ -380,7 +379,7 @@ output$q_trace_plot <- renderPlot({
 output$q_questioned_images_docnames <- renderPrint({ list.files(analysis$q_questioned_images_dir) })
 
 # RENDER: questioned cluster fill counts plot ----
-output$q_model_cluster_counts_plot <- renderPlot({
+output$q_questioned_cluster_counts_plot <- renderPlot({
   if (!is.null(analysis$q_questioned_data)){
     cc <- analysis$q_questioned_data$cluster_fill_counts
     cc <- cc %>% 
