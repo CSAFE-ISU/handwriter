@@ -16,13 +16,9 @@ ui <- shinyUI({
       title = "handwriter",
       
       source(file.path("ui", "intro.R"), local = TRUE)$value,
+      source(file.path("ui", "explore.R"), local = TRUE)$value,
       source(file.path("ui", "preProcess.R"), local = TRUE)$value,
-      source(file.path("ui", "plot.R"), local = TRUE)$value,
-      source(file.path("ui", "extractFeatures.R"), local = TRUE)$value,
-      source(file.path("ui", "clustering.R"), local = TRUE)$value,
-      source(file.path("ui", "triangleDecomposition.R"), local = TRUE)$value,
-      source(file.path("ui", "slr.R"), local = TRUE)$value
-      
+      source(file.path("ui", "analyze.R"), local = TRUE)$value,
     )
   )
 })

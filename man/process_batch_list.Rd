@@ -4,10 +4,17 @@
 \alias{process_batch_list}
 \title{process_batch_list}
 \usage{
-process_batch_list(image_batch, name_list = NULL, transform_output = "none")
+process_batch_list(image_list, output_dir, transform_output = "document")
 }
 \arguments{
-\item{batch_input_dir}{Input directory as a list from shiny}
+\item{image_list}{A list of image file paths}
+
+\item{output_dir}{A directory to save the processed images}
+
+\item{transform_output}{The type of transformation to perform on the output}
+}
+\value{
+A list of processed documents. The list is also saved to output_dir.
 }
 \description{
 process_batch_list

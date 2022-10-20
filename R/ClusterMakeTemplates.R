@@ -122,7 +122,7 @@ make_clustering_templates <- function(template_dir,
   if (num_graphs == "All") {
     template_images_list <- full_template_images_list
   } else {
-    
+    num_graphs <- as.integer(num_graphs)  # needed for shiny app 
     stratified_sample <- function(full_template_images_list, num_graphs){
       # randomly select (num_graphs / (# docs per writer * # writers) graphs from each document
       df <- data.frame(writer = sapply(full_template_images_list, function(x) x$writer),

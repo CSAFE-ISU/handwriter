@@ -4,16 +4,17 @@
 \alias{process_batch_dir}
 \title{process_batch_dir}
 \usage{
-process_batch_dir(
-  image_batch,
-  batch_output_dir = ".",
-  transform_output = "none"
-)
+process_batch_dir(input_dir, output_dir = ".", transform_output = "document")
 }
 \arguments{
-\item{batch_output_dir}{Output directory}
+\item{input_dir}{Input directory that contains images}
 
-\item{batch_input_dir}{Input directory as a list of datapaths or a directory}
+\item{output_dir}{A directory to save the processed images}
+
+\item{transform_output}{The type of transformation to perform on the output}
+}
+\value{
+A list of processed documents. The list is also saved to output_dir.
 }
 \description{
 process_batch_dir
