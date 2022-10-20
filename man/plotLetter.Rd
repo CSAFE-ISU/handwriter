@@ -25,7 +25,9 @@ plotLetter(
 
 \item{showCentroid}{Whether the centroid should be shown}
 
-\item{showSlope}{whether the slope should be shown}
+\item{showSlope}{Whether the slope should be shown}
+
+\item{showNodes}{Whether the nodes should be shown}
 }
 \value{
 Plot of single letter.

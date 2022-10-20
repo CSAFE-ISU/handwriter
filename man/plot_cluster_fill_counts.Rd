@@ -12,7 +12,7 @@ plot_cluster_fill_counts(formatted_data, writerID, docname)
 
 \item{writerID}{An integer writer ID}
 
-\item{doc}{A document name as a character string}
+\item{docname}{A document name as a character string}
 }
 \value{
 ggplot barchart of cluster fill counts

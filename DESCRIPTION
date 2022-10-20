@@ -17,6 +17,7 @@ Imports: Rcpp, ggplot2, igraph, png, reshape2, stringr, rjson, usethis, magick, 
 Suggests: 
     knitr,
     rmarkdown,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    coda
 Config/testthat/edition: 3
 VignetteBuilder: knitr

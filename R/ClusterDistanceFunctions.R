@@ -103,8 +103,8 @@ dist_sld = function(p1e1, p1e2, p2e1, p2e2)
 #'
 #' @param graphInfo List of info created by getGraphInfo function
 #' @param numPathCuts Integer number of segments to cut the paths into
-#' @param p1 Integer path number of the first path
-#' @param p2 Integer path number of the second path
+#' @param path_ii Integer path number of the first path
+#' @param path_jj Integer path number of the second path
 #' @return Shape distances between the two paths
 #'
 #' @keywords ?
@@ -184,8 +184,8 @@ pathToRC = function(pathList, dims)
 #'
 #' @param endpt1 Vector of (x,y) coordinates of one endpoint of a path
 #' @param endpt2 Vector of (x,y) coordinates of the other endpoint of a path
-#' @param segment_prop_n Proportion of the path between the first endpoint and the n-th cut point
-#' @param segmentpt_n The (x,y) coordinates of the n-th cut point on the path
+#' @param edgecut_prop_n Proportion of the path between the first endpoint and the n-th cut point
+#' @param edgecutpt_n The (x,y) coordinates of the n-th cut point on the path
 #' @return Vector of (x,y) coordinates
 #'
 #' @keywords ?
@@ -208,12 +208,8 @@ pointLineProportionVect = function(endpt1,
 #' Use linear programming to solve a constrained minimization optimization
 #' problem to find the optimal pairings of paths between two graphs.
 #'
-#' @param endpt1 Vector of (x,y) coordinates of one endpoint of a path
-#' @param endpt2 Vector of (x,y) coordinates of the other endpoint of a path
-#' @param segment_prop_n Proportion of the path between the first endpoint and
-#'   the n-th cut point
-#' @param segmentpt_n The (x,y) coordinates of the n-th cut point on the path
-#' @return Vector of (x,y) coordinates
+#' @param dists ?
+#' @return A list of information about the optimal pairings
 #'
 #' @keywords ?
 solveLP = function(dists)
@@ -329,6 +325,9 @@ letterToPrototype = function(letter, numPathCuts = 8)
 #'
 #' @param imageList1 A graph 
 #' @param imageList2 A graph
+#' @param isProto1 True or false. Is the graph information in prototype format?
+#' @param isProto2 True or false. Is the graph information in prototype format?
+#' @param numPathCuts An integer number of cuts to make when comparing segments of paths
 #' @return List of formatted parameters
 #' 
 #' @keywords ?

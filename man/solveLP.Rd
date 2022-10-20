@@ -7,17 +7,10 @@
 solveLP(dists)
 }
 \arguments{
-\item{endpt1}{Vector of (x,y) coordinates of one endpoint of a path}
-
-\item{endpt2}{Vector of (x,y) coordinates of the other endpoint of a path}
-
-\item{segment_prop_n}{Proportion of the path between the first endpoint and
-the n-th cut point}
-
-\item{segmentpt_n}{The (x,y) coordinates of the n-th cut point on the path}
+\item{dists}{?}
 }
 \value{
-Vector of (x,y) coordinates
+A list of information about the optimal pairings
 }
 \description{
 Use linear programming to solve a constrained minimization optimization

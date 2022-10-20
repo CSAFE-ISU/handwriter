@@ -6,7 +6,7 @@
 #' @param formatted_data A list of formatted data created by
 #'   `format_model_data()` or `format_questioned_data`.
 #' @param writerID An integer writer ID
-#' @param doc A document name as a character string
+#' @param docname A document name as a character string
 #' @return ggplot barchart of cluster fill counts
 #' 
 #' @examples

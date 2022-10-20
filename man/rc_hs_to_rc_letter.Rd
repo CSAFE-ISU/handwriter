@@ -13,7 +13,7 @@ rc_hs_to_rc_letter(row_nums, col_nums, letter_topmost_row, letter_leftmost_col)
 
 \item{letter_topmost_row}{Integer number of the top row of letter}
 
-\item{letter_leftmost_row}{Integer number of the left column of letter}
+\item{letter_leftmost_col}{Integer number of the left column of letter}
 }
 \value{
 List of row and column number(s) locations in letter

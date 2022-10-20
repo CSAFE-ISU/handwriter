@@ -1,5 +1,7 @@
 #' make_single_word
 #' 
+#' @param letterList A list of graphs
+#' 
 #' @export
 make_single_word = function(letterList){
   

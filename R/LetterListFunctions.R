@@ -163,11 +163,12 @@ MakeLetterListLetterSpecific = function(letterList, dims)
 #'
 #' @param procList List of handwriting samples
 #' @param K Integer number of clusters
-#' @param numstrat Vector of numbers to sample from each stratum level. The
-#'   vector must sum to K.
+#' @param numPathCuts Integer number of cuts to make when comparing segments of paths
+#' @param imagesList A list of graphs
 #' @return centerstarts List of K graphs
 #'
 #' @keywords ?
+#' @noRd
 MakeCenterStarts = function(procList, K, numPathCuts, imagesList)
 {
   # Add the numloops and stratum fields to the characterFeatures for each letter
@@ -237,7 +238,6 @@ AddSamplingStrata = function(letterList){
 #' parameter sets the number of letters to sample from each group.
 #'
 #' @param procList List of handwriting samples
-#' @param numstrat Vector of number of samples to randomly select from each stratum group
 #' @return Dataframe
 #'
 #' @keywords ?
@@ -464,7 +464,7 @@ i_hs_to_rc_hs = function(index_nums, hs_num_rows){
 #' @param index_nums Vector of index number(s) in handwriting sample
 #' @param hs_num_rows Integer number of rows in handwriting sample
 #' @param letter_topmost_row Integer number of the top row of letter
-#' @param letter_leftmost_row Integer number of the left column of letter
+#' @param letter_leftmost_col Integer number of the left column of letter
 #' @return List of row and column number(s) locations in letter
 #' 
 #' @keywords ?
@@ -490,7 +490,7 @@ i_hs_to_rc_letter = function(index_nums, hs_num_rows, letter_topmost_row, letter
 #' @param hs_num_rows Integer number of rows in handwriting sample
 #' @param letter_num_rows Integer number of rows in letter
 #' @param letter_topmost_row Integer number of the top row of letter
-#' @param letter_leftmost_row Integer number of the left column of letter
+#' @param letter_leftmost_col Integer number of the left column of letter
 #' @return Integer index number(s) locations in letter
 #' 
 #' @keywords ?
@@ -514,7 +514,7 @@ i_hs_to_i_letter = function(index_nums, hs_num_rows, letter_num_rows, letter_top
 #' @param row_nums Integer row numbers in handwriting sample
 #' @param col_nums Integer column numbers in handwriting sample
 #' @param letter_topmost_row Integer number of the top row of letter
-#' @param letter_leftmost_row Integer number of the left column of letter
+#' @param letter_leftmost_col Integer number of the left column of letter
 #' @return List of row and column number(s) locations in letter
 #' 
 #' @keywords ?

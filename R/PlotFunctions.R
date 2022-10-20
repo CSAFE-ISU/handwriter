@@ -267,7 +267,8 @@ plotLine = function(letterList, whichLine, dims)
 #' @param dims Dimensions of the original document
 #' @param showPaths Whether the calculated paths on the letter should be shown with numbers.
 #' @param showCentroid Whether the centroid should be shown
-#' @param showSlope whether the slope should be shown
+#' @param showSlope Whether the slope should be shown
+#' @param showNodes Whether the nodes should be shown
 #' @return Plot of single letter.
 #' 
 #' @examples

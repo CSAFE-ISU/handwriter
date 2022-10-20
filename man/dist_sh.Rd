@@ -11,9 +11,9 @@ dist_sh(graphInfo, numPathCuts, path_ii, path_jj)
 
 \item{numPathCuts}{Integer number of segments to cut the paths into}
 
-\item{p1}{Integer path number of the first path}
+\item{path_ii}{Integer path number of the first path}
 
-\item{p2}{Integer path number of the second path}
+\item{path_jj}{Integer path number of the second path}
 }
 \value{
 Shape distances between the two paths

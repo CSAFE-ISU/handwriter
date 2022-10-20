@@ -11,9 +11,9 @@ pointLineProportionVect(endpt1, endpt2, edgecut_prop_n, edgecutpt_n)
 
 \item{endpt2}{Vector of (x,y) coordinates of the other endpoint of a path}
 
-\item{segment_prop_n}{Proportion of the path between the first endpoint and the n-th cut point}
+\item{edgecut_prop_n}{Proportion of the path between the first endpoint and the n-th cut point}
 
-\item{segmentpt_n}{The (x,y) coordinates of the n-th cut point on the path}
+\item{edgecutpt_n}{The (x,y) coordinates of the n-th cut point on the path}
 }
 \value{
 Vector of (x,y) coordinates

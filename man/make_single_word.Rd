@@ -6,6 +6,9 @@
 \usage{
 make_single_word(letterList)
 }
+\arguments{
+\item{letterList}{A list of graphs}
+}
 \description{
 make_single_word
 }

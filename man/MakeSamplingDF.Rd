@@ -8,8 +8,6 @@ MakeSamplingDF(procList)
 }
 \arguments{
 \item{procList}{List of handwriting samples}
-
-\item{numstrat}{Vector of number of samples to randomly select from each stratum group}
 }
 \value{
 Dataframe

@@ -10,6 +10,12 @@ getGraphInfo(imageList1, imageList2, isProto1, isProto2, numPathCuts)
 \item{imageList1}{A graph}
 
 \item{imageList2}{A graph}
+
+\item{isProto1}{True or false. Is the graph information in prototype format?}
+
+\item{isProto2}{True or false. Is the graph information in prototype format?}
+
+\item{numPathCuts}{An integer number of cuts to make when comparing segments of paths}
 }
 \value{
 List of formatted parameters
