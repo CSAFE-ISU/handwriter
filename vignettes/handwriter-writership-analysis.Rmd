@@ -5,6 +5,7 @@ vignette: >
   %\VignetteIndexEntry{handwriter-writership-analysis}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  %\VignetteDepends{coda}
 ---
 
 ```{r, include = FALSE}
@@ -22,6 +23,7 @@ library(handwriter)
 
 ## Overview
 
+**TO DO: Add the following:**
 -Reference Amy's papers 
 -Explain the scenario: questioned document(s) and a closed set of writers
 -Estimates posterior probability of writership for each questioned document and each writer in the closed set
@@ -29,7 +31,7 @@ library(handwriter)
 -Explain that processing handwriting produces *graphs*.
 
 ## Getting Started
-Choose a directory on your computer to store the files that handwriter produces. This directory will eventually store:
+Choose a directory on your computer to store the files that handwriter will produce. This directory will eventually store:
 
 1. Processed handwriting documents for creating a cluster template and training a Bayesian hierarchical. It will also store the processed questioned document(s).
 2. Cluster template(s)
@@ -37,7 +39,7 @@ Choose a directory on your computer to store the files that handwriter produces.
 4. Writership analysis of the questioned document(s).
 
 ```{r}
-main_dir <- "/Users/stephanie/Documents/CSAFE_example_data"
+main_dir <- "/Users/stephanie/Documents/handwriter_example"
 
 # create the directory if it doesn't already exist
 if(!dir.exists(main_dir)){dir.create(main_dir)}
@@ -55,14 +57,28 @@ template_images_dir <- system.file("extdata/example_images/template_training_ima
 Process the template training documents to transform the handwriting into graphs. Output the processed graphs to main_dir > data > template_graphs. The function will create this directory automatically, and the [`make_clustering_templates`] function will look for the template training graphs here. 
 ```{r}
 # process the handwriting
-process_batch_dir(image_batch = template_images_dir,
-                  batch_output_dir = file.path(main_dir, "data", "template_graphs"),
+process_batch_dir(input_dir = template_images_dir,
+                  output_dir = file.path(main_dir, "data", "template_graphs"),
                   transform_output = 'document')
 ```
 
-Create a cluster template with `K=10` clusters. Choose the number of cores you would like to use with `num_dist_cores`. The input `max_iters` determines how many iterations the K-means algorithm could perform. In practice, we recommend using at least 20 iterations. Here will will use `max_iters=3` in interest of speed. Again, in interest of speed for this example we will only use 1000 graphs for creating the cluster template. In practice, use `num_graphs = 'All'` to use all available training graphs. Choose a starting seed. These seed determines the starting cluster centers for the K-means algorithm. Because we are randomly selecting 1000 graphs, rerunning this function with the same seed will use the same starting cluster centers but will likely have a different sample of 1000 graphs so the end result would be a different cluster template. Choose the number of cluster templates to create with `num_runs`. If the starting seed is 100 and `num_runs=3` then cluster templates will be created with seeds 100, 101, and 102. 
+
+The writer ids included in 2nd-5th characters of the file names of the training documents so we use `writer_indices = c(2,5)`.
+
+Create a cluster template with `K=10` clusters. 
+
+Choose the number of cores you would like to use with `num_dist_cores`. 
+
+The input `max_iters` determines how many iterations the K-means algorithm could perform. In practice, we recommend using at least 20 iterations. Here will will use `max_iters=3` in interest of speed. 
+
+Again, in interest of speed for this example we will only use 1000 graphs for creating the cluster template. In practice, use `num_graphs = 'All'` to use all available training graphs. 
+
+Choose a starting seed. These seed determines the starting cluster centers for the K-means algorithm. 
+
+Choose the number of cluster templates to create with `num_runs`. If the starting seed is 100 and `num_runs=3` then cluster templates will be created with seeds 100, 101, and 102. 
 ```{r}
 template_list <- make_clustering_templates(template_dir = main_dir,
+                                           writer_indices = c(2,5),
                                            K = 10,
                                            num_dist_cores = 2,
                                            max_iters = 3,
@@ -71,10 +87,6 @@ template_list <- make_clustering_templates(template_dir = main_dir,
                                            num_runs = 1)
 ```
 
-**TO DO**
-
-- **Report outlier ratio**
-- **Implement template quality measure**
 
 ## Fit a Bayesian Hierarchical Model
 **TO DO: 
@@ -92,8 +104,8 @@ model_images_dir <- system.file("extdata/example_images/model_training_images",
 Process the model training documents to transform the handwriting into graphs. Output the processed graphs to main_dir > data > model_graphs. The function will create this directory automatically.
 ```{r}
 # process the handwriting
-process_batch_dir(image_batch = model_images_dir,
-                  batch_output_dir = file.path(main_dir, "data", "model_graphs"),
+process_batch_dir(input_dir = model_images_dir,
+                  output_dir = file.path(main_dir, "data", "model_graphs"),
                   transform_output = 'document')
 ```
   
@@ -103,14 +115,14 @@ model_clusters <- get_clusterassignment(clustertemplate = template_list[[1]],
                                         input_dir = file.path(main_dir, "data", "model_graphs"))
 ```
 
-Format the model training data for the hierarchical model. The writer IDs are recorded in the model training documents' filenames in characters 2-5. The remainder of the filename can be use as the document name to distinguish between multiple documents from the same writer. The 6th character is an underscore, so we choose to omit it here.
+Format the model training data for the hierarchical model. The writer IDs are recorded in the model training documents' file names in characters 2-5. The remainder of the file name can be use as the document name to distinguish between multiple documents from the same writer. The 6th character is an underscore, so we choose to omit it here.
 
 **TO DO: Explain model parameters**
 ```{r}
-model_data <- format_model_data(model_proc_list=model_clusters, 
-                                writer_indices=c(2,5), 
-                                doc_indices=c(7,18), 
-                                a=2, b=0.25, c=2, d=2, e=0.5)
+model_data <- format_model_data(model_proc_list = model_clusters, 
+                                writer_indices = c(2,5), 
+                                doc_indices = c(7,18), 
+                                a = 2, b = 0.25, c = 2, d = 2, e = 0.5)
 ```
 
 Now that the model training data has been properly formatted, we can fit the model. The `fit_model` function 
@@ -119,10 +131,16 @@ is a wrapped for `rjags::jags.model`. The RJAGS model that we use is
 cat(readLines("model_wrapped_cauchy.txt"), sep = '\n')
 ```
 
-We fit the model with 4000 MCMC iterations. Then we drop the first 1000 as burn-in.
+For this example we use 100 MCMC iterations for the model in interest of speed. In practice you will likely need to use more iterations.
 ```{r}
-draws <- fit_model(model_data, num_iters = 4000)
-draws <- drop_burnin(draws, 1000)
+model <- fit_model(model_data, num_iters = 100)
+```
+
+See [handwriter model diagnostics](model-diagnostics.html) for information on available model diagnostic tools.
+
+Drop the first 25 MCMC iterations for burn-in.
+```{r}
+model <- drop_burnin(model, burn_in = 25)
 ```
 
 ## Analyze Questioned Documents
@@ -134,8 +152,8 @@ questioned_images_dir <- system.file("extdata/example_images/questioned_images",
 
 Process the questioned documents to transform the handwriting into graphs. Output the processed graphs to main_dir > data > questioned_graphs. The function will create this directory automatically.
 ```{r}
-process_batch_dir(image_batch = questioned_images_dir,
-                  batch_output_dir = file.path(main_dir, "data", "questioned_graphs"),
+process_batch_dir(input_dir = questioned_images_dir,
+                  output_dir = file.path(main_dir, "data", "questioned_graphs"),
                   transform_output = 'document')
 ```
 
@@ -156,12 +174,11 @@ questioned_data <- format_questioned_data(formatted_model_data = model_data,
 **TO DO**
 
 - **add cluster fill count plots**
-- **add outlier ratio**
 
 Use the fitted model to estimate the posterior probability of writership.
 ```{r}
-analysis <- analyze_questioned_documents(model_training_data = model_data, 
-                                         draws = draws, 
+analysis <- analyze_questioned_documents(model_data = model_data, 
+                                         model = model, 
                                          questioned_data = questioned_data, 
                                          num_cores = 2)
 ```
