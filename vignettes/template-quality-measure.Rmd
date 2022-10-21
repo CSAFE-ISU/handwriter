@@ -1,0 +1,149 @@
+---
+title: "template-quality-measure"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{template-quality-measure}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(handwriter)
+library(ggplot2)
+library(dendextend)
+```
+
+## Template data
+```{r}
+# load template
+all_templates <- readRDS("~/Documents/CSAFE_template_quality_measure/template_seed100/data/all_templates.rds")
+template <- all_templates[[1]]
+rm(all_templates)
+```
+
+```{r}
+template_data <- data.frame(writer = as.integer(template$writers), doc = template$docnames, cluster = template$cluster)
+template_data <- template_data %>% 
+  dplyr::group_by(writer, doc, cluster) %>% 
+  dplyr::summarize(count = dplyr::n()) %>%
+  dplyr::ungroup()
+
+template_data <- template_data %>%
+  dplyr::mutate(cluster = factor(cluster),
+                writer = factor(writer))
+
+template_data %>% 
+  ggplot2::ggplot(aes(x=cluster, y=count, color = writer)) +
+  geom_line(position=position_dodge(width=0.75)) +
+  geom_point(position=position_dodge(width=0.75)) + 
+  facet_wrap(~writer)
+```
+
+
+
+## Evalute hierarchical model on template
+```{r}
+main_dir <- "/users/stephanie/Documents/CSAFE_template_quality_measure"
+
+# fit model
+model_proc_list <- process_batch_dir(input_dir = file.path(main_dir, "data", "model_images"),
+                                     output_dir = file.path(main_dir, "data", "model_graphs"))
+
+model_clusters <- get_clusterassignment(clustertemplate = template,
+                                        input_dir = file.path(main_dir, "data", "model_graphs"))
+
+model_data <- format_model_data(model_proc_list = model_clusters,
+                                writer_indices = c(2,5),
+                                doc_indices = c(7,18))
+
+model <- fit_model(model_data = model_data,
+                   num_iters = 100,
+                   num_chains = 1)
+
+# analyze questioned documents
+questioned_proc_list <- process_batch_dir(input_dir = file.path(main_dir, "data", "questioned_images"),
+                                          output_dir = file.path(main_dir, "data", "questioned_graphs"))
+
+questioned_clusters <- get_clusterassignment(clustertemplate = template,
+                                             input_dir = file.path(main_dir, "data", "questioned_graphs"))
+
+questioned_data <- format_questioned_data(formatted_model_data = model_data,
+                                          questioned_proc_list = questioned_clusters,
+                                          writer_indices = c(2,5),
+                                          doc_indices = c(7,18))
+analysis <- analyze_questioned_documents(model_data = model_data,
+                                         model = model,
+                                         questioned_data = questioned_data,
+                                         num_cores = 5)
+analysis$posterior_probabilities
+```
+
+
+## Hierarchical clustering
+### Wrangle data
+```{r}
+df <- data.frame(writer = template$writers, doc = template$docnames, cluster = template$cluster, stringsAsFactors = FALSE)
+
+# count graphs per cluster per document
+df <- df %>% dplyr::group_by(writer, doc, cluster) %>% dplyr::summarize(count = dplyr::n())
+
+# make a column for each cluster
+df <- df %>% tidyr::pivot_wider(names_from = cluster, values_from = count, values_fill = 0)
+
+# convert to matrix and use docnames as rownames
+docnames <- df$doc
+M <- df %>% dplyr::ungroup() %>% dplyr::select(-writer, -doc)
+M <- as.matrix(M)
+rownames(M) <- docnames
+```
+
+## Apply hierarchical clustering
+```{r}
+# calculate distances between all pairs of documents
+D <- dist(df[,3:ncol(df)], method = "manhattan")
+
+# cluster
+hc <- hclust(D)
+
+# plot
+plot(hc)
+
+# evaluate
+cluster_cut <- cutree(hc, k=10)
+table(cluster_cut, df$writer)
+```
+
+
+### Try normalizing the data
+```{r}
+# normalize
+standardize <- function(x){
+  x <- (x - min(x))/(max(x) - min(x))
+  return(x)
+}
+
+X <- apply(df[,3:ncol(df)], 2, function(x) standardize(x))
+
+# calculate distances between all pairs of documents
+D <- dist(X)
+
+# cluster
+hc <- hclust(D)
+
+# plot
+plot(hc)
+
+# evaluate
+cluster_cut <- cutree(hc, k=10)
+table(cluster_cut, df$writer)
+```
+
+
+
