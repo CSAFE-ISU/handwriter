@@ -28,28 +28,11 @@ template <- all_templates[[1]]
 rm(all_templates)
 ```
 
+Plot cluster fill counts for template writers.
 ```{r}
 template_data <- format_template_data(template)
-
-
-# template_data <- data.frame(writer = as.integer(template$writers), doc = template$docnames, cluster = template$cluster)
-# template_data <- template_data %>% 
-#   dplyr::group_by(writer, doc, cluster) %>% 
-#   dplyr::summarize(count = dplyr::n()) %>%
-#   dplyr::ungroup()
-# 
-# template_data <- template_data %>%
-#   dplyr::mutate(cluster = factor(cluster),
-#                 writer = factor(writer))
-# 
-# template_data %>% 
-#   ggplot2::ggplot(aes(x=cluster, y=count, color = writer)) +
-#   geom_line(position=position_dodge(width=0.75)) +
-#   geom_point(position=position_dodge(width=0.75)) + 
-#   facet_wrap(~writer)
+plot_cluster_fill_counts(template_data, facet=TRUE)
 ```
-
-
 
 ## Evalute hierarchical model on template
 ```{r}
@@ -148,4 +131,54 @@ table(cluster_cut, df$writer)
 ```
 
 
+## Multi-class LDA
+### Example with Iris Dataset
+```{r}
+library(caret)
+data(iris)
+
+set.seed(123)
+indexes <- caret::createDataPartition(iris$Species, p = .75, list = FALSE)
+train <- iris[indexes, ]
+test <- iris[-indexes, ]
+
+trCtrl <- trainControl(method = "cv", number = 5, verboseIter = TRUE)
+fit_car <- train(Species~., data=train, method="lda", trControl = trCtrl, metric = "Accuracy")
+
+pred_car <- predict(fit_car, test[,-5])
+data.frame(original = test$Species, pred = pred_car)
+```
+```{r}
+set.seed(123)
+
+# drop doc column, outlier cluster (constant within-in group), first cluster (constant within-in group)
+lda_template <- template_data$cluster_fill_counts[,-c(2, 3, 4)]
+
+# add index row
+lda_template <- cbind(index = 1:nrow(lda_template), lda_template)
+
+# change writer to factor (otherwise caret tries to perform regression)
+lda_template <- lda_template %>% dplyr::mutate(writer = factor(writer))
+
+# split train and test sets
+train_indx <- lda_template %>% 
+  dplyr::group_by(writer) %>% 
+  dplyr::slice_sample(n=2)  %>% 
+  dplyr::pull(index)
+train <- lda_template[train_indx, ]
+test <- lda_template[-train_indx, ]
+
+# drop index column
+train <- train[,-1]
+test <- test[,-1]
+
+# # check correlation between variables
+# cordf <- cor(train[,-1])
+# caret::findCorrelation(cordf, verbose = TRUE)
+
+fit_car <- caret::train(writer~., data=train, method="lda")
+
+pred_car <- predict(fit_car, test[,-1])
+data.frame(original = test$writer, pred = pred_car)
+```
 
