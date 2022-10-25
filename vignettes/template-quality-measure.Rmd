@@ -29,21 +29,24 @@ rm(all_templates)
 ```
 
 ```{r}
-template_data <- data.frame(writer = as.integer(template$writers), doc = template$docnames, cluster = template$cluster)
-template_data <- template_data %>% 
-  dplyr::group_by(writer, doc, cluster) %>% 
-  dplyr::summarize(count = dplyr::n()) %>%
-  dplyr::ungroup()
+template_data <- format_template_data(template)
 
-template_data <- template_data %>%
-  dplyr::mutate(cluster = factor(cluster),
-                writer = factor(writer))
 
-template_data %>% 
-  ggplot2::ggplot(aes(x=cluster, y=count, color = writer)) +
-  geom_line(position=position_dodge(width=0.75)) +
-  geom_point(position=position_dodge(width=0.75)) + 
-  facet_wrap(~writer)
+# template_data <- data.frame(writer = as.integer(template$writers), doc = template$docnames, cluster = template$cluster)
+# template_data <- template_data %>% 
+#   dplyr::group_by(writer, doc, cluster) %>% 
+#   dplyr::summarize(count = dplyr::n()) %>%
+#   dplyr::ungroup()
+# 
+# template_data <- template_data %>%
+#   dplyr::mutate(cluster = factor(cluster),
+#                 writer = factor(writer))
+# 
+# template_data %>% 
+#   ggplot2::ggplot(aes(x=cluster, y=count, color = writer)) +
+#   geom_line(position=position_dodge(width=0.75)) +
+#   geom_point(position=position_dodge(width=0.75)) + 
+#   facet_wrap(~writer)
 ```
 
 
@@ -119,7 +122,6 @@ plot(hc)
 cluster_cut <- cutree(hc, k=10)
 table(cluster_cut, df$writer)
 ```
-
 
 ### Try normalizing the data
 ```{r}
