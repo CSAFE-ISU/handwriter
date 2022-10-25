@@ -10,8 +10,8 @@ plot_cluster_fill_counts(formatted_data, facet = FALSE)
 \item{formatted_data}{A list of formatted data created by
 \code{format_model_data()} or \code{format_questioned_data}.}
 
-\item{facet}{\code{TRUE} will use \code{facet_wrap} to create a subplot for each
-writer. \code{FALSE} will plot the data on a single plot.}
+\item{facet}{\code{TRUE} uses \code{facet_wrap} to create a subplot for each
+writer. \code{FALSE} plots the data on a single plot.}
 }
 \value{
 ggplot plot of cluster fill counts
