@@ -39,7 +39,7 @@ Choose a directory on your computer to store the files that handwriter will prod
 4. Writership analysis of the questioned document(s).
 
 ```{r}
-main_dir <- "/Users/stephanie/Documents/handwriter_example"
+main_dir <- file.path(getwd(), "handwriter_example")
 
 # create the directory if it doesn't already exist
 if(!dir.exists(main_dir)){dir.create(main_dir)}
@@ -57,9 +57,9 @@ template_images_dir <- system.file("extdata/example_images/template_training_ima
 Process the template training documents to transform the handwriting into graphs. Output the processed graphs to main_dir > data > template_graphs. The function will create this directory automatically, and the [`make_clustering_templates`] function will look for the template training graphs here. 
 ```{r}
 # process the handwriting
-process_batch_dir(input_dir = template_images_dir,
-                  output_dir = file.path(main_dir, "data", "template_graphs"),
-                  transform_output = 'document')
+template_proc_list <- process_batch_dir(input_dir = template_images_dir,
+                                        output_dir = file.path(main_dir, "data", "template_graphs"),
+                                        transform_output = 'document')
 ```
 
 
@@ -87,6 +87,11 @@ template_list <- make_clustering_templates(template_dir = main_dir,
                                            num_runs = 1)
 ```
 
+Plot the cluster fill counts for each document in the template training set.
+```{r}
+template_data <- format_template_data(template = template_list[[1]])
+plot_cluster_fill_counts(template_data, facet = TRUE)
+```
 
 ## Fit a Bayesian Hierarchical Model
 **TO DO: 
@@ -104,9 +109,9 @@ model_images_dir <- system.file("extdata/example_images/model_training_images",
 Process the model training documents to transform the handwriting into graphs. Output the processed graphs to main_dir > data > model_graphs. The function will create this directory automatically.
 ```{r}
 # process the handwriting
-process_batch_dir(input_dir = model_images_dir,
-                  output_dir = file.path(main_dir, "data", "model_graphs"),
-                  transform_output = 'document')
+model_proc_list <- process_batch_dir(input_dir = model_images_dir,
+                                     output_dir = file.path(main_dir, "data", "model_graphs"),
+                                     transform_output = 'document')
 ```
   
 Use the cluster template to assign the processed model training graphs to the nearest cluster. `template_list` is a list of templates so we access the first (and only in this case) template with `template_list[[1]]`.
@@ -123,6 +128,11 @@ model_data <- format_model_data(model_proc_list = model_clusters,
                                 writer_indices = c(2,5), 
                                 doc_indices = c(7,18), 
                                 a = 2, b = 0.25, c = 2, d = 2, e = 0.5)
+```
+
+Plot the cluster fill counts for the model training documents.
+```{r}
+plot_cluster_fill_counts(model_data)
 ```
 
 Now that the model training data has been properly formatted, we can fit the model. The `fit_model` function 
@@ -152,9 +162,9 @@ questioned_images_dir <- system.file("extdata/example_images/questioned_images",
 
 Process the questioned documents to transform the handwriting into graphs. Output the processed graphs to main_dir > data > questioned_graphs. The function will create this directory automatically.
 ```{r}
-process_batch_dir(input_dir = questioned_images_dir,
-                  output_dir = file.path(main_dir, "data", "questioned_graphs"),
-                  transform_output = 'document')
+questioned_proc_list <- process_batch_dir(input_dir = questioned_images_dir,
+                                          output_dir = file.path(main_dir, "data", "questioned_graphs"),
+                                          transform_output = 'document')
 ```
 
 Use the cluster template to assign the processed questioned graphs to the nearest cluster. Again, `template_list` is a list of templates so we access the first (and only in this case) template with `template_list[[1]]`.
@@ -171,9 +181,10 @@ questioned_data <- format_questioned_data(formatted_model_data = model_data,
                                           doc_indices=c(7,18))
 ```
 
-**TO DO**
-
-- **add cluster fill count plots**
+Plot the cluster fill counts for the questioned documents.
+```{r}
+plot_cluster_fill_counts(questioned_data)
+```
 
 Use the fitted model to estimate the posterior probability of writership.
 ```{r}
