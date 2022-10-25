@@ -19,19 +19,20 @@ make_example_template <- function(main_dir, run, start_seed) {
   template_graphs_dir <- file.path(main_dir, "data", "template_graphs")
   
   # process the handwriting
-  process_batch_dir(image_batch = template_images_dir,
-                    batch_output_dir = template_graphs_dir,
+  process_batch_dir(input_dir = template_images_dir,
+                    output_dir = template_graphs_dir,
                     transform_output = 'document')
   
   example_cluster_template <- make_clustering_templates(template_dir = main_dir,
-                                        K = 10,
-                                        num_dist_cores = 4,
-                                        max_iters = 3,
-                                        num_graphs = 1000,
-                                        num_runs = run,
-                                        starting_seed = start_seed)
+                                                        writer_indices = c(2,5),
+                                                        K = 10,
+                                                        num_dist_cores = 4,
+                                                        max_iters = 3,
+                                                        num_graphs = 1000,
+                                                        num_runs = run,
+                                                        starting_seed = start_seed)
   
-  usethis::use_data(example_cluster_template)
+  usethis::use_data(example_cluster_template, overwrite = TRUE)
 }
 
 
@@ -48,9 +49,9 @@ make_example_model_clusters <- function(main_dir, start_seed, run) {
                                 "model_graphs")
   
   # process the handwriting
-  # process_batch_dir(image_batch = model_images_dir,
-  #                   batch_output_dir = model_graphs_dir,
-  #                   transform_output = 'document')
+  process_batch_dir(image_batch = model_images_dir,
+                    batch_output_dir = model_graphs_dir,
+                    transform_output = 'document')
   
   # assign model graphs to clusters
   example_model_clusters <- get_clusterassignment(clustertemplate = example_cluster_template[[1]],

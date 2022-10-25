@@ -1,3 +1,51 @@
+#' format_template_data
+#'
+#' `format_template_data()` formats the template data for use with
+#' `plot_cluster_fill_counts()`. The output is a list that contains a data frame
+#' called `cluster_fill_counts`. This structure mimics the structure of the
+#' output of  `format_questioned_data()` which has an additional data
+#' frame called `graph_measurements`. Graph measurements are not needed for the
+#' template training data.
+#'
+#' @param template A single cluster template created by
+#'   `make_clustering_templates()`
+#' @return List that contains the cluster fill counts
+#'
+#' @examples
+#' template_data <- format_template_data(template = example_cluster_template[[1]])
+#' plot_cluster_fill_counts(formatted_data = template_data)
+#'
+#' @export
+#' @md
+format_template_data <- function(template){
+  # make dataframe
+  counts <- data.frame("writer" = template$writers, "doc" = template$doc, "cluster" = template$cluster)
+  
+  # get cluster fill counts
+  counts <- counts %>% 
+    dplyr::group_by(writer, doc, cluster) %>% 
+    dplyr::summarize(count = dplyr::n())
+  
+  # make integer
+  counts <- counts %>%
+    dplyr::mutate(writer = as.integer(writer))
+  
+  # make a column for each cluster
+  counts <- counts %>% 
+    pivot_wider(names_from = cluster, values_from = count, values_fill = 0)
+  
+  # sort cluster columns
+  sorted <- as.character(sort(unique(as.integer(colnames(counts[,-c(1,2)])))))
+  sorted <- sorted[sorted != -1]  # drop -1
+  counts <- cbind(counts[,c(1,2)], counts[,"-1"], counts[,sorted])
+  
+  # make list
+  data <- list("cluster_fill_counts" = counts)
+  
+  return(data)
+}
+
+
 #' format_model_data
 #'
 #' `format_model_data()` formats the data need for the rjags model.

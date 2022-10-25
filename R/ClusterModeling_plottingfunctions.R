@@ -1,35 +1,54 @@
 #' Plot Cluster Fill Counts
 #'
-#' Create a barchart of the cluster fill counts for a particular writer and
-#' document whose data is stored in formatted data.
+#' Plot the cluster fill counts for each document in `formatted_data`.
 #'
 #' @param formatted_data A list of formatted data created by
 #'   `format_model_data()` or `format_questioned_data`.
-#' @param writerID An integer writer ID
-#' @param docname A document name as a character string
-#' @return ggplot barchart of cluster fill counts
-#' 
+#' @param facet `TRUE` uses `facet_wrap` to create a subplot for each
+#'   writer. `FALSE` plots the data on a single plot.
+#' @return ggplot plot of cluster fill counts
+#'
 #' @examples
-#' plot_cluster_fill_counts(formatted_data = example_model_data, 
-#'                          writerID = 9, 
-#'                          docname = "s01_pWOZ_r1.")
+#' plot_cluster_fill_counts(formatted_data = example_model_data, facet = TRUE)
+#' plot_cluster_fill_counts(formatted_data = example_questioned_data, facet = FALSE)
 #'
 #' @export
 #' @md
-plot_cluster_fill_counts <- function(formatted_data, writerID, docname){
+plot_cluster_fill_counts <- function(formatted_data, facet = FALSE){
   
   counts <- formatted_data$cluster_fill_counts
   
-  # filter for writer and document
-  counts <- counts %>% dplyr::filter(writer == writerID, doc == docname)
+  # only one doc per writer?
+  single_doc <- ifelse(length(unique(counts$writer)) == length(counts$writer), TRUE, FALSE)
   
   # make cluster and count columns
-  counts <- counts %>% tidyr::pivot_longer(cols = -c(1,2), names_to = "cluster", values_to = "count")
+  counts <- counts %>% 
+    tidyr::pivot_longer(cols = -c(1,2), names_to = "cluster", values_to = "count")
+  
+  # change writer and cluster to factor 
+  counts <- counts %>%
+    dplyr::mutate(cluster = factor(cluster),
+                  writer = factor(writer))
   
   # plot
-  p <- counts %>% ggplot2::ggplot(aes(x=cluster, y=count)) +
-    geom_bar(stat = "identity") +
-    theme_bw()
+  if (single_doc){  # one doc per writer
+    p <- counts %>% 
+      ggplot2::ggplot(aes(x=cluster, y=count, color = writer)) +
+      geom_point(position=position_dodge(width=0.75)) + 
+      theme_bw()
+  } else {  # at least one writer has more than one doc
+    p <- counts %>% 
+      ggplot2::ggplot(aes(x=cluster, y=count, color = writer)) +
+      geom_line(position=position_dodge(width=0.75)) +
+      geom_point(position=position_dodge(width=0.75)) + 
+      theme_bw()
+  }
+  
+  # facet (optional)
+  if (facet){
+    p <- p + facet_wrap(~writer)
+  }
+  
   return(p)
 }
 

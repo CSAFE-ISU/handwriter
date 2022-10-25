@@ -4,26 +4,23 @@
 \alias{plot_cluster_fill_counts}
 \title{Plot Cluster Fill Counts}
 \usage{
-plot_cluster_fill_counts(formatted_data, writerID, docname)
+plot_cluster_fill_counts(formatted_data, facet = FALSE)
 }
 \arguments{
 \item{formatted_data}{A list of formatted data created by
 \code{format_model_data()} or \code{format_questioned_data}.}
 
-\item{writerID}{An integer writer ID}
-
-\item{docname}{A document name as a character string}
+\item{facet}{\code{TRUE} uses \code{facet_wrap} to create a subplot for each
+writer. \code{FALSE} plots the data on a single plot.}
 }
 \value{
-ggplot barchart of cluster fill counts
+ggplot plot of cluster fill counts
 }
 \description{
-Create a barchart of the cluster fill counts for a particular writer and
-document whose data is stored in formatted data.
+Plot the cluster fill counts for each document in \code{formatted_data}.
 }
 \examples{
-plot_cluster_fill_counts(formatted_data = example_model_data, 
-                         writerID = 9, 
-                         docname = "s01_pWOZ_r1.")
+plot_cluster_fill_counts(formatted_data = example_model_data, facet = TRUE)
+plot_cluster_fill_counts(formatted_data = example_questioned_data, facet = FALSE)
 
 }
