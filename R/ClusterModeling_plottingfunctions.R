@@ -60,25 +60,31 @@ plot_cluster_fill_counts <- function(formatted_data, facet = FALSE){
 #' chains will be combined by pasting them together.
 #'
 #' @param model An MCMC object created by [`fit_model`]
+#' @param model_data Data output by [`format_model_data`] and input to [`fit_model`]
 #' @param variable The name of a variable in the MCMC object
 #' @return ggplot line plot
 #'
 #' @examples
-#' model <- fit_model(example_model_data, num_iters = 500, num_chains = 1)
-#' plot_trace(model = model, variable = "theta[1,1]")
+#' model <- fit_model(model_data = example_model_data, num_iters = 500, num_chains = 1)
+#' plot_trace(model = model, model_data = example_model_data, variable = "pi[1,1]")
+#' plot_trace(model = model, model_data = example_model_data, variable = "mu[4,5]")
+#' plot_trace(model = model, model_data = example_model_data, variable = "gamma[1]")
+#' plot_trace(model = model, model_data = example_model_data, variable = "tau[2,3]")
+#' plot_trace(model = model, model_data = example_model_data, variable = "eta[2]")
 #'
 #' @export
 #' @md
-plot_trace <- function(model, variable) {
+plot_trace <- function(model, model_data, variable) {
   # format MCMC draws from fitted model
   model <- format_draws(model)
   
-  # get parameter name from variable (E.g. theta[1,1] -> theta) and add an s on
+  # get parameter name from variable (E.g. mu[4,5] -> mu) and add an s on
   # the end
-  param <- paste0(sub("\\[.*", "", variable), "s")
+  param <- sub("\\[.*", "", variable)
+  params <- paste0(param, "s")
   
   # select data frame for variable
-  p <- model[[param]]
+  p <- model[[params]]
   # add iteration column to data frame
   p["iteration"] <- 1:nrow(p)
   
@@ -89,7 +95,9 @@ plot_trace <- function(model, variable) {
   p <- p %>%
     ggplot2::ggplot(aes(x = iteration, y = y)) +
     geom_line() +
-    labs(y = variable)
+    labs(y = param,
+         title = "Trace Plot",
+         subtitle = about_variable(variable, model_data))
   
   return(p)
 }

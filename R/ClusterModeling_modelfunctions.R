@@ -16,12 +16,12 @@
 #'   num_chains = 1
 #' )
 #' model <- drop_burnin(model = model, burn_in = 250)
-#' analysis <- analyze_questioned_documents(
-#'   model_data = example_model_data,
-#'   model = model,
-#'   questioned_data = example_questioned_data,
-#'   num_cores = 2
-#' )
+# analysis <- analyze_questioned_documents(
+#   model_data = example_model_data,
+#   model = model,
+#   questioned_data = example_questioned_data,
+#   num_cores = 2
+# )
 #'
 #' @keywords model
 #'
@@ -34,7 +34,7 @@ fit_model <- function(model_data, num_iters, num_chains = 1) {
   model <- rjags::jags.model(textConnection(model_wrapped_cauchy), data = rjags_data, n.chains = num_chains)
 
   # mcmc draws
-  model <- rjags::coda.samples(model, c("pi", "gamma", "mu", "tau", "eta", "theta", "nld_locationparam"), n.iter = num_iters)
+  model <- rjags::coda.samples(model, c("pi", "gamma", "mu", "tau", "eta"), n.iter = num_iters)
 
   return(model)
 }
@@ -62,16 +62,21 @@ drop_burnin <- function(model, burn_in) {
 
 model_wrapped_cauchy <- "
 model {
-  for(letter in 1:numletters){                          /* numletters = num unique letters with measurements */
-    theta[letter] = -log( (1-pow(tau[letterwriter[letter], lettercluster[letter]],2)) / (2*pi_constant*(1+pow(tau[letterwriter[letter], lettercluster[letter]],2)-2*tau[letterwriter[letter], lettercluster[letter]]*cos(pc_wrapped[letter]-mu[letterwriter[letter], lettercluster[letter]]))) ) + C
-    zero_vec[letter] ~ dpois( theta[letter] )
+  for(letter in 1:numletters){  
+    # numletters = num unique letters with measurements
+    # use zeros trick to sample from wrapped-Cauchy distribution
+    nll_datamodel[letter] = -log( (1-pow(tau[letterwriter[letter], lettercluster[letter]],2)) / (2*pi_constant*(1+pow(tau[letterwriter[letter], lettercluster[letter]],2)-2*tau[letterwriter[letter], lettercluster[letter]]*cos(pc_wrapped[letter]-mu[letterwriter[letter], lettercluster[letter]]))) ) + C
+    zero_vec[letter] ~ dpois( nll_datamodel[letter] )
   }
 
   # Priors for wrapped cauchy
   for(g in 1:Gsmall){
+    # g = cluster
     gamma[g] ~ dgamma(a, b)
     eta[g] ~ dunif(0,2*pi_constant)
-    for(w in 1:W){                                      /* W = num unique writers */
+    for(w in 1:W){
+      # W = num unique writers 
+      # use zeros trick to sample from wrapped-Cauchy distribution
       mu[w,g]  ~ dunif(0,2*pi_constant)
       nld_locationparam[w,g] = -log( (1-pow(e,2)) / (2*pi_constant*(1+pow(e,2)-2*e*cos(mu[w,g]-eta[g]))) ) + C
       zero_mat[w,g] ~ dpois(nld_locationparam[w,g])
@@ -79,19 +84,74 @@ model {
     }
   }
 
-  for (w in 1:W) {                                      /* W = num unique writers */
+  for (w in 1:W) {  
+    # w = writer
     pi[w,1:G] ~ ddirch(gamma[1:G] + 0.001)
   }
 
-  for(d in 1:D) {                                       /* D = num unique documents */
+  for(d in 1:D) {                                       
+    # d = document
     Y[d,1:G] ~ dmulti(pi[docwriter[d],1:G], docN[d])
   }
 
   # other values
-  C    = 30   # for the ones's trick
-  pi_constant   = 3.14159
+  C = 30   # for the zeros trick
+  pi_constant = 3.14159
   pi_1 = -pi_constant
 }"
+
+#' about_variable
+#'
+#' `about_variable()` returns information about the model variable.
+#'
+#' @param variable A variable in an mcmc object output by [`fit_model`]
+#' @param model_data The model training data created by [`format_model_data`] and input to [`fit_model`].
+#' @return Text that explains the variable
+#' 
+#' @examples
+#' about_variable(variable = "mu[1,2]", model_data = example_model_data)
+#' about_variable(variable = "gamma[5]", model_data = example_model_data)
+#'
+#' @keywords model
+#'
+#' @export
+#' @md
+about_variable <- function(variable, model_data){
+  
+  if (stringr::str_detect(variable, ",")){
+    # get variable, writer, and cluster
+    split <- strsplit(variable, "\\[|,|\\]")
+    var <- split[[1]][1]
+    writer <- as.integer(split[[1]][2])
+    cluster <- split[[1]][3]
+    
+    # pick text
+    about <- switch(var,
+                    pi = "Pi is the cluster fill probability for writer w and cluster g",
+                    mu = "Mu is the location parameter of a wrapped-Cauchy distribution for writer w and cluster g",
+                    tau = "Tau is the scale parameter of a wrapped-Cauchy distribution for writer w and cluster g")
+    
+    # replace writer
+    writers <- unique(model_data$cluster_fill_counts$writer)
+    about <- stringr::str_replace(about, " w ", paste0(" ", writers[writer], " "))
+    
+    # replace cluster
+    about <- stringr::str_replace(about, " g", paste0(" ", cluster, " "))
+  } else {
+    split <- strsplit(variable, "\\[|\\]")
+    var <- split[[1]][1]
+    cluster <- split[[1]][2]
+    
+    # pick text
+    about <- switch(var,
+                    gamma = "Gamma is the pseudo-cluster count across all writers for cluster g",
+                    eta = "Eta is a hyper prior for cluster g")
+    
+    # replace cluster
+    about <- stringr::str_replace(about, " g", paste0(" ", cluster, " "))
+  }
+  return(about)
+}
 
 
 #' analyze_questioned_documents
@@ -215,9 +275,7 @@ format_draws <- function(model) {
       mus = draws[, grep(x = colnames(draws), pattern = "mu")],
       gammas = draws[, grep(x = colnames(draws), pattern = "gamma")],
       taus = draws[, grep(x = colnames(draws), pattern = "tau")],
-      etas = draws[, grep(x = colnames(draws), pattern = "^eta")],
-      theta = draws[, grep(x = colnames(draws), pattern = "theta")],
-      nld_locationparam = draws[, grep(x = colnames(draws), pattern = "nld_locationparam")]
+      etas = draws[, grep(x = colnames(draws), pattern = "^eta")]
     )
     return(draws)
   }
@@ -227,7 +285,7 @@ format_draws <- function(model) {
 
   # combine data frames from different chains by variable group
   if (length(draws_list) > 1) {
-    vars <- c("pis", "mus", "gammas", "taus", "etas", "theta", "nld_locationparam")
+    vars <- c("pis", "mus", "gammas", "taus", "etas")
     draws <- list()
     for (i in 1:length(vars)) {
       temp <- draws_list[[1]][[vars[i]]]

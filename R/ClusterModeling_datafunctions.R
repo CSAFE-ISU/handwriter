@@ -32,7 +32,7 @@ format_template_data <- function(template){
   
   # make a column for each cluster
   counts <- counts %>% 
-    pivot_wider(names_from = cluster, values_from = count, values_fill = 0)
+    tidyr::pivot_wider(names_from = cluster, values_from = count, values_fill = 0)
   
   # sort cluster columns
   sorted <- as.character(sort(unique(as.integer(colnames(counts[,-c(1,2)])))))
