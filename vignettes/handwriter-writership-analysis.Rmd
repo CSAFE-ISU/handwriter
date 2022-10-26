@@ -132,7 +132,7 @@ model_data <- format_model_data(model_proc_list = model_clusters,
 
 Plot the cluster fill counts for the model training documents.
 ```{r}
-plot_cluster_fill_counts(model_data)
+plot_cluster_fill_counts(model_data, facet = TRUE)
 ```
 
 Now that the model training data has been properly formatted, we can fit the model. The `fit_model` function 
@@ -183,7 +183,7 @@ questioned_data <- format_questioned_data(formatted_model_data = model_data,
 
 Plot the cluster fill counts for the questioned documents.
 ```{r}
-plot_cluster_fill_counts(questioned_data)
+plot_cluster_fill_counts(questioned_data, facet = TRUE)
 ```
 
 Use the fitted model to estimate the posterior probability of writership.

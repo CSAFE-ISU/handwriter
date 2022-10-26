@@ -25,22 +25,26 @@ plot_cluster_fill_counts <- function(formatted_data, facet = FALSE){
   counts <- counts %>% 
     tidyr::pivot_longer(cols = -c(1,2), names_to = "cluster", values_to = "count")
   
-  # change writer and cluster to factor 
+  # change writer to factor 
   counts <- counts %>%
-    dplyr::mutate(cluster = factor(cluster),
-                  writer = factor(writer))
+    dplyr::mutate(writer = factor(writer))
   
   # plot
   if (single_doc){  # one doc per writer
     p <- counts %>% 
+      dplyr::mutate(cluster = as.integer(cluster)) %>%  # allow lines between clusters
       ggplot2::ggplot(aes(x=cluster, y=count, color = writer)) +
-      geom_point(position=position_dodge(width=0.75)) + 
+      geom_line() +
+      geom_point() +
+      scale_x_continuous(breaks = as.integer(unique(counts$cluster))) +
       theme_bw()
   } else {  # at least one writer has more than one doc
     p <- counts %>% 
-      ggplot2::ggplot(aes(x=cluster, y=count, color = writer)) +
-      geom_line(position=position_dodge(width=0.75)) +
-      geom_point(position=position_dodge(width=0.75)) + 
+      dplyr::mutate(cluster = as.integer(cluster)) %>%  # allow lines between clusters
+      ggplot2::ggplot(aes(x=cluster, y=count, group = interaction(writer, doc), color=writer)) +
+      geom_line() +
+      geom_point() + 
+      scale_x_continuous(breaks = as.integer(unique(counts$cluster))) +
       theme_bw()
   }
   
