@@ -9,7 +9,7 @@ test_that("fit model with a single chain works", {
   
   # check dimensions
   expect_length(model, 1)
-  expect_equal(dim(model[[1]]), c(iters, 3051))
+  expect_equal(dim(model[[1]]), c(iters, 136))
 })
 
 test_that("drop burn-in works on a single chain", {
@@ -23,7 +23,7 @@ test_that("drop burn-in works on a single chain", {
   
   # check dimensions
   expect_length(model, 1)
-  expect_equal(dim(model[[1]]), c(iters-burnin, 3051))
+  expect_equal(dim(model[[1]]), c(iters-burnin, 136))
 })
 
 test_that("analyze questioned documents works with a single chain", {
@@ -64,9 +64,9 @@ test_that("fit model with multiple chains works", {
   
   # check dimensions
   expect_length(model, 3)
-  expect_equal(dim(model[[1]]), c(iters, 3051))
-  expect_equal(dim(model[[2]]), c(iters, 3051))
-  expect_equal(dim(model[[3]]), c(iters, 3051))
+  expect_equal(dim(model[[1]]), c(iters, 136))
+  expect_equal(dim(model[[2]]), c(iters, 136))
+  expect_equal(dim(model[[3]]), c(iters, 136))
 })
 
 test_that("drop burn-in works on multiple chains", {
@@ -82,9 +82,9 @@ test_that("drop burn-in works on multiple chains", {
   
   # check dimensions
   expect_length(model, 3)
-  expect_equal(dim(model[[1]]), c(iters-burnin, 3051))
-  expect_equal(dim(model[[2]]), c(iters-burnin, 3051))
-  expect_equal(dim(model[[3]]), c(iters-burnin, 3051))
+  expect_equal(dim(model[[1]]), c(iters-burnin, 136))
+  expect_equal(dim(model[[2]]), c(iters-burnin, 136))
+  expect_equal(dim(model[[3]]), c(iters-burnin, 136))
 })
 
 test_that("analyze questioned documents works with multiple chains", {
@@ -106,4 +106,20 @@ test_that("analyze questioned documents works with multiple chains", {
   
   # check posterior probability totals
   sapply(analysis$posterior_probabilities[,-1], function(x) expect_equal(sum(x), 1))
+})
+
+test_that("about variable works", {
+  iters <- 50
+  n_chains <- 3
+  model <- fit_model(model_data = example_model_data, num_iters = iters, num_chains = n_chains)
+  expect_equal(about_variable(variable = "pi[1,3]", model_data = example_model_data, model = model), 
+               "Pi is the cluster fill probability for writer 9 and cluster 3")
+  expect_equal(about_variable(variable = "mu[2,5]", model_data = example_model_data, model = model), 
+               "Mu is the location parameter of a wrapped-Cauchy distribution for writer 30 and cluster 5")
+  expect_equal(about_variable(variable = "tau[3,7]", model_data = example_model_data, model = model), 
+               "Tau is the scale parameter of a wrapped-Cauchy distribution for writer 203 and cluster 7")
+  expect_equal(about_variable(variable = "gamma[4]", model_data = example_model_data, model = model), 
+               "Gamma is the pseudo-cluster count across all writers for cluster 4")
+  expect_equal(about_variable(variable = "eta[6]", model_data = example_model_data, model = model), 
+               "Eta is a hyper prior for cluster 6")
 })

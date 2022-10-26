@@ -4,12 +4,14 @@
 \alias{about_variable}
 \title{about_variable}
 \usage{
-about_variable(variable, model_data)
+about_variable(variable, model_data, model)
 }
 \arguments{
 \item{variable}{A variable in an mcmc object output by \code{\link{fit_model}}}
 
-\item{model_data}{The model training data created by \code{\link{format_model_data}} and input to \code{\link{fit_model}}.}
+\item{model_data}{The model training data created by \code{\link{format_model_data}} and input to \code{\link{fit_model}}}
+
+\item{model}{The model created by \code{\link{fit_model}}}
 }
 \value{
 Text that explains the variable
@@ -18,8 +20,9 @@ Text that explains the variable
 \code{about_variable()} returns information about the model variable.
 }
 \examples{
-about_variable(variable = "mu[1,2]", model_data = example_model_data)
-about_variable(variable = "gamma[5]", model_data = example_model_data)
+model <- fit_model(model_data = model_data, num_iters = 500, num_chains = 1)
+about_variable(variable = "mu[1,2]", model_data = example_model_data, model = model)
+about_variable(variable = "gamma[5]", model_data = example_model_data, model = model)
 
 }
 \keyword{model}

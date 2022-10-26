@@ -105,18 +105,25 @@ model {
 #' `about_variable()` returns information about the model variable.
 #'
 #' @param variable A variable in an mcmc object output by [`fit_model`]
-#' @param model_data The model training data created by [`format_model_data`] and input to [`fit_model`].
+#' @param model_data The model training data created by [`format_model_data`] and input to [`fit_model`]
+#' @param model The model created by [`fit_model`]
 #' @return Text that explains the variable
 #' 
 #' @examples
-#' about_variable(variable = "mu[1,2]", model_data = example_model_data)
-#' about_variable(variable = "gamma[5]", model_data = example_model_data)
+#' model <- fit_model(model_data = model_data, num_iters = 500, num_chains = 1)
+#' about_variable(variable = "mu[1,2]", model_data = example_model_data, model = model)
+#' about_variable(variable = "gamma[5]", model_data = example_model_data, model = model)
 #'
 #' @keywords model
 #'
 #' @export
 #' @md
-about_variable <- function(variable, model_data){
+about_variable <- function(variable, model_data, model){
+  
+  all_vars <- names(as.data.frame(model[[1]]))
+  if ( !(variable %in% all_vars) ){
+    stop(paste("The input variable", variable, "is not in the model."))
+  }
   
   if (stringr::str_detect(variable, ",")){
     # get variable, writer, and cluster
@@ -136,7 +143,7 @@ about_variable <- function(variable, model_data){
     about <- stringr::str_replace(about, " w ", paste0(" ", writers[writer], " "))
     
     # replace cluster
-    about <- stringr::str_replace(about, " g", paste0(" ", cluster, " "))
+    about <- stringr::str_replace(about, " g", paste0(" ", cluster))
   } else {
     split <- strsplit(variable, "\\[|\\]")
     var <- split[[1]][1]
@@ -148,7 +155,7 @@ about_variable <- function(variable, model_data){
                     eta = "Eta is a hyper prior for cluster g")
     
     # replace cluster
-    about <- stringr::str_replace(about, " g", paste0(" ", cluster, " "))
+    about <- stringr::str_replace(about, " g", paste0(" ", cluster))
   }
   return(about)
 }

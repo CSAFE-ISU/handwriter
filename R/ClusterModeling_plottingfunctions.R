@@ -67,7 +67,7 @@ plot_cluster_fill_counts <- function(formatted_data, facet = FALSE){
 #' @examples
 #' model <- fit_model(model_data = example_model_data, num_iters = 500, num_chains = 1)
 #' plot_trace(model = model, model_data = example_model_data, variable = "pi[1,1]")
-#' plot_trace(model = model, model_data = example_model_data, variable = "mu[4,5]")
+#' plot_trace(model = model, model_data = example_model_data, variable = "mu[2,3]")
 #' plot_trace(model = model, model_data = example_model_data, variable = "gamma[1]")
 #' plot_trace(model = model, model_data = example_model_data, variable = "tau[2,3]")
 #' plot_trace(model = model, model_data = example_model_data, variable = "eta[2]")
@@ -76,7 +76,7 @@ plot_cluster_fill_counts <- function(formatted_data, facet = FALSE){
 #' @md
 plot_trace <- function(model, model_data, variable) {
   # format MCMC draws from fitted model
-  model <- format_draws(model)
+  formatted_model <- format_draws(model)
   
   # get parameter name from variable (E.g. mu[4,5] -> mu) and add an s on
   # the end
@@ -84,7 +84,7 @@ plot_trace <- function(model, model_data, variable) {
   params <- paste0(param, "s")
   
   # select data frame for variable
-  p <- model[[params]]
+  p <- formatted_model[[params]]
   # add iteration column to data frame
   p["iteration"] <- 1:nrow(p)
   
@@ -97,7 +97,7 @@ plot_trace <- function(model, model_data, variable) {
     geom_line() +
     labs(y = param,
          title = "Trace Plot",
-         subtitle = about_variable(variable, model_data))
+         subtitle = about_variable(variable, model_data, model))
   
   return(p)
 }
