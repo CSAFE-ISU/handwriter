@@ -20,33 +20,25 @@ nearest cluster in the example cluster template with
 \code{\link{get_clusterassignment}}.
 }
 \examples{
+# format model data
 model_data <- format_model_data(
   model_proc_list = example_model_clusters,
   writer_indices = c(2, 5),
   doc_indices = c(7, 18),
   a = 2, b = 0.25, c = 2, d = 2, e = 0.5
 )
+
+# plot cluster fill counts
+plot_cluster_fill_counts(model_data)
+
+\dontrun{
+# fit model
 model <- fit_model(
   model_data = model_data,
-  num_iters = 500,
+  num_iters = 50,
   num_chains = 1
 )
-model <- drop_burnin(
-  model = model,
-  burn_in = 250
-)
-q_data <- format_questioned_data(
-  formatted_model_data = model_data,
-  questioned_proc_list = example_questioned_clusters,
-  writer_indices = c(2, 5),
-  doc_indices = c(7, 18)
-)
-analysis <- analyze_questioned_documents(
-  model_data = model_data,
-  model = model,
-  questioned_data = q_data,
-  num_cores = 2
-)
+}
 
 }
 \keyword{datasets}

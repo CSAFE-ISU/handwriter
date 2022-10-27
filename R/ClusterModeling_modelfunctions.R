@@ -12,10 +12,10 @@
 #' @examples
 #' model <- fit_model(
 #'   model_data = example_model_data,
-#'   num_iters = 500,
+#'   num_iters = 50,
 #'   num_chains = 1
 #' )
-#' model <- drop_burnin(model = model, burn_in = 250)
+#' model <- drop_burnin(model = model, burn_in = 25)
 #' analysis <- analyze_questioned_documents(
 #'   model_data = example_model_data,
 #'   model = model,
@@ -34,7 +34,7 @@ fit_model <- function(model_data, num_iters, num_chains = 1) {
   model <- rjags::jags.model(textConnection(model_wrapped_cauchy), data = rjags_data, n.chains = num_chains)
 
   # mcmc draws
-  model <- rjags::coda.samples(model, c("theta", "gamma", "mu", "rho", "eta", "nll_datamodel", "nld_locationparam"), n.iter = num_iters)
+  model <- rjags::coda.samples(model, c("pi", "gamma", "mu", "tau", "eta"), n.iter = num_iters)
 
   return(model)
 }
@@ -48,7 +48,9 @@ fit_model <- function(model_data, num_iters, num_chains = 1) {
 #' @param burn_in An integer number of starting iterations to drop from each MCMC chain.
 #' @return A list of data frames of MCMC draws with burn-in dropped.
 #'
-#' @inherit fit_model examples
+#' @examples
+#' model <- drop_burnin(model = example_model_1chain, burn_in = 25)
+#' plot_trace(model = model, model_data = example_model_data, variable = "mu[1,2]")
 #'
 #' @keywords model
 #'
@@ -62,36 +64,112 @@ drop_burnin <- function(model, burn_in) {
 
 model_wrapped_cauchy <- "
 model {
-  for(letter in 1:numletters){                          /* numletters = num unique letters with measurements */
-    nll_datamodel[letter] = -log( (1-pow(rho[letterwriter[letter], lettercluster[letter]],2)) / (2*pi*(1+pow(rho[letterwriter[letter], lettercluster[letter]],2)-2*rho[letterwriter[letter], lettercluster[letter]]*cos(pc_wrapped[letter]-mu[letterwriter[letter], lettercluster[letter]]))) ) + C
+  for(letter in 1:numletters){
+    # numletters = num unique letters with measurements
+    # use zeros trick to sample from wrapped-Cauchy distribution
+    nll_datamodel[letter] = -log( (1-pow(tau[letterwriter[letter], lettercluster[letter]],2)) / (2*pi_constant*(1+pow(tau[letterwriter[letter], lettercluster[letter]],2)-2*tau[letterwriter[letter], lettercluster[letter]]*cos(pc_wrapped[letter]-mu[letterwriter[letter], lettercluster[letter]]))) ) + C
     zero_vec[letter] ~ dpois( nll_datamodel[letter] )
   }
 
   # Priors for wrapped cauchy
   for(g in 1:Gsmall){
+    # g = cluster
     gamma[g] ~ dgamma(a, b)
-    eta[g] ~ dunif(0,2*pi)
-    for(w in 1:W){                                      /* W = num unique writers */
-      mu[w,g]  ~ dunif(0,2*pi)
-      nld_locationparam[w,g] = -log( (1-pow(e,2)) / (2*pi*(1+pow(e,2)-2*e*cos(mu[w,g]-eta[g]))) ) + C
+    eta[g] ~ dunif(0,2*pi_constant)
+    for(w in 1:W){
+      # W = num unique writers
+      # use zeros trick to sample from wrapped-Cauchy distribution
+      mu[w,g]  ~ dunif(0,2*pi_constant)
+      nld_locationparam[w,g] = -log( (1-pow(e,2)) / (2*pi_constant*(1+pow(e,2)-2*e*cos(mu[w,g]-eta[g]))) ) + C
       zero_mat[w,g] ~ dpois(nld_locationparam[w,g])
-      rho[w,g] ~ dbeta(c,d)
+      tau[w,g] ~ dbeta(c,d)
     }
   }
 
-  for (w in 1:W) {                                      /* W = num unique writers */
-    theta[w,1:G] ~ ddirch(gamma[1:G] + 0.001)
+  for (w in 1:W) {
+    # w = writer
+    pi[w,1:G] ~ ddirch(gamma[1:G] + 0.001)
   }
 
-  for(d in 1:D) {                                       /* D = num unique documents */
-    Y[d,1:G] ~ dmulti(theta[docwriter[d],1:G], docN[d])
+  for(d in 1:D) {
+    # d = document
+    Y[d,1:G] ~ dmulti(pi[docwriter[d],1:G], docN[d])
   }
 
   # other values
-  C    = 30   # for the ones's trick
-  pi   = 3.14159
-  pi_1 = -pi
+  C = 30   # for the zeros trick
+  pi_constant = 3.14159
+  pi_1 = -pi_constant
 }"
+
+
+#' about_variable
+#'
+#' `about_variable()` returns information about the model variable.
+#'
+#' @param variable A variable in an mcmc object output by [`fit_model`]
+#' @param model_data The model training data created by [`format_model_data`] and input to [`fit_model`]
+#' @param model The model created by [`fit_model`]
+#' @return Text that explains the variable
+#'
+#' @examples
+#' about_variable(
+#'   variable = "mu[1,2]",
+#'   model_data = example_model_data,
+#'   model = example_model_1chain
+#' )
+#' about_variable(
+#'   variable = "gamma[5]",
+#'   model_data = example_model_data,
+#'   model = example_model_2chains
+#' )
+#'
+#' @keywords model
+#'
+#' @export
+#' @md
+about_variable <- function(variable, model_data, model) {
+  all_vars <- names(as.data.frame(coda::as.mcmc(model[[1]])))
+  if (!(variable %in% all_vars)) {
+    stop(paste("The input variable", variable, "is not in the model."))
+  }
+
+  if (stringr::str_detect(variable, ",")) {
+    # get variable, writer, and cluster
+    split <- strsplit(variable, "\\[|,|\\]")
+    var <- split[[1]][1]
+    writer <- as.integer(split[[1]][2])
+    cluster <- split[[1]][3]
+
+    # pick text
+    about <- switch(var,
+      pi = "Pi is the cluster fill probability for writer w and cluster g",
+      mu = "Mu is the location parameter of a wrapped-Cauchy distribution for writer w and cluster g",
+      tau = "Tau is the scale parameter of a wrapped-Cauchy distribution for writer w and cluster g"
+    )
+
+    # replace writer
+    writers <- unique(model_data$cluster_fill_counts$writer)
+    about <- stringr::str_replace(about, " w ", paste0(" ", writers[writer], " "))
+
+    # replace cluster
+    about <- stringr::str_replace(about, " g", paste0(" ", cluster))
+  } else {
+    split <- strsplit(variable, "\\[|\\]")
+    var <- split[[1]][1]
+    cluster <- split[[1]][2]
+
+    # pick text
+    about <- switch(var,
+      gamma = "Gamma is the pseudo-cluster count across all writers for cluster g",
+      eta = "Eta is a hyper prior for cluster g"
+    )
+
+    # replace cluster
+    about <- stringr::str_replace(about, " g", paste0(" ", cluster))
+  }
+  return(about)
+}
 
 
 #' analyze_questioned_documents
@@ -110,7 +188,14 @@ model {
 #' @return A list of likelihoods, votes, and posterior probabilities of
 #'   writership for each questioned document.
 #'
-#' @inherit fit_model examples
+#' @examples
+#' analysis <- analyze_questioned_documents(
+#'   model_data = example_model_data,
+#'   model = example_model_1chain,
+#'   questioned_data = example_questioned_data,
+#'   num_cores = 2
+#' )
+#' analysis$posterior_probabilities
 #'
 #' @keywords model
 #'
@@ -123,26 +208,26 @@ analyze_questioned_documents <- function(model_data, model, questioned_data, num
   model <- format_draws(model = model)
 
   # initialize
-  niter <- nrow(model$thetas)
-  thetas <- array(dim = c(niter, rjags_data$G, rjags_data$W)) # 3 dim array, a row for each mcmc iter, a column for each cluster, and a layer for each writer
-  mus <- rhos <- array(dim = c(niter, rjags_data$Gsmall, rjags_data$W)) # 3 dim array, a row for each mcmc iter, a column for each cluster, and a layer for each writer
+  niter <- nrow(model$pis)
+  pis <- array(dim = c(niter, rjags_data$G, rjags_data$W)) # 3 dim array, a row for each mcmc iter, a column for each cluster, and a layer for each writer
+  mus <- taus <- array(dim = c(niter, rjags_data$Gsmall, rjags_data$W)) # 3 dim array, a row for each mcmc iter, a column for each cluster, and a layer for each writer
   dmult <- dwc_sums <- data.frame(matrix(nrow = niter, ncol = rjags_data$W))
   layered_wc_params <- array(dim = c(niter, rjags_data$Gsmall, 2))
   ls <- list()
 
   # reshape variables
-  flat_theta <- as.data.frame(cbind(iters = 1:niter, model$thetas))
+  flat_pi <- as.data.frame(cbind(iters = 1:niter, model$pis))
   flat_mus <- as.data.frame(cbind(iters = 1:niter, model$mus))
-  flat_rhos <- as.data.frame(cbind(iters = 1:niter, model$rhos))
+  flat_taus <- as.data.frame(cbind(iters = 1:niter, model$taus))
   for (i in 1:rjags_data$W) { # i is writer, j is graph
     for (j in 1:rjags_data$G) {
-      thetas[, j, i] <- flat_theta[1:niter, as.character(paste0("theta[", i, ",", j, "]"))]
+      pis[, j, i] <- flat_pi[1:niter, as.character(paste0("pi[", i, ",", j, "]"))]
     }
   }
   for (i in 1:rjags_data$W) { # i is writer, j is graph
     for (j in 1:rjags_data$Gsmall) {
       mus[, j, i] <- flat_mus[1:niter, as.character(paste0("mu[", i, ",", j, "]"))]
-      rhos[, j, i] <- flat_rhos[1:niter, as.character(paste0("rho[", i, ",", j, "]"))]
+      taus[, j, i] <- flat_taus[1:niter, as.character(paste0("tau[", i, ",", j, "]"))]
     }
   }
 
@@ -163,15 +248,15 @@ analyze_questioned_documents <- function(model_data, model, questioned_data, num
 
     if (length(m_cluster) > 0) {
       for (i in 1:rjags_data$W) { # i is writer, j is graph
-        dmult[, i] <- mc2d::dmultinomial(x = questioned_data$cluster_fill_counts[m, -c(1, 2)], prob = thetas[, , i], log = TRUE)
+        dmult[, i] <- mc2d::dmultinomial(x = questioned_data$cluster_fill_counts[m, -c(1, 2)], prob = pis[, , i], log = TRUE)
         layered_wc_params[, , 1] <- mus[, , i]
-        layered_wc_params[, , 2] <- rhos[, , i]
+        layered_wc_params[, , 2] <- taus[, , i]
         dwc_sums[, i] <- rowSums(t(sapply(1:niter, function(it) log(circular::dwrappedcauchy(x = circular::circular(m_pcrot), mu = circular::circular(layered_wc_params[it, m_cluster, 1]), rho = layered_wc_params[it, m_cluster, 2])))))
       }
       nn <- dmult + dwc_sums + abs(max(colMeans(dmult + dwc_sums)))
     } else if (length(m_cluster) == 0) {
       for (i in 1:rjags_data$W) { # i is writer, j is graph
-        dmult[, i] <- dmultinomial(x = questioned_data$cluster_fill_counts[m, -c(1, 2)], prob = thetas[, , i], log = TRUE)
+        dmult[, i] <- dmultinomial(x = questioned_data$cluster_fill_counts[m, -c(1, 2)], prob = pis[, , i], log = TRUE)
       }
       nn <- dmult + abs(max(colMeans(dmult)))
     }
@@ -209,15 +294,13 @@ format_draws <- function(model) {
 
   # convert mcmc object to list of data frames
   draws_to_dataframe <- function(model_chain) {
-    draws <- as.data.frame(model_chain)
+    draws <- as.data.frame(coda::as.mcmc(model_chain))
     draws <- list(
-      thetas = draws[, grep(x = colnames(draws), pattern = "theta")],
+      pis = draws[, grep(x = colnames(draws), pattern = "pi")],
       mus = draws[, grep(x = colnames(draws), pattern = "mu")],
       gammas = draws[, grep(x = colnames(draws), pattern = "gamma")],
-      rhos = draws[, grep(x = colnames(draws), pattern = "rho")],
-      etas = draws[, grep(x = colnames(draws), pattern = "^eta")],
-      nll_datamodel = draws[, grep(x = colnames(draws), pattern = "nll_datamodel")],
-      nld_locationparam = draws[, grep(x = colnames(draws), pattern = "nld_locationparam")]
+      taus = draws[, grep(x = colnames(draws), pattern = "tau")],
+      etas = draws[, grep(x = colnames(draws), pattern = "^eta")]
     )
     return(draws)
   }
@@ -227,7 +310,7 @@ format_draws <- function(model) {
 
   # combine data frames from different chains by variable group
   if (length(draws_list) > 1) {
-    vars <- c("thetas", "mus", "gammas", "rhos", "etas", "nll_datamodel", "nld_locationparam")
+    vars <- c("pis", "mus", "gammas", "taus", "etas")
     draws <- list()
     for (i in 1:length(vars)) {
       temp <- draws_list[[1]][[vars[i]]]

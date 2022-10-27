@@ -57,7 +57,6 @@ test_that("clusters in formatted model data are labeled sequentially",{
   # check cluster labels
   clusters <- unique(data$rjags_data$lettercluster)
   expect_equal(sort(unique(clusters)), 1:max(clusters))
-  
 })
 
 

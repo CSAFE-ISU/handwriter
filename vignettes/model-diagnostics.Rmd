@@ -21,7 +21,7 @@ library(handwriter)
 ## Fit model using example data
 ```{r}
 model <- fit_model(model_data = example_model_data,
-                   num_iters = 1000,
+                   num_iters = 100,
                    num_chains = 2)
 ```
 ## Trace Plots
