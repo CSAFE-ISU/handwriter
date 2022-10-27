@@ -357,7 +357,8 @@ output$q_model_cluster_counts_plot <- renderPlot({
     cc <- analysis$q_model_data$cluster_fill_counts
     cc <- cc %>% 
       tidyr::pivot_longer(cols=-c(1,2), names_to = "cluster", values_to = "count") %>%
-      dplyr::mutate(writer = factor(writer))
+      dplyr::mutate(writer = factor(writer),
+                    cluster = factor(cluster))
     
     cc %>% 
       ggplot2::ggplot(aes(x=cluster, y=count, color = writer)) +
@@ -384,7 +385,8 @@ output$q_questioned_cluster_counts_plot <- renderPlot({
     cc <- analysis$q_questioned_data$cluster_fill_counts
     cc <- cc %>% 
       tidyr::pivot_longer(cols=-c(1,2), names_to = "cluster", values_to = "count") %>%
-      mutate(writer = factor(writer))
+      mutate(writer = factor(writer),
+             cluster = factor(cluster))
     
     cc %>% 
       ggplot2::ggplot(aes(x=cluster, y=count, color = writer)) +
