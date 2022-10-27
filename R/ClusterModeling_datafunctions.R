@@ -223,7 +223,7 @@ format_questioned_data <- function(formatted_model_data, questioned_proc_list, w
     }
   }
 
-  # if model clusters were relabled, relabel the questioned clusters
+  # if model clusters were relabeled, relabel the questioned clusters
   if (any(names(formatted_model_data$graph_measurements) == "old_cluster")) {
     # make lookup table from model cluster data
     cluster_lookup <- formatted_model_data$graph_measurements %>%
@@ -240,7 +240,26 @@ format_questioned_data <- function(formatted_model_data, questioned_proc_list, w
   # get cluster fill counts ----
   # count number of graphs in each cluster for each writer
   cluster_fill_counts <- get_cluster_fill_counts(graph_measurements[, c("writer", "doc", "cluster")])
-
+  
+  # check for missing clusters
+  if (ncol(cluster_fill_counts) < ncol(formatted_model_data$cluster_fill_counts)){
+    # zero data frame
+    full_cluster_fill_counts <- as.data.frame(matrix(0, nrow = nrow(cluster_fill_counts), ncol = ncol(formatted_model_data$cluster_fill_counts)))
+    # fill column names
+    colnames(full_cluster_fill_counts) <- colnames(formatted_model_data$cluster_fill_counts)
+    # fill writers and docs
+    full_cluster_fill_counts$writer <- cluster_fill_counts$writer
+    full_cluster_fill_counts$doc <- cluster_fill_counts$doc
+    # add missing columns
+    full_cluster_fill_counts <- left_join(cluster_fill_counts, full_cluster_fill_counts) %>% 
+      dplyr::mutate(across(where(is.numeric), ~ replace_na(.x, 0)))
+    # sort columns
+    cols <- c(colnames(full_cluster_fill_counts[, c(1, 2)]), sort(as.numeric(colnames(full_cluster_fill_counts[, -c(1, 2)]))))
+    full_cluster_fill_counts <- full_cluster_fill_counts[, cols]
+    # rename
+    cluster_fill_counts <- full_cluster_fill_counts
+  }
+  
   data <- list(
     "graph_measurements" = graph_measurements,
     "cluster_fill_counts" = cluster_fill_counts
