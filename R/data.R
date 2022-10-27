@@ -205,6 +205,64 @@
 #' m <- rjags::jags.model(file = rjags_model, data = model_data, n.chains = 1)
 "model_wrapped_cauchy"
 
+#' Example of a hierarchical model
+#'
+#' @format An MCMC list created by [`fit_model`] with a single chain and 50 MCMC iterations. 
+#' The MCMC list contains a single MCMC object with 50 rows and 136 columns. Each row corresponds to 
+#' an MCMC iteration and each column corresponds to a variable:
+#' \describe{
+#'   \item{eta[k]}{Hyper priors for cluster k.}
+#'   \item{gamma[k]}{The pseudo-cluster count across all writers for cluster k.}
+#'   \item{mu[w,k]}{The location parameter of a wrapped-Cauchy distribution for writer w and cluster k.}
+#'   \item{pi[w,k]}{The cluster fill probability for writer w and cluster k.}
+#'   \item{tau[w,k]}{The scale parameter of a wrapped-Cauchy distribution for writer w and cluster k.}
+#' }
+#' @examples
+#' # convert to a data frame and view all variable names
+#' df <- as.data.frame(example_model_1chain[[1]])
+#' colnames(df)
+#' 
+#' # analyze questioned documents
+#' analysis <- analyze_questioned_documents(
+#'   model_data = example_model_data,
+#'   model = example_model_1chain,
+#'   questioned_data = example_questioned_data,
+#'   num_cores = 2
+#' )
+#' plot_posterior_probabilities(analysis)
+#'
+#' @md
+"example_model_1chain"
+
+#' Example of a hierarchical model
+#'
+#' @format An MCMC list created by [`fit_model`] with two chains and 50 MCMC iterations per chain. 
+#' The MCMC list contains two MCMC objects, each with 50 rows and 136 columns. Each row corresponds to 
+#' an MCMC iteration and each column corresponds to a variable:
+#' \describe{
+#'   \item{eta[k]}{Hyper priors for cluster k.}
+#'   \item{gamma[k]}{The pseudo-cluster count across all writers for cluster k.}
+#'   \item{mu[w,k]}{The location parameter of a wrapped-Cauchy distribution for writer w and cluster k.}
+#'   \item{pi[w,k]}{The cluster fill probability for writer w and cluster k.}
+#'   \item{tau[w,k]}{The scale parameter of a wrapped-Cauchy distribution for writer w and cluster k.}
+#' }
+#' @examples
+#' # convert the first chain to data frame and view all variable names
+#' df <- as.data.frame(example_model_2chains[[1]])
+#' colnames(df)
+#' 
+#' # analyze questioned documents
+#' analysis <- analyze_questioned_documents(
+#'   model_data = example_model_data,
+#'   model = example_model_2chains,
+#'   questioned_data = example_questioned_data,
+#'   num_cores = 2
+#' )
+#' plot_posterior_probabilities(analysis)
+#'
+#' @md
+"example_model_2chains"
+
 #' Example of questioned data formatted for the hierarchical model
 #'
 #' @format A named list created by [`format_questioned_data`] with 2 items:

@@ -111,6 +111,20 @@ model {
   usethis::use_data(model_wrapped_cauchy, overwrite = TRUE)
 }
 
+
+make_example_models <- function(){
+  example_model_1chain <- fit_model(model_data = example_model_data,
+                                     num_iters = 50,
+                                     num_chains = 1)
+  usethis::use_data(example_model_1chain, overwrite = TRUE)
+  
+  example_model_2chains <- fit_model(model_data = example_model_data,
+                             num_iters = 50,
+                             num_chains = 2)
+  usethis::use_data(example_model_2chains, overwrite = TRUE)
+}
+
+
 make_example_questioned_clusters <- function(main_dir) {
   # get the path to the handwriter image directory
   questioned_images_dir <- system.file("extdata/example_images/questioned_images", 
@@ -133,22 +147,18 @@ make_example_questioned_clusters <- function(main_dir) {
 
 make_example_questioned_data <- function() {
   example_questioned_data <- format_questioned_data(formatted_model_data = example_model_data,
-                                                              questioned_proc_list = example_questioned_clusters,
-                                                              writer_indices=c(2,5), 
-                                                              doc_indices=c(7,18))
+                                                    questioned_proc_list = example_questioned_clusters,
+                                                    writer_indices=c(2,5), 
+                                                    doc_indices=c(7,18))
   usethis::use_data(example_questioned_data, overwrite = TRUE)
 }
 
 
 make_example_analysis <- function(num_cores) {
-  # fit model
-  draws <- fit_model(example_model_data$rjags_data, num_iters = 4000)
-  draws <- drop_burnin(draws, 1000)
-  
   # analyze questioned documents
-  example_analysis <- analyze_questioned_documents(model_training_data = example_model_data, 
-                                           draws = draws, 
-                                           questioned_data = example_questioned_data, 
-                                           num_cores = num_cores)
+  example_analysis <- analyze_questioned_documents(model_data = example_model_data, 
+                                                   model = example_model_1chain, 
+                                                   questioned_data = example_questioned_data, 
+                                                   num_cores = num_cores)
   usethis::use_data(example_analysis, overwrite = TRUE)
 }
