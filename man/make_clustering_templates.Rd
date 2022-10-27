@@ -6,6 +6,7 @@
 \usage{
 make_clustering_templates(
   template_dir,
+  template_images_dir,
   writer_indices,
   max_edges = 30,
   starting_seed = 100,
@@ -20,7 +21,9 @@ make_clustering_templates(
 )
 }
 \arguments{
-\item{template_dir}{Input directory}
+\item{template_dir}{Main directory that will store template files}
+
+\item{template_images_dir}{A directory containing template training images}
 
 \item{writer_indices}{A vector of the starting and ending location of the writer ID in the file name.}
 
@@ -69,18 +72,21 @@ input handwriting samples into groups, or \emph{clusters}, of similar graphs.
 \examples{
 \dontrun{
 main_dir <- "path/to/folder"
-template_images_dir <- system.file("extdata/example_images/template_training_images", 
-                                   package = "handwriter")
-process_batch_dir(image_batch = template_images_dir,
-template_list <- make_clustering_templates(template_dir = main_dir,
-                                           writer_indices = c(2,5), 
-                                           K = 10, 
-                                           num_dist_cores = 2, 
-                                           max_iters = 3,
-                                           num_graphs = 1000, 
-                                           starting_seed = 100, 
-                                           num_runs = 1)
-}  
+template_images_dir <- system.file("extdata/example_images/template_training_images",
+  package = "handwriter"
+)
+template_list <- make_clustering_templates(
+  template_dir = main_dir,
+  template_images_dir = template_images_dir,
+  writer_indices = c(2, 5),
+  K = 10,
+  num_dist_cores = 2,
+  max_iters = 3,
+  num_graphs = 1000,
+  starting_seed = 100,
+  num_runs = 1
+)
+}
 
 }
 \keyword{clustering}
