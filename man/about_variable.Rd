@@ -20,9 +20,16 @@ Text that explains the variable
 \code{about_variable()} returns information about the model variable.
 }
 \examples{
-model <- fit_model(model_data = model_data, num_iters = 500, num_chains = 1)
-about_variable(variable = "mu[1,2]", model_data = example_model_data, model = model)
-about_variable(variable = "gamma[5]", model_data = example_model_data, model = model)
+about_variable(
+  variable = "mu[1,2]",
+  model_data = example_model_data,
+  model = example_model_1chain
+)
+about_variable(
+  variable = "gamma[5]",
+  model_data = example_model_data,
+  model = example_model_2chains
+)
 
 }
 \keyword{model}

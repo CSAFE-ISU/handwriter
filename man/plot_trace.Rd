@@ -22,11 +22,10 @@ created by \code{\link{fit_model}}. If the model contains more than one chain, t
 chains will be combined by pasting them together.
 }
 \examples{
-model <- fit_model(model_data = example_model_data, num_iters = 500, num_chains = 1)
-plot_trace(model = model, model_data = example_model_data, variable = "pi[1,1]")
-plot_trace(model = model, model_data = example_model_data, variable = "mu[2,3]")
-plot_trace(model = model, model_data = example_model_data, variable = "gamma[1]")
-plot_trace(model = model, model_data = example_model_data, variable = "tau[2,3]")
-plot_trace(model = model, model_data = example_model_data, variable = "eta[2]")
+plot_trace(model = example_model_1chain, model_data = example_model_data, variable = "pi[1,1]")
+plot_trace(model = example_model_1chain, model_data = example_model_data, variable = "mu[2,3]")
+plot_trace(model = example_model_1chain, model_data = example_model_data, variable = "gamma[1]")
+plot_trace(model = example_model_1chain, model_data = example_model_data, variable = "tau[2,3]")
+plot_trace(model = example_model_1chain, model_data = example_model_data, variable = "eta[2]")
 
 }

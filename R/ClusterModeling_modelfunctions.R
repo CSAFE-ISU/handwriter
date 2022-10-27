@@ -12,16 +12,16 @@
 #' @examples
 #' model <- fit_model(
 #'   model_data = example_model_data,
-#'   num_iters = 500,
+#'   num_iters = 50,
 #'   num_chains = 1
 #' )
-#' model <- drop_burnin(model = model, burn_in = 250)
-# analysis <- analyze_questioned_documents(
-#   model_data = example_model_data,
-#   model = model,
-#   questioned_data = example_questioned_data,
-#   num_cores = 2
-# )
+#' model <- drop_burnin(model = model, burn_in = 25)
+#' analysis <- analyze_questioned_documents(
+#'   model_data = example_model_data,
+#'   model = model,
+#'   questioned_data = example_questioned_data,
+#'   num_cores = 2
+#' )
 #'
 #' @keywords model
 #'
@@ -48,7 +48,9 @@ fit_model <- function(model_data, num_iters, num_chains = 1) {
 #' @param burn_in An integer number of starting iterations to drop from each MCMC chain.
 #' @return A list of data frames of MCMC draws with burn-in dropped.
 #'
-#' @inherit fit_model examples
+#' @examples
+#' model <- drop_burnin(model = example_model_1chain, burn_in = 25)
+#' plot_trace(model = model, model_data = example_model_data, variable = "mu[1,2]")
 #'
 #' @keywords model
 #'
@@ -62,7 +64,7 @@ drop_burnin <- function(model, burn_in) {
 
 model_wrapped_cauchy <- "
 model {
-  for(letter in 1:numletters){  
+  for(letter in 1:numletters){
     # numletters = num unique letters with measurements
     # use zeros trick to sample from wrapped-Cauchy distribution
     nll_datamodel[letter] = -log( (1-pow(tau[letterwriter[letter], lettercluster[letter]],2)) / (2*pi_constant*(1+pow(tau[letterwriter[letter], lettercluster[letter]],2)-2*tau[letterwriter[letter], lettercluster[letter]]*cos(pc_wrapped[letter]-mu[letterwriter[letter], lettercluster[letter]]))) ) + C
@@ -75,7 +77,7 @@ model {
     gamma[g] ~ dgamma(a, b)
     eta[g] ~ dunif(0,2*pi_constant)
     for(w in 1:W){
-      # W = num unique writers 
+      # W = num unique writers
       # use zeros trick to sample from wrapped-Cauchy distribution
       mu[w,g]  ~ dunif(0,2*pi_constant)
       nld_locationparam[w,g] = -log( (1-pow(e,2)) / (2*pi_constant*(1+pow(e,2)-2*e*cos(mu[w,g]-eta[g]))) ) + C
@@ -84,12 +86,12 @@ model {
     }
   }
 
-  for (w in 1:W) {  
+  for (w in 1:W) {
     # w = writer
     pi[w,1:G] ~ ddirch(gamma[1:G] + 0.001)
   }
 
-  for(d in 1:D) {                                       
+  for(d in 1:D) {
     # d = document
     Y[d,1:G] ~ dmulti(pi[docwriter[d],1:G], docN[d])
   }
@@ -100,6 +102,7 @@ model {
   pi_1 = -pi_constant
 }"
 
+
 #' about_variable
 #'
 #' `about_variable()` returns information about the model variable.
@@ -108,52 +111,60 @@ model {
 #' @param model_data The model training data created by [`format_model_data`] and input to [`fit_model`]
 #' @param model The model created by [`fit_model`]
 #' @return Text that explains the variable
-#' 
+#'
 #' @examples
-#' model <- fit_model(model_data = model_data, num_iters = 500, num_chains = 1)
-#' about_variable(variable = "mu[1,2]", model_data = example_model_data, model = model)
-#' about_variable(variable = "gamma[5]", model_data = example_model_data, model = model)
+#' about_variable(
+#'   variable = "mu[1,2]",
+#'   model_data = example_model_data,
+#'   model = example_model_1chain
+#' )
+#' about_variable(
+#'   variable = "gamma[5]",
+#'   model_data = example_model_data,
+#'   model = example_model_2chains
+#' )
 #'
 #' @keywords model
 #'
 #' @export
 #' @md
-about_variable <- function(variable, model_data, model){
-  
+about_variable <- function(variable, model_data, model) {
   all_vars <- names(as.data.frame(model[[1]]))
-  if ( !(variable %in% all_vars) ){
+  if (!(variable %in% all_vars)) {
     stop(paste("The input variable", variable, "is not in the model."))
   }
-  
-  if (stringr::str_detect(variable, ",")){
+
+  if (stringr::str_detect(variable, ",")) {
     # get variable, writer, and cluster
     split <- strsplit(variable, "\\[|,|\\]")
     var <- split[[1]][1]
     writer <- as.integer(split[[1]][2])
     cluster <- split[[1]][3]
-    
+
     # pick text
     about <- switch(var,
-                    pi = "Pi is the cluster fill probability for writer w and cluster g",
-                    mu = "Mu is the location parameter of a wrapped-Cauchy distribution for writer w and cluster g",
-                    tau = "Tau is the scale parameter of a wrapped-Cauchy distribution for writer w and cluster g")
-    
+      pi = "Pi is the cluster fill probability for writer w and cluster g",
+      mu = "Mu is the location parameter of a wrapped-Cauchy distribution for writer w and cluster g",
+      tau = "Tau is the scale parameter of a wrapped-Cauchy distribution for writer w and cluster g"
+    )
+
     # replace writer
     writers <- unique(model_data$cluster_fill_counts$writer)
     about <- stringr::str_replace(about, " w ", paste0(" ", writers[writer], " "))
-    
+
     # replace cluster
     about <- stringr::str_replace(about, " g", paste0(" ", cluster))
   } else {
     split <- strsplit(variable, "\\[|\\]")
     var <- split[[1]][1]
     cluster <- split[[1]][2]
-    
+
     # pick text
     about <- switch(var,
-                    gamma = "Gamma is the pseudo-cluster count across all writers for cluster g",
-                    eta = "Eta is a hyper prior for cluster g")
-    
+      gamma = "Gamma is the pseudo-cluster count across all writers for cluster g",
+      eta = "Eta is a hyper prior for cluster g"
+    )
+
     # replace cluster
     about <- stringr::str_replace(about, " g", paste0(" ", cluster))
   }
@@ -177,7 +188,14 @@ about_variable <- function(variable, model_data, model){
 #' @return A list of likelihoods, votes, and posterior probabilities of
 #'   writership for each questioned document.
 #'
-#' @inherit fit_model examples
+#' @examples
+#' analysis <- analyze_questioned_documents(
+#'   model_data = example_model_data,
+#'   model = example_model_1chain,
+#'   questioned_data = example_questioned_data,
+#'   num_cores = 2
+#' )
+#' analysis$posterior_probabilities
 #'
 #' @keywords model
 #'

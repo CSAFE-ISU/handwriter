@@ -17,31 +17,31 @@
 #'
 #' @export
 #' @md
-format_template_data <- function(template){
+format_template_data <- function(template) {
   # make dataframe
   counts <- data.frame("writer" = template$writers, "doc" = template$doc, "cluster" = template$cluster)
-  
+
   # get cluster fill counts
-  counts <- counts %>% 
-    dplyr::group_by(writer, doc, cluster) %>% 
+  counts <- counts %>%
+    dplyr::group_by(writer, doc, cluster) %>%
     dplyr::summarize(count = dplyr::n())
-  
+
   # make integer
   counts <- counts %>%
     dplyr::mutate(writer = as.integer(writer))
-  
+
   # make a column for each cluster
-  counts <- counts %>% 
+  counts <- counts %>%
     tidyr::pivot_wider(names_from = cluster, values_from = count, values_fill = 0)
-  
+
   # sort cluster columns
-  sorted <- as.character(sort(unique(as.integer(colnames(counts[,-c(1,2)])))))
-  sorted <- sorted[sorted != -1]  # drop -1
-  counts <- cbind(counts[,c(1,2)], counts[,"-1"], counts[,sorted])
-  
+  sorted <- as.character(sort(unique(as.integer(colnames(counts[, -c(1, 2)])))))
+  sorted <- sorted[sorted != -1] # drop -1
+  counts <- cbind(counts[, c(1, 2)], counts[, "-1"], counts[, sorted])
+
   # make list
   data <- list("cluster_fill_counts" = counts)
-  
+
   return(data)
 }
 
@@ -174,7 +174,7 @@ format_model_data <- function(model_proc_list, writer_indices, doc_indices, a = 
 #'   document names.
 #' @return List of data formatted analysis.
 #'
-#' @inherit example_model_clusters examples
+#' @inherit example_questioned_clusters examples
 #'
 #' @export
 #' @md
@@ -258,7 +258,6 @@ format_questioned_data <- function(formatted_model_data, questioned_proc_list, w
 #'   from which the graph was obtained, and the cluster to which that graph is assigned.
 #' @return A dataframe of cluster fill counts for each document in the input data frame.
 #'
-#' @export
 #' @md
 get_cluster_fill_counts <- function(df) {
   # count number of graphs in each cluster for each writer
