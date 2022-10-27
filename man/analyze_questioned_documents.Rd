@@ -28,18 +28,13 @@ writership for the questioned documents using MCMC draws from a hierarchical
 model created with \code{fit_model()}.
 }
 \examples{
-model <- fit_model(
-  model_data = example_model_data,
-  num_iters = 500,
-  num_chains = 1
-)
-model <- drop_burnin(model = model, burn_in = 250)
 analysis <- analyze_questioned_documents(
   model_data = example_model_data,
-  model = model,
+  model = example_model_1chain,
   questioned_data = example_questioned_data,
   num_cores = 2
 )
+analysis$posterior_probabilities
 
 }
 \keyword{model}
