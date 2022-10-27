@@ -129,7 +129,7 @@ model {
 #' @export
 #' @md
 about_variable <- function(variable, model_data, model) {
-  all_vars <- names(as.data.frame(model[[1]]))
+  all_vars <- names(as.data.frame(coda::as.mcmc(model[[1]])))
   if (!(variable %in% all_vars)) {
     stop(paste("The input variable", variable, "is not in the model."))
   }
@@ -294,7 +294,7 @@ format_draws <- function(model) {
 
   # convert mcmc object to list of data frames
   draws_to_dataframe <- function(model_chain) {
-    draws <- as.data.frame(model_chain)
+    draws <- as.data.frame(coda::as.mcmc(model_chain))
     draws <- list(
       pis = draws[, grep(x = colnames(draws), pattern = "pi")],
       mus = draws[, grep(x = colnames(draws), pattern = "mu")],

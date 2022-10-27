@@ -9,11 +9,11 @@ An MCMC list created by \code{\link{fit_model}} with two chains and 50 MCMC iter
 The MCMC list contains two MCMC objects, each with 50 rows and 136 columns. Each row corresponds to
 an MCMC iteration and each column corresponds to a variable:
 \describe{
-\item{eta\link{k}}{Hyper priors for cluster k.}
-\item{gamma\link{k}}{The pseudo-cluster count across all writers for cluster k.}
-\item{mu\link{w,k}}{The location parameter of a wrapped-Cauchy distribution for writer w and cluster k.}
-\item{pi\link{w,k}}{The cluster fill probability for writer w and cluster k.}
-\item{tau\link{w,k}}{The scale parameter of a wrapped-Cauchy distribution for writer w and cluster k.}
+\item{eta[k]}{Hyper priors for cluster k.}
+\item{gamma[k]}{The pseudo-cluster count across all writers for cluster k.}
+\item{mu[w,k]}{The location parameter of a wrapped-Cauchy distribution for writer w and cluster k.}
+\item{pi[w,k]}{The cluster fill probability for writer w and cluster k.}
+\item{tau[w,k]}{The scale parameter of a wrapped-Cauchy distribution for writer w and cluster k.}
 }
 }
 \usage{

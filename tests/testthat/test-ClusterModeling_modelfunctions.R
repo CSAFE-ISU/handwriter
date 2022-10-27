@@ -13,6 +13,7 @@ test_that("fit model with a single chain works", {
 })
 
 test_that("drop burn-in works on a single chain", {
+  iters = 50
   burnin = 25
   model <- drop_burnin(model = example_model_1chain, burn_in = burnin)
   
@@ -143,4 +144,3 @@ test_that("about variable works with multiple chains", {
                               model = example_model_2chains), 
                "Eta is a hyper prior for cluster 6")
 })
-

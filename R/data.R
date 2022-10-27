@@ -231,11 +231,11 @@
 #' The MCMC list contains a single MCMC object with 50 rows and 136 columns. Each row corresponds to
 #' an MCMC iteration and each column corresponds to a variable:
 #' \describe{
-#'   \item{eta[k]}{Hyper priors for cluster k.}
-#'   \item{gamma[k]}{The pseudo-cluster count across all writers for cluster k.}
-#'   \item{mu[w,k]}{The location parameter of a wrapped-Cauchy distribution for writer w and cluster k.}
-#'   \item{pi[w,k]}{The cluster fill probability for writer w and cluster k.}
-#'   \item{tau[w,k]}{The scale parameter of a wrapped-Cauchy distribution for writer w and cluster k.}
+#'   \item{eta\[k\]}{Hyper priors for cluster k.}
+#'   \item{gamma\[k\]}{The pseudo-cluster count across all writers for cluster k.}
+#'   \item{mu\[w,k\]}{The location parameter of a wrapped-Cauchy distribution for writer w and cluster k.}
+#'   \item{pi\[w,k\]}{The cluster fill probability for writer w and cluster k.}
+#'   \item{tau\[w,k\]}{The scale parameter of a wrapped-Cauchy distribution for writer w and cluster k.}
 #' }
 #' @examples
 #' # convert to a data frame and view all variable names
@@ -260,11 +260,11 @@
 #' The MCMC list contains two MCMC objects, each with 50 rows and 136 columns. Each row corresponds to
 #' an MCMC iteration and each column corresponds to a variable:
 #' \describe{
-#'   \item{eta[k]}{Hyper priors for cluster k.}
-#'   \item{gamma[k]}{The pseudo-cluster count across all writers for cluster k.}
-#'   \item{mu[w,k]}{The location parameter of a wrapped-Cauchy distribution for writer w and cluster k.}
-#'   \item{pi[w,k]}{The cluster fill probability for writer w and cluster k.}
-#'   \item{tau[w,k]}{The scale parameter of a wrapped-Cauchy distribution for writer w and cluster k.}
+#'   \item{eta\[k\]}{Hyper priors for cluster k.}
+#'   \item{gamma\[k\]}{The pseudo-cluster count across all writers for cluster k.}
+#'   \item{mu\[w,k\]}{The location parameter of a wrapped-Cauchy distribution for writer w and cluster k.}
+#'   \item{pi\[w,k\]}{The cluster fill probability for writer w and cluster k.}
+#'   \item{tau\[w,k\]}{The scale parameter of a wrapped-Cauchy distribution for writer w and cluster k.}
 #' }
 #' @examples
 #' # convert the first chain to data frame and view all variable names
