@@ -22,8 +22,23 @@ library(dendextend)
 
 ## Template data
 ```{r}
+# main_dir <- "/users/stephanie/Documents/CSAFE_template_quality_measure"
+# 
+# templates <- make_clustering_templates(template_dir = main_dir,
+#                                        writer_indices = c(2,5),
+#                                        starting_seed = 200,
+#                                        K = 10,
+#                                        num_runs = 1,
+#                                        num_dist_cores = 5,
+#                                        max_iters = 3,
+#                                        num_graphs = 1000)
+```
+
+
+
+```{r}
 # load template
-all_templates <- readRDS("~/Documents/CSAFE_template_quality_measure/template_seed100/data/all_templates.rds")
+all_templates <- readRDS("/users/stephanie/Documents/CSAFE_template_quality_measure/template_seed200/data/all_templates.rds")
 template <- all_templates[[1]]
 rm(all_templates)
 ```
@@ -74,34 +89,26 @@ plot_posterior_probabilities(analysis)
 
 
 ## Hierarchical clustering
-### Wrangle data
+### Cluster fill counts
 ```{r}
-df <- data.frame(writer = template$writers, doc = template$docnames, cluster = template$cluster, stringsAsFactors = FALSE)
+# drop outlier cluster
+counts <- template_data$cluster_fill_counts[,-3]
 
-# count graphs per cluster per document
-df <- df %>% dplyr::group_by(writer, doc, cluster) %>% dplyr::summarize(count = dplyr::n())
+# drop clusters with few observations
+# clusters_only <- counts[,-c(1,2)]
+# clusters_only <- clusters_only[,colSums(clusters_only) > 9]
+# counts <- cbind(counts[,c(1,2)], clusters_only)
 
-# make a column for each cluster
-df <- df %>% tidyr::pivot_wider(names_from = cluster, values_from = count, values_fill = 0)
-
-# convert to matrix and use docnames as rownames
-docnames <- df$doc
-M <- df %>% dplyr::ungroup() %>% dplyr::select(-writer, -doc)
-M <- as.matrix(M)
-rownames(M) <- docnames
-```
-
-## Apply hierarchical clustering
-```{r}
 dist_methods <- c("euclidean", "maximum", "manhattan", "canberra", "binary", "minkowski")
 hclust_methods <- c("ward.D", "ward.D2", "single", "complete", "average", "mcquitty", "median", "centroid")
 
 method <- c()
 results <- list()
+plots <- list()
 for (i in 1:length(dist_methods)){
   
   # calculate distances between all pairs of documents
-  D <- dist(df[,3:ncol(df)], method = dist_methods[i])
+  D <- dist(counts[,3:ncol(counts)], method = dist_methods[i])
   
   for (j in 1:length(hclust_methods)){
     # store methods 
@@ -112,19 +119,116 @@ for (i in 1:length(dist_methods)){
     
     # evaluate
     cluster_cut <- cutree(hc, k=10)
-    t <- table(cluster_cut, df$writer)
+    temp_df <- data.frame(writer = counts$writer,
+                          doc = counts$doc,
+                          cluster = cluster_cut)
     
-    # store table
-    results <- append(results, list(t))
+    # plot
+    p <- temp_df %>% 
+      dplyr::mutate(writer = factor(writer), cluster = factor(cluster)) %>%
+      ggplot(aes(x=cluster, group=writer)) + 
+      geom_bar(aes(fill=writer)) +
+      labs(title = paste0("dist-", dist_methods[i], "_hclust-", hclust_methods[j]))
+      theme_bw()
+    
+    # store data frame and plot 
+    results <- append(results, list(temp_df))
+    plots <- append(plots, list(p))
   }
 }
 
 # name tables
-names(results) <- method
+names(plots) <- method
 
-lapply(results, function(x) rowSums(x)) 
+plots
 ```
 
+
+### Cluster fill rates
+```{r}
+# convert counts to rates
+rates <- as.matrix(template_data$cluster_fill_counts[,-c(1,2,3)])
+rates <- rates / rowSums(rates)
+
+# switch back to dataframe
+rates <- cbind(template_data$cluster_fill_counts[,c(1,2)], as.data.frame(rates))
+
+# cluster
+dist_methods <- c("euclidean", "maximum", "manhattan", "canberra", "binary", "minkowski")
+hclust_methods <- c("ward.D", "ward.D2", "single", "complete", "average", "mcquitty", "median", "centroid")
+
+method <- c()
+results <- list()
+plots <- list()
+for (i in 1:length(dist_methods)){
+  
+  # calculate distances between all pairs of documents
+  D <- dist(rates[,3:ncol(rates)], method = dist_methods[i])
+  
+  for (j in 1:length(hclust_methods)){
+    # store methods 
+    method <- append(method, paste0("dist-", dist_methods[i], "_hclust-", hclust_methods[j]))
+    
+    # cluster
+    hc <- hclust(D, method = hclust_methods[j])
+    
+    # evaluate
+    cluster_cut <- cutree(hc, k=10)
+    temp_df <- data.frame(writer = rates$writer,
+                          doc = rates$doc,
+                          cluster = cluster_cut)
+    
+    # plot
+    p <- temp_df %>% 
+      dplyr::mutate(writer = factor(writer), cluster = factor(cluster)) %>%
+      ggplot(aes(x=cluster, group=writer)) + 
+      geom_bar(aes(fill=writer)) +
+      labs(title = paste0("dist-", dist_methods[i], "_hclust-", hclust_methods[j]))
+      theme_bw()
+    
+    # store data frame and plot 
+    results <- append(results, list(temp_df))
+    plots <- append(plots, list(p))
+  }
+}
+
+# name tables
+names(plots) <- method
+
+plots
+```
+
+### Look at each step 
+```{r}
+# calculate distances between all pairs of documents
+D <- dist(rates[,3:ncol(rates)], method = "canberra")
+
+# cluster
+hc <- hclust(D, method = "ward.D")
+  
+# evaluate
+results <- list()
+plots <- list()
+for (i in 1:30){
+  cluster_cut <- cutree(hc, k = i)
+  temp_df <- data.frame(writer = rates$writer,
+                        doc = rates$doc,
+                        cluster = cluster_cut)
+  
+  # plot
+  p <- temp_df %>% 
+    dplyr::mutate(writer = factor(writer), cluster = factor(cluster)) %>%
+    ggplot(aes(x=cluster, group=writer)) + 
+    geom_bar(aes(fill=writer)) +
+    theme_bw()
+  
+  # store data frame and plot 
+  results <- append(results, list(temp_df))
+  plots <- append(plots, list(p))
+}
+
+plots
+```
 
 
 
@@ -136,14 +240,14 @@ standardize <- function(x){
   return(x)
 }
 
-X <- apply(df[,3:ncol(df)], 2, function(x) standardize(x))
+X <- apply(template_data$cluster_fill_counts[,3:ncol(template_data$cluster_fill_counts)], 2, function(x) standardize(x))
 
 method2 <- c()
 results2 <- list()
 for (i in 1:length(dist_methods)){
   
   # calculate distances between all pairs of documents
-  D <- dist(df[,3:ncol(df)], method = dist_methods[i])
+  D <- dist(template_data$cluster_fill_counts[,3:ncol(template_data$cluster_fill_counts)], method = dist_methods[i])
   
   for (j in 1:length(hclust_methods)){
     # store methods 
@@ -154,7 +258,7 @@ for (i in 1:length(dist_methods)){
     
     # evaluate
     cluster_cut <- cutree(hc, k=10)
-    t <- table(cluster_cut, df$writer)
+    t <- table(cluster_cut, template_data$cluster_fill_counts$writer)
     
     # store table
     results2 <- append(results2, list(t))
