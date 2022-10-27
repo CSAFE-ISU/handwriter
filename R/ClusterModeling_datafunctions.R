@@ -36,9 +36,13 @@ format_template_data <- function(template) {
 
   # sort cluster columns
   sorted <- as.character(sort(unique(as.integer(colnames(counts[, -c(1, 2)])))))
-  sorted <- sorted[sorted != -1] # drop -1
-  counts <- cbind(counts[, c(1, 2)], counts[, "-1"], counts[, sorted])
-
+  if ("-1" %in% colnames(counts)){  # outliers
+    sorted <- sorted[sorted != -1] 
+    counts <- cbind(counts[, c(1, 2)], counts[, "-1"], counts[, sorted])
+  } else {  # no outliers
+    counts <- cbind(counts[, c(1, 2)], counts[, sorted])
+  }
+  
   # make list
   data <- list("cluster_fill_counts" = counts)
 
