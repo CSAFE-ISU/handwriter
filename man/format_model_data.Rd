@@ -42,25 +42,3 @@ List of data formatted for rjags.
 \description{
 \code{format_model_data()} formats the data need for the rjags model.
 }
-\examples{
-# format model data
-model_data <- format_model_data(
-  model_proc_list = example_model_clusters,
-  writer_indices = c(2, 5),
-  doc_indices = c(7, 18),
-  a = 2, b = 0.25, c = 2, d = 2, e = 0.5
-)
-
-# plot cluster fill counts
-plot_cluster_fill_counts(model_data)
-
-\dontrun{
-# fit model
-model <- fit_model(
-  model_data = model_data,
-  num_iters = 50,
-  num_chains = 1
-)
-}
-
-}

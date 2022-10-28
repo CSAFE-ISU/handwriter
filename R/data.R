@@ -107,124 +107,6 @@
 #' @md
 "example_cluster_template"
 
-#' Example model training data with cluster assignments.
-#'
-#' The model training handwriting documents used for this example are included
-#' in the package. They are located in
-#' `system.file("extdata/example_images/template_training_images", package =
-#' "handwriter")`. The documents were first processed with
-#' [`process_batch_dir`] then their processed graphs where assigned to the
-#' nearest cluster in the example cluster template with
-#' [`get_clusterassignment`].
-#'
-#' @format List created by [`get_clusterassignment`] with extra fields removed
-#'   to make the example file smaller.
-#' @examples
-#' # format model data
-#' model_data <- format_model_data(
-#'   model_proc_list = example_model_clusters,
-#'   writer_indices = c(2, 5),
-#'   doc_indices = c(7, 18),
-#'   a = 2, b = 0.25, c = 2, d = 2, e = 0.5
-#' )
-#'
-#' # plot cluster fill counts
-#' plot_cluster_fill_counts(model_data)
-#'
-#' \dontrun{
-#' # fit model
-#' model <- fit_model(
-#'   model_data = model_data,
-#'   num_iters = 50,
-#'   num_chains = 1
-#' )
-#' }
-#'
-#' @md
-"example_model_clusters"
-
-#' Example questioned documents with with cluster assignments.
-#'
-#' The example questioned documents are included in the package. They are
-#' located in `system.file("extdata/example_images/template_training_images",
-#' package = "handwriter")`. The documents were first processed with
-#' [`process_batch_dir`] then their processed graphs where assigned to the
-#' nearest cluster in the example cluster template with
-#' [`get_clusterassignment`].
-#'
-#' @format List created by [`get_clusterassignment`] with extra fields removed
-#'   to make the example file smaller.
-#'
-#' @examples
-#' # format questioned data
-#' questioned_data <- format_questioned_data(
-#'   formatted_model_data = example_model_data,
-#'   questioned_proc_list = example_questioned_clusters,
-#'   writer_indices = c(2, 5),
-#'   doc_indices = c(7, 18)
-#' )
-#'
-#' # plot cluster fill counts
-#' plot_cluster_fill_counts(questioned_data)
-#'
-#' # analyze questioned documents
-#' analysis <- analyze_questioned_documents(
-#'   model_data = example_model_data,
-#'   model = example_model_1chain,
-#'   questioned_data = example_questioned_data,
-#'   num_cores = 2
-#' )
-#' analysis$posterior_probabilities
-#'
-#' @md
-"example_questioned_clusters"
-
-#' Example of formatted model data
-#'
-#' @format A named list created by [`format_model_data`] with 19 items:
-#' \describe{
-#'   \item{Y}{data frame of cluster fill counts for each document}
-#'   \item{G}{number of clusters}
-#'   \item{D}{number of documents}
-#'   \item{W}{number of writers}
-#'   \item{docN}{number of graphs in each document}
-#'   \item{docwriter}{writer id of each document}
-#'   \item{zero_vec}{vector of zeros for used for the zeros-trick}
-#'   \item{Gsmall}{number of non-empty clusters}
-#'   \item{numletters}{total number of graphs}
-#'   \item{pc_wrapped}{principal component rotation angle of each graph}
-#'   \item{letterwriter}{writer id of each graph}
-#'   \item{lettercluster}{cluster assignment of each graph}
-#'   \item{zero_mat}{matrix of zeros for the zeros-trick}
-#'   \item{a}{parameter}
-#'   \item{b}{parameter}
-#'   \item{c}{parameter}
-#'   \item{d}{parameter}
-#'   \item{e}{paramter}
-#' }
-#' @examples
-#' plot_cluster_fill_counts(example_model_data)
-#'
-#' \dontrun{
-#' model <- fit_model(
-#'   model_data = example_model_data,
-#'   num_iters = 50,
-#'   num_chains = 1
-#' )
-#' }
-#'
-#' @md
-"example_model_data"
-
-#' RJAGS Wrapped Cauchy Model
-#'
-#' @format Wrapped Cauchy model written in RJAGS syntax.
-#' @examples
-#' rjags_model <- textConnection(model_wrapped_cauchy)
-#' model_data <- example_model_data$rjags_data
-#' m <- rjags::jags.model(file = rjags_model, data = model_data, n.chains = 1)
-"model_wrapped_cauchy"
-
 #' Example of a hierarchical model
 #'
 #' @format An MCMC list created by [`fit_model`] with a single chain and 50 MCMC iterations.
@@ -283,30 +165,23 @@
 #' @md
 "example_model_2chains"
 
-#' Example of questioned data formatted for the hierarchical model
+#' Example of writership analysis
 #'
-#' @format A named list created by [`format_questioned_data`] with 2 items:
+#' @format A named list created by [`analyze_questioned_documents`] with 3 items:
 #'   \describe{
-#'   \item{graph_measurements}{data frame that shows the writer ID,
-#'   document ID, slope, principal component rotation angle, and wrapped
-#'   principal rotation angle for each graph }
-#'   \item{cluster_fill_counts}{data frame that shows the number of graphs
-#'   assigned to each cluster for each document.}
+#'   \item{likelihoods}{list of data frames where each data frame
+#'   contains the likelihoods for a questioned document for each MCMC iteration.}
+#'   \item{votes}{list of vote tallys for each questioned document.}
+#'   \item{posterior_probabilites}{list of posterior probabilities of writership
+#'   for each questioned document and each known writer in the closed set used to train the
+#'   hierarchical model.}
 #'   }
 #'
 #' @examples
-#' plot_cluster_fill_counts(example_questioned_data)
-#'
-#' # analyze questioned documents
-#' analysis <- analyze_questioned_documents(
-#'   model_data = example_model_data,
-#'   model = example_model_2chains,
-#'   questioned_data = example_questioned_data,
-#'   num_cores = 2
-#' )
+#' plot_posterior_probabilities(analysis = example_analysis)
 #'
 #' @md
-"example_questioned_data"
+"example_analysis_1chain"
 
 #' Example of writership analysis
 #'
@@ -324,4 +199,4 @@
 #' plot_posterior_probabilities(analysis = example_analysis)
 #'
 #' @md
-"example_analysis"
+"example_analysis_2chains"

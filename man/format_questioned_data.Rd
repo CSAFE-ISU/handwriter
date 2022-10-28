@@ -31,25 +31,3 @@ List of data formatted analysis.
 \code{format_questioned_data()} formats the questioned data for analysis with the
 hierarchical model.
 }
-\examples{
-# format questioned data
-questioned_data <- format_questioned_data(
-  formatted_model_data = example_model_data,
-  questioned_proc_list = example_questioned_clusters,
-  writer_indices = c(2, 5),
-  doc_indices = c(7, 18)
-)
-
-# plot cluster fill counts
-plot_cluster_fill_counts(questioned_data)
-
-# analyze questioned documents
-analysis <- analyze_questioned_documents(
-  model_data = example_model_data,
-  model = example_model_1chain,
-  questioned_data = example_questioned_data,
-  num_cores = 2
-)
-analysis$posterior_probabilities
-
-}

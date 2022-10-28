@@ -68,8 +68,6 @@ format_template_data <- function(template) {
 #' @param e Scalar
 #' @return List of data formatted for rjags.
 #'
-#' @inherit example_model_clusters examples
-#'
 #' @export
 #' @md
 format_model_data <- function(model_proc_list, writer_indices, doc_indices, a = 2, b = 0.25, c = 2, d = 2, e = 0.5) {
@@ -171,8 +169,6 @@ format_model_data <- function(model_proc_list, writer_indices, doc_indices, a = 
 #' @param doc_indices Vector of start and end indices for the document id in the
 #'   document names.
 #' @return List of data formatted analysis.
-#'
-#' @inherit example_questioned_clusters examples
 #'
 #' @export
 #' @md
