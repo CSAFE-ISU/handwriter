@@ -21,22 +21,13 @@ knitr::opts_chunk$set(
 library(handwriter)
 ```
 
-## Overview
+## Introduction
 
-**TO DO: Add the following:**
--Reference Amy's papers 
--Explain the scenario: questioned document(s) and a closed set of writers
--Estimates posterior probability of writership for each questioned document and each writer in the closed set
--We will use example documents included in the handwriter package
--Explain that processing handwriting produces *graphs*.
+This tutorial explains how to perform handwriting analysis on questioned documents using handwriter. In particular, handwriter addresses the scenario where an investigator has a questioned handwritten document, a group of persons of interest has been identified, and the questioned document had to have been written by one of the persons of interest. For example, image that a handwritten bomb threat was left at a school's main desk and the police discover that the note had to have been written by one of the ten students who had detention that day. More details on this method can be found in [Crawford 2022].
 
-## Getting Started
-Choose a directory on your computer to store the files that handwriter will produce. This directory will eventually store:
+## Create the Main Template Directory
 
-1. Processed handwriting documents for creating a cluster template and training a Bayesian hierarchical. It will also store the processed questioned document(s).
-2. Cluster template(s)
-3. A Bayesian hierarcical model fit to the processed model training documents
-4. Writership analysis of the questioned document(s).
+Choose a file path for the main template directory. All template related files will be stored here. This code creates the main template directory if it doesn't already exist on your computer.
 
 ```{r}
 main_dir <- file.path(getwd(), "handwriter_example")
@@ -45,157 +36,129 @@ main_dir <- file.path(getwd(), "handwriter_example")
 if(!dir.exists(main_dir)){dir.create(main_dir)}
 ```
 
-## Create a clustering template
-**TO DO: Summarize the training docs**
+## Create a Cluster Template
 
-We will use the example template training documents included in the handwriter package. Get the file path to these documents.
-```{r}
+We create a new cluster template using the example template training documents included handwriter. The template training documents are from the [CSAFE handwriting database](https://data.csafe.iastate.edu/HandwritingDatabase/) and consist of a single writing prompt from 10 writers. The prompt is the first repetition of the London Letter from the first writing session.
+
+The function `make_clustering_templates` does the following:
+
+1.  Processes the template training documents in `template_images_dir`, decomposing the handwriting into component shapes called *graphs*. The processed graphs are saved in RDS files in main_dir \> data \> template_graphs.
+2.  Deletes graphs with more than the maximum number of edges specified by `max_edges.`
+3.  Selects which template training graphs to use to create the template. If `num_graphs = 'All'` then all graphs are used. Otherwise, a stratified random sample of graphs is selected: floor( `num_graphs` /# training documents ) graphs are selected from each training document.
+4.  Randomly selects `K` starting cluster centers.
+5.  Runs a K-means algorithm with the `K` starting cluster centers and the selected graphs. The algorithm groups the selected graphs into `K` clusters. The final grouping of `K` clusters is the cluster template.
+
+```{r, results = FALSE}
 template_images_dir <- system.file("extdata/example_images/template_training_images", 
                                    package = "handwriter")
+
+template <- make_clustering_templates(template_dir = main_dir,
+                                      template_images_dir = template_images_dir,
+                                      writer_indices = c(2,5),
+                                      max_edges = 30,
+                                      K = 10,
+                                      num_dist_cores = 2,
+                                      max_iters = 3,
+                                      num_graphs = 1000,
+                                      seed = 100)
 ```
 
-Process the template training documents to transform the handwriting into graphs. Output the processed graphs to main_dir > data > template_graphs. The function will create this directory automatically, and the [`make_clustering_templates`] function will look for the template training graphs here. 
+The idea behind the cluster template and the hierarchical model that we can decompose a handwritten document into component graphs, assign each graph to the *nearest* cluster, the cluster with the closest shape, in the cluster template, and count the number of graphs in each cluster. We characterize writers by *cluster fill counts*, the number of a writer's graphs that are assigned to each cluster. Plot the cluster fill counts for each writer in the template training set.
+
 ```{r}
-# process the handwriting
-template_proc_list <- process_batch_dir(input_dir = template_images_dir,
-                                        output_dir = file.path(main_dir, "data", "template_graphs"),
-                                        transform_output = 'document')
-```
-
-
-The writer ids included in 2nd-5th characters of the file names of the training documents so we use `writer_indices = c(2,5)`.
-
-Create a cluster template with `K=10` clusters. 
-
-Choose the number of cores you would like to use with `num_dist_cores`. 
-
-The input `max_iters` determines how many iterations the K-means algorithm could perform. In practice, we recommend using at least 20 iterations. Here will will use `max_iters=3` in interest of speed. 
-
-Again, in interest of speed for this example we will only use 1000 graphs for creating the cluster template. In practice, use `num_graphs = 'All'` to use all available training graphs. 
-
-Choose a starting seed. These seed determines the starting cluster centers for the K-means algorithm. 
-
-Choose the number of cluster templates to create with `num_runs`. If the starting seed is 100 and `num_runs=3` then cluster templates will be created with seeds 100, 101, and 102. 
-```{r}
-template_list <- make_clustering_templates(template_dir = main_dir,
-                                           writer_indices = c(2,5),
-                                           K = 10,
-                                           num_dist_cores = 2,
-                                           max_iters = 3,
-                                           num_graphs = 1000,
-                                           starting_seed = 100,
-                                           num_runs = 1)
-```
-
-Plot the cluster fill counts for each document in the template training set.
-```{r}
-template_data <- format_template_data(template = template_list[[1]])
+template_data <- format_template_data(template = template)
 plot_cluster_fill_counts(template_data, facet = TRUE)
 ```
 
-## Fit a Bayesian Hierarchical Model
-**TO DO: 
+The cluster labeled -1 is the outlier cluster. The graphs in the outlier cluster will not be used to fit the model.
 
-- **Summarize the training docs**
-- **add reference to Amy's paper**
-- **Discuss model - mention that priors assume each writer in closed set is equally likely**
+## Fit a Hierarchical Model
 
-The next step is to fit a Bayesian hierarchical model. We will use the model training handwriting documents included in handwriter. Get the file path to these documents.
-```{r}
+We will use handwriting samples from each person of interest, calculate the cluster fill counts from each sample using the cluster template, and fit a hierarchical model to estimate each person of interest's true cluster fill counts. In this example, we pretend that our persons of interest are 5 writers from the [CSAFE handwriting database](https://data.csafe.iastate.edu/HandwritingDatabase/). These writers are different from the template training writers. We use the 3 Wizard of Oz prompts from the first writing session from each of the 5 writers to fit the model.
+
+We fit a hierarchical model with the function `fit_model`. This function does the following:
+
+1.  Processes the model training documents in `model_images_dir`, decomposing the handwriting into component graphs. The processed graphs are saved in RDS files in main_dir \> data \> model_graphs.
+2.  Calculates the cluster fill counts for each document by assigning each graph to the nearest cluster in the cluster template and counting the number of graphs assigned to each cluster. The cluster assignments are saved in main_dir \> data \> model_clusters.rds
+3.  Fits a hierarchical model to the cluster fill counts using the RJAGS package and draws posterior samples of model parameters with the coda package.
+
+In this example, we use 100 MCMC iterations for the model in interest of speed. In practice you will likely need to use more iterations. The inputs `writer_indices` and `doc_indices` are the starting and stopping characters in the model training documents file names that contains the writer ID and a document name.
+
+```{r, results = FALSE}
 model_images_dir <- system.file("extdata/example_images/model_training_images", 
                                 package = "handwriter")
+model <- fit_model(template_dir = main_dir, 
+                   model_images_dir = model_images_dir,
+                   num_iters = 100, 
+                   num_chains = 1, 
+                   writer_indices = c(2,5), 
+                   doc_indices = c(7,18))
 ```
 
-Process the model training documents to transform the handwriting into graphs. Output the processed graphs to main_dir > data > model_graphs. The function will create this directory automatically.
+Plot the cluster fill counts for the model training documents. These cluster fill counts are the features used to train the model.
+
 ```{r}
-# process the handwriting
-model_proc_list <- process_batch_dir(input_dir = model_images_dir,
-                                     output_dir = file.path(main_dir, "data", "model_graphs"),
-                                     transform_output = 'document')
+plot_cluster_fill_counts(model, facet = TRUE)
 ```
-  
-Use the cluster template to assign the processed model training graphs to the nearest cluster. `template_list` is a list of templates so we access the first (and only in this case) template with `template_list[[1]]`.
-```{r}  
-model_clusters <- get_clusterassignment(clustertemplate = template_list[[1]],
-                                        input_dir = file.path(main_dir, "data", "model_graphs"))
-```
+List the variables in the model.
 
-Format the model training data for the hierarchical model. The writer IDs are recorded in the model training documents' file names in characters 2-5. The remainder of the file name can be use as the document name to distinguish between multiple documents from the same writer. The 6th character is an underscore, so we choose to omit it here.
-
-**TO DO: Explain model parameters**
 ```{r}
-model_data <- format_model_data(model_proc_list = model_clusters, 
-                                writer_indices = c(2,5), 
-                                doc_indices = c(7,18), 
-                                a = 2, b = 0.25, c = 2, d = 2, e = 0.5)
+names(as.data.frame(coda::as.mcmc(model$fitted_model[[1]])))
 ```
 
-Plot the cluster fill counts for the model training documents.
+View a description of a variable.
+
 ```{r}
-plot_cluster_fill_counts(model_data, facet = TRUE)
+about_variable(variable = "mu[1,1]", model = model)
 ```
 
-Now that the model training data has been properly formatted, we can fit the model. The `fit_model` function 
-is a wrapped for `rjags::jags.model`. The RJAGS model that we use is 
-```{r comment='', echo=FALSE}
-cat(readLines("model_wrapped_cauchy.txt"), sep = '\n')
-```
+View a trace plot of a variable.
 
-For this example we use 100 MCMC iterations for the model in interest of speed. In practice you will likely need to use more iterations.
 ```{r}
-model <- fit_model(model_data, num_iters = 100)
+plot_trace(variable = "mu[1,1]", model = model)
 ```
-
-See [handwriter model diagnostics](model-diagnostics.html) for information on available model diagnostic tools.
 
 Drop the first 25 MCMC iterations for burn-in.
+
 ```{r}
 model <- drop_burnin(model, burn_in = 25)
 ```
 
 ## Analyze Questioned Documents
-We will use the "questioned" documents included in handwriter. In this case, we know the ground truth of who wrote each document so we will be able to measure the accuracy. Get the file path to these documents.
-```{r}
+
+In practice, we would not know who wrote a questioned document, but in this example let's use documents where we know the ground truth so that we can evaluate the accuracy of the model. Let's pretend that a handwriting sample from each of the 5 "persons of interest" is a questioned document. These documents are also from the [CSAFE handwriting database](https://data.csafe.iastate.edu/HandwritingDatabase/). We estimate the posterior probability of writership for each of the questioned documents with the function `analyze_questioned_documents`. This function does the following:
+
+1.  Processes the questioned documents in `questioned_images_dir`, decomposing the handwriting into component graphs. The processed graphs are saved in RDS files in main_dir \> data \> questioned_graphs.
+2.  Calculates the cluster fill counts for each questioned document by assigning each graph to the nearest cluster in the cluster template and counting the number of graphs assigned to each cluster. The cluster assignments are saved in main_dir \> data \> questioned_clusters.rds
+3.  Uses the fitted model to estimate the posterior probability of writership for each quesitoned document and each person of interest. The results are saved in main_dir \> data \> analysis.rds.
+
+```{r, results = FALSE}
 questioned_images_dir <- system.file("extdata/example_images/questioned_images", 
                                      package = "handwriter")
-```
 
-Process the questioned documents to transform the handwriting into graphs. Output the processed graphs to main_dir > data > questioned_graphs. The function will create this directory automatically.
-```{r}
-questioned_proc_list <- process_batch_dir(input_dir = questioned_images_dir,
-                                          output_dir = file.path(main_dir, "data", "questioned_graphs"),
-                                          transform_output = 'document')
-```
-
-Use the cluster template to assign the processed questioned graphs to the nearest cluster. Again, `template_list` is a list of templates so we access the first (and only in this case) template with `template_list[[1]]`.
-```{r}
-questioned_clusters <- get_clusterassignment(clustertemplate = template_list[[1]], 
-                                             input_dir = file.path(main_dir, "data", "questioned_graphs"))
-```
-
-Format the questioned data so that we can use it with the fitted model. As with the model documents, the write ID is contained in characters 2-5 of the filename and we use the remainder of the file name, minus the underscore in the 6th character, as the document name in case a writer has multiple documents. In practice, we would not know the writer of a questioned document so we would assign a unique identifier at the beginning of the document's filename.
-```{r}
-questioned_data <- format_questioned_data(formatted_model_data = model_data,
-                                          questioned_proc_list = questioned_clusters,
-                                          writer_indices=c(2,5), 
-                                          doc_indices=c(7,18))
-```
-
-Plot the cluster fill counts for the questioned documents.
-```{r}
-plot_cluster_fill_counts(questioned_data, facet = TRUE)
-```
-
-Use the fitted model to estimate the posterior probability of writership.
-```{r}
-analysis <- analyze_questioned_documents(model_data = model_data, 
+analysis <- analyze_questioned_documents(template_dir = main_dir, 
+                                         questioned_images_dir = questioned_images_dir, 
                                          model = model, 
-                                         questioned_data = questioned_data, 
                                          num_cores = 2)
 ```
 
+View the cluster fill counts for each questioned document. Intuitively, the model assesses which writer's cluster fill counts look the most like the cluster fill counts observed in each questioned document.
+
+```{r}
+plot_cluster_fill_counts(analysis, facet = TRUE)
+```
+
+View the posterior probabilities of writership.
+
+```{r}
+analysis$posterior_probabilities
+```
+
 Plot the posterior probabilities of writership.
+
 ```{r out.width="100%", fig.cap="Posterior probabilities of writership."}
 plot_posterior_probabilities(analysis)
 ```
+
+
 

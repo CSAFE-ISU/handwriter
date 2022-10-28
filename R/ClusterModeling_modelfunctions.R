@@ -146,8 +146,7 @@ model {
 #' `about_variable()` returns information about the model variable.
 #'
 #' @param variable A variable in an mcmc object output by [`fit_model`]
-#' @param model_data The model training data created by [`format_model_data`] and input to [`fit_model`]
-#' @param model The model created by [`fit_model`]
+#' @param model A model created by [`fit_model`]
 #' @return Text that explains the variable
 #'
 #' @examples
@@ -166,8 +165,8 @@ model {
 #'
 #' @export
 #' @md
-about_variable <- function(variable, model_data, model) {
-  all_vars <- names(as.data.frame(coda::as.mcmc(model[[1]])))
+about_variable <- function(variable, model) {
+  all_vars <- names(as.data.frame(coda::as.mcmc(model$fitted_model[[1]])))
   if (!(variable %in% all_vars)) {
     stop(paste("The input variable", variable, "is not in the model."))
   }
@@ -187,7 +186,7 @@ about_variable <- function(variable, model_data, model) {
     )
 
     # replace writer
-    writers <- unique(model_data$cluster_fill_counts$writer)
+    writers <- unique(model$cluster_fill_counts$writer)
     about <- stringr::str_replace(about, " w ", paste0(" ", writers[writer], " "))
 
     # replace cluster
@@ -216,37 +215,62 @@ about_variable <- function(variable, model_data, model) {
 #' writership for the questioned documents using MCMC draws from a hierarchical
 #' model created with `fit_model()`.
 #'
-#' @param model_data A list of input data formatted with
-#'   `format_model_data` for rjags
-#' @param model A list of MCMC draws from a model fit with [`fit_model()`].
-#' @param questioned_data A list of questioned documents' data formatted with
-#'   `format_questioned_data()`.
+#' @param template_dir A directory that contains a cluster template created by [`make_clustering_templates`]
+#' @param questioned_images_dir A directory containing questioned documents
+#' @param model A fitted model created by [`fit_model`]
 #' @param num_cores An integer number of cores to use for parallel processing
 #'   with the `doParallel` package.
 #' @return A list of likelihoods, votes, and posterior probabilities of
 #'   writership for each questioned document.
 #'
 #' @examples
+#' \dontrun{
+#' template_dir <- "/path/to/template"
+#' questioned_images_dir <- "/path/to/questioned_images"
 #' analysis <- analyze_questioned_documents(
-#'   model_data = example_model_data,
-#'   model = example_model_1chain,
-#'   questioned_data = example_questioned_data,
+#'   template_dir = template_dir
+#'   questioned_images_dir = questioned_images_dir
+#'   model = model,
 #'   num_cores = 2
 #' )
 #' analysis$posterior_probabilities
+#' }
 #'
 #' @keywords model
 #'
 #' @export
 #' @md
-analyze_questioned_documents <- function(model_data, model, questioned_data, num_cores) {
-  rjags_data <- model_data$rjags_data
+analyze_questioned_documents <- function(template_dir, questioned_images_dir, model, num_cores) {
+  # process questioned documents
+  questioned_proc_list <- process_batch_dir(
+    input_dir = questioned_images_dir,
+    output_dir = file.path(template_dir, "data", "questioned_graphs"),
+    transform_output = "document"
+  )
+
+  # load template
+  template <- readRDS(file.path(template_dir, "data", "template.rds"))
+  questioned_clusters <- get_clusterassignment(
+    clustertemplate = template,
+    input_dir = file.path(main_dir, "data", "questioned_graphs")
+  )
+  saveRDS(questioned_clusters, file.path(template_dir, "data", "questioned_clusters.rds"))
+
+  # format data
+  questioned_data <- format_questioned_data(
+    model = model,
+    questioned_proc_list = questioned_clusters,
+    writer_indices = c(2, 5),
+    doc_indices = c(7, 18)
+  )
+
+  rjags_data <- model$rjags_data
 
   # convert mcmc objects into dataframes and combine chains
-  model <- format_draws(model = model)
+  model$fitted_model <- format_draws(model = model)
 
   # initialize
-  niter <- nrow(model$pis)
+  niter <- nrow(model$fitted_model$pis)
   pis <- array(dim = c(niter, rjags_data$G, rjags_data$W)) # 3 dim array, a row for each mcmc iter, a column for each cluster, and a layer for each writer
   mus <- taus <- array(dim = c(niter, rjags_data$Gsmall, rjags_data$W)) # 3 dim array, a row for each mcmc iter, a column for each cluster, and a layer for each writer
   dmult <- dwc_sums <- data.frame(matrix(nrow = niter, ncol = rjags_data$W))
@@ -254,9 +278,9 @@ analyze_questioned_documents <- function(model_data, model, questioned_data, num
   ls <- list()
 
   # reshape variables
-  flat_pi <- as.data.frame(cbind(iters = 1:niter, model$pis))
-  flat_mus <- as.data.frame(cbind(iters = 1:niter, model$mus))
-  flat_taus <- as.data.frame(cbind(iters = 1:niter, model$taus))
+  flat_pi <- as.data.frame(cbind(iters = 1:niter, model$fitted_model$pis))
+  flat_mus <- as.data.frame(cbind(iters = 1:niter, model$fitted_model$mus))
+  flat_taus <- as.data.frame(cbind(iters = 1:niter, model$fitted_model$taus))
   for (i in 1:rjags_data$W) { # i is writer, j is graph
     for (j in 1:rjags_data$G) {
       pis[, j, i] <- flat_pi[1:niter, as.character(paste0("pi[", i, ",", j, "]"))]
@@ -315,7 +339,15 @@ analyze_questioned_documents <- function(model_data, model, questioned_data, num
   posterior_probabilities <- as.data.frame(posterior_probabilities)
   posterior_probabilities <- cbind("known_writer" = rownames(posterior_probabilities), data.frame(posterior_probabilities, row.names = NULL)) # change rownames to column
 
-  analysis <- list("likelihood_evals" = likelihood_evals, "votes" = votes, "posterior_probabilities" = posterior_probabilities)
+  analysis <- list(
+    "likelihood_evals" = likelihood_evals,
+    "votes" = votes,
+    "posterior_probabilities" = posterior_probabilities,
+    "graph_measurements" = questioned_data$graph_measurements,
+    "cluster_fill_counts" = questioned_data$cluster_fill_counts
+  )
+  saveRDS(analysis, file.path(template_dir, "data", "analysis.rds"))
+
   return(analysis)
 }
 
@@ -324,8 +356,8 @@ analyze_questioned_documents <- function(model_data, model, questioned_data, num
 #' `format_draws()` formats the coda samples output by [`fit_model()`] into a
 #' more convenient matrix.
 #'
-#' @param model A list of MCMC draws from a model fit with [`fit_model()`].
-#' @return MCMC draws formatted into a list of dataframes.
+#' @param model A fitted model created by [`fit_model()`]
+#' @return MCMC draws formatted into a list of dataframes
 #'
 #' @noRd
 format_draws <- function(model) {
@@ -344,7 +376,7 @@ format_draws <- function(model) {
   }
 
   # make data frames for each chain and each variable group
-  draws_list <- lapply(model, function(x) draws_to_dataframe(x))
+  draws_list <- lapply(model$fitted_model, function(x) draws_to_dataframe(x))
 
   # combine data frames from different chains by variable group
   if (length(draws_list) > 1) {

@@ -62,21 +62,20 @@ plot_cluster_fill_counts <- function(formatted_data, facet = FALSE) {
 #' created by [`fit_model`]. If the model contains more than one chain, the
 #' chains will be combined by pasting them together.
 #'
-#' @param model An MCMC object created by [`fit_model`]
-#' @param model_data Data output by [`format_model_data`] and input to [`fit_model`]
-#' @param variable The name of a variable in the MCMC object
-#' @return ggplot line plot
+#' @param variable The name of a variable in the model
+#' @param model A model created by [`fit_model`]
+#' @return A trace plot
 #'
 #' @examples
-#' plot_trace(model = example_model_1chain, model_data = example_model_data, variable = "pi[1,1]")
-#' plot_trace(model = example_model_1chain, model_data = example_model_data, variable = "mu[2,3]")
-#' plot_trace(model = example_model_1chain, model_data = example_model_data, variable = "gamma[1]")
-#' plot_trace(model = example_model_1chain, model_data = example_model_data, variable = "tau[2,3]")
-#' plot_trace(model = example_model_1chain, model_data = example_model_data, variable = "eta[2]")
+#' plot_trace(model = example_model_1chain, variable = "pi[1,1]")
+#' plot_trace(model = example_model_1chain, variable = "mu[2,3]")
+#' plot_trace(model = example_model_1chain, variable = "gamma[1]")
+#' plot_trace(model = example_model_1chain, variable = "tau[2,3]")
+#' plot_trace(model = example_model_1chain, variable = "eta[2]")
 #'
 #' @export
 #' @md
-plot_trace <- function(model, model_data, variable) {
+plot_trace <- function(variable, model) {
   # format MCMC draws from fitted model
   formatted_model <- format_draws(model)
 
@@ -100,7 +99,7 @@ plot_trace <- function(model, model_data, variable) {
     labs(
       y = param,
       title = "Trace Plot",
-      subtitle = about_variable(variable, model_data, model)
+      subtitle = about_variable(variable = variable, model = model)
     )
 
   return(p)

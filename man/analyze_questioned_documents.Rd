@@ -4,16 +4,19 @@
 \alias{analyze_questioned_documents}
 \title{analyze_questioned_documents}
 \usage{
-analyze_questioned_documents(model_data, model, questioned_data, num_cores)
+analyze_questioned_documents(
+  template_dir,
+  questioned_images_dir,
+  model,
+  num_cores
+)
 }
 \arguments{
-\item{model_data}{A list of input data formatted with
-\code{format_model_data} for rjags}
+\item{template_dir}{A directory that contains a cluster template created by \code{\link{make_clustering_templates}}}
 
-\item{model}{A list of MCMC draws from a model fit with \code{\link[=fit_model]{fit_model()}}.}
+\item{questioned_images_dir}{A directory containing questioned documents}
 
-\item{questioned_data}{A list of questioned documents' data formatted with
-\code{format_questioned_data()}.}
+\item{model}{A fitted model created by \code{\link{fit_model}}}
 
 \item{num_cores}{An integer number of cores to use for parallel processing
 with the \code{doParallel} package.}
@@ -28,13 +31,17 @@ writership for the questioned documents using MCMC draws from a hierarchical
 model created with \code{fit_model()}.
 }
 \examples{
+\dontrun{
+template_dir <- "/path/to/template"
+questioned_images_dir <- "/path/to/questioned_images"
 analysis <- analyze_questioned_documents(
-  model_data = example_model_data,
-  model = example_model_1chain,
-  questioned_data = example_questioned_data,
+  template_dir = template_dir
+  questioned_images_dir = questioned_images_dir
+  model = model,
   num_cores = 2
 )
 analysis$posterior_probabilities
+}
 
 }
 \keyword{model}

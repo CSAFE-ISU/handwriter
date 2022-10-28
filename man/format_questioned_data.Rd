@@ -5,20 +5,14 @@
 \title{format_questioned_data}
 \usage{
 format_questioned_data(
-  formatted_model_data,
+  model,
   questioned_proc_list,
   writer_indices,
   doc_indices
 )
 }
 \arguments{
-\item{formatted_model_data}{A list of formatted model training output by
-\code{\link[=format_model_data]{format_model_data()}}. If clusters used by the model training graphs were
-not numbered sequentially, \code{\link[=format_model_data]{format_model_data()}} relabels the clusters to
-make them sequential. This is necessary so that the \code{\link[=fit_model]{fit_model()}}
-function can use the cluster numbers as indices when fitting the model with
-RJAGS. \code{format_questioned_data()} will relabel the clusters to match the
-labels used by the model training graphs.}
+\item{model}{A fitted model created by \code{\link{fit_model}}}
 
 \item{questioned_proc_list}{List of processed handwriting from a set of questioned
 documents created by \code{get_clusterassignment()}. Each item in the list
