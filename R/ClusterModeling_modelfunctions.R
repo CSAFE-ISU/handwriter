@@ -3,21 +3,21 @@
 #' `fit_model()` fits a Bayesian hierarchical model to `model_training_data` and
 #' draws samples from the model with MCMC.
 #'
-#' @param model_data A list of input data formatted with
-#'   `format_model_data` for rjags.
+#' @param template_dir A directory that contains a cluster template created by [`make_clustering_templates`]
+#' @param model_images_dir A directory containing model training documents
 #' @param num_iters An integer number of iterations of MCMC.
 #' @param num_chains An integer number of chains to use.
 #' @return A list of data frames of MCMC draws.
 #'
 #' @examples
 #' model <- fit_model(
-#'   model_data = example_model_data,
+#'   model_images_dir = example_model_data,
 #'   num_iters = 50,
 #'   num_chains = 1
 #' )
 #' model <- drop_burnin(model = model, burn_in = 25)
 #' analysis <- analyze_questioned_documents(
-#'   model_data = example_model_data,
+#'   model_images_dir = example_model_data,
 #'   model = model,
 #'   questioned_data = example_questioned_data,
 #'   num_cores = 2
@@ -27,7 +27,37 @@
 #'
 #' @export
 #' @md
-fit_model <- function(model_data, num_iters, num_chains = 1) {
+fit_model <- function(template_dir,
+                      model_images_dir,
+                      num_iters,
+                      num_chains = 1,
+                      writer_indices, doc_indices,
+                      a = 2, b = 0.25, c = 2, d = 2, e = 0.5) {
+  # load cluster template
+  template <- readRDS(file.path(template_dir, "data", "template.rds"))
+
+  # process model training documents and save in template_dir > data > model_graphs
+  model_proc_list <- process_batch_dir(
+    input_dir = model_images_dir,
+    output_dir = file.path(template_dir, "data", "model_graphs"),
+    transform_output = "document"
+  )
+
+  # get cluster assignments
+  model_clusters <- get_clusterassignment(
+    clustertemplate = template,
+    input_dir = file.path(main_dir, "data", "model_graphs")
+  )
+  saveRDS(model_clusters, file.path(template_dir, "data", "model_clusters.rds"))
+
+  # format model data
+  model_data <- format_model_data(
+    model_proc_list = model_clusters,
+    writer_indices = writer_indices,
+    doc_indices = doc_indices,
+    a = a, b = b, c = c, d = d, e = e
+  )
+
   rjags_data <- model_data$rjags_data
 
   # fit model with rjags
@@ -35,6 +65,14 @@ fit_model <- function(model_data, num_iters, num_chains = 1) {
 
   # mcmc draws
   model <- rjags::coda.samples(model, c("pi", "gamma", "mu", "tau", "eta"), n.iter = num_iters)
+
+  model <- list(
+    "fitted_model" = model,
+    "rjags_data" = model_data$rjags_data,
+    "graph_measurements" = model_data$graph_measurements,
+    "cluster_fill_counts" = model_data$cluster_fill_counts
+  )
+  saveRDS(model, file.path(template_dir, "data", "model.rds"))
 
   return(model)
 }
