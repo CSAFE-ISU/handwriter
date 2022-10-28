@@ -95,7 +95,7 @@ fit_model <- function(template_dir,
 #' @export
 #' @md
 drop_burnin <- function(model, burn_in) {
-  model <- lapply(model, function(x) coda::as.mcmc(x[(burn_in + 1):coda::niter(x), ]))
+  model$fitted_model <- lapply(model$fitted_model, function(x) coda::as.mcmc(x[(burn_in + 1):coda::niter(x), ]))
   return(model)
 }
 

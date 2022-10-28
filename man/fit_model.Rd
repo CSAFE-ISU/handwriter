@@ -4,11 +4,24 @@
 \alias{fit_model}
 \title{fit_model}
 \usage{
-fit_model(model_data, num_iters, num_chains = 1)
+fit_model(
+  template_dir,
+  model_images_dir,
+  num_iters,
+  num_chains = 1,
+  writer_indices,
+  doc_indices,
+  a = 2,
+  b = 0.25,
+  c = 2,
+  d = 2,
+  e = 0.5
+)
 }
 \arguments{
-\item{model_data}{A list of input data formatted with
-\code{format_model_data} for rjags.}
+\item{template_dir}{A directory that contains a cluster template created by \code{\link{make_clustering_templates}}}
+
+\item{model_images_dir}{A directory containing model training documents}
 
 \item{num_iters}{An integer number of iterations of MCMC.}
 
@@ -23,13 +36,13 @@ draws samples from the model with MCMC.
 }
 \examples{
 model <- fit_model(
-  model_data = example_model_data,
+  model_images_dir = example_model_data,
   num_iters = 50,
   num_chains = 1
 )
 model <- drop_burnin(model = model, burn_in = 25)
 analysis <- analyze_questioned_documents(
-  model_data = example_model_data,
+  model_images_dir = example_model_data,
   model = model,
   questioned_data = example_questioned_data,
   num_cores = 2
