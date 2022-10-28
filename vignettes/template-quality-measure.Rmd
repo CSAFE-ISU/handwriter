@@ -20,6 +20,22 @@ library(ggplot2)
 library(dendextend)
 ```
 
+## Make templates
+```{r}
+main_dir <- "/users/stephanie/Documents/CSAFE_template_quality_measure_K40"
+
+templates <- make_clustering_templates(template_dir = main_dir,
+                                       template_images_dir <- file.path(main_dir, "data", "template_images"),
+                                       writer_indices = c(2,5),
+                                       starting_seed = 10,
+                                       K = 10,
+                                       num_runs = 10,
+                                       num_dist_cores = 5,
+                                       max_iters = 20,
+                                       num_graphs = 'All')
+```
+
+
 ## Template data
 ```{r}
 # main_dir <- "/users/stephanie/Documents/CSAFE_template_quality_measure"
