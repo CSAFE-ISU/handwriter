@@ -9,25 +9,37 @@ A list containing a single cluster template created by
 \code{\link[=make_clustering_templates]{make_clustering_templates()}}. The cluster template was created by
 sorting a random sample of 1000 graphs from 10 training documents into 10
 clusters with a K-means algorithm. The cluster template is a named list
-with 14 items: \describe{ \item{cluster}{A vector of cluster assignments
-for each graph used to create the cluster template.} \item{centers}{A list
+with 16 items:
+\describe{
+\item{seed}{An integer for the random number generator.}
+\item{cluster}{A vector of cluster assignments
+for each graph used to create the cluster template.}
+\item{centers}{A list
 of graphs used as the starting cluster centers for the K-means algorithm.}
 \item{K}{The number of clusters to build (10) with the K-means algorithm.}
 \item{n}{The number of training graphs to use (1000) in the K-means
-algorithm.} \item{docnames}{A vector of the file names of the training
-documents.} \item{iters}{The maximum number of iterations for the K-means
-algorithm (3).} \item{changes}{A vector of the number of graphs that
+algorithm.}
+\item{docnames}{A vector that lists the training document from which each graph originated.}
+\item{writers}{A vector that lists the writer of each graph.}
+\item{iters}{The maximum number of iterations for the K-means
+algorithm (3).}
+\item{changes}{A vector of the number of graphs that
 changed clusters on each iteration of the K-means algorithm.}
 \item{outlierCutoff}{A vector of the outlier cutoff values calculated on
-each iteration of the K-means algorithm.} \item{stop_reason}{The reason the
-K-means algorithm terminated.} \item{wcd}{A matrix of the within cluster
+each iteration of the K-means algorithm.}
+\item{stop_reason}{The reason the
+K-means algorithm terminated.}
+\item{wcd}{A matrix of the within cluster
 distances on each iteration of the K-means algorithm. More specifically,
 the distance between each graph and the center of the cluster to which it
-was assigned  on each iteration.} \item{wcss}{A vector of the
+was assigned  on each iteration.}
+\item{wcss}{A vector of the
 within-cluster sum of squares on each iteration of the K-means algorithm.}
 \item{rmse}{A vector of the root-mean square error on each iteration of the
-K-means algorithm.} \item{DaviesBouldinIndex}{The Davies-Bouldin index on
-each iteration of the K-means algorithm.} \item{VarianceRatioCriterion}{The
+K-means algorithm.}
+\item{DaviesBouldinIndex}{The Davies-Bouldin index on
+each iteration of the K-means algorithm.}
+\item{VarianceRatioCriterion}{The
 variance-ratio criterion on each iteration of the K-means algorithm.} }
 }
 \usage{
@@ -40,10 +52,9 @@ handwriting documents included in the package. These documents are located in
 small, random sample of 1000 graphs.
 }
 \examples{
-\dontrun{
-# get cluster assignments for model training documents
-model_dir <- "path/to/model_training_docs"
-model_proc_list <- get_clusterassignment(example_template, model_dir)
-}
+# view cluster fill counts for template training documents
+template_data <- format_template_data(example_cluster_template)
+plot_cluster_fill_counts(template_data, facet = TRUE)
+
 }
 \keyword{datasets}

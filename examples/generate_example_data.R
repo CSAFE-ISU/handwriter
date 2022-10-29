@@ -41,7 +41,7 @@ make_example_models <- function(main_dir){
   example_model_2chains <- fit_model(template_dir = main_dir, 
                                     model_images_dir = model_images_dir,
                                     num_iters = 100, 
-                                    num_chains = 1, 
+                                    num_chains = 2, 
                                     writer_indices = c(2,5), 
                                     doc_indices = c(7,18))
   usethis::use_data(example_model_2chains, overwrite = TRUE)

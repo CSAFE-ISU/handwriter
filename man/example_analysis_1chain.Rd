@@ -5,12 +5,16 @@
 \alias{example_analysis_1chain}
 \title{Example of writership analysis}
 \format{
-A named list created by \code{\link{analyze_questioned_documents}} with 3 items:
+The results of \code{\link{analyze_questioned_documents}} stored in a named list with 5 items:
 \describe{
-\item{likelihoods}{list of data frames where each data frame
+\item{graph_measurements}{A data frame of that shows the writer, document name, cluster assignment,
+slope, principle component rotation angle, and wrapped principle component rotation angle for each training graph in each
+questioned documents.}
+\item{cluster_fill_counts}{A data frame of the cluster fill counts for each questioned document.}
+\item{likelihoods}{A list of data frames where each data frame
 contains the likelihoods for a questioned document for each MCMC iteration.}
-\item{votes}{list of vote tallys for each questioned document.}
-\item{posterior_probabilites}{list of posterior probabilities of writership
+\item{votes}{A list of vote tallys for each questioned document.}
+\item{posterior_probabilites}{A list of posterior probabilities of writership
 for each questioned document and each known writer in the closed set used to train the
 hierarchical model.}
 }
@@ -22,7 +26,8 @@ example_analysis_1chain
 Example of writership analysis
 }
 \examples{
-plot_posterior_probabilities(analysis = example_analysis)
+plot_cluster_fill_counts(formatted_data = example_analysis_1chain)
+plot_posterior_probabilities(analysis = example_analysis_1chain)
 
 }
 \keyword{datasets}

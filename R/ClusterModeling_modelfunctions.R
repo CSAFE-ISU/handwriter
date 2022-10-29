@@ -3,25 +3,53 @@
 #' `fit_model()` fits a Bayesian hierarchical model to `model_training_data` and
 #' draws samples from the model with MCMC.
 #'
-#' @param template_dir A directory that contains a cluster template created by [`make_clustering_templates`]
+#' @param template_dir A directory that contains a cluster template created by
+#'   [`make_clustering_templates`]
 #' @param model_images_dir A directory containing model training documents
 #' @param num_iters An integer number of iterations of MCMC.
 #' @param num_chains An integer number of chains to use.
-#' @return A list of data frames of MCMC draws.
+#' @param writer_indices A vector of the start and stop character of the writer
+#'   ID in the model training file names. E.g., if the file names are
+#'   writer0195_doc1, writer0210_doc1, writer0033_doc1 then writer_indices is 'c(7,10)'.
+#' @param doc_indices A vector of the start and stop character of the "document
+#'   name" in the model training file names. This is used to distinguish between two documents
+#'   written by the same writer. E.g., if the file names are
+#'   writer0195_doc1, writer0195_doc2, writer0033_doc1, writer0033_doc2 then doc_indices are 
+#'   'c(12,15)'. 
+#' @param a The shape parameter for the Gamma distribution in the hierarchical model
+#' @param b The rate parameter for the Gamma distribution in the hierarchical model
+#' @param c The first shape parameter for the Beta distribution in the hierarchical model
+#' @param d The second shape parameter for the Beta distribution in the hierarchical model
+#' @param e The scale parameter for the hyper prior for mu in the hierarchical model
+#' @return A list of training data used to fit the model and the fitted model
 #'
 #' @examples
+#' \dontrun{
+#' template_dir <- /path/to/template_directory
+#' model_images_dir <- system.file("extdata/example_images/model_training_images",
+#'   package = "handwriter")
+#' questioned_images_dir <- system.file("extdata/example_images/questioned_images",
+#'   package = "handwriter")
+#'
 #' model <- fit_model(
-#'   model_images_dir = example_model_data,
-#'   num_iters = 50,
-#'   num_chains = 1
+#'   template_dir = template_dir
+#'   model_images_dir = model_images_dir,
+#'   num_iters = 100,
+#'   num_chains = 1,
+#'   writer_indices = c(2,5),
+#'   doc_indices = c(7,18)
 #' )
+#'
 #' model <- drop_burnin(model = model, burn_in = 25)
+#'
 #' analysis <- analyze_questioned_documents(
-#'   model_images_dir = example_model_data,
+#'   template_dir = template_dir
+#'   questioned_images_dir = questioned_images_dir,
 #'   model = model,
-#'   questioned_data = example_questioned_data,
 #'   num_cores = 2
 #' )
+#' analysis$posterior_probabilities
+#' }
 #'
 #' @keywords model
 #'
@@ -88,7 +116,10 @@ fit_model <- function(template_dir,
 #'
 #' @examples
 #' model <- drop_burnin(model = example_model_1chain, burn_in = 25)
-#' plot_trace(model = model, model_data = example_model_data, variable = "mu[1,2]")
+#' plot_trace(variable = "mu[1,2]", model = example_model_1chain)
+#' 
+#' model <- drop_burnin(model = example_model_2chains, burn_in = 25)
+#' plot_trace(variable = "mu[1,2]", model = example_model_2chains)
 #'
 #' @keywords model
 #'
@@ -145,19 +176,17 @@ model {
 #'
 #' `about_variable()` returns information about the model variable.
 #'
-#' @param variable A variable in an mcmc object output by [`fit_model`]
-#' @param model A model created by [`fit_model`]
+#' @param variable A variable in the fitted model output by [`fit_model`]
+#' @param model A fitted model created by [`fit_model`]
 #' @return Text that explains the variable
 #'
 #' @examples
 #' about_variable(
 #'   variable = "mu[1,2]",
-#'   model_data = example_model_data,
 #'   model = example_model_1chain
 #' )
 #' about_variable(
 #'   variable = "gamma[5]",
-#'   model_data = example_model_data,
 #'   model = example_model_2chains
 #' )
 #'
@@ -187,7 +216,7 @@ about_variable <- function(variable, model) {
 
     # replace writer
     writers <- unique(model$cluster_fill_counts$writer)
-    about <- stringr::str_replace(about, " w ", paste0(" ", writers[writer], " "))
+    about <- stringr::str_replace(about, " w ", paste0(" ID ", writers[writer], " "))
 
     # replace cluster
     about <- stringr::str_replace(about, " g", paste0(" ", cluster))
@@ -198,8 +227,8 @@ about_variable <- function(variable, model) {
 
     # pick text
     about <- switch(var,
-      gamma = "Gamma is the pseudo-cluster count across all writers for cluster g",
-      eta = "Eta is a hyper prior for cluster g"
+      gamma = "Gamma is the mean cluster fill probability across all writers for cluster g",
+      eta = "Eta is the mean, or the location parameter, of the hyper prior for mu for cluster g"
     )
 
     # replace cluster

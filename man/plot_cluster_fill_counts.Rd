@@ -7,11 +7,11 @@
 plot_cluster_fill_counts(formatted_data, facet = FALSE)
 }
 \arguments{
-\item{formatted_data}{A list of formatted data created by
-\code{format_model_data()} or \code{format_questioned_data}.}
+\item{formatted_data}{Data created by \code{\link{format_template_data}},
+\code{\link{fit_model}}, or \code{\link{analyze_questioned_documents}}}
 
-\item{facet}{\code{TRUE} uses \code{facet_wrap} to create a subplot for each
-writer. \code{FALSE} plots the data on a single plot.}
+\item{facet}{\code{TRUE} uses \code{facet_wrap} to create a subplot for each writer.
+\code{FALSE} plots the data on a single plot.}
 }
 \value{
 ggplot plot of cluster fill counts
@@ -20,7 +20,14 @@ ggplot plot of cluster fill counts
 Plot the cluster fill counts for each document in \code{formatted_data}.
 }
 \examples{
-plot_cluster_fill_counts(formatted_data = example_model_data, facet = TRUE)
-plot_cluster_fill_counts(formatted_data = example_questioned_data, facet = FALSE)
+# Plot cluster fill counts for template training documents
+template_data <- format_template_data(example_cluster_template)
+plot_cluster_fill_counts(formatted_data = template_data, facet = TRUE)
+
+# Plot cluster fill counts for model training documents
+plot_cluster_fill_counts(formatted_data = example_model_1chain, facet = TRUE)
+
+# Plot cluster fill counts for questioned documents
+plot_cluster_fill_counts(formatted_data = example_analysis_1chain, facet = FALSE)
 
 }

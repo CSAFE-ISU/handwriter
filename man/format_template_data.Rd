@@ -22,7 +22,7 @@ frame called \code{graph_measurements}. Graph measurements are not needed for th
 template training data.
 }
 \examples{
-template_data <- format_template_data(template = example_cluster_template[[1]])
-plot_cluster_fill_counts(formatted_data = template_data)
+template_data <- format_template_data(template = example_cluster_template)
+plot_cluster_fill_counts(formatted_data = template_data, facet = TRUE)
 
 }

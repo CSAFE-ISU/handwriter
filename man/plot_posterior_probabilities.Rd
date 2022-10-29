@@ -18,12 +18,7 @@ questioned document and each known writer analyzed with
 \code{\link[=analyze_questioned_documents]{analyze_questioned_documents()}}.
 }
 \examples{
-analysis <- analyze_questioned_documents(
-  model_data = example_model_data,
-  model = example_model_1chain,
-  questioned_data = example_questioned_data,
-  num_cores = 2
-)
-plot_posterior_probabilities(analysis = analysis)
+plot_posterior_probabilities(analysis = example_analysis_1chain)
+plot_posterior_probabilities(analysis = example_analysis_2chains)
 
 }

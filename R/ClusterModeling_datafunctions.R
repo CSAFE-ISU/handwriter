@@ -12,8 +12,8 @@
 #' @return List that contains the cluster fill counts
 #'
 #' @examples
-#' template_data <- format_template_data(template = example_cluster_template[[1]])
-#' plot_cluster_fill_counts(formatted_data = template_data)
+#' template_data <- format_template_data(template = example_cluster_template)
+#' plot_cluster_fill_counts(formatted_data = template_data, facet = TRUE)
 #'
 #' @export
 #' @md
@@ -68,8 +68,7 @@ format_template_data <- function(template) {
 #' @param e Scalar
 #' @return List of data formatted for rjags.
 #'
-#' @export
-#' @md
+#' @noRd
 format_model_data <- function(model_proc_list, writer_indices, doc_indices, a = 2, b = 0.25, c = 2, d = 2, e = 0.5) {
 
   # get cluster assignment, slope, and pc_rotation for each graph in each model doc ----
@@ -170,8 +169,7 @@ format_model_data <- function(model_proc_list, writer_indices, doc_indices, a = 
 #'   document names.
 #' @return List of data formatted analysis.
 #'
-#' @export
-#' @md
+#' @noRd
 format_questioned_data <- function(model, questioned_proc_list, writer_indices, doc_indices) {
 
   # get cluster assignment, slope, and pc_rotation for each graph in each questioned doc ----
@@ -271,7 +269,7 @@ format_questioned_data <- function(model, questioned_proc_list, writer_indices, 
 #'   from which the graph was obtained, and the cluster to which that graph is assigned.
 #' @return A dataframe of cluster fill counts for each document in the input data frame.
 #'
-#' @md
+#' @noRd
 get_cluster_fill_counts <- function(df) {
   # count number of graphs in each cluster for each writer
   cluster_fill_counts <- df %>%

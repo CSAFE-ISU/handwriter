@@ -5,15 +5,15 @@
 \alias{example_model_2chains}
 \title{Example of a hierarchical model}
 \format{
-An MCMC list created by \code{\link{fit_model}} with two chains and 50 MCMC iterations per chain.
-The MCMC list contains two MCMC objects, each with 50 rows and 136 columns. Each row corresponds to
-an MCMC iteration and each column corresponds to a variable:
+A hierarchical model created by \code{\link{fit_model}} with two chains of 100 MCMC iterations. It is a named
+list of 4 objects:
 \describe{
-\item{eta[k]}{Hyper priors for cluster k.}
-\item{gamma[k]}{The pseudo-cluster count across all writers for cluster k.}
-\item{mu[w,k]}{The location parameter of a wrapped-Cauchy distribution for writer w and cluster k.}
-\item{pi[w,k]}{The cluster fill probability for writer w and cluster k.}
-\item{tau[w,k]}{The scale parameter of a wrapped-Cauchy distribution for writer w and cluster k.}
+\item{graph_measurements}{A data frame of model training data that shows the writer, document name, cluster assignment,
+slope, principle component rotation angle, and wrapped principle component rotation angle for each training graph.}
+\item{cluster_fill_counts}{A data frame of the cluster fill counts for each model training document.}
+\item{rjags_data}{The model training information from \code{graph_measurements} and \code{cluster_fill_counts} formatted for RJAGS.}
+\item{fitted_model}{A model fit using the \code{rjags_data} and the RJAGS and coda packages. It is an MCMC list that contains an MCMC object for
+each chain.}
 }
 }
 \usage{
@@ -23,18 +23,28 @@ example_model_2chains
 Example of a hierarchical model
 }
 \examples{
-# convert the first chain to data frame and view all variable names
-df <- as.data.frame(example_model_2chains[[1]])
+# convert to a data frame and view all variable names
+df <- as.data.frame(coda::as.mcmc(example_model_1chain$fitted_model))
 colnames(df)
 
+# view a trace plot
+plot_trace(variable = "mu[1,1]", model = example_model_2chains)
+
+# drop the first 25 MCMC iterations from each chain for burn-in
+model <- drop_burnin(model = example_model_2chains, burn_in = 25)
+
+\dontrun{
 # analyze questioned documents
+template_dir <- /path/to/cluster_template_directory
+questioned_images_dir <- /path/to/questioned_documents_directory
 analysis <- analyze_questioned_documents(
-  model_data = example_model_data,
-  model = example_model_2chains,
-  questioned_data = example_questioned_data,
-  num_cores = 2
+   template_dir = template_dir,
+   questioned_images_dir = questioned_images_dir
+   model = example_model_2chains
+   num_cores = 2
 )
-plot_posterior_probabilities(analysis)
+analysis$posterior_probabilities
+}
 
 }
 \keyword{datasets}

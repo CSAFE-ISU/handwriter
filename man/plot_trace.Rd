@@ -15,15 +15,15 @@ plot_trace(variable, model)
 A trace plot
 }
 \description{
-Create a traceplot for all chains for a single variable in an MCMC object
+Create a trace plot for all chains for a single variable of a fitted model
 created by \code{\link{fit_model}}. If the model contains more than one chain, the
 chains will be combined by pasting them together.
 }
 \examples{
 plot_trace(model = example_model_1chain, variable = "pi[1,1]")
 plot_trace(model = example_model_1chain, variable = "mu[2,3]")
-plot_trace(model = example_model_1chain, variable = "gamma[1]")
-plot_trace(model = example_model_1chain, variable = "tau[2,3]")
-plot_trace(model = example_model_1chain, variable = "eta[2]")
+plot_trace(model = example_model_2chains, variable = "gamma[1]")
+plot_trace(model = example_model_2chains, variable = "tau[2,3]")
+plot_trace(model = example_model_2chains, variable = "eta[2]")
 
 }
