@@ -72,11 +72,15 @@ fit_model <- function(template_dir,
   )
 
   # get cluster assignments
-  model_clusters <- get_clusterassignment(
-    clustertemplate = template,
-    input_dir = file.path(main_dir, "data", "model_graphs")
-  )
-  saveRDS(model_clusters, file.path(template_dir, "data", "model_clusters.rds"))
+  if ( file.exists(file.path(template_dir, "data", "model_clusters.rds")) ){
+    model_clusters <- readRDS(file.path(template_dir, "data", "model_clusters.rds"))
+  } else {
+    model_clusters <- get_clusterassignment(
+      clustertemplate = template,
+      input_dir = file.path(main_dir, "data", "model_graphs")
+    )
+    saveRDS(model_clusters, file.path(template_dir, "data", "model_clusters.rds"))
+  }
 
   # format model data
   model_data <- format_model_data(
@@ -279,11 +283,17 @@ analyze_questioned_documents <- function(template_dir, questioned_images_dir, mo
 
   # load template
   template <- readRDS(file.path(template_dir, "data", "template.rds"))
-  questioned_clusters <- get_clusterassignment(
-    clustertemplate = template,
-    input_dir = file.path(main_dir, "data", "questioned_graphs")
-  )
-  saveRDS(questioned_clusters, file.path(template_dir, "data", "questioned_clusters.rds"))
+  
+  # get cluster assignments
+  if ( file.exists(file.path(template_dir, "data", "questioned_clusters.rds")) ){
+    questioned_clusters <- readRDS(file.path(template_dir, "data", "questioned_clusters.rds"))
+  } else {
+    questioned_clusters <- get_clusterassignment(
+      clustertemplate = template,
+      input_dir = file.path(template_dir, "data", "questioned_graphs")
+    )
+    saveRDS(questioned_clusters, file.path(template_dir, "data", "questioned_clusters.rds"))
+  }
 
   # format data
   questioned_data <- format_questioned_data(
