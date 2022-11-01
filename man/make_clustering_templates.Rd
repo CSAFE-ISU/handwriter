@@ -9,10 +9,8 @@ make_clustering_templates(
   template_images_dir,
   writer_indices,
   max_edges = 30,
-  starting_seed = 100,
+  seed = 100,
   K = 40,
-  num_runs = 1,
-  num_cores = 1,
   num_dist_cores = 1,
   num_path_cuts = 8,
   max_iters = 1,
@@ -30,17 +28,9 @@ make_clustering_templates(
 \item{max_edges}{Maximum number of edges allowed in input graphs. Graphs with
 more than the maximum number will be ignored.}
 
-\item{starting_seed}{Integer seed for the random number generator. If
-\code{num_runs} is 1 then a single cluster template is created with the starting
-seed. If \code{num_runs} is greater than 1, multiple cluster templates will be
-created by adding 1, 2, 3, and so on to the starting seed.}
+\item{seed}{Integer seed for the random number generator.}
 
 \item{K}{Integer number of clusters}
-
-\item{num_runs}{Integer number of cluster templates to create}
-
-\item{num_cores}{Integer number of cores. If \code{num_runs} is greater than 1,
-cluster templates will be created on different cores.}
 
 \item{num_dist_cores}{Integer number of cores to use for the distance
 calculations in the K-means algorithm. Each iteration of the K-means
@@ -59,9 +49,7 @@ to run}
 \code{All} uses all available graphs. An integer uses a random sample of graphs.}
 }
 \value{
-List containing the cluster template(s). The list of all templates is
-saved in template_dir > starting_seed > data. Each individual template is
-saved in template_dir > starting_seed > run seed > data.
+List containing the cluster template
 }
 \description{
 \code{make_clustering_templates()} applies a K-means clustering algorithm to the
@@ -83,8 +71,7 @@ template_list <- make_clustering_templates(
   num_dist_cores = 2,
   max_iters = 3,
   num_graphs = 1000,
-  starting_seed = 100,
-  num_runs = 1
+  seed = 100
 )
 }
 

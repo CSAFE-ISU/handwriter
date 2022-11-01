@@ -1,6 +1,7 @@
 # format_model_data -------------------------------------------------------
 test_that("format model data works", {
-  data <- format_model_data(model_proc_list=example_model_clusters, 
+  model_clusters <- readRDS(test_path("fixtures", "template", "data", "model_clusters.rds"))
+  data <- format_model_data(model_proc_list=model_clusters, 
                             writer_indices=c(2,5), 
                             doc_indices=c(7,18), 
                             a=2, b=0.25, c=2, d=2, e=0.5)
@@ -10,7 +11,8 @@ test_that("format model data works", {
 })
 
 test_that("model data formated for rjags has the correct format", {  
-  data <- format_model_data(model_proc_list=example_model_clusters, 
+  model_clusters <- readRDS(test_path("fixtures", "template", "data", "model_clusters.rds"))
+  data <- format_model_data(model_proc_list=model_clusters, 
                             writer_indices=c(2,5), 
                             doc_indices=c(7,18), 
                             a=2, b=0.25, c=2, d=2, e=0.5)
@@ -49,7 +51,8 @@ test_that("model data formated for rjags has the correct format", {
 })
 
 test_that("clusters in formatted model data are labeled sequentially",{
-  data <- format_model_data(model_proc_list=example_model_clusters, 
+  model_clusters <- readRDS(test_path("fixtures", "template", "data", "model_clusters.rds"))
+  data <- format_model_data(model_proc_list=model_clusters, 
                             writer_indices=c(2,5), 
                             doc_indices=c(7,18), 
                             a=2, b=0.25, c=2, d=2, e=0.5)
@@ -62,13 +65,10 @@ test_that("clusters in formatted model data are labeled sequentially",{
 
 # format_questioned_data --------------------------------------------------
 test_that("formatted questioned data is formatted correctly", {
-  model_data <- format_model_data(model_proc_list=example_model_clusters, 
-                            writer_indices=c(2,5), 
-                            doc_indices=c(7,18), 
-                            a=2, b=0.25, c=2, d=2, e=0.5)
+  questioned_clusters <- readRDS(test_path("fixtures", "template", "data", "questioned_clusters.rds"))
   
-  data <- format_questioned_data(formatted_model_data=model_data,
-                                 questioned_proc_list=example_questioned_clusters, 
+  data <- format_questioned_data(model=example_model_1chain,
+                                 questioned_proc_list=questioned_clusters, 
                                  writer_indices=c(2,5), 
                                  doc_indices=c(7,18))
   # check names

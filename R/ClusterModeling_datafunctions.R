@@ -12,8 +12,8 @@
 #' @return List that contains the cluster fill counts
 #'
 #' @examples
-#' template_data <- format_template_data(template = example_cluster_template[[1]])
-#' plot_cluster_fill_counts(formatted_data = template_data)
+#' template_data <- format_template_data(template = example_cluster_template)
+#' plot_cluster_fill_counts(formatted_data = template_data, facet = TRUE)
 #'
 #' @export
 #' @md
@@ -68,10 +68,7 @@ format_template_data <- function(template) {
 #' @param e Scalar
 #' @return List of data formatted for rjags.
 #'
-#' @inherit example_model_clusters examples
-#'
-#' @export
-#' @md
+#' @noRd
 format_model_data <- function(model_proc_list, writer_indices, doc_indices, a = 2, b = 0.25, c = 2, d = 2, e = 0.5) {
 
   # get cluster assignment, slope, and pc_rotation for each graph in each model doc ----
@@ -162,13 +159,7 @@ format_model_data <- function(model_proc_list, writer_indices, doc_indices, a = 
 #' `format_questioned_data()` formats the questioned data for analysis with the
 #' hierarchical model.
 #'
-#' @param formatted_model_data A list of formatted model training output by
-#'   [`format_model_data()`]. If clusters used by the model training graphs were
-#'   not numbered sequentially, [`format_model_data()`] relabels the clusters to
-#'   make them sequential. This is necessary so that the [`fit_model()`]
-#'   function can use the cluster numbers as indices when fitting the model with
-#'   RJAGS. `format_questioned_data()` will relabel the clusters to match the
-#'   labels used by the model training graphs.
+#' @param model A fitted model created by [`fit_model`]
 #' @param questioned_proc_list List of processed handwriting from a set of questioned
 #'   documents created by `get_clusterassignment()`. Each item in the list
 #'   contains the extracted graphs from a document.
@@ -178,11 +169,8 @@ format_model_data <- function(model_proc_list, writer_indices, doc_indices, a = 
 #'   document names.
 #' @return List of data formatted analysis.
 #'
-#' @inherit example_questioned_clusters examples
-#'
-#' @export
-#' @md
-format_questioned_data <- function(formatted_model_data, questioned_proc_list, writer_indices, doc_indices) {
+#' @noRd
+format_questioned_data <- function(model, questioned_proc_list, writer_indices, doc_indices) {
 
   # get cluster assignment, slope, and pc_rotation for each graph in each questioned doc ----
   # get doc names from proclist
@@ -228,9 +216,9 @@ format_questioned_data <- function(formatted_model_data, questioned_proc_list, w
   }
 
   # if model clusters were relabeled, relabel the questioned clusters
-  if (any(names(formatted_model_data$graph_measurements) == "old_cluster")) {
+  if (any(names(model$graph_measurements) == "old_cluster")) {
     # make lookup table from model cluster data
-    cluster_lookup <- formatted_model_data$graph_measurements %>%
+    cluster_lookup <- model$graph_measurements %>%
       dplyr::select(old_cluster, cluster) %>%
       dplyr::distinct()
     # store clusters as old clusters
@@ -246,17 +234,17 @@ format_questioned_data <- function(formatted_model_data, questioned_proc_list, w
   cluster_fill_counts <- get_cluster_fill_counts(graph_measurements[, c("writer", "doc", "cluster")])
   
   # check for missing clusters
-  if (ncol(cluster_fill_counts) < ncol(formatted_model_data$cluster_fill_counts)){
+  if (ncol(cluster_fill_counts) < ncol(model$cluster_fill_counts)){
     # zero data frame
-    full_cluster_fill_counts <- as.data.frame(matrix(0, nrow = nrow(cluster_fill_counts), ncol = ncol(formatted_model_data$cluster_fill_counts)))
+    full_cluster_fill_counts <- as.data.frame(matrix(0, nrow = nrow(cluster_fill_counts), ncol = ncol(model$cluster_fill_counts)))
     # fill column names
-    colnames(full_cluster_fill_counts) <- colnames(formatted_model_data$cluster_fill_counts)
+    colnames(full_cluster_fill_counts) <- colnames(model$cluster_fill_counts)
     # fill writers and docs
     full_cluster_fill_counts$writer <- cluster_fill_counts$writer
     full_cluster_fill_counts$doc <- cluster_fill_counts$doc
     # add missing columns
-    full_cluster_fill_counts <- left_join(cluster_fill_counts, full_cluster_fill_counts) %>% 
-      dplyr::mutate(across(where(is.numeric), ~ replace_na(.x, 0)))
+    full_cluster_fill_counts <- dplyr::left_join(cluster_fill_counts, full_cluster_fill_counts) %>% 
+      dplyr::mutate(across(where(is.numeric), ~ tidyr::replace_na(.x, 0)))
     # sort columns
     cols <- c(colnames(full_cluster_fill_counts[, c(1, 2)]), sort(as.numeric(colnames(full_cluster_fill_counts[, -c(1, 2)]))))
     full_cluster_fill_counts <- full_cluster_fill_counts[, cols]
@@ -281,7 +269,7 @@ format_questioned_data <- function(formatted_model_data, questioned_proc_list, w
 #'   from which the graph was obtained, and the cluster to which that graph is assigned.
 #' @return A dataframe of cluster fill counts for each document in the input data frame.
 #'
-#' @md
+#' @noRd
 get_cluster_fill_counts <- function(df) {
   # count number of graphs in each cluster for each writer
   cluster_fill_counts <- df %>%

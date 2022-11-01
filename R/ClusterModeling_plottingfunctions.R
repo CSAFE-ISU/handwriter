@@ -2,15 +2,22 @@
 #'
 #' Plot the cluster fill counts for each document in `formatted_data`.
 #'
-#' @param formatted_data A list of formatted data created by
-#'   `format_model_data()` or `format_questioned_data`.
-#' @param facet `TRUE` uses `facet_wrap` to create a subplot for each
-#'   writer. `FALSE` plots the data on a single plot.
+#' @param formatted_data Data created by [`format_template_data`],
+#'   [`fit_model`], or [`analyze_questioned_documents`]
+#' @param facet `TRUE` uses `facet_wrap` to create a subplot for each writer.
+#'   `FALSE` plots the data on a single plot.
 #' @return ggplot plot of cluster fill counts
 #'
 #' @examples
-#' plot_cluster_fill_counts(formatted_data = example_model_data, facet = TRUE)
-#' plot_cluster_fill_counts(formatted_data = example_questioned_data, facet = FALSE)
+#' # Plot cluster fill counts for template training documents
+#' template_data <- format_template_data(example_cluster_template)
+#' plot_cluster_fill_counts(formatted_data = template_data, facet = TRUE)
+#' 
+#' # Plot cluster fill counts for model training documents
+#' plot_cluster_fill_counts(formatted_data = example_model_1chain, facet = TRUE)
+#' 
+#' # Plot cluster fill counts for questioned documents
+#' plot_cluster_fill_counts(formatted_data = example_analysis_1chain, facet = FALSE)
 #'
 #' @export
 #' @md
@@ -58,25 +65,24 @@ plot_cluster_fill_counts <- function(formatted_data, facet = FALSE) {
 
 #' Plot Trace
 #'
-#' Create a traceplot for all chains for a single variable in an MCMC object
+#' Create a trace plot for all chains for a single variable of a fitted model 
 #' created by [`fit_model`]. If the model contains more than one chain, the
 #' chains will be combined by pasting them together.
 #'
-#' @param model An MCMC object created by [`fit_model`]
-#' @param model_data Data output by [`format_model_data`] and input to [`fit_model`]
-#' @param variable The name of a variable in the MCMC object
-#' @return ggplot line plot
+#' @param variable The name of a variable in the model
+#' @param model A model created by [`fit_model`]
+#' @return A trace plot
 #'
 #' @examples
-#' plot_trace(model = example_model_1chain, model_data = example_model_data, variable = "pi[1,1]")
-#' plot_trace(model = example_model_1chain, model_data = example_model_data, variable = "mu[2,3]")
-#' plot_trace(model = example_model_1chain, model_data = example_model_data, variable = "gamma[1]")
-#' plot_trace(model = example_model_1chain, model_data = example_model_data, variable = "tau[2,3]")
-#' plot_trace(model = example_model_1chain, model_data = example_model_data, variable = "eta[2]")
+#' plot_trace(model = example_model_1chain, variable = "pi[1,1]")
+#' plot_trace(model = example_model_1chain, variable = "mu[2,3]")
+#' plot_trace(model = example_model_2chains, variable = "gamma[1]")
+#' plot_trace(model = example_model_2chains, variable = "tau[2,3]")
+#' plot_trace(model = example_model_2chains, variable = "eta[2]")
 #'
 #' @export
 #' @md
-plot_trace <- function(model, model_data, variable) {
+plot_trace <- function(variable, model) {
   # format MCMC draws from fitted model
   formatted_model <- format_draws(model)
 
@@ -100,8 +106,9 @@ plot_trace <- function(model, model_data, variable) {
     labs(
       y = param,
       title = "Trace Plot",
-      subtitle = about_variable(variable, model_data, model)
-    )
+      subtitle = about_variable(variable = variable, model = model)
+    ) +
+    theme_bw()
 
   return(p)
 }
@@ -117,13 +124,8 @@ plot_trace <- function(model, model_data, variable) {
 #' @return A tile plot of posterior probabilities of writership.
 #'
 #' @examples
-#' analysis <- analyze_questioned_documents(
-#'   model_data = example_model_data,
-#'   model = example_model_1chain,
-#'   questioned_data = example_questioned_data,
-#'   num_cores = 2
-#' )
-#' plot_posterior_probabilities(analysis = analysis)
+#' plot_posterior_probabilities(analysis = example_analysis_1chain)
+#' plot_posterior_probabilities(analysis = example_analysis_2chains)
 #'
 #' @export
 #' @md

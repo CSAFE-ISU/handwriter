@@ -4,36 +4,84 @@
 \alias{fit_model}
 \title{fit_model}
 \usage{
-fit_model(model_data, num_iters, num_chains = 1)
+fit_model(
+  template_dir,
+  model_images_dir,
+  num_iters,
+  num_chains = 1,
+  writer_indices,
+  doc_indices,
+  a = 2,
+  b = 0.25,
+  c = 2,
+  d = 2,
+  e = 0.5
+)
 }
 \arguments{
-\item{model_data}{A list of input data formatted with
-\code{format_model_data} for rjags.}
+\item{template_dir}{A directory that contains a cluster template created by
+\code{\link{make_clustering_templates}}}
+
+\item{model_images_dir}{A directory containing model training documents}
 
 \item{num_iters}{An integer number of iterations of MCMC.}
 
 \item{num_chains}{An integer number of chains to use.}
+
+\item{writer_indices}{A vector of the start and stop character of the writer
+ID in the model training file names. E.g., if the file names are
+writer0195_doc1, writer0210_doc1, writer0033_doc1 then writer_indices is 'c(7,10)'.}
+
+\item{doc_indices}{A vector of the start and stop character of the "document
+name" in the model training file names. This is used to distinguish between two documents
+written by the same writer. E.g., if the file names are
+writer0195_doc1, writer0195_doc2, writer0033_doc1, writer0033_doc2 then doc_indices are
+'c(12,15)'.}
+
+\item{a}{The shape parameter for the Gamma distribution in the hierarchical model}
+
+\item{b}{The rate parameter for the Gamma distribution in the hierarchical model}
+
+\item{c}{The first shape parameter for the Beta distribution in the hierarchical model}
+
+\item{d}{The second shape parameter for the Beta distribution in the hierarchical model}
+
+\item{e}{The scale parameter for the hyper prior for mu in the hierarchical model}
 }
 \value{
-A list of data frames of MCMC draws.
+A list of training data used to fit the model and the fitted model
 }
 \description{
 \code{fit_model()} fits a Bayesian hierarchical model to \code{model_training_data} and
 draws samples from the model with MCMC.
 }
 \examples{
+\dontrun{
+template_dir <- /path/to/template_directory
+model_images_dir <- system.file("extdata/example_images/model_training_images",
+  package = "handwriter")
+questioned_images_dir <- system.file("extdata/example_images/questioned_images",
+  package = "handwriter")
+
 model <- fit_model(
-  model_data = example_model_data,
-  num_iters = 50,
-  num_chains = 1
+  template_dir = template_dir
+  model_images_dir = model_images_dir,
+  num_iters = 100,
+  num_chains = 1,
+  writer_indices = c(2,5),
+  doc_indices = c(7,18)
 )
+
 model <- drop_burnin(model = model, burn_in = 25)
+
 analysis <- analyze_questioned_documents(
-  model_data = example_model_data,
+  template_dir = template_dir
+  questioned_images_dir = questioned_images_dir,
   model = model,
-  questioned_data = example_questioned_data,
   num_cores = 2
 )
+analysis$posterior_probabilities
+}
 
 }
 \keyword{model}

@@ -1,91 +1,71 @@
 test_that("fit model with a single chain works", {
-  # format model training data
-  model_data <- format_model_data(example_model_clusters, writer_indices = c(2,5), doc_indices = c(7,18))
+  # fit model. (Will fit model using testthat > fixtures > template > data > model_clusters.rds)
+  template_dir <- test_path("fixtures", "template")
+  model_images_dir <- system.file("extdata/example_images/model_training_images", package = "handwriter")
   iters <- 50
-  model <- fit_model(model_data = model_data, num_iters = iters)
+  model <- fit_model(template_dir = template_dir, 
+                     model_images_dir = model_images_dir,
+                     num_iters = iters,
+                     num_chains = 1,
+                     writer_indices = c(2,5),
+                     doc_indices = c(7,18))
+  
+  # number of clusters and writers
+  K <- model$rjags_data$G
+  W <- model$rjags_data$W
+  
+  # names
+  expect_named(model, c("fitted_model", 
+                        "rjags_data", 
+                        "graph_measurements",
+                        "cluster_fill_counts"))
   
   # check that model is an mcmc object
-  expect_true(coda::is.mcmc(model[[1]]))
-  
+  expect_true(coda::is.mcmc(model$fitted_model[[1]]))
+
   # check dimensions
-  expect_length(model, 1)
-  expect_equal(dim(model[[1]]), c(iters, 136))
+  expect_length(model$fitted_model, 1)
+  expect_equal(dim(model$fitted_model[[1]]), c(iters, 2*K + 3*K*W))
+  
+  # check variable names
+  expect_equal(colnames(model$fitted_model[[1]]), list_model_variables(num_writers = W, num_clusters = K))
 })
 
 test_that("drop burn-in works on a single chain", {
-  iters = 50
+  iters = 100
   burnin = 25
   model <- drop_burnin(model = example_model_1chain, burn_in = burnin)
   
+  # number of clusters and writers
+  K <- model$rjags_data$G
+  W <- model$rjags_data$W
+  
   # check that model is an mcmc object
-  expect_true(coda::is.mcmc(model[[1]]))
+  expect_true(coda::is.mcmc(model$fitted_model[[1]]))
   
   # check dimensions
-  expect_length(model, 1)
-  expect_equal(dim(model[[1]]), c(iters-burnin, 136))
+  expect_length(model$fitted_model, 1)
+  expect_equal(dim(model$fitted_model[[1]]), c(iters-burnin, 2*K + 3*K*W))
 })
 
 test_that("analyze questioned documents works with a single chain", {
-  analysis <- analyze_questioned_documents(example_model_data, 
-                                           example_model_1chain, 
-                                           example_questioned_data, 
+  iters <- 100  # number of MCMC iterations in example_model_1chain
+  template_dir <- test_path("fixtures", "template")
+  questioned_images_dir <- system.file("extdata/example_images/questioned_images", package = "handwriter")
+  analysis <- analyze_questioned_documents(template_dir = template_dir, 
+                                           questioned_images_dir = questioned_images_dir, 
+                                           model = example_model_1chain, 
                                            num_cores = 2)
   
   # expect named list
-  expect_named(analysis, c("likelihood_evals", "votes", "posterior_probabilities"))
+  expect_named(analysis, c("likelihood_evals", "votes", "posterior_probabilities", "graph_measurements",
+                           "cluster_fill_counts"))
+  
+  # check cluster fill counts column names
+  expect_equal(colnames(example_model_1chain$cluster_fill_counts), colnames(analysis$cluster_fill_counts))
   
   # check vote totals
-  sapply(analysis$votes, function(x) expect_equal(sum(x), 50))
-  
-  # check posterior probability totals
-  sapply(analysis$posterior_probabilities[,-1], function(x) expect_equal(sum(x), 1))
-  
-})
-
-test_that("fit model with multiple chains works", {
-  iters <- 50
-  model <- fit_model(model_data = example_model_data, 
-                     num_iters = iters,
-                     num_chains = 3)
-  
-  # check that model is contains mcmc objects
-  expect_true(coda::is.mcmc(model[[1]]))
-  expect_true(coda::is.mcmc(model[[2]]))
-  expect_true(coda::is.mcmc(model[[3]]))
-  
-  # check dimensions
-  expect_length(model, 3)
-  expect_equal(dim(model[[1]]), c(iters, 136))
-  expect_equal(dim(model[[2]]), c(iters, 136))
-  expect_equal(dim(model[[3]]), c(iters, 136))
-})
-
-test_that("drop burn-in works on multiple chains", {
-  iters <- 50
-  burnin <- 25
-  model <- drop_burnin(example_model_2chains, burn_in = burnin)
-  
-  # check that model is contains mcmc objects
-  expect_true(coda::is.mcmc(model[[1]]))
-  expect_true(coda::is.mcmc(model[[2]]))
-  
-  # check dimensions
-  expect_length(model, 2)
-  expect_equal(dim(model[[1]]), c(iters-burnin, 136))
-  expect_equal(dim(model[[2]]), c(iters-burnin, 136))
-})
-
-test_that("analyze questioned documents works with multiple chains", {
-  analysis <- analyze_questioned_documents(example_model_data, 
-                                           example_model_2chains, 
-                                           example_questioned_data, 
-                                           num_cores = 2)
-  
-  # expect named list
-  expect_named(analysis, c("likelihood_evals", "votes", "posterior_probabilities"))
-  
-  # check vote totals (2 chains x 50 iters)
-  sapply(analysis$votes, function(x) expect_equal(sum(x), 2*(50)))
+  sapply(analysis$votes, function(x) expect_equal(sum(x), iters))
   
   # check posterior probability totals
   sapply(analysis$posterior_probabilities[,-1], function(x) expect_equal(sum(x), 1))
@@ -93,54 +73,119 @@ test_that("analyze questioned documents works with multiple chains", {
 
 test_that("about variable works on a single chain", {
   expect_equal(about_variable(variable = "pi[1,3]", 
-                              model_data = example_model_data, 
                               model = example_model_1chain), 
-               "Pi is the cluster fill probability for writer 9 and cluster 3")
+               "Pi is the cluster fill probability for writer ID 9 and cluster 3")
   
   expect_equal(about_variable(variable = "mu[2,5]", 
-                              model_data = example_model_data, 
                               model = example_model_1chain), 
-               "Mu is the location parameter of a wrapped-Cauchy distribution for writer 30 and cluster 5")
+               "Mu is the location parameter of a wrapped-Cauchy distribution for writer ID 30 and cluster 5")
   
   expect_equal(about_variable(variable = "tau[3,7]", 
-                              model_data = example_model_data, 
                               model = example_model_1chain), 
-               "Tau is the scale parameter of a wrapped-Cauchy distribution for writer 203 and cluster 7")
+               "Tau is the scale parameter of a wrapped-Cauchy distribution for writer ID 203 and cluster 7")
   
   expect_equal(about_variable(variable = "gamma[4]", 
-                              model_data = example_model_data, 
                               model = example_model_1chain), 
-               "Gamma is the pseudo-cluster count across all writers for cluster 4")
+               "Gamma is the mean cluster fill probability across all writers for cluster 4")
   
   expect_equal(about_variable(variable = "eta[6]", 
-                              model_data = example_model_data, 
                               model = example_model_1chain), 
-               "Eta is a hyper prior for cluster 6")
+               "Eta is the mean, or the location parameter, of the hyper prior for mu for cluster 6")
 })
 
-test_that("about variable works with multiple chains", {
+test_that("fit model with multiple chains works", {
+  # fit model. (Will fit model using testthat > fixtures > template > data > model_clusters.rds)
+  template_dir <- test_path("fixtures", "template")
+  model_images_dir <- system.file("extdata/example_images/model_training_images", package = "handwriter")
+  iters <- 50
+  model <- fit_model(template_dir = template_dir, 
+                     model_images_dir = model_images_dir,
+                     num_iters = iters,
+                     num_chains = 3,
+                     writer_indices = c(2,5),
+                     doc_indices = c(7,18))
+  
+  # number of clusters and writers
+  K <- model$rjags_data$G
+  W <- model$rjags_data$W
+  
+  # check that fitted model contains mcmc objects
+  expect_true(coda::is.mcmc(model$fitted_model[[1]]))
+  expect_true(coda::is.mcmc(model$fitted_model[[2]]))
+  expect_true(coda::is.mcmc(model$fitted_model[[3]]))
+  
+  # check dimensions of fitted model
+  expect_length(model$fitted_model, 3)
+  expect_equal(dim(model$fitted_model[[1]]), c(iters, 2*K+3*K*W))
+  expect_equal(dim(model$fitted_model[[2]]), c(iters, 2*K+3*K*W))
+  expect_equal(dim(model$fitted_model[[3]]), c(iters, 2*K+3*K*W))
+  
+  # check variable names of fitted model
+  expect_equal(colnames(model$fitted_model[[1]]), list_model_variables(num_writers = W, num_clusters = K))
+  expect_equal(colnames(model$fitted_model[[2]]), list_model_variables(num_writers = W, num_clusters = K))
+  expect_equal(colnames(model$fitted_model[[3]]), list_model_variables(num_writers = W, num_clusters = K))
+})
+
+test_that("drop burn-in works on multiple chains", {
+  iters <- 100
+  burnin <- 25
+  model <- drop_burnin(example_model_2chains, burn_in = burnin)
+  
+  # number of clusters and writers
+  K <- model$rjags_data$G
+  W <- model$rjags_data$W
+  
+  # check that model is contains mcmc objects
+  expect_true(coda::is.mcmc(model$fitted_model[[1]]))
+  expect_true(coda::is.mcmc(model$fitted_model[[2]]))
+  
+  # check dimensions
+  expect_length(model$fitted_model, 2)
+  expect_equal(dim(model$fitted_model[[1]]), c(iters-burnin, 2*K + 3*K*W))
+  expect_equal(dim(model$fitted_model[[2]]), c(iters-burnin, 2*K + 3*K*W))
+})
+
+test_that("analyze questioned documents works with multiple chains", {
+  iters <- 100  # number of MCMC iterations per chain in example_model_2chains
+  template_dir <- test_path("fixtures", "template")
+  questioned_images_dir <- system.file("extdata/example_images/questioned_images", package = "handwriter")
+  analysis <- analyze_questioned_documents(template_dir = template_dir, 
+                                           questioned_images_dir = questioned_images_dir, 
+                                           model = example_model_2chains, 
+                                           num_cores = 2)
+  
+  # expect named list
+  expect_named(analysis, c("likelihood_evals", "votes", "posterior_probabilities", "graph_measurements",
+                           "cluster_fill_counts"))
+  
+  # check cluster fill counts column names
+  expect_equal(colnames(example_model_2chains$cluster_fill_counts), colnames(analysis$cluster_fill_counts))
+  
+  # check vote totals
+  sapply(analysis$votes, function(x) expect_equal(sum(x), 2*iters))
+  
+  # check posterior probability totals
+  sapply(analysis$posterior_probabilities[,-1], function(x) expect_equal(sum(x), 1))
+})
+
+test_that("about variable works on multiple chains", {
   expect_equal(about_variable(variable = "pi[1,3]", 
-                              model_data = example_model_data, 
                               model = example_model_2chains), 
-               "Pi is the cluster fill probability for writer 9 and cluster 3")
+               "Pi is the cluster fill probability for writer ID 9 and cluster 3")
   
   expect_equal(about_variable(variable = "mu[2,5]", 
-                              model_data = example_model_data, 
                               model = example_model_2chains), 
-               "Mu is the location parameter of a wrapped-Cauchy distribution for writer 30 and cluster 5")
+               "Mu is the location parameter of a wrapped-Cauchy distribution for writer ID 30 and cluster 5")
   
   expect_equal(about_variable(variable = "tau[3,7]", 
-                              model_data = example_model_data, 
                               model = example_model_2chains), 
-               "Tau is the scale parameter of a wrapped-Cauchy distribution for writer 203 and cluster 7")
+               "Tau is the scale parameter of a wrapped-Cauchy distribution for writer ID 203 and cluster 7")
   
   expect_equal(about_variable(variable = "gamma[4]", 
-                              model_data = example_model_data, 
                               model = example_model_2chains), 
-               "Gamma is the pseudo-cluster count across all writers for cluster 4")
+               "Gamma is the mean cluster fill probability across all writers for cluster 4")
   
   expect_equal(about_variable(variable = "eta[6]", 
-                              model_data = example_model_data, 
                               model = example_model_2chains), 
-               "Eta is a hyper prior for cluster 6")
+               "Eta is the mean, or the location parameter, of the hyper prior for mu for cluster 6")
 })

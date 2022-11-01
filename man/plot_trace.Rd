@@ -4,28 +4,26 @@
 \alias{plot_trace}
 \title{Plot Trace}
 \usage{
-plot_trace(model, model_data, variable)
+plot_trace(variable, model)
 }
 \arguments{
-\item{model}{An MCMC object created by \code{\link{fit_model}}}
+\item{variable}{The name of a variable in the model}
 
-\item{model_data}{Data output by \code{\link{format_model_data}} and input to \code{\link{fit_model}}}
-
-\item{variable}{The name of a variable in the MCMC object}
+\item{model}{A model created by \code{\link{fit_model}}}
 }
 \value{
-ggplot line plot
+A trace plot
 }
 \description{
-Create a traceplot for all chains for a single variable in an MCMC object
+Create a trace plot for all chains for a single variable of a fitted model
 created by \code{\link{fit_model}}. If the model contains more than one chain, the
 chains will be combined by pasting them together.
 }
 \examples{
-plot_trace(model = example_model_1chain, model_data = example_model_data, variable = "pi[1,1]")
-plot_trace(model = example_model_1chain, model_data = example_model_data, variable = "mu[2,3]")
-plot_trace(model = example_model_1chain, model_data = example_model_data, variable = "gamma[1]")
-plot_trace(model = example_model_1chain, model_data = example_model_data, variable = "tau[2,3]")
-plot_trace(model = example_model_1chain, model_data = example_model_data, variable = "eta[2]")
+plot_trace(model = example_model_1chain, variable = "pi[1,1]")
+plot_trace(model = example_model_1chain, variable = "mu[2,3]")
+plot_trace(model = example_model_2chains, variable = "gamma[1]")
+plot_trace(model = example_model_2chains, variable = "tau[2,3]")
+plot_trace(model = example_model_2chains, variable = "eta[2]")
 
 }
