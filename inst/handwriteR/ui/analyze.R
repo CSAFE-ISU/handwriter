@@ -1,7 +1,8 @@
 tabPanel("Analyze Questioned Documents", 
          sidebarLayout(
            sidebarPanel(width = 4,
-                        textInput("q_main_dir", "Main directory", value = getwd()),
+                        shinyDirButton("q_main_dir", "Main Directory", "Choose main template directory"),
+                        verbatimTextOutput("dir", placeholder = TRUE),  
                         helpText("All cluster template(s), fitted models, and other related documents will be stored in
                                  this directory."),
                         hr(),

@@ -1,9 +1,30 @@
-#=============================================================
-#======================= ANALYZE =============================
-#=============================================================
+analysis <- reactiveValues(q_main_datapath = getwd())
 
+#======================= MAIN DIRECTORY =============================
+# UPDATE: main directory
+shinyDirChoose(
+  input,
+  'q_main_dir',
+  roots = c(home = '~'),
+  filetypes = c('', 'txt', 'bigWig', "tsv", "csv", "bw")
+)
+q_main_dir <- reactive(input$q_main_dir)
+observeEvent(ignoreNULL = TRUE,
+             eventExpr = {
+               input$q_main_dir
+             },
+             handlerExpr = {
+               if (!"path" %in% names(q_main_dir())) return()
+               home <- normalizePath("~")
+               analysis$q_main_datapath <-
+                 file.path(home, paste(unlist(q_main_dir()$path[-1]), collapse = .Platform$file.sep))
+             })
 
-analysis <- reactiveValues()
+# RENDER: main directory ----
+output$dir <- renderText({
+  analysis$q_main_datapath
+})
+
 
 # ENABLE/DISABLE: get model data ----
 observe({
@@ -99,11 +120,9 @@ observeEvent(input$q_load_questioned_data, {
 
 # UPDATE: template directories, template_num, template_names ----
 observe({
-  analysis$q_main_dir <- input$q_main_dir
-  
   # template directorys
-  analysis$q_template_images_dir <- file.path(analysis$q_main_dir, "data", "template_images")
-  analysis$q_template_graphs_dir <- file.path(analysis$q_main_dir, "data", "template_graphs")
+  analysis$q_template_images_dir <- file.path(analysis$q_main_datapath, "data", "template_images")
+  analysis$q_template_graphs_dir <- file.path(analysis$q_main_datapath, "data", "template_graphs")
   
   # template number selections
   if (!is.null(analysis$q_templates)){
@@ -142,8 +161,8 @@ observeEvent(input$q_created_template_num, {
 # UPDATE: model images and graphs directories, model variables for trace plot ----
 observe({
   # model
-  analysis$q_model_images_dir <- file.path(analysis$q_main_dir, "data", "model_images")
-  analysis$q_model_graphs_dir <- file.path(analysis$q_main_dir, "data", "model_graphs")
+  analysis$q_model_images_dir <- file.path(analysis$q_main_datapath, "data", "model_images")
+  analysis$q_model_graphs_dir <- file.path(analysis$q_main_datapath, "data", "model_graphs")
   
   # trace plot variables
   if (!is.null(analysis$q_model)){
@@ -155,8 +174,8 @@ observe({
 
 # UPDATE: questioned images and graphs directories ----
 observe({
-  analysis$q_questioned_images_dir <- file.path(analysis$q_main_dir, "data", "questioned_images")
-  analysis$q_questioned_graphs_dir <- file.path(analysis$q_main_dir, "data", "questioned_graphs")
+  analysis$q_questioned_images_dir <- file.path(analysis$q_main_datapath, "data", "questioned_images")
+  analysis$q_questioned_graphs_dir <- file.path(analysis$q_main_datapath, "data", "questioned_graphs")
 })
 
 # BUTTON: use default template ----
@@ -172,13 +191,13 @@ observeEvent(input$q_default_templates, {
 observeEvent(input$q_make_templates, {
   # process images if they haven't already been processed
   analysis$q_questioned_proc_list <- process_batch_dir(input_dir = analysis$q_template_images_dir,
-                                                       output_dir = file.path(analysis$q_main_dir, "data", "template_graphs"),
+                                                       output_dir = file.path(analysis$q_main_datapath, "data", "template_graphs"),
                                                        transform_output = 'document')
   # update list of graphs
   analysis$q_questioned_graphs_docnames <- list.files(analysis$q_questioned_graphs_dir)
   
   # make templates
-  analysis$q_templates <- make_clustering_templates(template_dir = analysis$q_main_dir,
+  analysis$q_templates <- make_clustering_templates(template_dir = analysis$q_main_datapath,
                                                     writer_indices = c(2,5),
                                                     max_edges = 30,
                                                     starting_seed = input$q_starting_seed,
