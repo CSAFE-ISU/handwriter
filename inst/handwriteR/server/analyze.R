@@ -1,7 +1,7 @@
 analysis <- reactiveValues(q_main_datapath = getwd())
 
 #======================= MAIN DIRECTORY =============================
-# UPDATE: main directory
+# UPDATE: main directory ----
 shinyDirChoose(
   input,
   'q_main_dir',
@@ -25,10 +25,91 @@ output$dir <- renderText({
   analysis$q_main_datapath
 })
 
+#======================= TEMPLATES =============================
 
+# UPDATE: template directories ----
+observe({
+  # template directories
+  analysis$q_template_images_dir <- file.path(analysis$q_main_datapath, "data", "template_images")
+  analysis$q_template_graphs_dir <- file.path(analysis$q_main_datapath, "data", "template_graphs")
+})
+
+# UPDATE: use template ----
+observeEvent(input$q_use_template, {
+  if ( input$q_use_template == "default" ){
+    analysis$q_template <- example_cluster_template
+  } else if ( input$q_use_template == "main" && file.exists(file.path(analysis$q_main_datapath, "data", "template.rds")) ) {
+    analysis$q_template <- readRDS(file.path(analysis$q_main_datapath, "data", "template.rds"))
+  } else {
+    analysis$q_template <- NULL
+  }
+})
+
+# BUTTON: make templates ----
+observeEvent(input$q_make_templates, {
+  # make templates
+  analysis$q_template <- make_clustering_templates(template_dir = analysis$q_main_datapath,
+                                                   template_images_dir = analysis$q_template_images_dir,
+                                                   writer_indices = c(2,5),
+                                                   max_edges = 30,
+                                                   seed = input$q_seed,
+                                                   K = input$q_K,
+                                                   num_dist_cores = input$q_num_cores,
+                                                   num_path_cuts = 8,
+                                                   max_iters = input$q_max_iters,
+                                                   gamma = 3,
+                                                   num_graphs = input$q_num_graphs)
+})
+
+# RENDER: current template
+output$q_use_template <- renderPrint({
+  if (input$q_use_template == "default"){
+    "Default template"
+  } else if ( input$q_use_template == "main" && file.exists(file.path(analysis$q_main_datapath, "data", "template.rds")) ) {
+    "Template in main directory"
+  } else {
+    "Either select the default template or create a new template."
+  }
+})
+
+# RENDER: template images directory and file names (from directory not current template) ----
+output$q_template_images_docnames <- renderPrint({ 
+  # list template images in template folder if template is null
+  if (is.null(analysis$q_template)){
+    list.files(analysis$q_template_images_dir)
+  } else {
+    unique(analysis$q_template$docnames)
+  } 
+})
+
+# RENDER: plot template cluster fill counts ----
+output$q_template_cluster_fill_counts <- renderPlot({
+  if (!is.null(analysis$q_template)){
+    template_data <- format_template_data(analysis$q_template)
+    plot_cluster_fill_counts(template_data, facet = TRUE)
+  }
+})
+
+# RENDER: plot clusters ----
+output$q_plot_clusters <- renderImage({
+  # A temp file to save the output.
+  # This file will be removed later by renderImage
+  outfile <- 
+    image_read("images/template.png") %>%
+    image_write(tempfile(fileext = '.png'), format = "png")
+  
+  # Return a list containing the filename
+  list(src = outfile,
+       contentType = 'image/png',
+       width = 600,
+       alt = "This is alternate text")
+}, deleteFile = TRUE)
+
+
+#======================= MODEL =============================
 # ENABLE/DISABLE: get model data ----
 observe({
-  if (!is.null(analysis$q_templates) && (length(list.files(analysis$q_model_images_dir)) > 0)){
+  if (!is.null(analysis$q_template) && !is.null(analysis$q_model_images_dir) && (length(list.files(analysis$q_model_images_dir)) > 0)){
     shinyjs::enable("q_get_model_data")
   } else {
     shinyjs::disable("q_get_model_data")
@@ -62,41 +143,6 @@ observe({
   }
 })
 
-# ENABLE/DISABLE: get questioned data ----
-observe({
-  if (!is.null(analysis$q_templates) && !is.null(analysis$q_model_data) && 
-      (length(list.files(analysis$q_questioned_images_dir)) > 0)){
-    shinyjs::enable("q_get_questioned_data")
-  } else {
-    shinyjs::disable("q_get_questioned_data")
-  }
-})
-
-# ENABLE/DISABLE: save questioned data ----
-observe({
-  if (!is.null(analysis$q_questioned_data)){
-    shinyjs::enable("q_save_questioned_data")
-  } else {
-    shinyjs::disable("q_save_questioned_data")
-  }
-})
-
-# ENABLE/DISABLE: analyze questioned docs ----
-observe({
-  if (!is.null(analysis$q_questioned_data) && !is.null(analysis$q_model_data) && !is.null(analysis$q_model)){
-    shinyjs::enable("q_analyze_questioned_docs")
-  } else {
-    shinyjs::disable("q_analyze_questioned_docs")
-  }
-})
-
-# UPLOAD: templates ----
-observeEvent(input$q_load_templates, {
-  file <- input$q_load_templates
-  q_template_file <- file$datapath
-  analysis$q_templates <- readRDS(q_template_file)
-})
-
 # UPLOAD: model data ----
 observeEvent(input$q_load_model_data, {
   file <- input$q_load_model_data
@@ -109,53 +155,6 @@ observeEvent(input$q_load_model, {
   file <- input$q_load_model
   q_model_file <- file$datapath
   analysis$q_model <- readRDS(q_model_file)
-})
-
-# UPLOAD: questioned data ----
-observeEvent(input$q_load_questioned_data, {
-  file <- input$q_load_questioned_data
-  q_questioned_data_file <- file$datapath
-  analysis$q_questioned_data <- readRDS(q_questioned_data_file)
-})
-
-# UPDATE: template directories, template_num, template_names ----
-observe({
-  # template directorys
-  analysis$q_template_images_dir <- file.path(analysis$q_main_datapath, "data", "template_images")
-  analysis$q_template_graphs_dir <- file.path(analysis$q_main_datapath, "data", "template_graphs")
-  
-  # template number selections
-  if (!is.null(analysis$q_templates)){
-    updateSelectInput(session, "q_loaded_template_num", choices = 1:length(analysis$q_templates))
-    updateSelectInput(session, "q_created_template_num", choices = 1:length(analysis$q_templates))
-  } else {
-    updateSelectInput(session, "q_loaded_template_num", choices = c(NA))
-    updateSelectInput(session, "q_created_template_num", choices = c(NA))
-  }
-  
-  # names of loaded templates
-  if (!is.null(analysis$q_templates)){
-    template_names <- c()
-    for (i in 1:length(analysis$q_templates)){
-      temp <- paste0("seed", input$q_starting_seed + i - 1, "_run", i)
-      template_names <- c(template_names, temp)
-    }
-    analysis$q_template_names <- template_names
-  } else {
-    analysis$q_template_names <- NULL
-  }
-})
-
-# UPDATE: selected template ----
-observeEvent(input$q_loaded_template_num, {
-  analysis$q_template_current <- input$q_loaded_template_num
-  # update choice in create templates panel
-  updateSelectInput(session, "q_created_template_num", choices = 1:length(analysis$q_templates), selected = input$q_loaded_template_num)
-})
-observeEvent(input$q_created_template_num, {
-  analysis$q_template_current <- input$q_created_template_num
-  # update choice in load templates panel
-  updateSelectInput(session, "q_loaded_template_num", choices = 1:length(analysis$q_templates), selected = input$q_created_template_num)
 })
 
 # UPDATE: model images and graphs directories, model variables for trace plot ----
@@ -172,45 +171,6 @@ observe({
   }
 })
 
-# UPDATE: questioned images and graphs directories ----
-observe({
-  analysis$q_questioned_images_dir <- file.path(analysis$q_main_datapath, "data", "questioned_images")
-  analysis$q_questioned_graphs_dir <- file.path(analysis$q_main_datapath, "data", "questioned_graphs")
-})
-
-# BUTTON: use default template ----
-observeEvent(input$q_default_templates, {
-  # use example template that comes with handwriter
-  analysis$q_templates <- example_cluster_template
-  
-  # set template number
-  analysis$q_template_current <- 1
-})
-
-# BUTTON: make templates ----
-observeEvent(input$q_make_templates, {
-  # process images if they haven't already been processed
-  analysis$q_questioned_proc_list <- process_batch_dir(input_dir = analysis$q_template_images_dir,
-                                                       output_dir = file.path(analysis$q_main_datapath, "data", "template_graphs"),
-                                                       transform_output = 'document')
-  # update list of graphs
-  analysis$q_questioned_graphs_docnames <- list.files(analysis$q_questioned_graphs_dir)
-  
-  # make templates
-  analysis$q_templates <- make_clustering_templates(template_dir = analysis$q_main_datapath,
-                                                    writer_indices = c(2,5),
-                                                    max_edges = 30,
-                                                    starting_seed = input$q_starting_seed,
-                                                    K = input$q_K,
-                                                    num_runs = input$q_num_runs,
-                                                    num_cores = 1,
-                                                    num_dist_cores = input$q_num_cores,
-                                                    num_path_cuts = 8,
-                                                    max_iters = input$q_max_iters,
-                                                    gamma = 3,
-                                                    num_graphs = input$q_num_graphs)
-})
-
 # BUTTON: get model data ----
 observeEvent(input$q_get_model_data, {
   # process images if they haven't already been processed
@@ -219,7 +179,7 @@ observeEvent(input$q_get_model_data, {
                                                   transform_output = 'document')
   
   # get cluster assignments using current template
-  analysis$q_model_clusters <- get_clusterassignment(clustertemplate = analysis$q_templates[[as.integer(analysis$q_template_current)]],
+  analysis$q_model_clusters <- get_clusterassignment(clustertemplate = analysis$q_template[[as.integer(analysis$q_template_current)]],
                                                      input_dir = analysis$q_model_graphs_dir)
   
   # format model data
@@ -229,7 +189,6 @@ observeEvent(input$q_get_model_data, {
                                              a=2, b=0.25, c=2, d=2, e=0.5)
 })
 
-# BUTTON: save model data ----
 #Download
 output$q_save_model_data <- downloadHandler(
   filename = function(){
@@ -262,6 +221,80 @@ output$q_save_model <- downloadHandler(
   }
 )
 
+# RENDER: model images file names ----
+output$q_model_images_docnames <- renderPrint({ list.files(analysis$q_model_images_dir) })
+
+# RENDER: model cluster fill counts table ----
+output$q_cluster_fill_counts <- renderDT({ analysis$q_model_data$cluster_fill_counts })
+
+# RENDER: model cluster fill counts plot ----
+output$q_model_cluster_counts_plot <- renderPlot({
+  cc <- analysis$q_model_data$cluster_fill_counts
+  cc <- cc %>% 
+    tidyr::pivot_longer(cols=-c(1,2), names_to = "cluster", values_to = "count") %>%
+    dplyr::mutate(writer = factor(writer),
+                  cluster = factor(cluster))
+  
+  cc %>% 
+    ggplot2::ggplot(aes(x=cluster, y=count, color = writer)) +
+    geom_line(position=position_dodge(width=0.5)) +
+    geom_point(position=position_dodge(width=0.5)) 
+})
+
+# RENDER: check model ----
+output$q_is_mcmc <- renderPrint({ coda::is.mcmc.list(analysis$q_model) })
+
+# RENDER: trace plot ----
+output$q_trace_plot <- renderPlot({
+  if (!is.null(analysis$q_model) && !is.na(input$q_trace_variable)){
+    plot_trace(model=analysis$q_model, variable=input$q_trace_variable)
+  }
+})
+
+
+#======================= QUESTIONED DOCS ========================
+
+# ENABLE/DISABLE: get questioned data ----
+observe({
+  if (!is.null(analysis$q_template) && !is.null(analysis$q_model_data) && 
+      (length(list.files(analysis$q_questioned_images_dir)) > 0)){
+    shinyjs::enable("q_get_questioned_data")
+  } else {
+    shinyjs::disable("q_get_questioned_data")
+  }
+})
+
+# ENABLE/DISABLE: save questioned data ----
+observe({
+  if (!is.null(analysis$q_questioned_data)){
+    shinyjs::enable("q_save_questioned_data")
+  } else {
+    shinyjs::disable("q_save_questioned_data")
+  }
+})
+
+# ENABLE/DISABLE: analyze questioned docs ----
+observe({
+  if (!is.null(analysis$q_questioned_data) && !is.null(analysis$q_model_data) && !is.null(analysis$q_model)){
+    shinyjs::enable("q_analyze_questioned_docs")
+  } else {
+    shinyjs::disable("q_analyze_questioned_docs")
+  }
+})
+
+# UPLOAD: questioned data ----
+observeEvent(input$q_load_questioned_data, {
+  file <- input$q_load_questioned_data
+  q_questioned_data_file <- file$datapath
+  analysis$q_questioned_data <- readRDS(q_questioned_data_file)
+})
+
+# UPDATE: questioned images and graphs directories ----
+observe({
+  analysis$q_questioned_images_dir <- file.path(analysis$q_main_datapath, "data", "questioned_images")
+  analysis$q_questioned_graphs_dir <- file.path(analysis$q_main_datapath, "data", "questioned_graphs")
+})
+
 # BUTTON: get questioned data ----
 observeEvent(input$q_get_questioned_data, {
   # process images if they haven't already been processed
@@ -270,7 +303,7 @@ observeEvent(input$q_get_questioned_data, {
                                                        transform_output = 'document')
   
   # get cluster assignments using current template
-  analysis$q_questioned_clusters <- get_clusterassignment(clustertemplate = analysis$q_templates[[as.integer(analysis$q_template_current)]],
+  analysis$q_questioned_clusters <- get_clusterassignment(clustertemplate = analysis$q_template[[as.integer(analysis$q_template_current)]],
                                                           input_dir = analysis$q_questioned_graphs_dir)
   
   # format questioned data
@@ -301,99 +334,6 @@ observeEvent(input$q_analyze_questioned_docs, {
                                                       num_cores = input$q_questioned_num_cores)
 })
 
-# RENDER: template images directory and file names (from directory not current template) ----
-output$q_template_images_dir <- renderText({ analysis$q_template_images_dir })
-output$q_template_images_docnames <- renderPrint({ list.files(analysis$q_template_images_dir) })
-
-# RENDER: template documents (from current template not directory) ----
-output$q_template_docnames <- renderPrint({ 
-  if (!is.null(analysis$q_templates)){
-    unique(analysis$q_templates[[as.integer(analysis$q_template_current)]]$docnames)
-  }
-})
-
-# RENDER: template graphs directory and file names ----
-output$q_template_graphs_dir <- renderPrint({ analysis$q_template_graphs_dir })
-output$q_template_graphs_docnames <- renderPrint({ 
-  if (is.null(analysis$q_template_graphs_docnames)){
-    list.files(analysis$q_template_graphs_dir)
-  } else {
-    analysis$q_template_graphs_docnames
-  }
-})
-
-# RENDER: templates names ----
-output$q_template_names <- renderPrint({ 
-  if (!is.null(analysis$q_template_names)){
-    analysis$q_template_names
-  }
-})
-
-# RENDER: selected template name ----
-output$q_selected_template <- renderPrint({ 
-  if (!is.null(analysis$q_template_names) && !is.null(analysis$q_template_current)){
-    analysis$q_template_names[as.integer(analysis$q_template_current)] 
-  }
-})
-
-# RENDER: plot template cluster fill counts ----
-output$q_template_cluster_fill_counts <- renderPlot({
-  if (!is.null(analysis$q_templates)){
-    clusters <- data.frame(cluster = analysis$q_templates[[as.integer(analysis$q_template_current)]]$cluster)
-    df <- clusters %>% 
-      mutate(cluster = as.factor(cluster)) %>%
-      group_by(cluster) %>%
-      summarize(count = n())
-    
-    ggplot2::ggplot(df, aes(x=cluster, y=count)) +
-      geom_bar(stat = "identity")
-  }
-})
-
-# RENDER: plot clusters ----
-output$q_plot_clusters <- renderImage({
-  # A temp file to save the output.
-  # This file will be removed later by renderImage
-  outfile <- 
-    image_read("images/template.png") %>%
-    image_write(tempfile(fileext = '.png'), format = "png")
-  
-  # Return a list containing the filename
-  list(src = outfile,
-       contentType = 'image/png',
-       width = 600,
-       alt = "This is alternate text")
-}, deleteFile = TRUE)
-
-# RENDER: model images file names ----
-output$q_model_images_docnames <- renderPrint({ list.files(analysis$q_model_images_dir) })
-
-# RENDER: model cluster fill counts table ----
-output$q_cluster_fill_counts <- renderDT({ analysis$q_model_data$cluster_fill_counts })
-
-# RENDER: model cluster fill counts plot ----
-output$q_model_cluster_counts_plot <- renderPlot({
-    cc <- analysis$q_model_data$cluster_fill_counts
-    cc <- cc %>% 
-      tidyr::pivot_longer(cols=-c(1,2), names_to = "cluster", values_to = "count") %>%
-      dplyr::mutate(writer = factor(writer),
-                    cluster = factor(cluster))
-    
-    cc %>% 
-      ggplot2::ggplot(aes(x=cluster, y=count, color = writer)) +
-      geom_line(position=position_dodge(width=0.5)) +
-      geom_point(position=position_dodge(width=0.5)) 
-})
-
-# RENDER: check model ----
-output$q_is_mcmc <- renderPrint({ coda::is.mcmc.list(analysis$q_model) })
-
-# RENDER: trace plot ----
-output$q_trace_plot <- renderPlot({
-  if (!is.null(analysis$q_model) && !is.na(input$q_trace_variable)){
-    plot_trace(model=analysis$q_model, variable=input$q_trace_variable)
-  }
-})
 
 # RENDER: questioned images file names ----
 output$q_questioned_images_docnames <- renderPrint({ list.files(analysis$q_questioned_images_dir) })
