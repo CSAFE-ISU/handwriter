@@ -13,7 +13,6 @@ library(DT)
 library(stringr)
 library(dplyr)
 library(ggplot2)
-library(mc2d)
 
 print(paste0('working in: ', getwd()))
 

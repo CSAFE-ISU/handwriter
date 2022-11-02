@@ -231,6 +231,8 @@ output$q_post_probs_table <- renderTable({
     df <- t(analysis$q_analysis$posterior_probabilities)
     # grab known writers from the first row (caused by transposing matrix)
     known_writer_colnames <- df[1,]
+    # change known_writer_# to writer_#
+    known_writer_colnames <- stringr::str_replace(known_writer_colnames, "known_", "")
     # drop known writers rows
     df <- df[2:nrow(df), ]
     # change questioned docs from row names to column
