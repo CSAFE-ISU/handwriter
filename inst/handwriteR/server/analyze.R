@@ -144,10 +144,30 @@ observe({
   }
 })
 
-# UPDATE: model directories ----
-observe({
-  # model images directory
-  analysis$q_model_images_dir <- file.path(analysis$q_main_datapath, "data", "model_images")
+# UPDATE: model training documents directory ----
+shinyDirChoose(
+  input,
+  'q_model_images_dir',
+  roots = c(home = '~'),
+  filetypes = c('', 'txt', 'bigWig', "tsv", "csv", "bw")
+)
+q_model_images_dir <- reactive(input$q_model_images_dir)
+observeEvent(ignoreNULL = TRUE,
+             eventExpr = {
+               input$q_model_images_dir
+             },
+             handlerExpr = {
+               if (!"path" %in% names(q_model_images_dir())) return()
+               home <- normalizePath("~")
+               analysis$q_model_images_dir <-
+                 file.path(home, paste(unlist(q_model_images_dir()$path[-1]), collapse = .Platform$file.sep))
+             })
+
+# RENDER: model training documents directory ----
+output$q_model_images_dir <- renderText({
+  if ( !is.null(analysis$q_model_images_dir) ) {
+    analysis$q_model_images_dir
+  }
 })
 
 # UPDATE: model ----
@@ -179,7 +199,11 @@ observeEvent(input$q_fit_model, {
 
 
 # RENDER: model images file names ----
-output$q_model_images_docnames <- renderPrint({ list.files(analysis$q_model_images_dir) })
+output$q_model_images_docnames <- renderPrint({ 
+  if ( !is.null(analysis$q_model_images_dir)) {
+    list.files(analysis$q_model_images_dir) 
+  }
+})
 
 # RENDER: model cluster fill counts plot ----
 output$q_model_cluster_counts_plot <- renderPlot({
