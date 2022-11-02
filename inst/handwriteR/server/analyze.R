@@ -27,10 +27,28 @@ output$dir <- renderText({
 
 #======================= TEMPLATES =============================
 
-# UPDATE: template directories ----
-observe({
-  # template directories
-  analysis$q_template_images_dir <- file.path(analysis$q_main_datapath, "data", "template_images")
+# UPDATE: template training documents directory ----
+shinyDirChoose(
+  input,
+  'q_template_images_dir',
+  roots = c(home = '~'),
+  filetypes = c('', 'txt', 'bigWig', "tsv", "csv", "bw")
+)
+q_template_images_dir <- reactive(input$q_template_images_dir)
+observeEvent(ignoreNULL = TRUE,
+             eventExpr = {
+               input$q_template_images_dir
+             },
+             handlerExpr = {
+               if (!"path" %in% names(q_template_images_dir())) return()
+               home <- normalizePath("~")
+               analysis$q_template_images_dir <-
+                 file.path(home, paste(unlist(q_template_images_dir()$path[-1]), collapse = .Platform$file.sep))
+             })
+
+# RENDER: main directory ----
+output$q_template_images_dir <- renderText({
+  analysis$q_template_images_dir
 })
 
 # UPDATE: Load template in main dir ----
@@ -69,9 +87,9 @@ observeEvent(input$q_make_templates, {
 
 # RENDER: current template
 output$q_use_template <- renderPrint({
-  if (input$q_use_template == "default"){
+  if ( input$q_use_template == "default" ){
     "Default template"
-  } else if ( input$q_use_template == "main" && file.exists(file.path(analysis$q_main_datapath, "data", "template.rds")) ) {
+  } else if ( input$q_use_template == "main" && !is.null(analysis$q_template) ) {
     "Template in main directory"
   } else {
     "Either select the default template or create a new template."
@@ -81,7 +99,7 @@ output$q_use_template <- renderPrint({
 # RENDER: template images directory and file names (from directory not current template) ----
 output$q_template_images_docnames <- renderPrint({ 
   # list template images in template folder if template is null
-  if (is.null(analysis$q_template)){
+  if ( is.null(analysis$q_template) ){
     list.files(analysis$q_template_images_dir)
   } else {
     unique(analysis$q_template$docnames)

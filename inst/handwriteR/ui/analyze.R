@@ -18,6 +18,8 @@ tabPanel("Analyze Questioned Documents",
                                                    style = "default"),
                                    # create templates ----
                                    bsCollapsePanel("Create Templates",
+                                                   shinyDirButton("q_template_images_dir", "Template Documents", "Choose template training documents' directory"),
+                                                   verbatimTextOutput("q_template_images_dir", placeholder = TRUE),  
                                                    fluidRow(column(width = 4, numericInput("q_seed", "seed", value=100, min=1, step=1)),
                                                             column(width = 4, numericInput("q_num_cores", "# cores", value=5, min=1, step=1)),
                                                             column(width = 4, numericInput("q_K", "# clusters", value=5, min=3, max=60, step=1))),
