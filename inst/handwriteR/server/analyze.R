@@ -6,7 +6,7 @@ shinyDirChoose(
   input,
   'q_main_dir',
   roots = c(home = '~'),
-  filetypes = c('', 'txt', 'bigWig', "tsv", "csv", "bw")
+  filetypes = c('', 'png', 'txt', 'bigWig', "tsv", "csv", "bw")
 )
 q_main_dir <- reactive(input$q_main_dir)
 observeEvent(ignoreNULL = TRUE,
@@ -32,7 +32,7 @@ shinyDirChoose(
   input,
   'q_template_images_dir',
   roots = c(home = '~'),
-  filetypes = c('', 'txt', 'bigWig', "tsv", "csv", "bw")
+  filetypes = c('png')
 )
 q_template_images_dir <- reactive(input$q_template_images_dir)
 observeEvent(ignoreNULL = TRUE,
@@ -149,7 +149,7 @@ shinyDirChoose(
   input,
   'q_model_images_dir',
   roots = c(home = '~'),
-  filetypes = c('', 'txt', 'bigWig', "tsv", "csv", "bw")
+  filetypes = c('png')
 )
 q_model_images_dir <- reactive(input$q_model_images_dir)
 observeEvent(ignoreNULL = TRUE,
@@ -234,9 +234,30 @@ observe({
   }
 })
 
-# UPDATE: questioned images and graphs directories ----
-observe({
-  analysis$q_questioned_images_dir <- file.path(analysis$q_main_datapath, "data", "questioned_images")
+# UPDATE: questioned documents directory ----
+shinyDirChoose(
+  input,
+  'q_questioned_images_dir',
+  roots = c(home = '~'),
+  filetypes = c('png')
+)
+q_questioned_images_dir <- reactive(input$q_questioned_images_dir)
+observeEvent(ignoreNULL = TRUE,
+             eventExpr = {
+               input$q_questioned_images_dir
+             },
+             handlerExpr = {
+               if (!"path" %in% names(q_questioned_images_dir())) return()
+               home <- normalizePath("~")
+               analysis$q_questioned_images_dir <-
+                 file.path(home, paste(unlist(q_questioned_images_dir()$path[-1]), collapse = .Platform$file.sep))
+             })
+
+# RENDER: questioned documents directory ----
+output$q_questioned_images_dir <- renderText({
+  if ( !is.null(analysis$q_questioned_images_dir) ) {
+    analysis$q_questioned_images_dir
+  }
 })
 
 # UPDATE: analysis ----
@@ -257,7 +278,11 @@ observeEvent(input$q_analyze_questioned_docs, {
 })
 
 # RENDER: questioned images file names ----
-output$q_questioned_images_docnames <- renderPrint({ list.files(analysis$q_questioned_images_dir) })
+output$q_questioned_images_docnames <- renderPrint({ 
+  if ( !is.null(analysis$q_questioned_images_dir) ){
+    list.files(analysis$q_questioned_images_dir)
+  }
+})
 
 # RENDER: questioned cluster fill counts plot ----
 output$q_questioned_cluster_counts_plot <- renderPlot({

@@ -3,7 +3,7 @@ tabPanel("Analyze Questioned Documents",
            sidebarPanel(width = 4,
                         shinyDirButton("q_main_dir", "Main Directory", "Choose main template directory"),
                         verbatimTextOutput("dir", placeholder = TRUE),  
-                        helpText("All cluster template, fitted models, and other related documents will be stored in
+                        helpText("The cluster template, the fitted model, and other related files will be stored in
                                  this directory."),
                         hr(),
                         
@@ -54,6 +54,8 @@ tabPanel("Analyze Questioned Documents",
                         bsCollapse(id="collapseQuestioned",
                                    # Analyze Documents ----
                                    bsCollapsePanel("Analyze Documents",
+                                                   shinyDirButton("q_questioned_images_dir", "Questioned Documents", "Choose questioned documents' directory"),
+                                                   verbatimTextOutput("q_questioned_images_dir", placeholder = TRUE),  
                                                    numericInput("q_questioned_num_cores", "# cores", value=5, step=1, min=1, max=10),
                                                    actionButton("q_analyze_questioned_docs", "Analyze questioned document(s)"),
                                                    style = "default")
