@@ -31,7 +31,13 @@ output$dir <- renderText({
 observe({
   # template directories
   analysis$q_template_images_dir <- file.path(analysis$q_main_datapath, "data", "template_images")
-  analysis$q_template_graphs_dir <- file.path(analysis$q_main_datapath, "data", "template_graphs")
+})
+
+# UPDATE: Load template in main dir ----
+observeEvent(input$q_main_dir, {
+  if ( file.exists(file.path(analysis$q_main_datapath, "data", "template.rds")) && (input$q_use_template == "main") ) {
+    analysis$q_template <- readRDS(file.path(analysis$q_main_datapath, "data", "template.rds"))
+  }
 })
 
 # UPDATE: Choose template ----
@@ -127,7 +133,7 @@ observe({
 })
 
 # UPDATE: model ----
-observe({
+observeEvent(input$q_main_dir, {
   if ( file.exists(file.path(analysis$q_main_datapath, "data", "model.rds")) ) {
     analysis$q_model <- readRDS(file.path(analysis$q_main_datapath, "data", "model.rds"))
   } 
@@ -137,7 +143,7 @@ observe({
 observe({
   # trace plot variables
   if (!is.null(analysis$q_model)){
-    updateSelectInput(session, "q_trace_variable", choices = names(as.data.frame(analysis$q_model$fitted_model[[1]])))
+    updateSelectInput(session, "q_trace_variable", choices = names(as.data.frame(coda::as.mcmc(analysis$q_model$fitted_model[[1]]))))
   } else {
     updateSelectInput(session, "q_trace_variable", choices = c(NA))
   }
@@ -177,111 +183,49 @@ output$q_trace_plot <- renderPlot({
 
 #======================= QUESTIONED DOCS ========================
 
-# ENABLE/DISABLE: get questioned data ----
-observe({
-  if (!is.null(analysis$q_template) && !is.null(analysis$q_model_data) && 
-      (length(list.files(analysis$q_questioned_images_dir)) > 0)){
-    shinyjs::enable("q_get_questioned_data")
-  } else {
-    shinyjs::disable("q_get_questioned_data")
-  }
-})
-
-# ENABLE/DISABLE: save questioned data ----
-observe({
-  if (!is.null(analysis$q_questioned_data)){
-    shinyjs::enable("q_save_questioned_data")
-  } else {
-    shinyjs::disable("q_save_questioned_data")
-  }
-})
-
 # ENABLE/DISABLE: analyze questioned docs ----
 observe({
-  if (!is.null(analysis$q_questioned_data) && !is.null(analysis$q_model_data) && !is.null(analysis$q_model)){
+  if ( !is.null(analysis$q_template) && !is.null(analysis$q_model) ){
     shinyjs::enable("q_analyze_questioned_docs")
   } else {
     shinyjs::disable("q_analyze_questioned_docs")
   }
 })
 
-# UPLOAD: questioned data ----
-observeEvent(input$q_load_questioned_data, {
-  file <- input$q_load_questioned_data
-  q_questioned_data_file <- file$datapath
-  analysis$q_questioned_data <- readRDS(q_questioned_data_file)
-})
-
 # UPDATE: questioned images and graphs directories ----
 observe({
   analysis$q_questioned_images_dir <- file.path(analysis$q_main_datapath, "data", "questioned_images")
-  analysis$q_questioned_graphs_dir <- file.path(analysis$q_main_datapath, "data", "questioned_graphs")
 })
 
-# BUTTON: get questioned data ----
-observeEvent(input$q_get_questioned_data, {
-  # process images if they haven't already been processed
-  analysis$q_questioned_proc_list <- process_batch_dir(input_dir = analysis$q_questioned_images_dir,
-                                                       output_dir = analysis$q_questioned_graphs_dir,
-                                                       transform_output = 'document')
-  
-  # get cluster assignments using current template
-  analysis$q_questioned_clusters <- get_clusterassignment(clustertemplate = analysis$q_template[[as.integer(analysis$q_template_current)]],
-                                                          input_dir = analysis$q_questioned_graphs_dir)
-  
-  # format questioned data
-  analysis$q_questioned_data <- format_questioned_data(formatted_model_data = analysis$q_model_data,
-                                                       questioned_proc_list = analysis$q_questioned_clusters,
-                                                       writer_indices=c(2,5), 
-                                                       doc_indices=c(7,18))
+# UPDATE: analysis ----
+observeEvent(input$q_main_dir, {
+  if ( file.exists(file.path(analysis$q_main_datapath, "data", "analysis.rds")) ) {
+    analysis$q_analysis <- readRDS(file.path(analysis$q_main_datapath, "data", "analysis.rds"))
+  } 
 })
-
-# BUTTON: save questioned data ----
-#Download
-output$q_save_questioned_data <- downloadHandler(
-  filename = function(){
-    paste0("questioned_data_", Sys.Date(), ".rds")
-  },
-  content = function(file) {
-    message(paste0("Writing file: ", "questioned_data_", Sys.Date(), ".rds"))
-    download = isolate(analysis$q_questioned_data)
-    saveRDS(download, file = file)
-  }
-)
 
 # BUTTON: analyze questioned documents ----
 observeEvent(input$q_analyze_questioned_docs, {
-  analysis$q_analysis <- analyze_questioned_documents(model_data = analysis$q_model_data, 
-                                                      model = analysis$q_model, 
-                                                      questioned_data = analysis$q_questioned_data, 
-                                                      num_cores = input$q_questioned_num_cores)
+  analysis$q_analysis <- analyze_questioned_documents(template_dir = analysis$q_main_datapath,
+                                                      questioned_images_dir = analysis$q_questioned_images_dir,
+                                                      model = analysis$q_model,
+                                                      num_cores = input$q_questioned_num_cores,
+                                                      writer_indices = c(2,5),
+                                                      doc_indices = c(7,17))
 })
-
 
 # RENDER: questioned images file names ----
 output$q_questioned_images_docnames <- renderPrint({ list.files(analysis$q_questioned_images_dir) })
 
 # RENDER: questioned cluster fill counts plot ----
 output$q_questioned_cluster_counts_plot <- renderPlot({
-  if (!is.null(analysis$q_questioned_data)){
-    cc <- analysis$q_questioned_data$cluster_fill_counts
-    cc <- cc %>% 
-      tidyr::pivot_longer(cols=-c(1,2), names_to = "cluster", values_to = "count") %>%
-      mutate(writer = factor(writer),
-             cluster = factor(cluster))
-    
-    cc %>% 
-      ggplot2::ggplot(aes(x=cluster, y=count, color = writer)) +
-      geom_line(position=position_dodge(width=0.5)) +
-      geom_point(position=position_dodge(width=0.5)) 
+  if (!is.null(analysis$q_analysis)){
+    plot_cluster_fill_counts(analysis$q_analysis, facet = TRUE)
   }
 })
 
-# RENDER: questioned cluster fill counts table ----
-output$q_questioned_cluster_fill_counts <- renderDT({ analysis$q_questioned_data$cluster_fill_counts })
-
 # RENDER: posterior probabilities table ----
-output$q_post_probs_table <- renderDT({ 
+output$q_post_probs_table <- renderTable({ 
   if (!is.null(analysis$q_analysis)){
     # transpose data frame so questioned docs are rows instead of columns
     df <- t(analysis$q_analysis$posterior_probabilities)
@@ -297,6 +241,9 @@ output$q_post_probs_table <- renderDT({
   }
 })
 
+# RENDER: posterior probabilities plot ----
 output$q_post_probs_plot <- renderPlot({
-  if (!is.null(analysis$q_analysis)){ plot_posterior_probabilities(analysis$q_analysis) }
+  if (!is.null(analysis$q_analysis)){ 
+    plot_posterior_probabilities(analysis$q_analysis) 
+  }
 })

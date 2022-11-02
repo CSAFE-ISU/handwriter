@@ -8,7 +8,9 @@ analyze_questioned_documents(
   template_dir,
   questioned_images_dir,
   model,
-  num_cores
+  num_cores,
+  writer_indices,
+  doc_indices
 )
 }
 \arguments{
@@ -20,6 +22,10 @@ analyze_questioned_documents(
 
 \item{num_cores}{An integer number of cores to use for parallel processing
 with the \code{doParallel} package.}
+
+\item{writer_indices}{A vector of start and stop characters for writer IDs in file names}
+
+\item{doc_indices}{A vector of start and stop characters for document names in file names}
 }
 \value{
 A list of likelihoods, votes, and posterior probabilities of
@@ -38,7 +44,9 @@ analysis <- analyze_questioned_documents(
   template_dir = template_dir
   questioned_images_dir = questioned_images_dir
   model = model,
-  num_cores = 2
+  num_cores = 2,
+  writer_indices = c(2,5),
+  doc_indices = c(7,18)
 )
 analysis$posterior_probabilities
 }

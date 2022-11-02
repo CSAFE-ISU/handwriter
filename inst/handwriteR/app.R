@@ -1,7 +1,7 @@
 # Shiny handwriter
 
 # devtools::install_github("CSAFE-ISU/handwriter")
-# devtools::load_all(".")
+devtools::load_all()
 
 library(magick)
 library(shiny)
@@ -13,6 +13,7 @@ library(DT)
 library(stringr)
 library(dplyr)
 library(ggplot2)
+library(mc2d)
 
 print(paste0('working in: ', getwd()))
 
