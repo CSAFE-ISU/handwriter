@@ -34,7 +34,7 @@ observe({
   analysis$q_template_graphs_dir <- file.path(analysis$q_main_datapath, "data", "template_graphs")
 })
 
-# UPDATE: use template ----
+# UPDATE: Choose template ----
 observeEvent(input$q_use_template, {
   if ( input$q_use_template == "default" ){
     analysis$q_template <- example_cluster_template
@@ -107,142 +107,65 @@ output$q_plot_clusters <- renderImage({
 
 
 #======================= MODEL =============================
-# ENABLE/DISABLE: get model data ----
-observe({
-  if (!is.null(analysis$q_template) && !is.null(analysis$q_model_images_dir) && (length(list.files(analysis$q_model_images_dir)) > 0)){
-    shinyjs::enable("q_get_model_data")
-  } else {
-    shinyjs::disable("q_get_model_data")
-  }
-})
-
-# ENABLE/DISABLE: save model data ----
-observe({
-  if (!is.null(analysis$q_model_data)){
-    shinyjs::enable("q_save_model_data")
-  } else {
-    shinyjs::disable("q_save_model_data")
-  }
-})
 
 # ENABLE/DISABLE: fit model ----
 observe({
-  if (!is.null(analysis$q_model_data)){
+  if (!is.null(analysis$q_template) && 
+      !is.null(analysis$q_model_images_dir) &&
+      dir.exists(analysis$q_model_images_dir) && 
+      (length(list.files(analysis$q_model_images_dir)) > 0)) {
     shinyjs::enable("q_fit_model")
   } else {
     shinyjs::disable("q_fit_model")
   }
 })
 
-# ENABLE/DISABLE: save model ----
+# UPDATE: model directories ----
 observe({
-  if (!is.null(analysis$q_model)){
-    shinyjs::enable("q_save_model")
-  } else {
-    shinyjs::disable("q_save_model")
-  }
-})
-
-# UPLOAD: model data ----
-observeEvent(input$q_load_model_data, {
-  file <- input$q_load_model_data
-  q_model_data_file <- file$datapath
-  analysis$q_model_data <- readRDS(q_model_data_file)
-})
-
-# UPLOAD: model ----
-observeEvent(input$q_load_model, {
-  file <- input$q_load_model
-  q_model_file <- file$datapath
-  analysis$q_model <- readRDS(q_model_file)
-})
-
-# UPDATE: model images and graphs directories, model variables for trace plot ----
-observe({
-  # model
+  # model images directory
   analysis$q_model_images_dir <- file.path(analysis$q_main_datapath, "data", "model_images")
-  analysis$q_model_graphs_dir <- file.path(analysis$q_main_datapath, "data", "model_graphs")
-  
+})
+
+# UPDATE: model ----
+observe({
+  if ( file.exists(file.path(analysis$q_main_datapath, "data", "model.rds")) ) {
+    analysis$q_model <- readRDS(file.path(analysis$q_main_datapath, "data", "model.rds"))
+  } 
+})
+
+# UPDATE: model variables for trace plot ----
+observe({
   # trace plot variables
   if (!is.null(analysis$q_model)){
-    updateSelectInput(session, "q_trace_variable", choices = names(as.data.frame(analysis$q_model[[1]])))
+    updateSelectInput(session, "q_trace_variable", choices = names(as.data.frame(analysis$q_model$fitted_model[[1]])))
   } else {
     updateSelectInput(session, "q_trace_variable", choices = c(NA))
   }
 })
 
-# BUTTON: get model data ----
-observeEvent(input$q_get_model_data, {
-  # process images if they haven't already been processed
-  analysis$q_model_proc_list <- process_batch_dir(input_dir = analysis$q_model_images_dir,
-                                                  output_dir = analysis$q_model_graphs_dir,
-                                                  transform_output = 'document')
-  
-  # get cluster assignments using current template
-  analysis$q_model_clusters <- get_clusterassignment(clustertemplate = analysis$q_template[[as.integer(analysis$q_template_current)]],
-                                                     input_dir = analysis$q_model_graphs_dir)
-  
-  # format model data
-  analysis$q_model_data <- format_model_data(model_proc_list=analysis$q_model_clusters, 
-                                             writer_indices=c(2,5), 
-                                             doc_indices=c(7,18), 
-                                             a=2, b=0.25, c=2, d=2, e=0.5)
-})
-
-#Download
-output$q_save_model_data <- downloadHandler(
-  filename = function(){
-    paste0("model_clusters_", Sys.Date(), ".rds")
-  },
-  content = function(file) {
-    message(paste0("Writing file: ", "model_clusters_", Sys.Date(), ".rds"))
-    download = isolate(analysis$q_model_data)
-    saveRDS(download, file = file)
-  }
-)
-
 # BUTTON: fit model ----
 observeEvent(input$q_fit_model, {
-  analysis$q_model <- fit_model(model_data = analysis$q_model_data,
+  analysis$q_model <- fit_model(template_dir = analysis$q_main_datapath,
+                                model_images_dir = analysis$q_model_images_dir,
                                 num_iters = input$q_num_mcmc_iters,
-                                num_chains = input$q_num_chains)
+                                num_chains = input$q_num_chains,
+                                writer_indices = c(2,5),
+                                doc_indices = c(7,18))
 })
 
-# BUTTON: save model ----
-#Download
-output$q_save_model <- downloadHandler(
-  filename = function(){
-    paste0("model_", Sys.Date(), ".rds")
-  },
-  content = function(file) {
-    message(paste0("Writing file: ", "model_", Sys.Date(), ".rds"))
-    download = isolate(analysis$q_model)
-    saveRDS(download, file = file)
-  }
-)
 
 # RENDER: model images file names ----
 output$q_model_images_docnames <- renderPrint({ list.files(analysis$q_model_images_dir) })
 
-# RENDER: model cluster fill counts table ----
-output$q_cluster_fill_counts <- renderDT({ analysis$q_model_data$cluster_fill_counts })
-
 # RENDER: model cluster fill counts plot ----
 output$q_model_cluster_counts_plot <- renderPlot({
-  cc <- analysis$q_model_data$cluster_fill_counts
-  cc <- cc %>% 
-    tidyr::pivot_longer(cols=-c(1,2), names_to = "cluster", values_to = "count") %>%
-    dplyr::mutate(writer = factor(writer),
-                  cluster = factor(cluster))
-  
-  cc %>% 
-    ggplot2::ggplot(aes(x=cluster, y=count, color = writer)) +
-    geom_line(position=position_dodge(width=0.5)) +
-    geom_point(position=position_dodge(width=0.5)) 
+  if ( !is.null(analysis$q_model) ) {
+    plot_cluster_fill_counts(analysis$q_model, facet = TRUE)
+  }
 })
 
 # RENDER: check model ----
-output$q_is_mcmc <- renderPrint({ coda::is.mcmc.list(analysis$q_model) })
+output$q_is_mcmc <- renderPrint({ coda::is.mcmc.list(analysis$q_model$fitted_model) })
 
 # RENDER: trace plot ----
 output$q_trace_plot <- renderPlot({
