@@ -1,7 +1,7 @@
 # Shiny handwriter
 
 # devtools::install_github("CSAFE-ISU/handwriter")
-# devtools::load_all(".")
+devtools::load_all()
 
 library(magick)
 library(shiny)

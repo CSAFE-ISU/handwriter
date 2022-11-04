@@ -77,7 +77,7 @@ fit_model <- function(template_dir,
   } else {
     model_clusters <- get_clusterassignment(
       clustertemplate = template,
-      input_dir = file.path(main_dir, "data", "model_graphs")
+      input_dir = file.path(template_dir, "data", "model_graphs")
     )
     saveRDS(model_clusters, file.path(template_dir, "data", "model_clusters.rds"))
   }
@@ -253,6 +253,8 @@ about_variable <- function(variable, model) {
 #' @param model A fitted model created by [`fit_model`]
 #' @param num_cores An integer number of cores to use for parallel processing
 #'   with the `doParallel` package.
+#' @param writer_indices A vector of start and stop characters for writer IDs in file names
+#' @param doc_indices A vector of start and stop characters for document names in file names
 #' @return A list of likelihoods, votes, and posterior probabilities of
 #'   writership for each questioned document.
 #'
@@ -264,7 +266,9 @@ about_variable <- function(variable, model) {
 #'   template_dir = template_dir
 #'   questioned_images_dir = questioned_images_dir
 #'   model = model,
-#'   num_cores = 2
+#'   num_cores = 2,
+#'   writer_indices = c(2,5),
+#'   doc_indices = c(7,18)
 #' )
 #' analysis$posterior_probabilities
 #' }
@@ -273,7 +277,7 @@ about_variable <- function(variable, model) {
 #'
 #' @export
 #' @md
-analyze_questioned_documents <- function(template_dir, questioned_images_dir, model, num_cores) {
+analyze_questioned_documents <- function(template_dir, questioned_images_dir, model, num_cores, writer_indices, doc_indices) {
   # process questioned documents
   questioned_proc_list <- process_batch_dir(
     input_dir = questioned_images_dir,
@@ -299,8 +303,8 @@ analyze_questioned_documents <- function(template_dir, questioned_images_dir, mo
   questioned_data <- format_questioned_data(
     model = model,
     questioned_proc_list = questioned_clusters,
-    writer_indices = c(2, 5),
-    doc_indices = c(7, 18)
+    writer_indices = writer_indices,
+    doc_indices = doc_indices
   )
 
   rjags_data <- model$rjags_data
