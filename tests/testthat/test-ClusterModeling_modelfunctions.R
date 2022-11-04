@@ -55,7 +55,9 @@ test_that("analyze questioned documents works with a single chain", {
   analysis <- analyze_questioned_documents(template_dir = template_dir, 
                                            questioned_images_dir = questioned_images_dir, 
                                            model = example_model_1chain, 
-                                           num_cores = 2)
+                                           num_cores = 2,
+                                           writer_indices = c(2,5),
+                                           doc_indices = c(7,17))
   
   # expect named list
   expect_named(analysis, c("likelihood_evals", "votes", "posterior_probabilities", "graph_measurements",
@@ -152,7 +154,9 @@ test_that("analyze questioned documents works with multiple chains", {
   analysis <- analyze_questioned_documents(template_dir = template_dir, 
                                            questioned_images_dir = questioned_images_dir, 
                                            model = example_model_2chains, 
-                                           num_cores = 2)
+                                           num_cores = 2,
+                                           writer_indices = c(2,5),
+                                           doc_indices = c(7,17))
   
   # expect named list
   expect_named(analysis, c("likelihood_evals", "votes", "posterior_probabilities", "graph_measurements",
