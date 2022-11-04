@@ -3,3 +3,4 @@
 /inst/python/.*$
 ^docs$
 ^examples$
+^data-raw$
