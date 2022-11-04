@@ -1,0 +1,66 @@
+---
+title: "K-means clustering in handwriter"
+output: html_document
+date: '2022-11-04'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+This vignette is written for people interested in the inner workings of handwriter's implementation of the K-means algorithm and assumes familiarity with algorithms.
+
+handwriter relies on *clustering templates* to perform handwriting analysis. A cluster template is created by processing template training documents, splitting the handwriting in the documents into component shapes called *graphs*. In handwriter, this step the `process_batch_dir` function accomplishes this step. Then handwriter uses a K-means type algorithm on the training graphs, grouping the graphs into clusters by shape.
+
+## Traditional K-Means
+
+According to [Wikipedia](https://en.wikipedia.org/wiki/K-means_clustering) the traditional, naive K-means algorithm, also called Lloyd's algorithm, does the following:
+
+```{r, naive_alg, eval=FALSE}
+TRADITIONAL K-MEANS ALGORITHM:
+1. Initialize with starting cluster centers and a maximum number of iterations
+2. ASSIGNMENT STEP: assign each datapoint to the nearest cluster
+3. UPDATE STEP: calculate the new cluster means (centers)
+4. Repeat assignment and update steps until a temination condition is met
+
+Temination Conditions:
+Stop the algorithm if
+1. No datapoints change clusters
+2. The maximum number of iterations is reached
+```
+
+The K-means algorithm is said to have *converged* if no datapoints change clusters. If the algorithm has converged, then the cluster assignments and the cluster centers from the last iteration "match" in the sense that each graph is indeed assigned to the nearest cluster and the cluster centers are indeed the means of the graphs assigned to each cluster.
+
+## K-means in handwriter
+
+The K-Means algorithm is implemented in handwriter using graphs as the datapoints and the graph distance measure defined in [A clustering method for graphical handwriting components and statistical writership analysis](https://onlinelibrary.wiley.com/doi/pdfdirect/10.1002/sam.11488). 
+
+handwriter calculates the mean graph for each cluster on the UPDATE STEP. However, in practice we have seen that the mean graph can have many times more edges than any of the training graphs. The graph distance can only measure the distance between two graphs with the same number of edges. If one graph has more edges than another, *ghost edges* are added to the graph with fewer edges so that the distance between the two graphs can be calculated. Because of this, a mean graph with lots and lots of edges makes distance calculations computationally slow because lots and lots of ghost edge need to be added to the training graphs. To get around this problem, handwriter chooses the graph nearest the mean graph as the cluster center. This way distances are calculated between graphs with more reasonable numbers of edges.  
+
+Initially, handwriter employed the same stopping criteria as the traditional K-means algorithm and only used templates that converged to fit models and analyze documents. Unfortunately, the strict definition of convergence had the downside that 50% or more of the time the K-Means algorithm didn't converge even over 500 iterations. Creating a new clustering template is time intensive if the user needs to allow the K-means algorithm to run for 500 iterations. The process is made even more time intensive if the user needs to run the K-means algorithm multiple times to get a template where the algorithm converged.
+
+In some cases where the K-means algorithm did not converge, the same handful of graphs would switch back and forth between two clusters on every iteration. Our best guess is that this undesirable behavior results from the fact that the graph distance, unlike Euclidean distance, is unlikely to be a mathematical [metric](https://mathworld.wolfram.com/Metric.html). Stephanie's To-Do list now includes determining whether or not the graph distance meets the criteria to be a metric.
+
+We changed the stopping conditions of the K-means algorithm so that more useable templates could be created more quickly. The new stopping conditions in handwriter are
+
+```{r, handwriter_conditions, eval=FALSE}
+Temination Conditions:
+Stop the algorithm if
+1. 3% or fewer graphs change clusters
+2. The number of graphs that changed clusters is the same for three iterations in a row
+2. The maximum number of iterations is reached
+```
+
+We also changed the main steps of the K-means algorithm in handwriter to
+```{r, handwriter_alg, eval=FALSE}
+HANDWRITER K-MEANS ALGORITHM:
+1. Initialize with starting cluster centers and a maximum number of iterations
+2. ASSIGNMENT STEP: assign each datapoint to the nearest cluster
+3. Terminate if a stopping condition is met
+4. UPDATE STEP: calculate the new mean graph for each cluster and choose the graph in the cluster nearest the mean graph as the new cluster center
+5. Repeat steps 2-4.
+```
+
+If the algorithm terminates because condition 1, "3% or fewer graphs change clusters," then the cluster centers and cluster assignments "match" in the sense that the cluster assignments do indeed place each graph in the nearest cluster given the current cluster centers. However, because as many as 3% of the graphs could have changed clusters on this iteration, the cluster assignments and the center centers "do not match" in the sense that the cluster centers returned at the termination of the algorithm might no longer be accurate given the latest clustering of graphs. To find the correct cluster centers the UPDATE STEP should be run again. But if the UPDATE STEP is run again, the ASSIGNMENT STEP should also be run again. We have seen in practice that often graphs continue to be reassigned on every iteration and the repetition of updating and assigning only ends when the max iterations are reached or the number of graphs that changed clusters is the same for three iterations in a row. All that to say, handwriter executes the K-means algorithm as described above and if the algorithm terminates because 3% or fewer graphs change clusters, we allow the "mismatch" between the cluster centers and graph assignments.
