@@ -1,0 +1,31 @@
+---
+title: "Select CSAFE Documents"
+output: html_document
+date: '2022-11-08'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+input_dir <- "~/Documents/non_version_control/CSAFE/data_portal/downloaded"
+template_dir <- "~/Documents/non_version_control/CSAFE/test_template1/data/template_docs"
+model_dir <- "~/Documents/non_version_control/CSAFE/test_template1/data/model_docs"
+questioned_dir <- "~/Documents/non_version_control/CSAFE/test_template1/data/questioned_docs"
+
+docs <- select_csafe_docs(num_template_writers = 10,
+                          template_sessions = 1,
+                          template_reps = 1,
+                          template_prompts = "London Letter",
+                          template_seed = 100,
+                          num_model_writers = 5,
+                          model_sessions = 1,
+                          model_reps = c(1,2,3),
+                          model_prompts = "Wizard of Oz",
+                          model_seed = 101,
+                          questioned_sessions = 3,
+                          questioned_reps = 1,
+                          questioned_prompts = "Wizard of Oz")
+```
+

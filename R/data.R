@@ -241,3 +241,17 @@
 #'
 #' @md
 "example_analysis_2chains"
+
+#' CSAFE Documents
+#'
+#' @format A data frame of handwriting documents available in the CSAFE handwriting database.:
+#'   \describe{
+#'   \item{doc}{The document file name. E.g., w0001_s01_pLND_r01.png}
+#'   \item{writer}{The writer id. E.g., w0001}
+#'   \item{session}{The session number: s01, s02, or s03}
+#'   \item{prompt}{The prompt code: pLND for the London letter, pPHR for the common phrase, or pWOZ for the Wizard of Oz}
+#'   \item{repetition}{The repetition number: r01, r02, or r03}
+#'   }
+#'
+#' @md
+"csafe_docs"

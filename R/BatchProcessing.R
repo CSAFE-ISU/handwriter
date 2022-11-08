@@ -86,5 +86,3 @@ read_and_process = function(image_name, transform_output){
   processList$docname = basename(image_name)
   return(processList)
 }
-
-
