@@ -44,8 +44,8 @@ The function `make_clustering_templates` does the following:
 
 1.  Processes the template training documents in `template_images_dir`, decomposing the handwriting into component shapes called *graphs*. The processed graphs are saved in RDS files in main_dir \> data \> template_graphs.
 2.  Deletes graphs with more than the maximum number of edges specified by `max_edges.`
-3.  Selects which template training graphs to use to create the template. If `num_graphs = 'All'` then all graphs are used. Otherwise, a stratified random sample of graphs is selected: floor( `num_graphs` /# training documents ) graphs are selected from each training document.
-4.  Randomly selects `K` starting cluster centers.
+3.  Selects which template training graphs to use to create the template. If `num_graphs = 'All'` then all graphs are used. Otherwise, a stratified random sample of graphs is selected: floor( `num_graphs` /# training documents ) graphs are selected from each training document. The random sample of graphs uses seed `graphs_seed` for reproducibility.
+4.  Randomly selects `K` starting cluster centers using seed `centers_seed` for reproducibility.
 5.  Runs a K-means algorithm with the `K` starting cluster centers and the selected graphs. The algorithm groups the selected graphs into `K` clusters. The final grouping of `K` clusters is the cluster template.
 
 ```{r, results = FALSE}
@@ -56,11 +56,12 @@ template <- make_clustering_templates(template_dir = main_dir,
                                       template_images_dir = template_images_dir,
                                       writer_indices = c(2,5),
                                       max_edges = 30,
+                                      centers_seed = 100,
+                                      graphs_seed = 104,
                                       K = 10,
                                       num_dist_cores = 2,
                                       max_iters = 3,
-                                      num_graphs = 1000,
-                                      seed = 100)
+                                      num_graphs = 1000)
 ```
 
 The idea behind the cluster template and the hierarchical model that we can decompose a handwritten document into component graphs, assign each graph to the *nearest* cluster, the cluster with the closest shape, in the cluster template, and count the number of graphs in each cluster. We characterize writers by *cluster fill counts*, the number of a writer's graphs that are assigned to each cluster. Plot the cluster fill counts for each writer in the template training set.
@@ -92,7 +93,7 @@ model <- fit_model(template_dir = main_dir,
                    num_iters = 100, 
                    num_chains = 1, 
                    writer_indices = c(2,5), 
-                   doc_indices = c(7,18))
+                   doc_indices = c(7,17))
 ```
 
 Plot the cluster fill counts for the model training documents. These cluster fill counts are the features used to train the model.
@@ -139,6 +140,8 @@ questioned_images_dir <- system.file("extdata/example_images/questioned_images",
 analysis <- analyze_questioned_documents(template_dir = main_dir, 
                                          questioned_images_dir = questioned_images_dir, 
                                          model = model, 
+                                         writer_indices = c(2,5),
+                                         doc_indices = c(7,17),
                                          num_cores = 2)
 ```
 
@@ -160,5 +163,9 @@ Plot the posterior probabilities of writership.
 plot_posterior_probabilities(analysis)
 ```
 
+We define accuracy as the average posterior probability assigned to the true writer. The accuracy of our model is
+```{r}
+calculate_accuracy(analysis)
+```
 
 
