@@ -79,7 +79,7 @@ test_that("formatted questioned data is formatted correctly", {
   expect_s3_class(data$cluster_fill_counts, "data.frame")
   
   # check number of rows
-  expect_equal(nrow(data$graph_measurements), sum(data$cluster_fill_counts[,-c(1,2)]))
+  expect_equal(sum(data$cluster_fill_counts[,-c(1,2)]), nrow(data$graph_measurements))
   
   # check vectors
   expect_vector(data$graph_measurements$writer, ptype = integer())
@@ -94,4 +94,3 @@ test_that("formatted questioned data is formatted correctly", {
   # check cluster labels
   expect_gte(min(data$graph_measurements$cluster), 1)
 })
-

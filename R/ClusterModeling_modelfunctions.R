@@ -397,3 +397,22 @@ format_draws <- function(model) {
 
   return(draws)
 }
+
+#' calculate_accuracy
+#'
+#' `calculate_accuracy` measures the accuracy of fitted model on a test set of
+#' documents by calculating the average posterior probability assigned to the
+#' true writer. Fit a model with [`fit_model`] and calculate posterior
+#' probabilities of writership with [`analyze_questioned_documents`].
+#'
+#' @param analysis Writership analysis output by
+#'   [`analyze_questioned_documents`]
+#' @return The model's accuracy on the test set
+#'
+#' @export
+#' @md
+calculate_accuracy <- function(analysis){
+  pp <- analysis$posterior_probabilities
+  accuracy = sum(diag(as.matrix(pp[,-c(1)])))/nrow(pp)
+  return(accuracy)
+}
