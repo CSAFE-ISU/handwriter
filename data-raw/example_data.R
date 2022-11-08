@@ -6,21 +6,14 @@
 # data folder as rda files.
 
 # Creating these data objects requires saving processed handwriting files, template helper files,
-# and other assorted files to a folder on the local computer. Specify which folder you would 
-# like to use for this task with `main_dir`. The `main_dir` folder may be deleted after the 
-# example data has been saved to the data folder.
+# and other assorted files to a folder on the local computer. Some of these files will be used 
+# in tests so create the new example data in tests > testthat > fixtures > template.
 
 # All of the functions below are set to overwrite example data files currently in the data folder.
 
-# choose main directory ----
-# path to main directory
-main_dir <- "/Users/stephanie/Documents/non_version_control/CSAFE_example_data_new"
 
-# choose starting seed and run number
-seed <- 100
-
-
-make_example_template <- function(main_dir, seed) {
+# helper functions ----
+make_example_template <- function(main_dir, centers_seed, graphs_seed) {
   # create folder if it doesn't already exist
   if (!dir.exists(main_dir)){dir.create(main_dir)}
   
@@ -35,8 +28,10 @@ make_example_template <- function(main_dir, seed) {
                                                         num_dist_cores = 2,
                                                         max_iters = 3,
                                                         num_graphs = 1000,
-                                                        seed = seed)
+                                                        centers_seed = centers_seed,
+                                                        graphs_seed = graphs_seed)
   
+  # save to data folder
   usethis::use_data(example_cluster_template, overwrite = TRUE)
 }
 
@@ -90,18 +85,20 @@ make_example_models <- function(main_dir){
                                   package = "handwriter")
   example_model_1chain <- fit_model(template_dir = main_dir, 
                                     model_images_dir = model_images_dir,
-                                    num_iters = 100, 
+                                    num_iters = 200, 
                                     num_chains = 1, 
                                     writer_indices = c(2,5), 
                                     doc_indices = c(7,18))
+  # save to data folder
   usethis::use_data(example_model_1chain, overwrite = TRUE)
   
   example_model_2chains <- fit_model(template_dir = main_dir, 
                                      model_images_dir = model_images_dir,
-                                     num_iters = 100, 
+                                     num_iters = 200, 
                                      num_chains = 2, 
                                      writer_indices = c(2,5), 
                                      doc_indices = c(7,18))
+  # save to data folder
   usethis::use_data(example_model_2chains, overwrite = TRUE)
 }
 
@@ -113,20 +110,57 @@ make_example_analyses <- function(main_dir, num_cores = 5) {
   example_analysis_1chain <- analyze_questioned_documents(template_dir = main_dir, 
                                                           questioned_images_dir = questioned_images_dir, 
                                                           model = example_model_1chain, 
-                                                          num_cores = num_cores)
+                                                          num_cores = num_cores,
+                                                          writer_indices = c(2,5), 
+                                                          doc_indices = c(7,18))
   
   usethis::use_data(example_analysis_1chain, overwrite = TRUE)
   
   example_analysis_2chains <- analyze_questioned_documents(template_dir = main_dir, 
                                                            questioned_images_dir = questioned_images_dir, 
                                                            model = example_model_2chains, 
-                                                           num_cores = num_cores)
+                                                           num_cores = num_cores,
+                                                           writer_indices = c(2,5), 
+                                                           doc_indices = c(7,18))
   
   usethis::use_data(example_analysis_2chains, overwrite = TRUE)
 }
 
+# create example data ----
+# build template and model in tests folder so that it can be used for testing
+main_dir <- testthat::test_path("fixtures", "template")
 
-make_example_template(main_dir, seed)
+# choose starting seed and run number 
+# NOTE: I chose these seeds because they result in single and multiple chain
+# models that have high accuracy, 0.95 and 0.9535 respectively, on the test
+# documents
+centers_seed <- 100
+graphs_seed <- 104
+
+# make example template
+make_example_template(main_dir, centers_seed, graphs_seed)
 make_model_wrapped_cauchy()
+
+# make example models using the new example template
+devtools::load_all()
 make_example_models(main_dir)
+
+# make example analyses using the new example models
+devtools::load_all()
 make_example_analyses(main_dir)
+
+# delete template and model files not needed for tests ----
+# analysis.rds is now saved as example_analysis_1chain or example_analysis_2chains
+file.remove(testthat::test_path("fixtures", "template", "data", "analysis.rds"))  
+
+# model.rds is now saved as example_model_1chain or example_model_2chains
+file.remove(testthat::test_path("fixtures", "template", "data", "model.rds"))  
+
+# only template.rds is used in the tests so other template files can be deleted
+unlink(testthat::test_path("fixtures", "template", "data", "template_graphs"), recursive = TRUE) 
+file.remove(testthat::test_path("fixtures", "template", "data", "template_images_list.rds")) 
+file.remove(testthat::test_path("fixtures", "template", "data", "template_proc_list.rds")) 
+file.remove(testthat::test_path("fixtures", "template", "data", "template_strata.rds")) 
+
+# log files aren't used in the tests
+unlink(testthat::test_path("fixtures", "template", "logs"), recursive = TRUE) 

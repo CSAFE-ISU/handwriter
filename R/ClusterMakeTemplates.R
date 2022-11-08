@@ -4,17 +4,21 @@
 #' make_clustering_templates
 #'
 #' `make_clustering_templates()` applies a K-means clustering algorithm to the
-#' input handwriting samples pre-processed with
-#' [process_batch_dir()] and saved in the input folder `template_dir >
-#' data > template_graphs`. The K-means algorithm sorts the graphs in the
-#' input handwriting samples into groups, or *clusters*, of similar graphs.
+#' input handwriting samples pre-processed with [process_batch_dir()] and saved
+#' in the input folder `template_dir > data > template_graphs`. The K-means
+#' algorithm sorts the graphs in the input handwriting samples into groups, or
+#' *clusters*, of similar graphs.
 #'
 #' @param template_dir Main directory that will store template files
 #' @param template_images_dir A directory containing template training images
-#' @param writer_indices A vector of the starting and ending location of the writer ID in the file name.
+#' @param writer_indices A vector of the starting and ending location of the
+#'   writer ID in the file name.
 #' @param max_edges Maximum number of edges allowed in input graphs. Graphs with
 #'   more than the maximum number will be ignored.
-#' @param seed Integer seed for the random number generator. 
+#' @param centers_seed Integer seed for the random number generator when
+#'   selecting starting cluster centers.
+#' @param graphs_seed Integer seed for the random number generator when
+#'   selecting graphs. If `num_graphs = 'All'` then `graphs_seed` won't be used
 #' @param K Integer number of clusters
 #' @param num_dist_cores Integer number of cores to use for the distance
 #'   calculations in the K-means algorithm. Each iteration of the K-means
@@ -43,7 +47,8 @@
 #'   num_dist_cores = 2,
 #'   max_iters = 3,
 #'   num_graphs = 1000,
-#'   seed = 100
+#'   centers_seed = 100,
+#'   graphs_seed = 200
 #' )
 #' }
 #'
@@ -55,7 +60,8 @@ make_clustering_templates <- function(template_dir,
                                       template_images_dir,
                                       writer_indices,
                                       max_edges = 30,
-                                      seed = 100,
+                                      centers_seed,
+                                      graphs_seed,
                                       K = 40,
                                       num_dist_cores = 1,
                                       num_path_cuts = 8,
@@ -66,7 +72,7 @@ make_clustering_templates <- function(template_dir,
   options(scipen = 999)
 
   # Setup folders ----
-  do_setup(template_dir = template_dir, seed = seed)
+  do_setup(template_dir = template_dir)
 
   # Process training documents ----
   futile.logger::flog.info("Processing template training documents...")
@@ -98,28 +104,8 @@ make_clustering_templates <- function(template_dir,
   # Set outliers parameter
   num_outliers <- round(.25 * length(full_template_images_list))
 
-  # Choose how many graphs to use to create the template(s)
-  if (num_graphs == "All") {
-    template_images_list <- full_template_images_list
-  } else {
-    num_graphs <- as.integer(num_graphs) # needed for shiny app
-    stratified_sample <- function(full_template_images_list, num_graphs) {
-      # randomly select (num_graphs / (# docs per writer * # writers) graphs from each document
-      df <- data.frame(
-        writer = sapply(full_template_images_list, function(x) x$writer),
-        docname = sapply(full_template_images_list, function(x) x$docname),
-        graph_num = 1:length(full_template_images_list)
-      )
-      D <- length(unique(df$docname))
-      df <- df %>%
-        dplyr::group_by(docname) %>%
-        dplyr::slice_sample(n = floor(num_graphs / D))
-      template_images_list <- full_template_images_list[df$graph_num]
-      return(template_images_list)
-    }
-    template_images_list <- stratified_sample(full_template_images_list, num_graphs)
-  }
-  
+  template_images_list <- chooseGraphs(seed = graphs_seed, num_graphs = num_graphs, full_template_images_list = full_template_images_list)
+
   # Log parameters ----
   futile.logger::flog.info(
     "Starting the k-means clustering algorithm with... \n
@@ -127,23 +113,25 @@ make_clustering_templates <- function(template_dir,
     K=%d \n
     num_path_cuts=%d \n
     max_iters=%d \n
-    gamma=%f \n 
+    gamma=%f \n
     (max) num_outliers=%d \n
-    seed=%d",
+    centers_seed=%d \n
+    graphs_seed=%d",
     num_dist_cores,
     K,
     num_path_cuts,
     max_iters,
     gamma,
     num_outliers,
-    seed
+    centers_seed,
+    graphs_seed
   )
-  
+
   # Choose cluster centers. NOTE: Even if you are testing the code on a small number of
   # graphs, you need to select centers from the full list of graphs.
   futile.logger::flog.info("Choosing starting cluster centers...")
-  centers <- chooseCenters(seed = seed, K = K, template_proc_list = template_proc_list, template_images_list = full_template_images_list)
-  
+  centers <- chooseCenters(seed = centers_seed, K = K, template_proc_list = template_proc_list, template_images_list = full_template_images_list)
+
   # Run Kmeans
   template <- letterKmeansWithOutlier_parallel(
     template_proc_list = template_proc_list,
@@ -155,12 +143,12 @@ make_clustering_templates <- function(template_dir,
     num_outliers = num_outliers,
     centers = centers,
     num_dist_cores = num_dist_cores,
-    seed = seed
+    centers_seed = centers_seed,
+    graphs_seed = graphs_seed
   )
   futile.logger::flog.info("Saving template...")
   saveRDS(template, file = file.path(template_dir, "data", "template.rds"))
   return(template)
-
 }
 
 
@@ -185,6 +173,7 @@ make_proc_list <- function(template_dir) {
   # List files in template directory > data > template_graphs
   df <- data.frame(graph_paths = list.files(file.path(template_dir, "data", "template_graphs"), pattern = ".rds", full.names = TRUE), stringsAsFactors = FALSE)
 
+  # Load graphs
   template_proc_list <- df$graph_paths %>%
     purrr::map(readRDS) %>%
     purrr::list_merge()
@@ -382,16 +371,61 @@ make_images_list <- function(template_proc_list, template_dir, writer_indices) {
 }
 
 
+#' chooseGraphs
+#'
+#' `chooseGraphs` randomly selects `num_graphs` to use to create a new cluster
+#' template. If `num_graphs = 'All'` then all available training graphs will be
+#' used. If `num_graphs` is an positive integer `n` then `floor(num_graphs / n)`
+#' graphs are randomly selected from each template training document.
+#' 
+#' @param seed Integer seed for the random number generator when
+#'   selecting graphs. If `num_graphs = 'All'` then the seed won't be used
+#' @param num_graphs Number of graphs to use to create the cluster template.
+#'   `All` uses all available graphs. An integer uses a random sample of graphs.
+#' @param full_template_images_list A list of all available training graphs
+#'   created by `make_images_list`
+#' @return List of graphs. The list is saved as template_dir > data >
+#'   template_images_list.rds
+#'
+#' @noRd
+chooseGraphs <- function(seed, num_graphs, full_template_images_list) {
+  
+  set.seed(seed = seed)
+
+  # Choose how many graphs to use to create the template(s)
+  if (num_graphs == "All") {
+    template_images_list <- full_template_images_list
+  } else {
+    num_graphs <- as.integer(num_graphs) # needed for shiny app
+    stratified_sample <- function(full_template_images_list, num_graphs) {
+      # randomly select (num_graphs / (# docs per writer * # writers) graphs from each document
+      df <- data.frame(
+        writer = sapply(full_template_images_list, function(x) x$writer),
+        docname = sapply(full_template_images_list, function(x) x$docname),
+        graph_num = 1:length(full_template_images_list)
+      )
+      D <- length(unique(df$docname))
+      df <- df %>%
+        dplyr::group_by(docname) %>%
+        dplyr::slice_sample(n = floor(num_graphs / D))
+      template_images_list <- full_template_images_list[df$graph_num]
+      return(template_images_list)
+    }
+    template_images_list <- stratified_sample(full_template_images_list, num_graphs)
+  }
+  return(template_images_list)
+}
+
+
 #' do_setup
 #'
 #' `do_setup()` creates the folder template_dir > starting_seed. It also creates
 #' data and logs subfolders in the starting_seed folder.
 #'
 #' @param template_dir Input directory
-#' @param seed Integer seed for the random number generator.
 #'
 #' @noRd
-do_setup <- function(template_dir, seed) {
+do_setup <- function(template_dir) {
 
   # Create subfolder in template_dir if it doesn't already exist
   make_dir(file.path(template_dir, "data"))
@@ -426,8 +460,9 @@ make_dir <- function(dir_path) {
 #' cluster center. Previous experiments showed that stratified sampling produces
 #' better cluster templates than a simple random sample. Amy Crawford found the
 #' numbers hardcoded into numstrat to yield good results when K=40.
-#'
-#' @param seed Integer seed for random number generator
+#' 
+#' @param seed Integer seed for the random number generator for
+#'   selecting starting cluster centers
 #' @param K Integer number of clusters
 #' @param template_proc_list List of graphs output by make_proc_list()
 #' @param template_images_list List of graphs output by make_images_list()
@@ -435,6 +470,7 @@ make_dir <- function(dir_path) {
 #'
 #' @noRd
 chooseCenters <- function(seed, K, template_proc_list, template_images_list) {
+  
   set.seed(seed = seed)
 
   # Make vectors of document #, letter #, and strata for each graph
@@ -500,12 +536,15 @@ chooseCenters <- function(seed, K, template_proc_list, template_images_list) {
 #'   calculations in the K-means algorithm. Each iteration of the K-means
 #'   algorithm calculates the distance between each input graph and each cluster
 #'   center.
-#' @param seed Integer seed for the random number generator   
+#' @param centers_seed Integer seed for the random number generator when
+#'   selecting starting cluster centers.
+#' @param graphs_seed Integer seed for the random number generator when
+#'   selecting graphs. If `num_graphs = 'All'` then `graphs_seed` won't be used
 #' @return Cluster template
 #'
 #' @noRd
 letterKmeansWithOutlier_parallel <- function(template_proc_list, template_images_list, K, centers, num_path_cuts, max_iters, gamma,
-                                             num_outliers, num_dist_cores, seed) {
+                                             num_outliers, num_dist_cores, centers_seed, graphs_seed) {
   get("within_cluster_sum_of_squares")
 
   # Initialize ----
@@ -680,9 +719,25 @@ letterKmeansWithOutlier_parallel <- function(template_proc_list, template_images
   docnames <- sapply(template_images_list, function(x) x$docname)
   writers <- sapply(template_images_list, function(x) x$writer)
 
-  return(list(seed = seed,
-    cluster = cluster, centers = centers, K = K, n = n, docnames = docnames, writers = writers, iters = iters, changes = changes, outlierCutoff = outlierCutoff,
-    stop_reason = stop_reason, wcd = wcd, wcss = wcss, rmse = rmse, DaviesBouldinIndex = db, VarianceRatioCriterion = vrc
+  return(list(
+    centers_seed = centers_seed,
+    graphs_seed = graphs_seed,
+    template_graphs = template_images_list,
+    cluster = cluster, 
+    centers = centers, 
+    K = K, 
+    n = n, 
+    docnames = docnames, 
+    writers = writers, 
+    iters = iters, 
+    changes = changes, 
+    outlierCutoff = outlierCutoff,
+    stop_reason = stop_reason, 
+    wcd = wcd, 
+    wcss = wcss, 
+    rmse = rmse, 
+    DaviesBouldinIndex = db, 
+    VarianceRatioCriterion = vrc
   ))
 }
 

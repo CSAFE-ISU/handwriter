@@ -9,7 +9,8 @@ make_clustering_templates(
   template_images_dir,
   writer_indices,
   max_edges = 30,
-  seed = 100,
+  centers_seed,
+  graphs_seed,
   K = 40,
   num_dist_cores = 1,
   num_path_cuts = 8,
@@ -23,12 +24,17 @@ make_clustering_templates(
 
 \item{template_images_dir}{A directory containing template training images}
 
-\item{writer_indices}{A vector of the starting and ending location of the writer ID in the file name.}
+\item{writer_indices}{A vector of the starting and ending location of the
+writer ID in the file name.}
 
 \item{max_edges}{Maximum number of edges allowed in input graphs. Graphs with
 more than the maximum number will be ignored.}
 
-\item{seed}{Integer seed for the random number generator.}
+\item{centers_seed}{Integer seed for the random number generator when
+selecting starting cluster centers.}
+
+\item{graphs_seed}{Integer seed for the random number generator when
+selecting graphs. If \code{num_graphs = 'All'} then \code{graphs_seed} won't be used}
 
 \item{K}{Integer number of clusters}
 
@@ -53,9 +59,10 @@ List containing the cluster template
 }
 \description{
 \code{make_clustering_templates()} applies a K-means clustering algorithm to the
-input handwriting samples pre-processed with
-\code{\link[=process_batch_dir]{process_batch_dir()}} and saved in the input folder \verb{template_dir > data > template_graphs}. The K-means algorithm sorts the graphs in the
-input handwriting samples into groups, or \emph{clusters}, of similar graphs.
+input handwriting samples pre-processed with \code{\link[=process_batch_dir]{process_batch_dir()}} and saved
+in the input folder \verb{template_dir > data > template_graphs}. The K-means
+algorithm sorts the graphs in the input handwriting samples into groups, or
+\emph{clusters}, of similar graphs.
 }
 \examples{
 \dontrun{
@@ -71,7 +78,8 @@ template_list <- make_clustering_templates(
   num_dist_cores = 2,
   max_iters = 3,
   num_graphs = 1000,
-  seed = 100
+  centers_seed = 100,
+  graphs_seed = 200
 )
 }
 

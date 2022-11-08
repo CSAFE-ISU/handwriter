@@ -1,3 +1,4 @@
+# Single Chain ------------------------------------------------------------
 test_that("fit model with a single chain works", {
   # fit model. (Will fit model using testthat > fixtures > template > data > model_clusters.rds)
   template_dir <- test_path("fixtures", "template")
@@ -32,7 +33,7 @@ test_that("fit model with a single chain works", {
 })
 
 test_that("drop burn-in works on a single chain", {
-  iters = 100
+  iters = 200
   burnin = 25
   model <- drop_burnin(model = example_model_1chain, burn_in = burnin)
   
@@ -49,7 +50,7 @@ test_that("drop burn-in works on a single chain", {
 })
 
 test_that("analyze questioned documents works with a single chain", {
-  iters <- 100  # number of MCMC iterations in example_model_1chain
+  iters <- 200  # number of MCMC iterations in example_model_1chain
   template_dir <- test_path("fixtures", "template")
   questioned_images_dir <- system.file("extdata/example_images/questioned_images", package = "handwriter")
   analysis <- analyze_questioned_documents(template_dir = template_dir, 
@@ -95,6 +96,14 @@ test_that("about variable works on a single chain", {
                "Eta is the mean, or the location parameter, of the hyper prior for mu for cluster 6")
 })
 
+test_that("calculate accuracy works on a single chain", {
+  accuracy <- calculate_accuracy(example_analysis_1chain)
+  
+  expect_equal(accuracy, 0.946)
+})
+
+
+# Multiple Chains ---------------------------------------------------------
 test_that("fit model with multiple chains works", {
   # fit model. (Will fit model using testthat > fixtures > template > data > model_clusters.rds)
   template_dir <- test_path("fixtures", "template")
@@ -129,7 +138,7 @@ test_that("fit model with multiple chains works", {
 })
 
 test_that("drop burn-in works on multiple chains", {
-  iters <- 100
+  iters <- 200
   burnin <- 25
   model <- drop_burnin(example_model_2chains, burn_in = burnin)
   
@@ -148,7 +157,7 @@ test_that("drop burn-in works on multiple chains", {
 })
 
 test_that("analyze questioned documents works with multiple chains", {
-  iters <- 100  # number of MCMC iterations per chain in example_model_2chains
+  iters <- 200  # number of MCMC iterations per chain in example_model_2chains
   template_dir <- test_path("fixtures", "template")
   questioned_images_dir <- system.file("extdata/example_images/questioned_images", package = "handwriter")
   analysis <- analyze_questioned_documents(template_dir = template_dir, 
@@ -192,4 +201,10 @@ test_that("about variable works on multiple chains", {
   expect_equal(about_variable(variable = "eta[6]", 
                               model = example_model_2chains), 
                "Eta is the mean, or the location parameter, of the hyper prior for mu for cluster 6")
+})
+
+test_that("calculate accuracy works on mulitple chains", {
+  accuracy <- calculate_accuracy(example_analysis_2chains)
+  
+  expect_equal(accuracy, 0.9575)
 })
