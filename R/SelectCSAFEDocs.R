@@ -75,7 +75,7 @@ select_csafe_docs <- function(num_template_writers,
   if ((num_template_writers + num_model_writers) > length(unique(csafe_docs$writer))) {
     stop(paste(
       "The sum of num_tempalte_writers and num_model_writers must be less than or equal to",
-      length(unique(csafe_docs))
+      length(unique(csafe_docs$writer))
     ))
   }
 
