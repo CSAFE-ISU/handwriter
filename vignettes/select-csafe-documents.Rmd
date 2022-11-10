@@ -8,12 +8,33 @@ date: '2022-11-08'
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r}
-input_dir <- "~/Documents/non_version_control/CSAFE/data_portal/downloaded"
-template_dir <- "~/Documents/non_version_control/CSAFE/test_template1/data/template_docs"
-model_dir <- "~/Documents/non_version_control/CSAFE/test_template1/data/model_docs"
-questioned_dir <- "~/Documents/non_version_control/CSAFE/test_template1/data/questioned_docs"
+## Overview
 
+This tutorial shows how to use the `select_CSAFE_docs` function to build the 3
+sets of documents needed to create a new cluster template, fit a hierarchical
+model, and test the model. This function selects documents from the CSAFE
+Handwriting Database for the 3 sets - template training documents; model
+training documents; and questioned (test) documents. 
+
+The CSAFE Handwriting Database contains 200+ writers. Each writer
+wrote three prompts: the London letter, a common phrase, and an excerpt from the
+Wizard of Oz. Each writer wrote each prompt three times during three different
+sessions. Each session was at least three weeks apart.
+The `select_csafe_docs` function allows the user to select the number of writers
+to use for the template and model, and ensures that no writers are used in both
+sets. The model implemented in handwriter is only applicable to closed-sets of
+writers: the questioned document is known to have been written by one writers
+whose known handwriting samples are used to fit the model. The
+`select_csafe_docs` function selects handwriting samples from the model writers
+for use as questioned documents. While the writers are the same, the a document
+cannot be used in both the model and the questioned sets. If a user attempts to
+do this, `select_csafe_docs` will return an error message.
+The `select_csafe_docs` function also allows the user to choose which prompt(s),
+session(s), and repetition(s) to use for each of the three sets. As already
+mentioned, the function won't allow the user to select the same documents for
+the model and questioned sets.
+
+```{r}
 docs <- select_csafe_docs(num_template_writers = 10,
                           template_sessions = 1,
                           template_reps = 1,
@@ -28,4 +49,20 @@ docs <- select_csafe_docs(num_template_writers = 10,
                           questioned_reps = 1,
                           questioned_prompts = "Wizard of Oz")
 ```
+
+## Copy sets to a new location
+In my workflow, I often want copies of the template training, model training, and questioned docs in a new folder.
+
+```{r}
+# folder containing downloaded CSAFE Handwriting database
+input_dir <- "~/Documents/non_version_control/CSAFE/data_portal/downloaded"
+
+# output folders
+template_dir <- "~/Documents/non_version_control/CSAFE/test_template1/data/template_docs"
+model_dir <- "~/Documents/non_version_control/CSAFE/test_template1/data/model_docs"
+questioned_dir <- "~/Documents/non_version_control/CSAFE/test_template1/data/questioned_docs"
+
+copy_CSAFE_docs(docs, input_dir, template_dir, model_dir, questioned_dir)
+```
+
 

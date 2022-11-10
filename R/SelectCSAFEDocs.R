@@ -72,20 +72,39 @@ select_csafe_docs <- function(num_template_writers,
                               questioned_sessions,
                               questioned_reps,
                               questioned_prompts) {
-  
-  if ((num_template_writers + num_model_writers) > length(unique(csafe_docs$writer))){
-    stop(paste("The sum of num_tempalte_writers and num_model_writers must be less than or equal to", 
-               length(unique(csafe_docs))))
+  if ((num_template_writers + num_model_writers) > length(unique(csafe_docs$writer))) {
+    stop(paste(
+      "The sum of num_tempalte_writers and num_model_writers must be less than or equal to",
+      length(unique(csafe_docs))
+    ))
   }
-  
+
   # get template docs
-  template_df <- select_template_docs(num_template_writers, template_sessions, template_reps, template_prompts, template_seed)
+  template_df <- select_template_docs(
+    num_writers = num_template_writers,
+    sessions = template_sessions,
+    reps = template_reps,
+    prompts = template_prompts,
+    seed = template_seed
+  )
 
   # get model docs - exclude template writers
-  model_df <- select_model_docs(template_df, num_model_writers, model_sessions, model_reps, model_prompts, model_seed)
+  model_df <- select_model_docs(
+    template_df = template_df,
+    num_writers = num_model_writers,
+    sessions = model_sessions,
+    reps = model_reps,
+    prompts = model_prompts,
+    seed = model_seed
+  )
 
   # get questioned docs
-  questioned_df <- select_questioned_docs(model_df, questioned_sessions, questioned_reps, questioned_prompts)
+  questioned_df <- select_questioned_docs(
+    model_df = model_df,
+    sessions = questioned_sessions,
+    reps = questioned_reps,
+    prompts = questioned_prompts
+  )
 
   list("template" = template_df, "model" = model_df, "questioned" = questioned_df)
 }
@@ -217,4 +236,80 @@ get_prompt_code <- function(x) {
   } else {
     stop(paste(x, "is not a CSAFE prompt."))
   }
+}
+
+#' copy_CSAFE_docs
+#'
+#' The user can build 3 sets - template training, model training, and questioned
+#' (test) - of documents from the CSAFE Handwriting Database with the function
+#' [`select_CSAFE_docs`]. The output of `select_CSAFE_docs` is a list of three
+#' data frames - template, model, and questioned. Each data frame contains the
+#' file names of CSAFE documents assigned to either the template, model, or
+#' questioned set. The `copy_CSAFE_docs` function will copy these sets of
+#' documents from the directory containing the downloaded CSAFE Handwriting
+#' Database to the new directories.
+#'
+#' @param docs A list of CSAFE documents created by [`select_CSAFE_docs`]
+#' @param input_dir Path to directory containing the downloaded CSAFE
+#'   Handwriting Database
+#' @param template_dir Path to directory where template training documents will
+#'   be copied
+#' @param model_dir Path to directory where model training documents will be
+#'   copied
+#' @param questioned_dir Path to
+#'
+#' @return Message "Documents have been copied."
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' docs <- select_csafe_docs(
+#'   num_template_writers = 10,
+#'   template_sessions = 1,
+#'   template_reps = 1,
+#'   template_prompts = "London Letter",
+#'   template_seed = 100,
+#'   num_model_writers = 5,
+#'   model_sessions = 1,
+#'   model_reps = c(1, 2, 3),
+#'   model_prompts = "Wizard of Oz",
+#'   model_seed = 101,
+#'   questioned_sessions = 3,
+#'   questioned_reps = 1,
+#'   questioned_prompts = "Wizard of Oz"
+#' )
+#'
+#' input_dir <- path / to / downloaded_CSAFE_docs
+#' output_template_dir <- path / to / template_docs_output
+#' output_model_dir <- path / to / model_docs_output
+#' output_questioned_dir <- path / to / questioned_docs_output
+#'
+#' copy_CSAFE_docs(
+#'   docs = docs,
+#'   input_dir = input_dir,
+#'   template_dir = output_template_dir,
+#'   model_dir = output_model_dir,
+#'   questioned_dir = output_questioned_dir
+#' )
+#' }
+#'
+#' @md
+copy_CSAFE_docs <- function(docs, input_dir, template_dir, model_dir, questioned_dir) {
+  # create output folders
+  if (!dir.exists(template_dir)) {
+    dir.create(template_dir, recursive = TRUE)
+  }
+  if (!dir.exists(model_dir)) {
+    dir.create(model_dir, recursive = TRUE)
+  }
+  if (!dir.exists(questioned_dir)) {
+    dir.create(questioned_dir, recursive = TRUE)
+  }
+
+  # copy files
+  file.copy(file.path(input_dir, docs$template$doc), file.path(template_dir, docs$template$doc))
+  file.copy(file.path(input_dir, docs$model$doc), file.path(model_dir, docs$model$doc))
+  file.copy(file.path(input_dir, docs$questioned$doc), file.path(questioned_dir, docs$questioned$doc))
+
+  message("Documents have been copied.")
 }
