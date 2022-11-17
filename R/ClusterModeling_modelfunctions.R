@@ -315,7 +315,8 @@ analyze_questioned_documents <- function(template_dir, questioned_images_dir, mo
         dmult[, i] <- mc2d::dmultinomial(x = questioned_data$cluster_fill_counts[m, -c(1, 2)], prob = pis[, , i], log = TRUE)
         layered_wc_params[, , 1] <- mus[, , i]
         layered_wc_params[, , 2] <- taus[, , i]
-        dwc_sums[, i] <- rowSums(t(sapply(1:niter, function(it) log(circular::dwrappedcauchy(x = circular::circular(m_pcrot), mu = circular::circular(layered_wc_params[it, m_cluster, 1]), rho = layered_wc_params[it, m_cluster, 2])))))
+        temp <- sapply(1:niter, function(it) log(circular::dwrappedcauchy(x = circular::circular(m_pcrot), mu = circular::circular(layered_wc_params[it, m_cluster, 1]), rho = layered_wc_params[it, m_cluster, 2])))
+        dwc_sums[, i] <- rowSums(t(temp))
       }
       nn <- dmult + dwc_sums + abs(max(colMeans(dmult + dwc_sums)))
     } else if (length(m_cluster) == 0) {
@@ -428,8 +429,7 @@ analyze_questioned_documents2 <- function(template_dir, questioned_images_dir, m
   niter <- nrow(model$fitted_model$pis)
   pis <- array(dim = c(niter, rjags_data$G, rjags_data$W)) # 3 dim array: a row for each mcmc iter, a column for each cluster, and a layer for each writer
   mus <- taus <- array(dim = c(niter, rjags_data$Gsmall, rjags_data$W)) # 3 dim array: a row for each mcmc iter, a column for each cluster, and a layer for each writer
-  dmult <- dwc_sums <- data.frame(matrix(nrow = niter, ncol = rjags_data$W))  # 2 dim array: a row for each mcmc iter, a column for each writer
-  layered_wc_params <- array(dim = c(niter, rjags_data$Gsmall, 2))  # 3 dim array: a row for each mcmc iter, a column for each cluster, and two layers
+  dmult2 <- dwc_sums2 <- data.frame(matrix(nrow = niter, ncol = rjags_data$W))  # 2 dim array: a row for each mcmc iter, a column for each writer
   ls <- list()
   
   # reshape variables
@@ -455,35 +455,34 @@ analyze_questioned_documents2 <- function(template_dir, questioned_images_dir, m
   writers <- unique(questioned_data$graph_measurements$writer)
   
   # obtain posterior samples of model parameters
-  likelihood_evals <- foreach::foreach(m = 1:nrow(questioned_data$cluster_fill_counts)) %dopar% {  # m is document
+  likelihood_evals <- foreach::foreach(d = 1:nrow(questioned_data$cluster_fill_counts)) %dopar% {  # d is document
     # filter docs for current writer
-    m_qdoc <- questioned_data$graph_measurements %>% dplyr::filter(writer == writers[m])
-    m_cluster <- as.numeric(m_qdoc$cluster)
+    qdoc2 <- questioned_data$graph_measurements %>% dplyr::filter(writer == writers[d])  # identical to m_qdoc
     
-    # make a circular object
-    m_pcrot <- circular::circular(m_qdoc$pc_wrapped, units = "radians", modulo = "2pi")
+    # get cluster assignments
+    qcluster2 <- as.numeric(qdoc2$cluster)  # identical to m_cluster
     
-    if (length(m_cluster) > 0) {
-      for (w in 1:rjags_data$W) { # w is writer
-        # doc-level
-        dmult[, w] <- mc2d::dmultinomial(x = questioned_data$cluster_fill_counts[m, -c(1, 2)], prob = pis[, , w], log = TRUE)
-        
-        # graph-level
-        layered_wc_params[, , 1] <- mus[, , w]
-        layered_wc_params[, , 2] <- taus[, , w]
-        temp <- matrix(data = NA, nrow=niter, ncol=length(m_pcrot))  # num mcmc iters x num graphs
-        for (iter in 1:niter){  # iter is mcmc iteration
-          temp[iter, ] <- sapply(1:length(m_pcrot), function(j) circular::dwrappedcauchy(x = circular::circular(m_pcrot[j]), mu = circular::circular(layered_wc_params[iter, m_cluster[j], 1]), rho = layered_wc_params[iter, m_cluster[j], 2]))
-        }
-        dwc_sums[, w] <- rowSums(temp)
-      }
-      nn <- dmult + dwc_sums + abs(max(colMeans(dmult + dwc_sums)))
-    }  # else if (length(m_cluster) == 0) {
-    #   for (w in 1:rjags_data$W) { # w is writer
-    #     dmult[, w] <- dmultinomial(x = questioned_data$cluster_fill_counts[m, -c(1, 2)], prob = pis[, , w], log = TRUE)
-    #   }
-    #   nn <- dmult + abs(max(colMeans(dmult)))
-    # }
+    # Get wrapped rotation angles. NOTE: Amy's original code represents the
+    # eigenvectors as angles between -pi and pi (see format_questioned_data()
+    # when it calls angle()). Then her wrapped angles are between -2pi and 2pi.
+    # When she analyzed the questioned docs, she used the circular::circular to
+    # make the angles circular objects and map the angles in the range (-2pi,0)
+    # to (0, 2pi). She also used circular::dwrappedcauchy to evaluate wrapped
+    # Cauchy likelihood function. But circular::dwrappedcauchy returns a warning
+    # because she is feeding it a vector instead of a scalar for rho. To fix the
+    # warning, and so that handwriter doesn't need to use the circular package,
+    # I manually map angles from (-2pi,0) to (0,2pi) here and wrote a function
+    # to evaluate the wrapped Cauchy likelihood later on.
+    qpcrot2 <- ifelse(qdoc2$pc_wrapped < 0, qdoc2$pc_wrapped + 2*pi, qdoc2$pc_wrapped)  # equal to m_pcrot (not identical because m_pcrot is a circular object)
+    
+    for (w in 1:rjags_data$W) { # w is writer
+      # doc-level
+      dmult2[, w] <- mc2d::dmultinomial(x = questioned_data$cluster_fill_counts[d, -c(1, 2)], prob = pis[, , w], log = TRUE)
+      # graph-level
+      temp2 <- sapply(1:niter, function(iter) log(calculate_wc_likelihood(x=qpcrot2, mu=mus[iter, qcluster2, w], tau=taus[iter, qcluster2, w])))
+      dwc_sums2[, w] <- rowSums(t(temp2))
+    }
+    nn <- dmult2 + dwc_sums2 + abs(max(colMeans(dmult2 + dwc_sums2)))
     likelihoods <- as.data.frame(exp(nn) / rowSums(exp(nn)))
     colnames(likelihoods) <- paste0("known_writer_", writers)
     return(likelihoods)
@@ -576,4 +575,20 @@ calculate_accuracy <- function(analysis){
   pp <- analysis$posterior_probabilities
   accuracy = sum(diag(as.matrix(pp[,-c(1)])))/nrow(pp)
   return(accuracy)
+}
+
+
+#' calculate_wc_likelihood
+#'
+#' Calculate the Wrapped Cauchy likelihood function for x, mu, and tau.
+#' 
+#' @param x 
+#' @param mu 
+#' @param tau 
+#'
+#' @return Value
+#' 
+#' @noRd
+calculate_wc_likelihood <- function(x, mu, tau){
+  (1 - tau^2)/(2*pi*(1 + tau^2 - 2*tau*cos(x-mu)))
 }
