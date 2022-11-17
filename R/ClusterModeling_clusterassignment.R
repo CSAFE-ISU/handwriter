@@ -5,15 +5,16 @@ makeassignment = function(imageListElement, templateCenterList, outliercut){
 }
 
 
-#' Title
+#' get_clusterassignment
 #'
 #' @param clustertemplate Cluster template created with `make_clustering_templates`
 #' @param input_dir Directory containing handwriting processed with `process_batch_list` or `process_batch_dir`
+#' @param num_cores Integer number of cores to use for parallel processing
 #'
 #' @return list of processed handwriting with cluster assignments for each graph
 #' @export
 #'
-get_clusterassignment = function(clustertemplate, input_dir){
+get_clusterassignment = function(clustertemplate, input_dir, num_cores){
   
   # list files in input dir
   input_paths = list.files(input_dir, full.names = TRUE)
@@ -24,15 +25,18 @@ get_clusterassignment = function(clustertemplate, input_dir){
     purrr::map(readRDS) %>%
     purrr::list_merge()
   
-  for(i in 1:length(proclist)){
+  my_cluster = parallel::makeCluster(num_cores)
+  doParallel::registerDoParallel(my_cluster)
+  
+  proclist <- foreach::foreach(i = 1:length(proclist), 
+                               .export = c("AddLetterImages", "MakeLetterListLetterSpecific", "centeredImage", "makeassignment")) %dopar% {  # for each document i
+    # extra processing
     proclist_mod = proclist[[i]]
-    proclist_mod$process$letterList = AddLetterImages(proclist[[i]]$process$letterList, dim(proclist[[i]]$image))
+    proclist_mod$process$letterList = AddLetterImages(proclist_mod$process$letterList, dim(proclist_mod$image))
     proclist_mod$process$letterList = MakeLetterListLetterSpecific(proclist_mod$process$letterList, dim(proclist_mod$image)) ### THIS SCREWS UP PLOTLETTER AND OTHER PLOTTING!!!
     
-    letterList = proclist_mod$process$letterList
-    
     imagesList = list()
-    imagesList = c(imagesList, lapply(letterList, function(x){centeredImage(x)}))
+    imagesList = c(imagesList, lapply(proclist_mod$process$letterList, function(x){centeredImage(x)}))
     imagesList = lapply(imagesList, function(x){
       x$nodesrc = cbind(((x$nodes-1) %/% dim(x$image)[1]) + 1, dim(x$image)[1] - ((x$nodes-1) %% dim(x$image)[1]))
       x$nodesrc = x$nodesrc - matrix(rep(x$centroid, each = dim(x$nodesrc)[1]), ncol = 2)
@@ -41,12 +45,15 @@ get_clusterassignment = function(clustertemplate, input_dir){
       return(x)
     })
     
+    # get cluster assignments
     cluster_assign = sapply(imagesList, makeassignment, templateCenterList = clustertemplate$centers, outliercut = outliercut)
     
-    for(j in 1:length(proclist[[i]]$process$letterList)){
-      proclist[[i]]$process$letterList[[j]]$cluster = cluster_assign[j]
+    # add cluster assignments to proclist_mod
+    for(j in 1:length(proclist_mod$process$letterList)){  # for each graph j in document i
+      proclist_mod$process$letterList[[j]]$cluster = cluster_assign[j]
     }
-    cat(round(i/length(proclist), 2), "\n")
+    
+    return(proclist_mod)
   }
 
   return(proclist)
