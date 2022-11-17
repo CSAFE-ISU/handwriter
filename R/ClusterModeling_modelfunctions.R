@@ -296,7 +296,8 @@ analyze_questioned_documents <- function(template_dir, questioned_images_dir, mo
   }
 
   # start parallel processing
-  doParallel::registerDoParallel(cores = num_cores)
+  my_cluster = parallel::makeCluster(num_cores)
+  doParallel::registerDoParallel(my_cluster)
 
   # list writers
   writers <- unique(questioned_data$graph_measurements$writer)
@@ -449,7 +450,8 @@ analyze_questioned_documents2 <- function(template_dir, questioned_images_dir, m
   }
   
   # start parallel processing
-  doParallel::registerDoParallel(cores = num_cores)
+  my_cluster = parallel::makeCluster(num_cores)
+  doParallel::registerDoParallel(my_cluster)
   
   # list writers
   writers <- unique(questioned_data$graph_measurements$writer)
