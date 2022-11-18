@@ -2,18 +2,20 @@
 % Please edit documentation in R/ClusterModeling_clusterassignment.R
 \name{get_clusterassignment}
 \alias{get_clusterassignment}
-\title{Title}
+\title{get_clusterassignment}
 \usage{
-get_clusterassignment(clustertemplate, input_dir)
+get_clusterassignment(clustertemplate, input_dir, num_cores)
 }
 \arguments{
 \item{clustertemplate}{Cluster template created with `make_clustering_templates`}
 
 \item{input_dir}{Directory containing handwriting processed with `process_batch_list` or `process_batch_dir`}
+
+\item{num_cores}{Integer number of cores to use for parallel processing}
 }
 \value{
 list of processed handwriting with cluster assignments for each graph
 }
 \description{
-Title
+get_clusterassignment
 }

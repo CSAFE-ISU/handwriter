@@ -9,6 +9,7 @@ fit_model(
   model_images_dir,
   num_iters,
   num_chains = 1,
+  num_cores,
   writer_indices,
   doc_indices,
   a = 2,
@@ -28,25 +29,34 @@ fit_model(
 
 \item{num_chains}{An integer number of chains to use.}
 
+\item{num_cores}{An integer number of cores to use for parallel processing
+clustering assignments. The model fitting is not done in parallel.}
+
 \item{writer_indices}{A vector of the start and stop character of the writer
 ID in the model training file names. E.g., if the file names are
-writer0195_doc1, writer0210_doc1, writer0033_doc1 then writer_indices is 'c(7,10)'.}
+writer0195_doc1, writer0210_doc1, writer0033_doc1 then writer_indices is
+'c(7,10)'.}
 
 \item{doc_indices}{A vector of the start and stop character of the "document
-name" in the model training file names. This is used to distinguish between two documents
-written by the same writer. E.g., if the file names are
-writer0195_doc1, writer0195_doc2, writer0033_doc1, writer0033_doc2 then doc_indices are
-'c(12,15)'.}
+name" in the model training file names. This is used to distinguish between
+two documents written by the same writer. E.g., if the file names are
+writer0195_doc1, writer0195_doc2, writer0033_doc1, writer0033_doc2 then
+doc_indices are 'c(12,15)'.}
 
-\item{a}{The shape parameter for the Gamma distribution in the hierarchical model}
+\item{a}{The shape parameter for the Gamma distribution in the hierarchical
+model}
 
-\item{b}{The rate parameter for the Gamma distribution in the hierarchical model}
+\item{b}{The rate parameter for the Gamma distribution in the hierarchical
+model}
 
-\item{c}{The first shape parameter for the Beta distribution in the hierarchical model}
+\item{c}{The first shape parameter for the Beta distribution in the
+hierarchical model}
 
-\item{d}{The second shape parameter for the Beta distribution in the hierarchical model}
+\item{d}{The second shape parameter for the Beta distribution in the
+hierarchical model}
 
-\item{e}{The scale parameter for the hyper prior for mu in the hierarchical model}
+\item{e}{The scale parameter for the hyper prior for mu in the hierarchical
+model}
 }
 \value{
 A list of training data used to fit the model and the fitted model
@@ -68,6 +78,7 @@ model <- fit_model(
   model_images_dir = model_images_dir,
   num_iters = 100,
   num_chains = 1,
+  num_cores = 2,
   writer_indices = c(2,5),
   doc_indices = c(7,18)
 )

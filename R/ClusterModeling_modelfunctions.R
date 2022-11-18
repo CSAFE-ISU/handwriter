@@ -8,19 +8,27 @@
 #' @param model_images_dir A directory containing model training documents
 #' @param num_iters An integer number of iterations of MCMC.
 #' @param num_chains An integer number of chains to use.
+#' @param num_cores An integer number of cores to use for parallel processing
+#'   clustering assignments. The model fitting is not done in parallel.
 #' @param writer_indices A vector of the start and stop character of the writer
 #'   ID in the model training file names. E.g., if the file names are
-#'   writer0195_doc1, writer0210_doc1, writer0033_doc1 then writer_indices is 'c(7,10)'.
+#'   writer0195_doc1, writer0210_doc1, writer0033_doc1 then writer_indices is
+#'   'c(7,10)'.
 #' @param doc_indices A vector of the start and stop character of the "document
-#'   name" in the model training file names. This is used to distinguish between two documents
-#'   written by the same writer. E.g., if the file names are
-#'   writer0195_doc1, writer0195_doc2, writer0033_doc1, writer0033_doc2 then doc_indices are 
-#'   'c(12,15)'. 
-#' @param a The shape parameter for the Gamma distribution in the hierarchical model
-#' @param b The rate parameter for the Gamma distribution in the hierarchical model
-#' @param c The first shape parameter for the Beta distribution in the hierarchical model
-#' @param d The second shape parameter for the Beta distribution in the hierarchical model
-#' @param e The scale parameter for the hyper prior for mu in the hierarchical model
+#'   name" in the model training file names. This is used to distinguish between
+#'   two documents written by the same writer. E.g., if the file names are
+#'   writer0195_doc1, writer0195_doc2, writer0033_doc1, writer0033_doc2 then
+#'   doc_indices are 'c(12,15)'.
+#' @param a The shape parameter for the Gamma distribution in the hierarchical
+#'   model
+#' @param b The rate parameter for the Gamma distribution in the hierarchical
+#'   model
+#' @param c The first shape parameter for the Beta distribution in the
+#'   hierarchical model
+#' @param d The second shape parameter for the Beta distribution in the
+#'   hierarchical model
+#' @param e The scale parameter for the hyper prior for mu in the hierarchical
+#'   model
 #' @return A list of training data used to fit the model and the fitted model
 #'
 #' @examples
@@ -36,6 +44,7 @@
 #'   model_images_dir = model_images_dir,
 #'   num_iters = 100,
 #'   num_chains = 1,
+#'   num_cores = 2,
 #'   writer_indices = c(2,5),
 #'   doc_indices = c(7,18)
 #' )
@@ -59,12 +68,15 @@ fit_model <- function(template_dir,
                       model_images_dir,
                       num_iters,
                       num_chains = 1,
+                      num_cores,
                       writer_indices, doc_indices,
                       a = 2, b = 0.25, c = 2, d = 2, e = 0.5) {
   # load cluster template
+  message("Loading cluster template...")
   template <- readRDS(file.path(template_dir, "data", "template.rds"))
 
   # process model training documents and save in template_dir > data > model_graphs
+  message("Processing model documents...")
   model_proc_list <- process_batch_dir(
     input_dir = model_images_dir,
     output_dir = file.path(template_dir, "data", "model_graphs"),
@@ -72,17 +84,20 @@ fit_model <- function(template_dir,
   )
 
   # get cluster assignments
+  message("Getting cluster assignments for model documents...")
   if ( file.exists(file.path(template_dir, "data", "model_clusters.rds")) ){
     model_clusters <- readRDS(file.path(template_dir, "data", "model_clusters.rds"))
   } else {
     model_clusters <- get_clusterassignment(
       clustertemplate = template,
-      input_dir = file.path(template_dir, "data", "model_graphs")
+      input_dir = file.path(template_dir, "data", "model_graphs"),
+      num_cores = num_cores
     )
     saveRDS(model_clusters, file.path(template_dir, "data", "model_clusters.rds"))
   }
 
   # format model data
+  message("Getting the model data ready for RJAGS...")
   model_data <- format_model_data(
     model_proc_list = model_clusters,
     writer_indices = writer_indices,
@@ -93,6 +108,7 @@ fit_model <- function(template_dir,
   rjags_data <- model_data$rjags_data
 
   # fit model with rjags
+  message("Fitting the model with RJAGS")
   model <- rjags::jags.model(textConnection(model_wrapped_cauchy), data = rjags_data, n.chains = num_chains)
 
   # mcmc draws
@@ -393,6 +409,7 @@ analyze_questioned_documents <- function(template_dir, questioned_images_dir, mo
 #' @md
 analyze_questioned_documents2 <- function(template_dir, questioned_images_dir, model, num_cores, writer_indices, doc_indices) {
   # process questioned documents
+  message("Processing questioned documents...")
   questioned_proc_list <- process_batch_dir(
     input_dir = questioned_images_dir,
     output_dir = file.path(template_dir, "data", "questioned_graphs"),
@@ -400,20 +417,24 @@ analyze_questioned_documents2 <- function(template_dir, questioned_images_dir, m
   )
   
   # load template
+  message("Loading cluster template...")
   template <- readRDS(file.path(template_dir, "data", "template.rds"))
   
   # get cluster assignments
+  message("Getting cluster assignments for questioned documents...")
   if ( file.exists(file.path(template_dir, "data", "questioned_clusters.rds")) ){
     questioned_clusters <- readRDS(file.path(template_dir, "data", "questioned_clusters.rds"))
   } else {
     questioned_clusters <- get_clusterassignment(
       clustertemplate = template,
-      input_dir = file.path(template_dir, "data", "questioned_graphs")
+      input_dir = file.path(template_dir, "data", "questioned_graphs"),
+      num_cores = num_cores
     )
     saveRDS(questioned_clusters, file.path(template_dir, "data", "questioned_clusters.rds"))
   }
   
   # format data
+  message("Getting the questioned document data ready for the model...")
   questioned_data <- format_questioned_data(
     model = model,
     questioned_proc_list = questioned_clusters,
@@ -457,6 +478,7 @@ analyze_questioned_documents2 <- function(template_dir, questioned_images_dir, m
   writers <- unique(questioned_data$graph_measurements$writer)
   
   # obtain posterior samples of model parameters
+  message("Obtaining likelihood evaluations...")
   likelihood_evals <- foreach::foreach(d = 1:nrow(questioned_data$cluster_fill_counts)) %dopar% {  # d is document
     # filter docs for current writer
     qdoc2 <- questioned_data$graph_measurements %>% dplyr::filter(writer == writers[d])  # identical to m_qdoc
@@ -492,16 +514,19 @@ analyze_questioned_documents2 <- function(template_dir, questioned_images_dir, m
   names(likelihood_evals) <- paste0("w", questioned_data$cluster_fill_counts$writer, "_", questioned_data$cluster_fill_counts$doc)
   
   # tally votes
+  message("Tallying votes...")
   votes <- lapply(likelihood_evals, function(y) {
     as.data.frame(t(apply(y, 1, function(x) floor(x / max(x)))))
   })
   votes <- lapply(votes, function(x) colSums(x))
   
   # calculate posterior probability of writership
+  message("Calculating posterior probabilities...")
   posterior_probabilities <- lapply(votes, function(x) x / niter)
   posterior_probabilities <- as.data.frame(posterior_probabilities)
   posterior_probabilities <- cbind("known_writer" = rownames(posterior_probabilities), data.frame(posterior_probabilities, row.names = NULL)) # change rownames to column
   
+  message("Saving results...")
   analysis <- list(
     "likelihood_evals" = likelihood_evals,
     "votes" = votes,
