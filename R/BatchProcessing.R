@@ -50,12 +50,10 @@ process_batch_dir = function(input_dir, output_dir = '.', transform_output = 'do
     }
   }
   
-  # Load all processed docs in output folder
-  output_list <- data.frame(graph_paths = list.files(output_dir, full.names = TRUE), stringsAsFactors = FALSE)
-  if (length(document_list) < length(output_list$graph_paths)){
-    document_list <- output_list$graph_paths %>%
-      purrr::map(readRDS) %>%
-      purrr::list_merge()
+  # If document_list doesn't contain all docs in output folder, load all docs in folder
+  output_list <- list.files(output_dir, full.names = TRUE)
+  if (length(document_list) < length(output_list)){
+    document_list <- lapply(output_list, readRDS)
   }
   
   return(document_list)
