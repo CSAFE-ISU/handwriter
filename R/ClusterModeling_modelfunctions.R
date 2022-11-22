@@ -77,12 +77,13 @@ fit_model <- function(template_dir,
 
   # process model training documents and save in template_dir > data > model_graphs
   message("Processing model documents...")
-  model_proc_list <- process_batch_dir(
+  process_batch_dir(
     input_dir = model_images_dir,
     output_dir = file.path(template_dir, "data", "model_graphs"),
+    return_result = TRUE,
     transform_output = "document"
   )
-
+  
   # get cluster assignments
   message("Getting cluster assignments for model documents...")
   if ( file.exists(file.path(template_dir, "data", "model_clusters.rds")) ){

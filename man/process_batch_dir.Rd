@@ -4,12 +4,22 @@
 \alias{process_batch_dir}
 \title{process_batch_dir}
 \usage{
-process_batch_dir(input_dir, output_dir = ".", transform_output = "document")
+process_batch_dir(
+  input_dir,
+  output_dir = ".",
+  return_result = TRUE,
+  transform_output = "document"
+)
 }
 \arguments{
 \item{input_dir}{Input directory that contains images}
 
 \item{output_dir}{A directory to save the processed images}
+
+\item{return_result}{TRUE/FALSE whether to return the result. If TRUE, the
+processed documents with be saved and a list of the processed documents
+will be returned. If FALSE, the processed documents will be saved, but
+nothing will be returned.}
 
 \item{transform_output}{The type of transformation to perform on the output}
 }
