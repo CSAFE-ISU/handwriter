@@ -86,21 +86,18 @@ fit_model <- function(template_dir,
   
   # get cluster assignments
   message("Getting cluster assignments for model documents...")
-  if ( file.exists(file.path(template_dir, "data", "model_clusters.rds")) ){
-    model_clusters <- readRDS(file.path(template_dir, "data", "model_clusters.rds"))
-  } else {
-    model_clusters <- get_clusterassignment(
-      clustertemplate = template,
-      input_dir = file.path(template_dir, "data", "model_graphs"),
+  model_clusters <- get_clusterassignment(
+      template_dir = template_dir,
+      input_type = "model",
+      writer_indices = writer_indices,
+      doc_indices = doc_indices,
       num_cores = num_cores
     )
-    saveRDS(model_clusters, file.path(template_dir, "data", "model_clusters.rds"))
-  }
 
   # format model data
   message("Getting the model data ready for RJAGS...")
   model_data <- format_model_data(
-    model_proc_list = model_clusters,
+    model_clusters = model_clusters,
     writer_indices = writer_indices,
     doc_indices = doc_indices,
     a = a, b = b, c = c, d = d, e = e
@@ -255,6 +252,7 @@ about_variable <- function(variable, model) {
 #' @md
 analyze_questioned_documents <- function(template_dir, questioned_images_dir, model, num_cores, writer_indices, doc_indices) {
   # process questioned documents
+  message("Processing questioned documents...")
   questioned_proc_list <- process_batch_dir(
     input_dir = questioned_images_dir,
     output_dir = file.path(template_dir, "data", "questioned_graphs"),
@@ -262,23 +260,24 @@ analyze_questioned_documents <- function(template_dir, questioned_images_dir, mo
   )
 
   # load template
+  message("Loading cluster template...")
   template <- readRDS(file.path(template_dir, "data", "template.rds"))
   
   # get cluster assignments
-  if ( file.exists(file.path(template_dir, "data", "questioned_clusters.rds")) ){
-    questioned_clusters <- readRDS(file.path(template_dir, "data", "questioned_clusters.rds"))
-  } else {
-    questioned_clusters <- get_clusterassignment(
-      clustertemplate = template,
-      input_dir = file.path(template_dir, "data", "questioned_graphs")
-    )
-    saveRDS(questioned_clusters, file.path(template_dir, "data", "questioned_clusters.rds"))
-  }
+  message("Getting cluster assignments for questioned documents...")
+  questioned_clusters <- get_clusterassignment(
+    template_dir = template_dir,
+    input_type = "questioned",
+    writer_indices = writer_indices,
+    doc_indices = doc_indices,
+    num_cores = num_cores
+  )
 
   # format data
+  message("Getting the questioned document data ready for the model...")
   questioned_data <- format_questioned_data(
     model = model,
-    questioned_proc_list = questioned_clusters,
+    questioned_clusters = questioned_clusters,
     writer_indices = writer_indices,
     doc_indices = doc_indices
   )
@@ -320,6 +319,7 @@ analyze_questioned_documents <- function(template_dir, questioned_images_dir, mo
   writers <- unique(questioned_data$graph_measurements$writer)
 
   # obtain posterior samples of model parameters
+  message("Obtaining likelihood evaluations...")
   likelihood_evals <- foreach::foreach(m = 1:nrow(questioned_data$cluster_fill_counts)) %dopar% {
     # filter docs for current writer
     m_qdoc <- questioned_data$graph_measurements %>% dplyr::filter(writer == writers[m])
@@ -350,16 +350,19 @@ analyze_questioned_documents <- function(template_dir, questioned_images_dir, mo
   names(likelihood_evals) <- paste0("w", questioned_data$cluster_fill_counts$writer, "_", questioned_data$cluster_fill_counts$doc)
 
   # tally votes
+  message("Tallying votes...")
   votes <- lapply(likelihood_evals, function(y) {
     as.data.frame(t(apply(y, 1, function(x) floor(x / max(x)))))
   })
   votes <- lapply(votes, function(x) colSums(x))
 
   # calculate posterior probability of writership
+  message("Calculating posterior probabilities...")
   posterior_probabilities <- lapply(votes, function(x) x / niter)
   posterior_probabilities <- as.data.frame(posterior_probabilities)
   posterior_probabilities <- cbind("known_writer" = rownames(posterior_probabilities), data.frame(posterior_probabilities, row.names = NULL)) # change rownames to column
-
+  
+  message("Saving results...")
   analysis <- list(
     "likelihood_evals" = likelihood_evals,
     "votes" = votes,
@@ -423,22 +426,19 @@ analyze_questioned_documents2 <- function(template_dir, questioned_images_dir, m
   
   # get cluster assignments
   message("Getting cluster assignments for questioned documents...")
-  if ( file.exists(file.path(template_dir, "data", "questioned_clusters.rds")) ){
-    questioned_clusters <- readRDS(file.path(template_dir, "data", "questioned_clusters.rds"))
-  } else {
-    questioned_clusters <- get_clusterassignment(
-      clustertemplate = template,
-      input_dir = file.path(template_dir, "data", "questioned_graphs"),
-      num_cores = num_cores
-    )
-    saveRDS(questioned_clusters, file.path(template_dir, "data", "questioned_clusters.rds"))
-  }
+  questioned_clusters <- get_clusterassignment(
+    template_dir = template_dir,
+    input_type = "questioned",
+    writer_indices = writer_indices,
+    doc_indices = doc_indices,
+    num_cores = num_cores
+  )
   
   # format data
   message("Getting the questioned document data ready for the model...")
   questioned_data <- format_questioned_data(
     model = model,
-    questioned_proc_list = questioned_clusters,
+    questioned_clusters = questioned_clusters,
     writer_indices = writer_indices,
     doc_indices = doc_indices
   )

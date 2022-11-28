@@ -87,6 +87,7 @@ make_example_models <- function(main_dir){
                                     model_images_dir = model_images_dir,
                                     num_iters = 200, 
                                     num_chains = 1, 
+                                    num_cores = 5,
                                     writer_indices = c(2,5), 
                                     doc_indices = c(7,18))
   # save to data folder
@@ -96,6 +97,7 @@ make_example_models <- function(main_dir){
                                      model_images_dir = model_images_dir,
                                      num_iters = 200, 
                                      num_chains = 2, 
+                                     num_cores = 5,
                                      writer_indices = c(2,5), 
                                      doc_indices = c(7,18))
   # save to data folder
@@ -164,3 +166,8 @@ file.remove(testthat::test_path("fixtures", "template", "data", "template_strata
 
 # log files aren't used in the tests
 unlink(testthat::test_path("fixtures", "template", "logs"), recursive = TRUE) 
+
+# delete model_clusters and questioned_clusters folders. These folders are
+# simply back-up for model_clusters.rds and questioned_clusters.rds.
+unlink(testthat::test_path("fixtures", "template", "data", "model_clusters"), recursive = TRUE) 
+unlink(testthat::test_path("fixtures", "template", "data", "questioned_clusters"), recursive = TRUE) 

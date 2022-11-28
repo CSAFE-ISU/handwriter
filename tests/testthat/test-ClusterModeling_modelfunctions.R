@@ -99,7 +99,7 @@ test_that("about variable works on a single chain", {
 test_that("calculate accuracy works on a single chain", {
   accuracy <- calculate_accuracy(example_analysis_1chain)
   
-  expect_equal(accuracy, 0.946)
+  expect_equal(accuracy, 0.968)
 })
 
 
@@ -206,5 +206,5 @@ test_that("about variable works on multiple chains", {
 test_that("calculate accuracy works on mulitple chains", {
   accuracy <- calculate_accuracy(example_analysis_2chains)
   
-  expect_equal(accuracy, 0.9575)
+  expect_equal(accuracy, 0.941)
 })

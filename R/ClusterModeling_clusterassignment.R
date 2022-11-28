@@ -7,21 +7,62 @@ makeassignment = function(imageListElement, templateCenterList, outliercut){
 
 #' get_clusterassignment
 #'
-#' @param clustertemplate Cluster template created with `make_clustering_templates`
-#' @param input_dir Directory containing handwriting processed with `process_batch_list` or `process_batch_dir`
+#' @param template_dir Directory containing a cluster template created with `make_clustering_templates`
+#' @param input_type `model` or `questioned`
+#' @param writer_indices Vector of start and end indices for the writer id in
+#'   the document names
+#' @param doc_indices Vector of start and end indices for the document id in the
+#'   document names
 #' @param num_cores Integer number of cores to use for parallel processing
 #'
 #' @return list of processed handwriting with cluster assignments for each graph
+#' 
 #' @export
 #'
-get_clusterassignment = function(clustertemplate, input_dir, num_cores){
+#' @md
+get_clusterassignment = function(template_dir, input_type, writer_indices, doc_indices, num_cores){
+  
+  # load cluster file if it already exists
+  if ( input_type == "model" ){
+    cluster_file <- file.path(template_dir, "data", "model_clusters.rds")
+  } else if ( input_type == "questioned" ) {
+    cluster_file <- file.path(template_dir, "data", "questioned_clusters.rds")
+  } else {
+    stop("Unknown input type. Use model or questioned.")
+  }
+  if ( file.exists(cluster_file) ){
+    proclist <- readRDS(cluster_file)
+    return(proclist)
+  }
+  
+  # load template
+  if ( file.exists(file.path(template_dir, "data", "template.rds")) ){
+    template <- readRDS(file.path(template_dir, "data", "template.rds"))
+  } else {
+    stop(paste("There is no cluster template in", template_dir))
+  }
+  
+  # get input directory
+  if ( input_type == "model" ){
+    input_dir <- file.path(template_dir, "data", "model_graphs")
+  } else {
+    input_dir <- file.path(template_dir, "data", "questioned_graphs")
+  } 
+  
+  # make output directory
+  if ( input_type == "model" ){
+    output_dir <- file.path(template_dir, "data", "model_clusters")
+  } else {
+    output_dir <- file.path(template_dir, "data", "questioned_clusters")
+  } 
+  if ( !dir.exists(output_dir) ){ dir.create(output_dir) }
   
   # list files in input dir
   input_paths = list.files(input_dir, full.names = TRUE)
-  df = data.frame(input_paths, stringsAsFactors = FALSE)
+  proclist = data.frame(input_paths, stringsAsFactors = FALSE)
   
   # load processed handwriting
-  proclist =  df$input_paths %>%
+  proclist =  proclist$input_paths %>%
     purrr::map(readRDS) %>%
     purrr::list_merge()
   
@@ -29,7 +70,16 @@ get_clusterassignment = function(clustertemplate, input_dir, num_cores){
   doParallel::registerDoParallel(my_cluster)
   
   proclist <- foreach::foreach(i = 1:length(proclist), 
+                               .combine = 'rbind',
                                .export = c("AddLetterImages", "MakeLetterListLetterSpecific", "centeredImage", "makeassignment")) %dopar% {  # for each document i
+    
+    # load outfile if it already exists
+    outfile <- file.path(output_dir, stringr::str_replace(proclist[[i]]$docname, ".png", ".rds"))
+    if ( file.exists(outfile) ){
+      df <- readRDS(outfile)
+      return(df)
+    }
+                                 
     # extra processing
     proclist_mod = proclist[[i]]
     proclist_mod$process$letterList = AddLetterImages(proclist_mod$process$letterList, dim(proclist_mod$image))
@@ -46,16 +96,45 @@ get_clusterassignment = function(clustertemplate, input_dir, num_cores){
     })
     
     # get cluster assignments
-    cluster_assign = sapply(imagesList, makeassignment, templateCenterList = clustertemplate$centers, outliercut = outliercut)
+    cluster_assign = sapply(imagesList, makeassignment, templateCenterList = template$centers, outliercut = outliercut)
+    df = data.frame(cluster = cluster_assign)
     
-    # add cluster assignments to proclist_mod
-    for(j in 1:length(proclist_mod$process$letterList)){  # for each graph j in document i
-      proclist_mod$process$letterList[[j]]$cluster = cluster_assign[j]
+    # add docname, writer, doc, slope, xvar, yvar, and covar
+    df$docname <- proclist_mod$docname
+    df$writer <- as.integer(sapply(df$docname, function(x) substr(x, start = writer_indices[1], stop = writer_indices[2])))
+    df$doc <- sapply(df$docname, function(x) substr(x, start = doc_indices[1], stop = doc_indices[2]), USE.NAMES = FALSE)
+    df$slope <- sapply(proclist_mod$process$letterList, function(x) x$characterFeatures$slope)
+    df$xvar <- sapply(proclist_mod$process$letterList, function(x) x$characterFeatures$xvar)
+    df$yvar <- sapply(proclist_mod$process$letterList, function(x) x$characterFeatures$yvar)
+    df$covar <- sapply(proclist_mod$process$letterList, function(x) x$characterFeatures$covar)
+    
+    
+    # calculate pc rotation angle and wrapped pc rotation angle
+    get_pc_rotation <- function(x){
+      xv <- as.numeric(x['xvar'])
+      yv <- as.numeric(x['yvar'])
+      cv <- as.numeric(x['covar'])
+      eig <- eigen(cbind(c(xv, cv), c(cv, yv)), symmetric = TRUE)
+      return(angle(t(as.matrix(eig$vectors[, 1])), as.matrix(c(1, 0))))
     }
+    df$pc_rotation <- apply(df, 1, get_pc_rotation)
+    df$pc_wrapped <- 2 * df$pc_rotation
     
-    return(proclist_mod)
+    # sort columns
+    df <- df[,c('docname', 'writer', 'doc', 'cluster', 'slope', 'xvar', 'yvar', 'covar', 'pc_rotation', 'pc_wrapped')]
+
+    saveRDS(df, file = file.path(output_dir, stringr::str_replace(df$docname[1], ".png", ".rds")))
+    
+    return(df)
   }
 
+  # save clusters
+  if ( input_type == "model" ){
+    saveRDS(proclist, file.path(template_dir, "data", "model_clusters.rds"))
+  } else {
+    saveRDS(proclist, file.path(template_dir, "data", "questioned_clusters.rds"))
+  } 
+  
   return(proclist)
 }
 

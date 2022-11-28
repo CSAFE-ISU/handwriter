@@ -242,14 +242,14 @@ get_prompt_code <- function(x) {
 #'
 #' The user can build 3 sets - template training, model training, and questioned
 #' (test) - of documents from the CSAFE Handwriting Database with the function
-#' [`select_CSAFE_docs`]. The output of `select_CSAFE_docs` is a list of three
+#' [`select_csafe_docs`]. The output of `select_csafe_docs` is a list of three
 #' data frames - template, model, and questioned. Each data frame contains the
 #' file names of CSAFE documents assigned to either the template, model, or
-#' questioned set. The `copy_CSAFE_docs` function will copy these sets of
+#' questioned set. The `copy_csafe_docs` function will copy these sets of
 #' documents from the directory containing the downloaded CSAFE Handwriting
 #' Database to the new directories.
 #'
-#' @param docs A list of CSAFE documents created by [`select_CSAFE_docs`]
+#' @param docs A list of CSAFE documents created by [`select_csafe_docs`]
 #' @param input_dir Path to directory containing the downloaded CSAFE
 #'   Handwriting Database
 #' @param template_dir Path to directory where template training documents will
@@ -284,7 +284,7 @@ get_prompt_code <- function(x) {
 #' output_model_dir <- path / to / model_docs_output
 #' output_questioned_dir <- path / to / questioned_docs_output
 #'
-#' copy_CSAFE_docs(
+#' copy_csafe_docs(
 #'   docs = docs,
 #'   input_dir = input_dir,
 #'   template_dir = output_template_dir,
@@ -294,7 +294,7 @@ get_prompt_code <- function(x) {
 #' }
 #'
 #' @md
-copy_CSAFE_docs <- function(docs, input_dir, template_dir, model_dir, questioned_dir) {
+copy_csafe_docs <- function(docs, input_dir, template_dir, model_dir, questioned_dir) {
   # create output folders
   if (!dir.exists(template_dir)) {
     dir.create(template_dir, recursive = TRUE)
