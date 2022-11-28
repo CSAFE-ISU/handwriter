@@ -108,8 +108,20 @@ get_clusterassignment = function(template_dir, input_type, writer_indices, doc_i
     df$yvar <- sapply(proclist_mod$process$letterList, function(x) x$characterFeatures$yvar)
     df$covar <- sapply(proclist_mod$process$letterList, function(x) x$characterFeatures$covar)
     
+    
+    # calculate pc rotation angle and wrapped pc rotation angle
+    get_pc_rotation <- function(x){
+      xv <- as.numeric(x['xvar'])
+      yv <- as.numeric(x['yvar'])
+      cv <- as.numeric(x['covar'])
+      eig <- eigen(cbind(c(xv, cv), c(cv, yv)), symmetric = TRUE)
+      return(angle(t(as.matrix(eig$vectors[, 1])), as.matrix(c(1, 0))))
+    }
+    df$pc_rotation <- apply(df, 1, get_pc_rotation)
+    df$pc_wrapped <- 2 * df$pc_rotation
+    
     # sort columns
-    df <- df[,c('docname', 'writer', 'doc', 'cluster', 'slope', 'xvar', 'yvar', 'covar')]
+    df <- df[,c('docname', 'writer', 'doc', 'cluster', 'slope', 'xvar', 'yvar', 'covar', 'pc_rotation', 'pc_wrapped')]
 
     saveRDS(df, file = file.path(output_dir, stringr::str_replace(df$docname[1], ".png", ".rds")))
     
