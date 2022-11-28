@@ -16,9 +16,24 @@ makeassignment = function(imageListElement, templateCenterList, outliercut){
 #' @param num_cores Integer number of cores to use for parallel processing
 #'
 #' @return list of processed handwriting with cluster assignments for each graph
+#' 
 #' @export
 #'
+#' @md
 get_clusterassignment = function(template_dir, input_type, writer_indices, doc_indices, num_cores){
+  
+  # load cluster file if it already exists
+  if ( input_type == "model" ){
+    cluster_file <- file.path(template_dir, "data", "model_clusters.rds")
+  } else if ( input_type == "questioned" ) {
+    cluster_file <- file.path(template_dir, "data", "questioned_clusters.rds")
+  } else {
+    stop("Unknown input type. Use model or questioned.")
+  }
+  if ( file.exists(cluster_file) ){
+    proclist <- readRDS(cluster_file)
+    return(proclist)
+  }
   
   # load template
   if ( file.exists(file.path(template_dir, "data", "template.rds")) ){
@@ -30,11 +45,9 @@ get_clusterassignment = function(template_dir, input_type, writer_indices, doc_i
   # get input directory
   if ( input_type == "model" ){
     input_dir <- file.path(template_dir, "data", "model_graphs")
-  } else if ( input_type == "questioned" ) {
-    input_dir <- file.path(template_dir, "data", "questioned_graphs")
   } else {
-    stop("Unknown input type. Use model or questioned.")
-  }
+    input_dir <- file.path(template_dir, "data", "questioned_graphs")
+  } 
   
   # make output directory
   if ( input_type == "model" ){
@@ -103,6 +116,13 @@ get_clusterassignment = function(template_dir, input_type, writer_indices, doc_i
     return(df)
   }
 
+  # save clusters
+  if ( input_type == "model" ){
+    saveRDS(proclist, file.path(template_dir, "data", "model_clusters.rds"))
+  } else {
+    saveRDS(proclist, file.path(template_dir, "data", "questioned_clusters.rds"))
+  } 
+  
   return(proclist)
 }
 

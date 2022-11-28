@@ -4,12 +4,24 @@
 \alias{get_clusterassignment}
 \title{get_clusterassignment}
 \usage{
-get_clusterassignment(clustertemplate, input_dir, num_cores)
+get_clusterassignment(
+  template_dir,
+  input_type,
+  writer_indices,
+  doc_indices,
+  num_cores
+)
 }
 \arguments{
-\item{clustertemplate}{Cluster template created with `make_clustering_templates`}
+\item{template_dir}{Directory containing a cluster template created with \code{make_clustering_templates}}
 
-\item{input_dir}{Directory containing handwriting processed with `process_batch_list` or `process_batch_dir`}
+\item{input_type}{\code{model} or \code{questioned}}
+
+\item{writer_indices}{Vector of start and end indices for the writer id in
+the document names}
+
+\item{doc_indices}{Vector of start and end indices for the document id in the
+document names}
 
 \item{num_cores}{Integer number of cores to use for parallel processing}
 }
