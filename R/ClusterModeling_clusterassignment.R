@@ -58,13 +58,7 @@ get_clusterassignment = function(template_dir, input_type, writer_indices, doc_i
   if ( !dir.exists(output_dir) ){ dir.create(output_dir) }
   
   # list files in input dir
-  input_paths = list.files(input_dir, full.names = TRUE)
-  proclist = data.frame(input_paths, stringsAsFactors = FALSE)
-  
-  # load processed handwriting
-  proclist =  proclist$input_paths %>%
-    purrr::map(readRDS) %>%
-    purrr::list_merge()
+  proclist = list.files(input_dir, full.names = TRUE)
   
   my_cluster = parallel::makeCluster(num_cores)
   doParallel::registerDoParallel(my_cluster)
@@ -73,20 +67,22 @@ get_clusterassignment = function(template_dir, input_type, writer_indices, doc_i
                                .combine = 'rbind',
                                .export = c("AddLetterImages", "MakeLetterListLetterSpecific", "centeredImage", "makeassignment")) %dopar% {  # for each document i
     
+    # load doc
+    doc <- readRDS(proclist[i])                          
+                                 
     # load outfile if it already exists
-    outfile <- file.path(output_dir, stringr::str_replace(proclist[[i]]$docname, ".png", ".rds"))
+    outfile <- file.path(output_dir, paste0(doc$docname, ".rds"))
     if ( file.exists(outfile) ){
       df <- readRDS(outfile)
       return(df)
     }
                                  
     # extra processing
-    proclist_mod = proclist[[i]]
-    proclist_mod$process$letterList = AddLetterImages(proclist_mod$process$letterList, dim(proclist_mod$image))
-    proclist_mod$process$letterList = MakeLetterListLetterSpecific(proclist_mod$process$letterList, dim(proclist_mod$image)) ### THIS SCREWS UP PLOTLETTER AND OTHER PLOTTING!!!
+    doc$process$letterList = AddLetterImages(doc$process$letterList, dim(doc$image))
+    doc$process$letterList = MakeLetterListLetterSpecific(doc$process$letterList, dim(doc$image)) ### THIS SCREWS UP PLOTLETTER AND OTHER PLOTTING!!!
     
     imagesList = list()
-    imagesList = c(imagesList, lapply(proclist_mod$process$letterList, function(x){centeredImage(x)}))
+    imagesList = c(imagesList, lapply(doc$process$letterList, function(x){centeredImage(x)}))
     imagesList = lapply(imagesList, function(x){
       x$nodesrc = cbind(((x$nodes-1) %/% dim(x$image)[1]) + 1, dim(x$image)[1] - ((x$nodes-1) %% dim(x$image)[1]))
       x$nodesrc = x$nodesrc - matrix(rep(x$centroid, each = dim(x$nodesrc)[1]), ncol = 2)
@@ -100,14 +96,13 @@ get_clusterassignment = function(template_dir, input_type, writer_indices, doc_i
     df = data.frame(cluster = cluster_assign)
     
     # add docname, writer, doc, slope, xvar, yvar, and covar
-    df$docname <- proclist_mod$docname
+    df$docname <- doc$docname
     df$writer <- as.integer(sapply(df$docname, function(x) substr(x, start = writer_indices[1], stop = writer_indices[2])))
     df$doc <- sapply(df$docname, function(x) substr(x, start = doc_indices[1], stop = doc_indices[2]), USE.NAMES = FALSE)
-    df$slope <- sapply(proclist_mod$process$letterList, function(x) x$characterFeatures$slope)
-    df$xvar <- sapply(proclist_mod$process$letterList, function(x) x$characterFeatures$xvar)
-    df$yvar <- sapply(proclist_mod$process$letterList, function(x) x$characterFeatures$yvar)
-    df$covar <- sapply(proclist_mod$process$letterList, function(x) x$characterFeatures$covar)
-    
+    df$slope <- sapply(doc$process$letterList, function(x) x$characterFeatures$slope)
+    df$xvar <- sapply(doc$process$letterList, function(x) x$characterFeatures$xvar)
+    df$yvar <- sapply(doc$process$letterList, function(x) x$characterFeatures$yvar)
+    df$covar <- sapply(doc$process$letterList, function(x) x$characterFeatures$covar)
     
     # calculate pc rotation angle and wrapped pc rotation angle
     get_pc_rotation <- function(x){
@@ -123,7 +118,7 @@ get_clusterassignment = function(template_dir, input_type, writer_indices, doc_i
     # sort columns
     df <- df[,c('docname', 'writer', 'doc', 'cluster', 'slope', 'xvar', 'yvar', 'covar', 'pc_rotation', 'pc_wrapped')]
 
-    saveRDS(df, file = file.path(output_dir, stringr::str_replace(df$docname[1], ".png", ".rds")))
+    saveRDS(df, file = file.path(output_dir, paste0(doc$docname, ".rds")))
     
     return(df)
   }

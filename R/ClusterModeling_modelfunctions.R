@@ -71,16 +71,12 @@ fit_model <- function(template_dir,
                       num_cores,
                       writer_indices, doc_indices,
                       a = 2, b = 0.25, c = 2, d = 2, e = 0.5) {
-  # load cluster template
-  message("Loading cluster template...")
-  template <- readRDS(file.path(template_dir, "data", "template.rds"))
-
   # process model training documents and save in template_dir > data > model_graphs
   message("Processing model documents...")
   process_batch_dir(
     input_dir = model_images_dir,
     output_dir = file.path(template_dir, "data", "model_graphs"),
-    return_result = TRUE,
+    return_result = FALSE,
     transform_output = "document"
   )
   
