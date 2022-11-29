@@ -602,6 +602,38 @@ calculate_accuracy <- function(analysis){
 }
 
 
+#' get_posterior_probabilities
+#'
+#' Get the posterior probabilities for a questioned document.
+#'
+#' @param analysis The output of [`analyze_questioned_documents`]. If more than
+#'   one questioned document was analyzed with this function, then the data frame
+#'   analysis$posterior_probabilities lists the posterior probabilities for all
+#'   questioned documents. `show_posterior_probabilities` creates a data frame of the 
+#'   posterior probabilities for a single questioned document and sorts the known writers
+#'   from the most likely to least likely to have writen the questioned document.
+#' @param questioned_doc The name of a questioned document
+#'
+#' @return A data frame of posterior probabilities for the questioned document
+#' @export
+#'
+#' @examples
+#' show_posterior_probabilities(
+#'   analysis = example_analysis_1chain,
+#'   questioned_doc = "w9_s03_pWOZ_r1."
+#' )
+#' show_posterior_probabilities(
+#'   analysis = example_analysis_1chain,
+#'   questioned_doc = "w30_s03_pWOZ_r1."
+#' )
+#' 
+#' @md
+get_posterior_probabilities <- function(analysis, questioned_doc){
+  pp <- analysis$posterior_probabilities[,c('known_writer', questioned_doc)]
+  pp[order(pp[,2], decreasing = TRUE), ]
+}
+
+
 #' calculate_wc_likelihood
 #'
 #' Calculate the Wrapped Cauchy likelihood function for x, mu, and tau.
