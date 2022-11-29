@@ -67,26 +67,28 @@ draws samples from the model with MCMC.
 }
 \examples{
 \dontrun{
-template_dir <- /path/to/template_directory
+template_dir <- "/path/to/template_directory"
 model_images_dir <- system.file("extdata/example_images/model_training_images",
-  package = "handwriter")
+  package = "handwriter"
+)
 questioned_images_dir <- system.file("extdata/example_images/questioned_images",
-  package = "handwriter")
+  package = "handwriter"
+)
 
 model <- fit_model(
-  template_dir = template_dir
+  template_dir = template_dir,
   model_images_dir = model_images_dir,
   num_iters = 100,
   num_chains = 1,
   num_cores = 2,
-  writer_indices = c(2,5),
-  doc_indices = c(7,18)
+  writer_indices = c(2, 5),
+  doc_indices = c(7, 18)
 )
 
 model <- drop_burnin(model = model, burn_in = 25)
 
 analysis <- analyze_questioned_documents(
-  template_dir = template_dir
+  template_dir = template_dir,
   questioned_images_dir = questioned_images_dir,
   model = model,
   num_cores = 2
