@@ -55,14 +55,14 @@ find_colorpoints = function(words, dims){
   
   #Add Starting BLUE node
   if (length(words$terminalNodes) != 0){
-    words$terminalNodes <- sort(words$terminalNodes)
-    beginning_node = words$terminalNodes[[1]]
+    sorted <- sort(words$terminalNodes)
+    beginning_node = sorted[[1]]
     blue_point <- data.frame(beginning_node, i_to_rc(beginning_node, dims), 1, "blue")
     colnames(blue_point) <- c("point", "row", "col", "colorIndex", "color")
     colordf <- rbind(colordf, (blue_point))
 
     #Add Ending ORANGE node
-    ending_node = words$terminalNodes[[length(words$terminalNodes)]]
+    ending_node = sorted[[length(sorted)]]
     orange_point <- data.frame(ending_node, i_to_rc(ending_node, dims), 2, "orange")
     colnames(orange_point) <- c("point", "row", "col", "colorIndex", "color")
     colordf <- rbind(colordf, orange_point)
