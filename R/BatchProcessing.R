@@ -39,6 +39,7 @@ process_batch_dir <- function(input_dir, output_dir = ".", return_result = TRUE,
   file_list <- list.files(input_dir, full.names = TRUE)
 
   if (!dir.exists(output_dir)) {
+    message("Creating output directory...")
     dir.create(output_dir, recursive = TRUE)
   }
 
@@ -53,9 +54,12 @@ process_batch_dir <- function(input_dir, output_dir = ".", return_result = TRUE,
     if (!file.exists(outfile)) {
       message(sprintf("Processing document %d...", i))
       doc <- read_and_process(file_list[[i]], transform_output)
+      message(sprintf("Saving processed document %d...", i))
       saveRDS(doc, file = outfile)
       document_list[[counter]] <- doc
       counter <- counter + 1
+    } else {
+      message(sprintf("Document %d had already been processed...", i))
     }
   }
 
