@@ -35,9 +35,11 @@ process_batch_list <- function(image_list, output_dir, transform_output = "docum
 #' @keywords ?
 #' @export
 process_batch_dir <- function(input_dir, output_dir = ".", return_result = TRUE, transform_output = "document") {
+  message("Listing documents to be processed...")
   file_list <- list.files(input_dir, full.names = TRUE)
 
   if (!dir.exists(output_dir)) {
+    message("Creating output directory...")
     dir.create(output_dir, recursive = TRUE)
   }
 
@@ -50,10 +52,14 @@ process_batch_dir <- function(input_dir, output_dir = ".", return_result = TRUE,
     outfile <- file.path(output_dir, paste0(tools::file_path_sans_ext(basename(file_list[[i]])), "_proclist.rds"))
     # if output file doesn't already exist, process the input file
     if (!file.exists(outfile)) {
+      message(sprintf("Processing document %d...", i))
       doc <- read_and_process(file_list[[i]], transform_output)
+      message(sprintf("Saving processed document %d...", i))
       saveRDS(doc, file = outfile)
       document_list[[counter]] <- doc
       counter <- counter + 1
+    } else {
+      message(sprintf("Document %d had already been processed...", i))
     }
   }
 
@@ -62,6 +68,7 @@ process_batch_dir <- function(input_dir, output_dir = ".", return_result = TRUE,
     output_list <- list.files(output_dir, full.names = TRUE)
     # If document_list doesn't contain all docs in output folder, load all docs in folder
     if (length(document_list) < length(output_list)) {
+      message("Loading processed documents...")
       document_list <- lapply(output_list, readRDS)
     }
     return(document_list)
