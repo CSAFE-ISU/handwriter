@@ -11,6 +11,7 @@
 #' @param model A fitted model created by [`fit_model`]
 #' @param num_cores An integer number of cores to use for parallel processing
 #'   with the `doParallel` package.
+#' @param num_graphs "All" or integer number of graphs to randomly select from each questioned document.
 #' @param writer_indices A vector of start and stop characters for writer IDs in file names
 #' @param doc_indices A vector of start and stop characters for document names in file names
 #' @return A list of likelihoods, votes, and posterior probabilities of
@@ -25,6 +26,7 @@
 #'   questioned_images_dir = questioned_images_dir,
 #'   model = model,
 #'   num_cores = 2,
+#'   num_graphs = "All",
 #'   writer_indices = c(2, 5),
 #'   doc_indices = c(7, 18)
 #' )
@@ -35,7 +37,7 @@
 #'
 #' @export
 #' @md
-analyze_questioned_documents <- function(template_dir, questioned_images_dir, model, num_cores, writer_indices, doc_indices) {
+analyze_questioned_documents <- function(template_dir, questioned_images_dir, model, num_cores, num_graphs = "All", writer_indices, doc_indices) {
   # process questioned documents
   message("Processing questioned documents...")
   questioned_proc_list <- process_batch_dir(
@@ -53,6 +55,7 @@ analyze_questioned_documents <- function(template_dir, questioned_images_dir, mo
   questioned_clusters <- get_clusterassignment(
     template_dir = template_dir,
     input_type = "questioned",
+    num_graphs = num_graphs,
     writer_indices = writer_indices,
     doc_indices = doc_indices,
     num_cores = num_cores
@@ -172,6 +175,7 @@ analyze_questioned_documents <- function(template_dir, questioned_images_dir, mo
 #' @param model A fitted model created by [`fit_model`]
 #' @param num_cores An integer number of cores to use for parallel processing
 #'   with the `doParallel` package.
+#' @param num_graphs "All" or integer number of graphs to randomly select from each questioned document.
 #' @param writer_indices A vector of start and stop characters for writer IDs in file names
 #' @param doc_indices A vector of start and stop characters for document names in file names
 #' @return A list of likelihoods, votes, and posterior probabilities of
@@ -186,6 +190,7 @@ analyze_questioned_documents <- function(template_dir, questioned_images_dir, mo
 #'   questioned_images_dir = questioned_images_dir,
 #'   model = model,
 #'   num_cores = 2,
+#'   num_graphs = "All",
 #'   writer_indices = c(2, 5),
 #'   doc_indices = c(7, 18)
 #' )
@@ -196,7 +201,7 @@ analyze_questioned_documents <- function(template_dir, questioned_images_dir, mo
 #'
 #' @export
 #' @md
-analyze_questioned_documents2 <- function(template_dir, questioned_images_dir, model, num_cores, writer_indices, doc_indices) {
+analyze_questioned_documents2 <- function(template_dir, questioned_images_dir, model, num_cores, num_graphs = "All", writer_indices, doc_indices) {
   # process questioned documents
   message("Processing questioned documents...")
   questioned_proc_list <- process_batch_dir(
@@ -214,6 +219,7 @@ analyze_questioned_documents2 <- function(template_dir, questioned_images_dir, m
   questioned_clusters <- get_clusterassignment(
     template_dir = template_dir,
     input_type = "questioned",
+    num_graphs = num_graphs,
     writer_indices = writer_indices,
     doc_indices = doc_indices,
     num_cores = num_cores

@@ -95,6 +95,7 @@ fit_model <- function(template_dir,
   model_clusters <- get_clusterassignment(
     template_dir = template_dir,
     input_type = "model",
+    num_graphs = "All",
     writer_indices = writer_indices,
     doc_indices = doc_indices,
     num_cores = num_cores
