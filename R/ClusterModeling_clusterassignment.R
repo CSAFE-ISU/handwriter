@@ -117,7 +117,7 @@ get_clusterassignment = function(template_dir, input_type, num_graphs = "All", w
     df$pc_wrapped <- 2 * df$pc_rotation
     
     # sample graphs 
-    if (graphs != "All"){
+    if (num_graphs != "All"){
       df <- df %>% 
         dplyr::group_by(docname) %>%
         dplyr::slice_sample(n = num_graphs)
