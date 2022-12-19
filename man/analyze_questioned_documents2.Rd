@@ -9,6 +9,7 @@ analyze_questioned_documents2(
   questioned_images_dir,
   model,
   num_cores,
+  num_graphs = "All",
   writer_indices,
   doc_indices
 )
@@ -22,6 +23,8 @@ analyze_questioned_documents2(
 
 \item{num_cores}{An integer number of cores to use for parallel processing
 with the \code{doParallel} package.}
+
+\item{num_graphs}{"All" or integer number of graphs to randomly select from each questioned document.}
 
 \item{writer_indices}{A vector of start and stop characters for writer IDs in file names}
 
@@ -45,6 +48,7 @@ analysis <- analyze_questioned_documents2(
   questioned_images_dir = questioned_images_dir,
   model = model,
   num_cores = 2,
+  num_graphs = "All",
   writer_indices = c(2, 5),
   doc_indices = c(7, 18)
 )

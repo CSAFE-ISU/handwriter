@@ -7,6 +7,7 @@
 get_clusterassignment(
   template_dir,
   input_type,
+  num_graphs = "All",
   writer_indices,
   doc_indices,
   num_cores
@@ -16,6 +17,8 @@ get_clusterassignment(
 \item{template_dir}{Directory containing a cluster template created with \code{make_clustering_templates}}
 
 \item{input_type}{\code{model} or \code{questioned}}
+
+\item{num_graphs}{'All' or integer number of graphs to randomly select from each document.}
 
 \item{writer_indices}{Vector of start and end indices for the writer id in
 the document names}
