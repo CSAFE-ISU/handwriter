@@ -9,6 +9,7 @@ makeassignment = function(imageListElement, templateCenterList, outliercut){
 #'
 #' @param template_dir Directory containing a cluster template created with `make_clustering_templates`
 #' @param input_type `model` or `questioned`
+#' @param num_graphs 'All' or integer number of graphs to randomly select from each document. 
 #' @param writer_indices Vector of start and end indices for the writer id in
 #'   the document names
 #' @param doc_indices Vector of start and end indices for the document id in the
@@ -20,7 +21,7 @@ makeassignment = function(imageListElement, templateCenterList, outliercut){
 #' @export
 #'
 #' @md
-get_clusterassignment = function(template_dir, input_type, writer_indices, doc_indices, num_cores){
+get_clusterassignment = function(template_dir, input_type, num_graphs = "All", writer_indices, doc_indices, num_cores){
   
   # load cluster file if it already exists
   if ( input_type == "model" ){
@@ -114,6 +115,13 @@ get_clusterassignment = function(template_dir, input_type, writer_indices, doc_i
     }
     df$pc_rotation <- apply(df, 1, get_pc_rotation)
     df$pc_wrapped <- 2 * df$pc_rotation
+    
+    # sample graphs 
+    if (num_graphs != "All"){
+      df <- df %>% 
+        dplyr::group_by(docname) %>%
+        dplyr::slice_sample(n = num_graphs)
+    }
     
     # sort columns
     df <- df[,c('docname', 'writer', 'doc', 'cluster', 'slope', 'xvar', 'yvar', 'covar', 'pc_rotation', 'pc_wrapped')]
