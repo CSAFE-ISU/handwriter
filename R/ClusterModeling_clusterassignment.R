@@ -66,7 +66,7 @@ get_clusterassignment = function(template_dir, input_type, num_graphs = "All", w
   
   proclist <- foreach::foreach(i = 1:length(proclist), 
                                .combine = 'rbind',
-                               .export = c("AddLetterImages", "MakeLetterListLetterSpecific", "centeredImage", "makeassignment")) %dopar% {  # for each document i
+                               .export = c("AddLetterImages", "MakeLetterListLetterSpecific", "centeredImage", "makeassignment", "angle")) %dopar% {  # for each document i
     
     # load doc
     doc <- readRDS(proclist[i])                          
