@@ -273,45 +273,27 @@ solveLP = function(dists)
 #' @keywords ?
 letterToPrototype = function(letter, numPathCuts = 8)
 {
-  # Find number of paths in graph
   pathCount = length(letter$allPaths)
+  resGraph = list(pathEnds = matrix(NA, ncol = 4, nrow = pathCount), pathQuarters = matrix(NA, ncol = 2*(numPathCuts-1), nrow = pathCount), pathCenter = matrix(NA, ncol = 2, nrow = pathCount), lengths = rep(NA, pathCount)) # identical to handwriter
   
   dims = dim(letter$image)
-  
-  # Initialize
-  resGraph = list(
-    pathEnds = matrix(NA, ncol = 4, nrow = pathCount),
-    pathQuarters = matrix(NA, ncol = 2 * (numPathCuts - 1), nrow = pathCount),
-    pathCenter = matrix(NA, ncol = 2, nrow = pathCount),
-    lengths = rep(NA, pathCount)
-  )
-  
-  # For each graph in the path
-  for (i in 1:pathCount) {
-    path = letter$allPaths[[i]]
+  for(i in 1:pathCount)
+  {
+    pathLength = length(letter$allPaths[[i]])
+    resGraph$pathEnds[i,1:2] = c((letter$allPaths[[i]][1]-1) %/% dims[1] + 1, dims[1] - (letter$allPaths[[i]][1]-1) %% dims[1]) - letter$centroid
+    resGraph$pathEnds[i,3:4] = c((letter$allPaths[[i]][pathLength]-1) %/% dims[1] + 1, dims[1] - (letter$allPaths[[i]][pathLength]-1) %% dims[1]) - letter$centroid
     
-    # Find the number of pixels in the path
-    pathLength = length(path)
+    pathRC = PathToRC(letter$allPaths[[i]], dim(letter$image))
+    resGraph$pathCenter[i,] = c(mean(pathRC[,1]), mean(pathRC[,2])) - letter$centroid
     
-    # Find the (x,y) coordinates of one end of the path with the centroid at (0,0)
-    resGraph$pathEnds[i, 1:2] = c(i_to_x(path[1], dims[1]), i_to_y(path[1], dims[1])) - letter$centroid
-    # Find the (x,y) coordinates of the other end with the centroid at (0,0)
-    resGraph$pathEnds[i, 3:4] = c(i_to_x(pathLength, dims[1]), i_to_y(pathLength, dims[1])) - letter$centroid
-    # Find the (x,y) coordinates of every point in the path with the bottom left corner of image at (0,0)
-    pathRC = cbind(i_to_x(path, dims[1]), i_to_y(path, dims[1]))
-    # Find the (x,y) coordinates of the path's center with the centroid at (0,0)
-    resGraph$pathCenter[i, ] = c(mean(pathRC[, 1]), mean(pathRC[, 2])) - letter$centroid
-    
-    for (j in 1:(numPathCuts - 1))
+    for(j in 1:(numPathCuts-1))
     {
-      # Find the location (index number) of the path at the j-th cut
-      quartTemp = path[ceiling(pathLength / (numPathCuts / j))]
-      
-      # Find the (x,y) coordinates of the path at the j-th cut with the centroid at (0,0)
-      resGraph$pathQuarters[i, (j - 1) * 2 + 1:2] = c(i_to_x(quartTemp, dims[1]), i_to_y(quartTemp, dims[1])) - letter$centroid
+      quartTemp = letter$allPaths[[i]][ceiling(pathLength/(numPathCuts/j))]
+      resGraph$pathQuarters[i,(j-1)*2 + 1:2] = c((quartTemp-1) %/% dims[1] + 1, dims[1] - (quartTemp-1) %% dims[1]) - letter$centroid
+      # resGraph$pathQuarters[i,(j-1)*2 + 1:2] = pointLineProportionVect(resGraph$pathEnds[i,1:2], resGraph$pathEnds[i,3:4], j/numPathCuts, resGraph$pathQuarters[i,(j-1)*2 + 1:2])
     }
     
-    # Store the path length
+    #resGraph$pathQuarters[i,] = resGraph$pathQuarters[i,] - matrix(rep(resGraph$pathEnds[i,1:2], numPathCuts-1), nrow= 1)
     resGraph$lengths[i] = pathLength
   }
   return(resGraph)

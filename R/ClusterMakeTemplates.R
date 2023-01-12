@@ -509,6 +509,19 @@ chooseCenters <- function(seed, K, template_proc_list, template_images_list) {
   return(centerstarts)
 }
 
+#' PathToRC
+#'
+#' Helper function for chooseCenters
+#' 
+#' @param pathList List of paths
+#' @param dims Dimensions of image
+#' @return Path in rows and columns
+#'
+#' @noRd
+PathToRC = function(pathList, dims)
+{
+  return(cbind((pathList -1 ) %/% dims[1] + 1, dims[1] - (pathList - 1) %% dims[1]))
+}
 
 #' letterKmeansWithOutlier_parallel
 #'
