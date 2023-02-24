@@ -21,170 +21,6 @@
 #' \dontrun{
 #' template_dir <- "/path/to/template"
 #' questioned_images_dir <- "/path/to/questioned_images"
-#' analysis <- analyze_questioned_documents(
-#'   template_dir = template_dir,
-#'   questioned_images_dir = questioned_images_dir,
-#'   model = model,
-#'   num_cores = 2,
-#'   num_graphs = "All",
-#'   writer_indices = c(2, 5),
-#'   doc_indices = c(7, 18)
-#' )
-#' analysis$posterior_probabilities
-#' }
-#'
-#' @keywords model
-#'
-#' @export
-#' @md
-analyze_questioned_documents <- function(template_dir, questioned_images_dir, model, num_cores, num_graphs = "All", writer_indices, doc_indices) {
-  # process questioned documents
-  message("Processing questioned documents...")
-  questioned_proc_list <- process_batch_dir(
-    input_dir = questioned_images_dir,
-    output_dir = file.path(template_dir, "data", "questioned_graphs"),
-    transform_output = "document"
-  )
-
-  # load template
-  message("Loading cluster template...")
-  template <- readRDS(file.path(template_dir, "data", "template.rds"))
-
-  # get cluster assignments
-  message("Getting cluster assignments for questioned documents...")
-  questioned_clusters <- get_clusterassignment(
-    template_dir = template_dir,
-    input_type = "questioned",
-    num_graphs = num_graphs,
-    writer_indices = writer_indices,
-    doc_indices = doc_indices,
-    num_cores = num_cores
-  )
-
-  # format data
-  message("Getting the questioned document data ready for the model...")
-  questioned_data <- format_questioned_data(
-    model = model,
-    questioned_clusters = questioned_clusters,
-    writer_indices = writer_indices,
-    doc_indices = doc_indices
-  )
-
-  rjags_data <- model$rjags_data
-
-  # convert mcmc objects into dataframes and combine chains
-  model$fitted_model <- format_draws(model = model)
-
-  # initialize
-  niter <- nrow(model$fitted_model$pis)
-  pis <- array(dim = c(niter, rjags_data$G, rjags_data$W)) # 3 dim array, a row for each mcmc iter, a column for each cluster, and a layer for each writer
-  mus <- taus <- array(dim = c(niter, rjags_data$Gsmall, rjags_data$W)) # 3 dim array, a row for each mcmc iter, a column for each cluster, and a layer for each writer
-  dmult <- dwc_sums <- data.frame(matrix(nrow = niter, ncol = rjags_data$W))
-  layered_wc_params <- array(dim = c(niter, rjags_data$Gsmall, 2))
-  ls <- list()
-
-  # reshape variables
-  flat_pi <- as.data.frame(cbind(iters = 1:niter, model$fitted_model$pis))
-  flat_mus <- as.data.frame(cbind(iters = 1:niter, model$fitted_model$mus))
-  flat_taus <- as.data.frame(cbind(iters = 1:niter, model$fitted_model$taus))
-  for (i in 1:rjags_data$W) { # i is writer, j is graph
-    for (j in 1:rjags_data$G) {
-      pis[, j, i] <- flat_pi[1:niter, as.character(paste0("pi[", i, ",", j, "]"))]
-    }
-  }
-  for (i in 1:rjags_data$W) { # i is writer, j is graph
-    for (j in 1:rjags_data$Gsmall) {
-      mus[, j, i] <- flat_mus[1:niter, as.character(paste0("mu[", i, ",", j, "]"))]
-      taus[, j, i] <- flat_taus[1:niter, as.character(paste0("tau[", i, ",", j, "]"))]
-    }
-  }
-
-  # start parallel processing
-  my_cluster <- parallel::makeCluster(num_cores)
-  doParallel::registerDoParallel(my_cluster)
-
-  # list writers
-  writers <- unique(questioned_data$graph_measurements$writer)
-
-  # obtain posterior samples of model parameters
-  message("Obtaining likelihood evaluations...")
-  likelihood_evals <- foreach::foreach(m = 1:nrow(questioned_data$cluster_fill_counts)) %dopar% {
-    # filter docs for current writer
-    m_qdoc <- questioned_data$graph_measurements %>% dplyr::filter(writer == writers[m])
-    m_cluster <- as.numeric(m_qdoc$cluster)
-
-    # make a circular object
-    m_pcrot <- circular::circular(m_qdoc$pc_wrapped, units = "radians", modulo = "2pi")
-
-    if (length(m_cluster) > 0) {
-      for (i in 1:rjags_data$W) { # i is writer, j is graph
-        dmult[, i] <- mc2d::dmultinomial(x = questioned_data$cluster_fill_counts[m, -c(1, 2)], prob = pis[, , i], log = TRUE)
-        layered_wc_params[, , 1] <- mus[, , i]
-        layered_wc_params[, , 2] <- taus[, , i]
-        temp <- sapply(1:niter, function(it) log(circular::dwrappedcauchy(x = circular::circular(m_pcrot), mu = circular::circular(layered_wc_params[it, m_cluster, 1]), rho = layered_wc_params[it, m_cluster, 2])))
-        dwc_sums[, i] <- rowSums(t(temp))
-      }
-      nn <- dmult + dwc_sums + abs(max(colMeans(dmult + dwc_sums)))
-    } else if (length(m_cluster) == 0) {
-      for (i in 1:rjags_data$W) { # i is writer, k is graph
-        dmult[, i] <- dmultinomial(x = questioned_data$cluster_fill_counts[m, -c(1, 2)], prob = pis[, , i], log = TRUE)
-      }
-      nn <- dmult + abs(max(colMeans(dmult)))
-    }
-    likelihoods <- as.data.frame(exp(nn) / rowSums(exp(nn)))
-    colnames(likelihoods) <- paste0("known_writer_", writers)
-    return(likelihoods)
-  }
-  names(likelihood_evals) <- paste0("w", questioned_data$cluster_fill_counts$writer, "_", questioned_data$cluster_fill_counts$doc)
-
-  # tally votes
-  message("Tallying votes...")
-  votes <- lapply(likelihood_evals, function(y) {
-    as.data.frame(t(apply(y, 1, function(x) floor(x / max(x)))))
-  })
-  votes <- lapply(votes, function(x) colSums(x))
-
-  # calculate posterior probability of writership
-  message("Calculating posterior probabilities...")
-  posterior_probabilities <- lapply(votes, function(x) x / niter)
-  posterior_probabilities <- as.data.frame(posterior_probabilities)
-  posterior_probabilities <- cbind("known_writer" = rownames(posterior_probabilities), data.frame(posterior_probabilities, row.names = NULL)) # change rownames to column
-
-  message("Saving results...")
-  analysis <- list(
-    "likelihood_evals" = likelihood_evals,
-    "votes" = votes,
-    "posterior_probabilities" = posterior_probabilities,
-    "graph_measurements" = questioned_data$graph_measurements,
-    "cluster_fill_counts" = questioned_data$cluster_fill_counts
-  )
-  saveRDS(analysis, file.path(template_dir, "data", "analysis.rds"))
-
-  return(analysis)
-}
-
-
-#' analyze_questioned_documents2
-#'
-#' `analyze_questioned_documents2()` estimates the posterior probability of
-#' writership for the questioned documents using MCMC draws from a hierarchical
-#' model created with `fit_model()`.
-#'
-#' @param template_dir A directory that contains a cluster template created by [`make_clustering_templates`]
-#' @param questioned_images_dir A directory containing questioned documents
-#' @param model A fitted model created by [`fit_model`]
-#' @param num_cores An integer number of cores to use for parallel processing
-#'   with the `doParallel` package.
-#' @param num_graphs "All" or integer number of graphs to randomly select from each questioned document.
-#' @param writer_indices A vector of start and stop characters for writer IDs in file names
-#' @param doc_indices A vector of start and stop characters for document names in file names
-#' @return A list of likelihoods, votes, and posterior probabilities of
-#'   writership for each questioned document.
-#'
-#' @examples
-#' \dontrun{
-#' template_dir <- "/path/to/template"
-#' questioned_images_dir <- "/path/to/questioned_images"
 #' analysis <- analyze_questioned_documents2(
 #'   template_dir = template_dir,
 #'   questioned_images_dir = questioned_images_dir,
@@ -201,7 +37,7 @@ analyze_questioned_documents <- function(template_dir, questioned_images_dir, mo
 #'
 #' @export
 #' @md
-analyze_questioned_documents2 <- function(template_dir, questioned_images_dir, model, num_cores, num_graphs = "All", writer_indices, doc_indices) {
+analyze_questioned_documents <- function(template_dir, questioned_images_dir, model, num_cores, num_graphs = "All", writer_indices, doc_indices) {
   # process questioned documents
   message("Processing questioned documents...")
   questioned_proc_list <- process_batch_dir(
@@ -408,30 +244,31 @@ get_posterior_probabilities <- function(analysis, questioned_doc) {
 #' count_csafe_correct_top_writer(analysis = example_analysis_2chains)
 #'
 #' @md
-count_csafe_correct_top_writer <- function(analysis){
-  
+count_csafe_correct_top_writer <- function(analysis) {
   qdocs <- colnames(analysis$posterior_probabilities)[-1]
-  
+
   # get writer with highest posterior probability for each questioned document
   top_writer <- sapply(qdocs, function(x) get_top_writer(analysis, x))
   df <- as.data.frame(top_writer)
-  
+
   # change rownames to a column
   questioned_doc <- rownames(df)
   rownames(df) <- NULL
   df <- cbind(questioned_doc, df)
-  
+
   # extract writer IDs
-  df <- df %>% 
-    dplyr::mutate(questioned_writer = as.integer(gsub("w([0-9]+).*$", "\\1", questioned_doc)),
-                  top_writer = as.integer(gsub(".*_([0-9]+)$", "\\1", top_writer)))
-  
+  df <- df %>%
+    dplyr::mutate(
+      questioned_writer = as.integer(gsub("w([0-9]+).*$", "\\1", questioned_doc)),
+      top_writer = as.integer(gsub(".*_([0-9]+)$", "\\1", top_writer))
+    )
+
   # count correct
   correct <- sum(df$top_writer == df$questioned_writer)
-  
+
   # count total questioned documents
-  total <- nrow(df) 
-  
+  total <- nrow(df)
+
   list("correct" = correct, "total" = total)
 }
 
@@ -440,8 +277,8 @@ count_csafe_correct_top_writer <- function(analysis){
 
 
 #' get_top_writer
-#' 
-#' Get the name of the known writer with the highest posterior probability for 
+#'
+#' Get the name of the known writer with the highest posterior probability for
 #' a questioned document.
 #'
 #' @param analysis The output of [`analyze_questioned_documents`]. If more than
@@ -453,11 +290,9 @@ count_csafe_correct_top_writer <- function(analysis){
 #' @param questioned_doc The name of a questioned document
 #'
 #' @return A string
-#' 
+#'
 #' @noRd
-get_top_writer <- function(analysis, questioned_doc){
+get_top_writer <- function(analysis, questioned_doc) {
   pp <- get_posterior_probabilities(analysis = analysis, questioned_doc = questioned_doc)
-  pp[1,1]
+  pp[1, 1]
 }
-
-
