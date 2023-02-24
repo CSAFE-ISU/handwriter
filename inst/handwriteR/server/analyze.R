@@ -1,4 +1,4 @@
-analysis <- reactiveValues(q_main_datapath = getwd())
+analysis <- reactiveValues(q_main_datapath = "")
 
 #======================= MAIN DIRECTORY =============================
 # UPDATE: main directory ----
@@ -30,25 +30,25 @@ output$dir <- renderText({
 # UPDATE: template training documents directory ----
 shinyDirChoose(
   input,
-  'q_template_images_dir',
+  'q_template_docs',
   roots = c(home = '~'),
   filetypes = c('png')
 )
-q_template_images_dir <- reactive(input$q_template_images_dir)
+q_template_docs <- reactive(input$q_template_docs)
 observeEvent(ignoreNULL = TRUE,
              eventExpr = {
-               input$q_template_images_dir
+               input$q_template_docs
              },
              handlerExpr = {
-               if (!"path" %in% names(q_template_images_dir())) return()
+               if (!"path" %in% names(q_template_docs())) return()
                home <- normalizePath("~")
-               analysis$q_template_images_dir <-
-                 file.path(home, paste(unlist(q_template_images_dir()$path[-1]), collapse = .Platform$file.sep))
+               analysis$q_template_docs <-
+                 file.path(home, paste(unlist(q_template_docs()$path[-1]), collapse = .Platform$file.sep))
              })
 
-# RENDER: main directory ----
-output$q_template_images_dir <- renderText({
-  analysis$q_template_images_dir
+# RENDER: template docs directory ----
+output$q_template_docs <- renderText({
+  analysis$q_template_docs
 })
 
 # UPDATE: Load template in main dir ----
@@ -73,10 +73,11 @@ observeEvent(input$q_use_template, {
 observeEvent(input$q_make_templates, {
   # make templates
   analysis$q_template <- make_clustering_templates(template_dir = analysis$q_main_datapath,
-                                                   template_images_dir = analysis$q_template_images_dir,
+                                                   template_images_dir = analysis$q_template_docs,
                                                    writer_indices = c(2,5),
                                                    max_edges = 30,
-                                                   seed = input$q_seed,
+                                                   centers_seed = input$q_centers_seed,
+                                                   graphs_seed = input$q_graphs_seed,
                                                    K = input$q_K,
                                                    num_dist_cores = input$q_num_cores,
                                                    num_path_cuts = 8,
@@ -92,15 +93,15 @@ output$q_use_template <- renderPrint({
   } else if ( input$q_use_template == "main" && !is.null(analysis$q_template) ) {
     "Template in main directory"
   } else {
-    "Either select the default template or create a new template."
+    "The main directory does not contain a template. Either select the default template or create a new template in the main directory."
   }
 })
 
 # RENDER: template images directory and file names (from directory not current template) ----
-output$q_template_images_docnames <- renderPrint({ 
+output$q_template_docs_list <- renderPrint({ 
   # list template images in template folder if template is null
   if ( is.null(analysis$q_template) ){
-    list.files(analysis$q_template_images_dir)
+    list.files(analysis$q_template_docs)
   } else {
     unique(analysis$q_template$docnames)
   } 
