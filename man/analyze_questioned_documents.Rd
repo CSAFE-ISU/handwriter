@@ -43,7 +43,7 @@ model created with \code{fit_model()}.
 \dontrun{
 template_dir <- "/path/to/template"
 questioned_images_dir <- "/path/to/questioned_images"
-analysis <- analyze_questioned_documents(
+analysis <- analyze_questioned_documents2(
   template_dir = template_dir,
   questioned_images_dir = questioned_images_dir,
   model = model,
