@@ -136,9 +136,9 @@ output$q_plot_clusters <- renderImage({
 # ENABLE/DISABLE: fit model ----
 observe({
   if (!is.null(analysis$q_template) && 
-      !is.null(analysis$q_model_images_dir) &&
-      dir.exists(analysis$q_model_images_dir) && 
-      (length(list.files(analysis$q_model_images_dir)) > 0)) {
+      !is.null(analysis$q_model_docs) &&
+      dir.exists(analysis$q_model_docs) && 
+      (length(list.files(analysis$q_model_docs)) > 0)) {
     shinyjs::enable("q_fit_model")
   } else {
     shinyjs::disable("q_fit_model")
@@ -148,31 +148,31 @@ observe({
 # UPDATE: model training documents directory ----
 shinyDirChoose(
   input,
-  'q_model_images_dir',
+  'q_model_docs',
   roots = c(home = '~'),
   filetypes = c('png')
 )
-q_model_images_dir <- reactive(input$q_model_images_dir)
+q_model_docs <- reactive(input$q_model_docs)
 observeEvent(ignoreNULL = TRUE,
              eventExpr = {
-               input$q_model_images_dir
+               input$q_model_docs
              },
              handlerExpr = {
-               if (!"path" %in% names(q_model_images_dir())) return()
+               if (!"path" %in% names(q_model_docs())) return()
                home <- normalizePath("~")
-               analysis$q_model_images_dir <-
-                 file.path(home, paste(unlist(q_model_images_dir()$path[-1]), collapse = .Platform$file.sep))
+               analysis$q_model_docs <-
+                 file.path(home, paste(unlist(q_model_docs()$path[-1]), collapse = .Platform$file.sep))
              })
 
 # RENDER: model training documents directory ----
-output$q_model_images_dir <- renderText({
-  if ( !is.null(analysis$q_model_images_dir) ) {
-    analysis$q_model_images_dir
+output$q_model_docs <- renderText({
+  if ( !is.null(analysis$q_model_docs) ) {
+    analysis$q_model_docs
   }
 })
 
 # UPDATE: model ----
-observeEvent(input$q_main_dir, {
+observeEvent(input$q_model_docs, {
   if ( file.exists(file.path(analysis$q_main_datapath, "data", "model.rds")) ) {
     analysis$q_model <- readRDS(file.path(analysis$q_main_datapath, "data", "model.rds"))
   } 
@@ -191,18 +191,19 @@ observe({
 # BUTTON: fit model ----
 observeEvent(input$q_fit_model, {
   analysis$q_model <- fit_model(template_dir = analysis$q_main_datapath,
-                                model_images_dir = analysis$q_model_images_dir,
+                                model_images_dir = analysis$q_model_docs,
                                 num_iters = input$q_num_mcmc_iters,
                                 num_chains = input$q_num_chains,
+                                num_cores = input$q_num_model_cores,
                                 writer_indices = c(2,5),
                                 doc_indices = c(7,18))
 })
 
 
 # RENDER: model images file names ----
-output$q_model_images_docnames <- renderPrint({ 
-  if ( !is.null(analysis$q_model_images_dir)) {
-    list.files(analysis$q_model_images_dir) 
+output$q_model_docs_list <- renderPrint({ 
+  if ( !is.null(analysis$q_model_docs)) {
+    list.files(analysis$q_model_docs) 
   }
 })
 
