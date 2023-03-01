@@ -4,7 +4,7 @@
 \alias{get_credible_intervals}
 \title{get_credible_intervals}
 \usage{
-get_credible_intervals(model)
+get_credible_intervals(model, interval_min = 0.025, interval_max = 0.975)
 }
 \arguments{
 \item{model}{A model output by \code{\link{fit_model}}}

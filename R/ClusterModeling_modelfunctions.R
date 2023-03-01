@@ -257,10 +257,11 @@ about_variable <- function(variable, model) {
 #'
 #' @export
 #' @md
-get_credible_intervals <- function(model){
+get_credible_intervals <- function(model, interval_min=0.025, interval_max=0.975){
   model <- example_model_1chain
   pis <- get_pi_dataframes(model)
-  ci <- lapply(pis, function(x) get_credible_intervals_for_writer(writer_pis=x))
+  ci <- lapply(1:model$rjags_data$W, function(i) get_credible_intervals_for_writer(writer=i, 
+                                                                                   writer_pis=pis[[i]]))
   return(ci)
 }
 
@@ -368,16 +369,18 @@ get_pi_dataframes <- function(model) {
 #'
 #' Calculate the median and credible intervals for the pi parameters for a writer
 #'
+#' @param writer The writer ID
 #' @param writer_pis The formatted data frame of pi parameters for the writer created by `get_pi_dataframes`
 #' @param interval_min The lower bound of the credible interval
 #' @param interval_max The upper bound of the credible interval
 #' @return A data frame
 #'
 #' @noRd
-get_credible_intervals_for_writer <- function(writer_pis, interval_min=0.025, interval_max=0.975){
+get_credible_intervals_for_writer <- function(writer, writer_pis, interval_min=0.025, interval_max=0.975){
   df <- sapply(writer_pis[,-which(names(writer_pis) %in% c("iter", "writer"))], 
                function(x) quantile(x,  probs = c(interval_min, 0.5, interval_max)), USE.NAMES = FALSE)
   df <- data.frame(quantile = row.names(df), df)
+  df$writer <- writer
   rownames(df) <- NULL
   return(df)
 }
