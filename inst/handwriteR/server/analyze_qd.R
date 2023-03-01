@@ -43,13 +43,34 @@ observeEvent(ignoreNULL = TRUE,
                  file.path(home, paste(unlist(q_questioned_docs()$path[-1]), collapse = .Platform$file.sep))
              })
 
-# BUTTON: load model ----
-observeEvent(input$q_load_model_qd, {
-  if ( is.null(analysis$q_model) && file.exists(file.path(analysis$q_main_datapath, "data", "model.rds")) ){
-    analysis$q_model <- readRDS(file.path(analysis$q_main_datapath, "data", "model.rds"))
-    showNotification("Model loaded.", duration = analysis$msg_duration)
+# UPDATE: questioned documents select menu
+observe({
+  if ( !is.null(analysis$q_questioned_docs) ){
+    updateSelectInput(session = getDefaultReactiveDomain(), inputId="q_select_qd", choices=list.files(analysis$q_questioned_docs))
+  }
+})
+
+# UPDATE: current qd writer
+observe({
+  analysis$q_current_writer <- substr(input$q_select_qd, input$q_writer_start_qd, input$q_writer_end_qd)
+})
+
+# BUTTON: analyze questioned documents ----
+observeEvent(input$q_analyze_docs, {
+  if ( !file.exists(file.path(analysis$q_main_datapath, "data", "model.rds"))){
+    showNotification("The main directory does not contain a trained model. Create a model with the Tools menu.", 
+                     duration = analysis$msg_duration)
+    
   } else {
-    showNotification("The main directory does not contain a model.", duration = analysis$msg_duration)
+    analysis$q_model <- readRDS(file.path(analysis$q_main_datapath, "data", "model.rds"))
+    analysis$q_results <- analyze_questioned_documents(template_dir = analysis$q_main_datapath,
+                                                       questioned_images_dir = analysis$q_questioned_docs,
+                                                       model = analysis$q_model,
+                                                       num_cores = as.integer(input$q_num_cores_qd),
+                                                       num_graphs = "All",
+                                                       writer_indices = c(input$q_writer_start_qd, input$q_writer_end_qd),
+                                                       doc_indices = c(input$q_doc_start_qd, input$q_doc_end_qd))
+    showNotification("Finished analyzing questioned document(s).", duration = analysis$msg_duration)
   }
 })
 
@@ -59,8 +80,27 @@ output$q_questioned_docs <- renderText({
 })
 
 # RENDER: questioned documents file names ----
-output$q_questioned_docs_list <- renderPrint({ 
+output$q_questioned_docs_list <- renderTable({ 
   if ( !is.null(analysis$q_questioned_docs) ){
-    list.files(analysis$q_questioned_docs)
+    data.frame("filename"=list.files(analysis$q_questioned_docs))
+  }
+})
+
+# RENDER: current qd writer ----
+output$q_writer <- renderPrint({
+  analysis$q_current_writer
+})
+
+# RENDER: questioned docs cluster fill counts
+output$q_questioned_docs_cluster_fill_counts <- renderPlot({
+  if ( !is.null(analysis$q_results)){
+    plot_cluster_fill_counts(analysis$q_results, facet = TRUE)
+  }
+})
+
+# RENDER: posterior probabilities plot
+output$q_posterior_probabilities <- renderPlot({
+  if ( !is.null(analysis$q_results)){
+    plot_posterior_probabilities(analysis$q_results)
   }
 })

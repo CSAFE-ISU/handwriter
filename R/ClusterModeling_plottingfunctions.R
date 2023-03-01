@@ -152,7 +152,7 @@ plot_credible_intervals <- function(model, interval_min = 0.025, interval_max = 
     geom_errorbar(aes(ymin=!!sym(paste0(100*interval_min, "%")), ymax=!!sym(paste0(100*interval_max, "%")), group=writer), width=0.15, alpha=0.75) +
     theme_bw() +
     theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
-    labs(color = "writer")
+    labs(y = "median", color = "writer")
 
   # facet (optional)
   if (facet) {
