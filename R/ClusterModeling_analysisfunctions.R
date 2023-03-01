@@ -80,7 +80,6 @@ analyze_questioned_documents <- function(template_dir, questioned_images_dir, mo
   pis <- array(dim = c(niter, rjags_data$G, rjags_data$W)) # 3 dim array: a row for each mcmc iter, a column for each cluster, and a layer for each writer
   mus <- taus <- array(dim = c(niter, rjags_data$Gsmall, rjags_data$W)) # 3 dim array: a row for each mcmc iter, a column for each cluster, and a layer for each writer
   dmult2 <- dwc_sums2 <- data.frame(matrix(nrow = niter, ncol = rjags_data$W)) # 2 dim array: a row for each mcmc iter, a column for each writer
-  ls <- list()
 
   # reshape variables
   flat_pi <- as.data.frame(cbind(iters = 1:niter, model$fitted_model$pis))
