@@ -11,4 +11,3 @@ tabPanel("Analyze Questioned Documents",
                     source(file.path("ui", "analyze_qd.R"), local = TRUE)$value
          )
 )
-
