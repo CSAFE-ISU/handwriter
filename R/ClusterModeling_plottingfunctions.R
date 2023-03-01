@@ -12,10 +12,10 @@
 #' # Plot cluster fill counts for template training documents
 #' template_data <- format_template_data(example_cluster_template)
 #' plot_cluster_fill_counts(formatted_data = template_data, facet = TRUE)
-#' 
+#'
 #' # Plot cluster fill counts for model training documents
 #' plot_cluster_fill_counts(formatted_data = example_model_1chain, facet = TRUE)
-#' 
+#'
 #' # Plot cluster fill counts for questioned documents
 #' plot_cluster_fill_counts(formatted_data = example_analysis_1chain, facet = FALSE)
 #'
@@ -65,7 +65,7 @@ plot_cluster_fill_counts <- function(formatted_data, facet = FALSE) {
 
 #' Plot Trace
 #'
-#' Create a trace plot for all chains for a single variable of a fitted model 
+#' Create a trace plot for all chains for a single variable of a fitted model
 #' created by [`fit_model`]. If the model contains more than one chain, the
 #' chains will be combined by pasting them together.
 #'
@@ -113,8 +113,57 @@ plot_trace <- function(variable, model) {
   return(p)
 }
 
+#' Plot Credible Intervals
+#'
+#' Plot credible intervals for the model's pi parameters that estimate the true writer
+#' cluster fill counts.
+#'
+#' @param model A model created by [`fit_model`]
+#' @param interval_min The lower bound of the credible interval. It must be greater than zero and less than 1.
+#' @param interval_max The upper bound of the credible interval. It must be greater than the interval minimum and less than 1.
+#' @param facet `TRUE` uses `facet_wrap` to create a subplot for each writer.
+#'   `FALSE` plots the data on a single plot.
+#' @return ggplot plot credible intervals
+#'
+#' @examples
+#' plot_credible_intervals(model = example_model_1chain)
+#' plot_credible_intervals(model = example_model_1chain, facet = TRUE)
+#'
+#' @export
+#' @md
+plot_credible_intervals <- function(model, interval_min = 0.025, interval_max = 0.975, facet = FALSE) {
+  ci <- get_credible_intervals(
+    model = model,
+    interval_min = interval_min,
+    interval_max = interval_max
+  )
+  
+  # reshape and clean-up for plotting
+  ci <- do.call(rbind, ci)
+  colnames(ci) <- stringr::str_replace_all(colnames(ci), "_", " ")
+  ci <- ci %>% tidyr::pivot_longer(cols = starts_with("cluster"), names_to = "cluster", values_to = "pi")
+  ci$writer <- as.factor(ci$writer)
+  ci <- ci %>% tidyr::pivot_wider(names_from=quantile, values_from=pi)
+  
+  # plot
+  p <- ci %>%
+    ggplot(aes(x = cluster, y = `50%`, color = writer, group = writer)) +
+    geom_line() +
+    geom_errorbar(aes(ymin=!!sym(paste0(100*interval_min, "%")), ymax=!!sym(paste0(100*interval_max, "%")), group=writer), width=0.15, alpha=0.75) +
+    theme_bw() +
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
+    labs(color = "writer")
 
-#' plot_posterior_probabilities
+  # facet (optional)
+  if (facet) {
+    p <- p + facet_wrap(~writer)
+  }
+
+  return(p)
+}
+
+
+#' Plot Posterior Probabilities
 #'
 #' Creates a tile plot of posterior probabilities of writership for each
 #' questioned document and each known writer analyzed with

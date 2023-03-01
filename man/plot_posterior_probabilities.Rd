@@ -2,7 +2,7 @@
 % Please edit documentation in R/ClusterModeling_plottingfunctions.R
 \name{plot_posterior_probabilities}
 \alias{plot_posterior_probabilities}
-\title{plot_posterior_probabilities}
+\title{Plot Posterior Probabilities}
 \usage{
 plot_posterior_probabilities(analysis)
 }

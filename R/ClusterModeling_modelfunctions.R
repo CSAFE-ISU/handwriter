@@ -235,6 +235,36 @@ about_variable <- function(variable, model) {
   return(about)
 }
 
+#' get_credible_intervals
+#'
+#' In a model created with [`fit_model`] the pi parameters are the estimate of
+#' the true cluster fill count for a particular writer and cluster. The function
+#' `get_credible_intervals` calculates the credible intervals of the pi
+#' parameters for each writer in the model.
+#'
+#' @param model A model output by [`fit_model`]
+#' @param interval_min The lower bound for the credible interval. The number
+#'   must be between 0 and 1.
+#' @param interval_max The upper bound for the credible interval. The number
+#'   must be greater than `interval_min` and must be less than 1.
+#' @return A list of data frames. Each data frame lists the credible intervals for a single writer.
+#'
+#' @examples
+#' get_credible_intervals(model=example_model_1chain)
+#' get_credible_intervals(model=example_model_1chain, interval_min=0.05, interval_max=0.95)
+#'
+#' @keywords model
+#'
+#' @export
+#' @md
+get_credible_intervals <- function(model, interval_min=0.025, interval_max=0.975){
+  model <- example_model_1chain
+  pis <- get_pi_dataframes(model)
+  ci <- lapply(1:model$rjags_data$W, function(i) get_credible_intervals_for_writer(writer=i, 
+                                                                                   writer_pis=pis[[i]]))
+  return(ci)
+}
+
 
 # NOT EXPORTED ------------------------------------------------------------
 
@@ -300,3 +330,58 @@ format_draws <- function(model) {
 calculate_wc_likelihood <- function(x, mu, tau) {
   (1 - tau^2) / (2 * pi * (1 + tau^2 - 2 * tau * cos(x - mu)))
 }
+
+
+#' get_pi_dataframes
+#'
+#' Reformat the pi parameters from the model in individual data frames for each writer.
+#'
+#' @param model A model fitted with fit_model().
+#'
+#' @return A list of data frames
+#'
+#' @noRd
+get_pi_dataframes <- function(model) {
+  model$fitted_model <- format_draws(model = model)
+  
+  # add iters and writer columns
+  niter <- nrow(model$fitted_model$pis)
+  flat_pi <- cbind(iters = 1:niter, writer = NA, model$fitted_model$pis)
+  
+  # get a data frame of pis for a specific writer
+  get_writer_pis <- function(flat_pi, writer){
+    # select writer's columns in flat_pi
+    writer_cols <- colnames(flat_pi)[grepl(paste0("pi\\[", writer, ",*"), colnames(flat_pi))]
+    writer_pis <- flat_pi[,c("iters", "writer", writer_cols)]
+    # add writer to data frame
+    writer_pis$writer <- writer
+    # rename columns so all writers have same column names
+    colnames(writer_pis) <- c("iter", "writer", paste0("cluster_", 1:model$rjags_data$Gsmall))
+    return(writer_pis)
+  }
+  writers <- 1:model$rjags_data$W
+  pis <- lapply(writers, function(w) get_writer_pis(flat_pi, w))
+  
+  return(pis)
+}
+
+#' get_credible_intervals_for_writer
+#'
+#' Calculate the median and credible intervals for the pi parameters for a writer
+#'
+#' @param writer The writer ID
+#' @param writer_pis The formatted data frame of pi parameters for the writer created by `get_pi_dataframes`
+#' @param interval_min The lower bound of the credible interval
+#' @param interval_max The upper bound of the credible interval
+#' @return A data frame
+#'
+#' @noRd
+get_credible_intervals_for_writer <- function(writer, writer_pis, interval_min=0.025, interval_max=0.975){
+  df <- sapply(writer_pis[,-which(names(writer_pis) %in% c("iter", "writer"))], 
+               function(x) quantile(x,  probs = c(interval_min, 0.5, interval_max)), USE.NAMES = FALSE)
+  df <- data.frame(quantile = row.names(df), df)
+  df$writer <- writer
+  rownames(df) <- NULL
+  return(df)
+}
+
