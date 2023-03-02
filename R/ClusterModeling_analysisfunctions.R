@@ -166,6 +166,21 @@ analyze_questioned_documents <- function(template_dir, questioned_images_dir, mo
   return(analysis)
 }
 
+get_qd_analysis <- function(qd, analysis, writer_indices = c(2,5), doc_indices = c(7, 17)){
+  results <- list()
+  
+  # get posterior probabilities
+  qwriter <- as.integer(substr(qd, writer_indices[1], writer_indices[2]))
+  qdoc <- substr(qd, doc_indices[1], doc_indices[2])
+  results$posterior_proabilities <- analysis$posterior_probabilities[,c("known_writer", paste0("w", qwriter, "_", qdoc))]
+
+  # get cluster fill counts
+  qwriter <- as.integer(substr(qd, writer_indices[1], writer_indices[2]))
+  qdoc <- as.integer(substr(qd, doc_indices[1], doc_indices[2]))
+  
+}
+
+
 #' calculate_accuracy
 #'
 #' `calculate_accuracy` measures the accuracy of fitted model on a test set of
