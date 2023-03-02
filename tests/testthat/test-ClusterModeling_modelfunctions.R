@@ -2,10 +2,10 @@
 test_that("fit model with a single chain works", {
   # fit model. (Will fit model using testthat > fixtures > template > data > model_clusters.rds)
   template_dir <- test_path("fixtures", "template")
-  model_images_dir <- system.file("extdata/example_images/model_training_images", package = "handwriter")
+  model_docs <- system.file("extdata/example_images/model_docs", package = "handwriter")
   iters <- 50
   model <- fit_model(template_dir = template_dir, 
-                     model_images_dir = model_images_dir,
+                     model_images_dir = model_docs,
                      num_iters = iters,
                      num_chains = 1,
                      writer_indices = c(2,5),
@@ -76,10 +76,10 @@ test_that("about variable works on a single chain", {
 test_that("fit model with multiple chains works", {
   # fit model. (Will fit model using testthat > fixtures > template > data > model_clusters.rds)
   template_dir <- test_path("fixtures", "template")
-  model_images_dir <- system.file("extdata/example_images/model_training_images", package = "handwriter")
+  model_docs <- system.file("extdata/example_images/model_docs", package = "handwriter")
   iters <- 50
   model <- fit_model(template_dir = template_dir, 
-                     model_images_dir = model_images_dir,
+                     model_images_dir = model_docs,
                      num_iters = iters,
                      num_chains = 3,
                      writer_indices = c(2,5),

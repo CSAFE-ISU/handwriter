@@ -25,11 +25,11 @@ Get the posterior probabilities for a questioned document.
 \examples{
 get_posterior_probabilities(
   analysis = example_analysis_1chain,
-  questioned_doc = "w9_s03_pWOZ_r1."
+  questioned_doc = "w0009_s03_pWOZ_r1.png"
 )
 get_posterior_probabilities(
   analysis = example_analysis_1chain,
-  questioned_doc = "w30_s03_pWOZ_r1."
+  questioned_doc = "w0030_s03_pWOZ_r1.png"
 )
 
 }

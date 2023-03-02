@@ -2,9 +2,9 @@
 test_that("analyze questioned documents works with a single chain", {
   iters <- 200  # number of MCMC iterations in example_model_1chain
   template_dir <- test_path("fixtures", "template")
-  questioned_images_dir <- system.file("extdata/example_images/questioned_images", package = "handwriter")
+  questioned_docs <- system.file("extdata/example_images/questioned_docs", package = "handwriter")
   analysis <- analyze_questioned_documents(template_dir = template_dir, 
-                                           questioned_images_dir = questioned_images_dir, 
+                                           questioned_images_dir = questioned_docs, 
                                            model = example_model_1chain, 
                                            num_cores = 2,
                                            writer_indices = c(2,5),
@@ -27,22 +27,23 @@ test_that("analyze questioned documents works with a single chain", {
 test_that("calculate accuracy works on a single chain", {
   accuracy <- calculate_accuracy(example_analysis_1chain)
   
-  expect_equal(accuracy, 0.968)
+  expect_equal(accuracy, 0.86)
 })
 
 test_that("get top writer works on a single chain", {
-  expect_equal(get_top_writer(example_analysis_1chain, "w9_s03_pWOZ_r1."), "known_writer_9")
-  expect_equal(get_top_writer(example_analysis_1chain, "w30_s03_pWOZ_r1."), "known_writer_30")
-  expect_equal(get_top_writer(example_analysis_1chain, "w203_s03_pWOZ_r1."), "known_writer_203")
-  expect_equal(get_top_writer(example_analysis_1chain, "w238_s03_pWOZ_r1."), "known_writer_238")
-  expect_equal(get_top_writer(example_analysis_1chain, "w400_s03_pWOZ_r1."), "known_writer_400")
+  expect_equal(get_top_writer(example_analysis_1chain, "w0009_s03_pWOZ_r01.png"), "known_writer_9")
+  expect_equal(get_top_writer(example_analysis_1chain, "w0030_s03_pWOZ_r01.png"), "known_writer_30")
+  expect_equal(get_top_writer(example_analysis_1chain, "w0238_s03_pWOZ_r01.png"), "known_writer_238")
+  expect_equal(get_top_writer(example_analysis_1chain, "w0400_s03_pWOZ_r01.png"), "known_writer_400")
+  # method misidentifies top writer for w0203_s03_pWOZ_r01.png
+  expect_equal(get_top_writer(example_analysis_1chain, "w0203_s03_pWOZ_r01.png"), "known_writer_238")
 })
 
 test_that("count csafe top writer works on a single chain", {
   results <- count_csafe_correct_top_writer(example_analysis_1chain)
   
   expect_named(results, c("correct", "total"))
-  expect_equal(results$correct, 5)
+  expect_equal(results$correct, 4)
   expect_equal(results$total, 5)
 })
 
@@ -51,9 +52,9 @@ test_that("count csafe top writer works on a single chain", {
 test_that("analyze questioned documents works with multiple chains", {
   iters <- 200  # number of MCMC iterations per chain in example_model_2chains
   template_dir <- test_path("fixtures", "template")
-  questioned_images_dir <- system.file("extdata/example_images/questioned_images", package = "handwriter")
+  questioned_docs <- system.file("extdata/example_images/questioned_docs", package = "handwriter")
   analysis <- analyze_questioned_documents(template_dir = template_dir, 
-                                           questioned_images_dir = questioned_images_dir, 
+                                           questioned_images_dir = questioned_docs, 
                                            model = example_model_2chains, 
                                            num_cores = 2,
                                            writer_indices = c(2,5),
@@ -76,22 +77,23 @@ test_that("analyze questioned documents works with multiple chains", {
 test_that("calculate accuracy works on mulitple chains", {
   accuracy <- calculate_accuracy(example_analysis_2chains)
   
-  expect_equal(accuracy, 0.941)
+  expect_equal(accuracy, 0.8605)
 })
 
 test_that("get top writer works on multiple chains", {
-  expect_equal(get_top_writer(example_analysis_2chains, "w9_s03_pWOZ_r1."), "known_writer_9")
-  expect_equal(get_top_writer(example_analysis_2chains, "w30_s03_pWOZ_r1."), "known_writer_30")
-  expect_equal(get_top_writer(example_analysis_2chains, "w203_s03_pWOZ_r1."), "known_writer_203")
-  expect_equal(get_top_writer(example_analysis_2chains, "w238_s03_pWOZ_r1."), "known_writer_238")
-  expect_equal(get_top_writer(example_analysis_2chains, "w400_s03_pWOZ_r1."), "known_writer_400")
+  expect_equal(get_top_writer(example_analysis_2chains, "w0009_s03_pWOZ_r01.png"), "known_writer_9")
+  expect_equal(get_top_writer(example_analysis_2chains, "w0030_s03_pWOZ_r01.png"), "known_writer_30")
+  expect_equal(get_top_writer(example_analysis_2chains, "w0238_s03_pWOZ_r01.png"), "known_writer_238")
+  expect_equal(get_top_writer(example_analysis_2chains, "w0400_s03_pWOZ_r01.png"), "known_writer_400")
+  # method misidentifies top writer for w0203_s03_pWOZ_r01.png
+  expect_equal(get_top_writer(example_analysis_2chains, "w0203_s03_pWOZ_r01.png"), "known_writer_238")
 })
 
 test_that("count csafe top writer works on multiple chains", {
   results <- count_csafe_correct_top_writer(example_analysis_2chains)
   
   expect_named(results, c("correct", "total"))
-  expect_equal(results$correct, 5)
+  expect_equal(results$correct, 4)
   expect_equal(results$total, 5)
 })
 

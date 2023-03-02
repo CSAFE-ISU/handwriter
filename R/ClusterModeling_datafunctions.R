@@ -81,16 +81,16 @@ format_model_data <- function(model_clusters, writer_indices, doc_indices, a = 2
 
   # get cluster fill counts ----
   # count number of graphs in each cluster for each writer
-  cluster_fill_counts <- get_cluster_fill_counts(graph_measurements[, c("writer", "doc", "cluster")])
+  cluster_fill_counts <- get_cluster_fill_counts(graph_measurements[, c("docname", "writer", "doc", "cluster")])
 
   # format data for rjags ----
   rjags_data <- list(
-    Y = cluster_fill_counts[, -c(1, 2)], # multinomial data
-    G = ncol(cluster_fill_counts[, -c(1, 2)]), # number of clusters (40)
-    D = nrow(cluster_fill_counts[, -c(1, 2)]), # total number of documents
+    Y = cluster_fill_counts[, -c(1, 2, 3)], # multinomial data
+    G = ncol(cluster_fill_counts[, -c(1, 2, 3)]), # number of clusters (40)
+    D = nrow(cluster_fill_counts[, -c(1, 2, 3)]), # total number of documents
     W = length(unique(cluster_fill_counts$writer)), # number of unique writers
     # docwise
-    docN = as.integer(apply(cluster_fill_counts[, -c(1, 2)], FUN = sum, MARGIN = 1)), # number of letters in each doc, e.g. N[1] = 354
+    docN = as.integer(apply(cluster_fill_counts[, -c(1, 2, 3)], FUN = sum, MARGIN = 1)), # number of letters in each doc, e.g. N[1] = 354
     docwriter = as.integer(as.factor(cluster_fill_counts$writer)), # vector of writers for each document numbered 1,2,...,W
     # letterwise
     zero_vec = rep(0, times = length(graph_measurements$pc_wrapped)),
@@ -147,7 +147,7 @@ format_questioned_data <- function(model, questioned_clusters, writer_indices, d
 
   # get cluster fill counts ----
   # count number of graphs in each cluster for each writer
-  cluster_fill_counts <- get_cluster_fill_counts(graph_measurements[, c("writer", "doc", "cluster")])
+  cluster_fill_counts <- get_cluster_fill_counts(graph_measurements[, c("docname", "writer", "doc", "cluster")])
   
   # check for missing clusters
   if (ncol(cluster_fill_counts) < ncol(model$cluster_fill_counts)){
@@ -190,13 +190,13 @@ format_questioned_data <- function(model, questioned_clusters, writer_indices, d
 get_cluster_fill_counts <- function(df) {
   # count number of graphs in each cluster for each writer
   cluster_fill_counts <- df %>%
-    dplyr::group_by(writer, doc, cluster) %>%
+    dplyr::group_by(docname, writer, doc, cluster) %>%
     dplyr::summarise(n = dplyr::n()) %>%
     dplyr::mutate(n = as.integer(n)) %>%
     tidyr::pivot_wider(names_from = cluster, values_from = n, values_fill = 0)
 
   # sort columns
-  cols <- c(colnames(cluster_fill_counts[, c(1, 2)]), sort(as.numeric(colnames(cluster_fill_counts[, -c(1, 2)]))))
+  cols <- c(colnames(cluster_fill_counts[, c(1, 2, 3)]), sort(as.numeric(colnames(cluster_fill_counts[, -c(1, 2, 3)]))))
   cluster_fill_counts <- cluster_fill_counts[, cols]
 
   return(cluster_fill_counts)

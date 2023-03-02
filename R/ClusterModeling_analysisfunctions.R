@@ -128,7 +128,7 @@ analyze_questioned_documents <- function(template_dir, questioned_images_dir, mo
 
     for (w in 1:rjags_data$W) { # w is writer
       # doc-level
-      dmult2[, w] <- mc2d::dmultinomial(x = questioned_data$cluster_fill_counts[d, -c(1, 2)], prob = pis[, , w], log = TRUE)
+      dmult2[, w] <- mc2d::dmultinomial(x = questioned_data$cluster_fill_counts[d, -c(1, 2, 3)], prob = pis[, , w], log = TRUE)
       # graph-level
       temp2 <- sapply(1:niter, function(iter) log(calculate_wc_likelihood(x = qpcrot2, mu = mus[iter, qcluster2, w], tau = taus[iter, qcluster2, w])))
       dwc_sums2[, w] <- rowSums(t(temp2))
@@ -138,7 +138,7 @@ analyze_questioned_documents <- function(template_dir, questioned_images_dir, mo
     colnames(likelihoods) <- paste0("known_writer_", writers)
     return(likelihoods)
   }
-  names(likelihood_evals) <- paste0("w", questioned_data$cluster_fill_counts$writer, "_", questioned_data$cluster_fill_counts$doc)
+  names(likelihood_evals) <- questioned_data$cluster_fill_counts$docname
 
   # tally votes
   message("Tallying votes...")
@@ -164,20 +164,6 @@ analyze_questioned_documents <- function(template_dir, questioned_images_dir, mo
   saveRDS(analysis, file.path(template_dir, "data", "analysis.rds"))
 
   return(analysis)
-}
-
-get_qd_analysis <- function(qd, analysis, writer_indices = c(2,5), doc_indices = c(7, 17)){
-  results <- list()
-  
-  # get posterior probabilities
-  qwriter <- as.integer(substr(qd, writer_indices[1], writer_indices[2]))
-  qdoc <- substr(qd, doc_indices[1], doc_indices[2])
-  results$posterior_proabilities <- analysis$posterior_probabilities[,c("known_writer", paste0("w", qwriter, "_", qdoc))]
-
-  # get cluster fill counts
-  qwriter <- as.integer(substr(qd, writer_indices[1], writer_indices[2]))
-  qdoc <- as.integer(substr(qd, doc_indices[1], doc_indices[2]))
-  
 }
 
 
@@ -208,7 +194,7 @@ calculate_accuracy <- function(analysis) {
 #' @param analysis The output of [`analyze_questioned_documents`]. If more than
 #'   one questioned document was analyzed with this function, then the data frame
 #'   analysis$posterior_probabilities lists the posterior probabilities for all
-#'   questioned documents. `show_posterior_probabilities` creates a data frame of the
+#'   questioned documents. `get_posterior_probabilities` creates a data frame of the
 #'   posterior probabilities for a single questioned document and sorts the known writers
 #'   from the most likely to least likely to have writen the questioned document.
 #' @param questioned_doc The name of a questioned document
@@ -219,11 +205,11 @@ calculate_accuracy <- function(analysis) {
 #' @examples
 #' get_posterior_probabilities(
 #'   analysis = example_analysis_1chain,
-#'   questioned_doc = "w9_s03_pWOZ_r1."
+#'   questioned_doc = "w0009_s03_pWOZ_r01.png"
 #' )
 #' get_posterior_probabilities(
 #'   analysis = example_analysis_1chain,
-#'   questioned_doc = "w30_s03_pWOZ_r1."
+#'   questioned_doc = "w0030_s03_pWOZ_r01.png"
 #' )
 #'
 #' @md
