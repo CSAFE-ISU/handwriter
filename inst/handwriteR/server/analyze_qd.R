@@ -43,13 +43,6 @@ observeEvent(ignoreNULL = TRUE,
                  file.path(home, paste(unlist(q_questioned_docs()$path[-1]), collapse = .Platform$file.sep))
              })
 
-# UPDATE: questioned documents select menu
-observe({
-  if ( !is.null(analysis$q_questioned_docs) ){
-    updateSelectInput(session = getDefaultReactiveDomain(), inputId="q_select_qd", choices=list.files(analysis$q_questioned_docs))
-  }
-})
-
 # UPDATE: current qd writer
 observe({
   analysis$q_current_writer <- substr(input$q_select_qd, input$q_writer_start_qd, input$q_writer_end_qd)

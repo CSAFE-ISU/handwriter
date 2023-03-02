@@ -151,7 +151,7 @@ plot_credible_intervals <- function(model, interval_min = 0.025, interval_max = 
     geom_line() +
     geom_errorbar(aes(ymin=!!sym(paste0(100*interval_min, "%")), ymax=!!sym(paste0(100*interval_max, "%")), group=writer), width=0.15, alpha=0.75) +
     theme_bw() +
-    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
     labs(y = "median", color = "writer")
 
   # facet (optional)
@@ -179,8 +179,8 @@ plot_credible_intervals <- function(model, interval_min = 0.025, interval_max = 
 #' @export
 #' @md
 plot_posterior_probabilities <- function(analysis) {
-  # plot
 
+  # reshape
   pp <- analysis$posterior_probabilities %>%
     tidyr::pivot_longer(
       cols = -known_writer,
@@ -192,14 +192,23 @@ plot_posterior_probabilities <- function(analysis) {
   writer_levels <- unique(pp$known_writer)
   pp$known_writer <- factor(pp$known_writer, levels=writer_levels)
   
-  # plot
-  p <- pp %>%
-    ggplot2::ggplot(aes(x = known_writer, y = questioned_document, fill = posterior_probability)) +
-    geom_tile() +
-    scale_fill_gradient2("Probability ", low = "grey90", midpoint = 0, high = "steelblue") +
-    ylab("Questioned Document") +
-    xlab("Known writer") +
-    theme_bw() +
-    theme(legend.position = "right", axis.text.x = element_text(angle = 90, hjust = 0, vjust = .5))
+  # create barchart for single qdoc and tileplot for multiple qdocs
+  if (length(unique(pp$questioned_document)) == 1){
+    p <- pp %>%
+      ggplot(aes(x = known_writer, y = posterior_probability)) +
+      geom_bar(stat="identity", fill="steelblue") +
+      labs(y="posterior probability") + 
+      theme_bw() +
+      theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  } else {
+    p <- pp %>%
+      ggplot2::ggplot(aes(x = known_writer, y = questioned_document, fill = posterior_probability)) +
+      geom_tile() +
+      scale_fill_gradient2("Probability ", low = "grey90", midpoint = 0, high = "steelblue") +
+      ylab("Questioned Document") +
+      xlab("Known writer") +
+      theme_bw() +
+      theme(legend.position = "right", axis.text.x = element_text(angle = 90, hjust = 0, vjust = .5))
+  }
   return(p)
 }
