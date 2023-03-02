@@ -17,11 +17,11 @@ make_example_template <- function(main_dir, centers_seed, graphs_seed) {
   # create folder if it doesn't already exist
   if (!dir.exists(main_dir)){dir.create(main_dir)}
   
-  template_images_dir <- system.file("extdata/example_images/template_training_images", 
+  template_docs <- system.file("extdata/example_images/template_docs", 
                                      package = "handwriter")
   
   example_cluster_template <- make_clustering_templates(template_dir = main_dir,
-                                                        template_images_dir = template_images_dir,
+                                                        template_images_dir = template_docs,
                                                         writer_indices = c(2,5),
                                                         max_edges = 30,
                                                         K = 10,
@@ -81,10 +81,10 @@ model {
 
 
 make_example_models <- function(main_dir){
-  model_images_dir <- system.file("extdata/example_images/model_training_images", 
+  model_docs <- system.file("extdata/example_images/model_docs", 
                                   package = "handwriter")
   example_model_1chain <- fit_model(template_dir = main_dir, 
-                                    model_images_dir = model_images_dir,
+                                    model_images_dir = model_docs,
                                     num_iters = 200, 
                                     num_chains = 1, 
                                     num_cores = 5,
@@ -94,7 +94,7 @@ make_example_models <- function(main_dir){
   usethis::use_data(example_model_1chain, overwrite = TRUE)
   
   example_model_2chains <- fit_model(template_dir = main_dir, 
-                                     model_images_dir = model_images_dir,
+                                     model_images_dir = model_docs,
                                      num_iters = 200, 
                                      num_chains = 2, 
                                      num_cores = 5,
@@ -106,11 +106,11 @@ make_example_models <- function(main_dir){
 
 
 make_example_analyses <- function(main_dir, num_cores = 5) {
-  questioned_images_dir <- system.file("extdata/example_images/questioned_images", 
+  questioned_docs <- system.file("extdata/example_images/questioned_docs", 
                                        package = "handwriter")
   
   example_analysis_1chain <- analyze_questioned_documents(template_dir = main_dir, 
-                                                          questioned_images_dir = questioned_images_dir, 
+                                                          questioned_images_dir = questioned_docs, 
                                                           model = example_model_1chain, 
                                                           num_cores = num_cores,
                                                           writer_indices = c(2,5), 
@@ -119,7 +119,7 @@ make_example_analyses <- function(main_dir, num_cores = 5) {
   usethis::use_data(example_analysis_1chain, overwrite = TRUE)
   
   example_analysis_2chains <- analyze_questioned_documents(template_dir = main_dir, 
-                                                           questioned_images_dir = questioned_images_dir, 
+                                                           questioned_images_dir = questioned_docs, 
                                                            model = example_model_2chains, 
                                                            num_cores = num_cores,
                                                            writer_indices = c(2,5), 
