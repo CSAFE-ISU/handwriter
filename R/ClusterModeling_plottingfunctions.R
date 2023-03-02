@@ -29,7 +29,7 @@ plot_cluster_fill_counts <- function(formatted_data, facet = FALSE) {
 
   # make cluster and count columns
   counts <- counts %>%
-    tidyr::pivot_longer(cols = -c(1, 2), names_to = "cluster", values_to = "count")
+    tidyr::pivot_longer(cols = -c(1, 2, 3), names_to = "cluster", values_to = "count")
 
   # change writer to factor
   counts <- counts %>%
@@ -187,6 +187,12 @@ plot_posterior_probabilities <- function(analysis) {
       names_to = "questioned_document",
       values_to = "posterior_probability"
     )
+  
+  # make x-axis labels the same order as known writers in pp
+  writer_levels <- unique(pp$known_writer)
+  pp$known_writer <- factor(pp$known_writer, levels=writer_levels)
+  
+  # plot
   p <- pp %>%
     ggplot2::ggplot(aes(x = known_writer, y = questioned_document, fill = posterior_probability)) +
     geom_tile() +

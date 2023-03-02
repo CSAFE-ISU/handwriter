@@ -126,7 +126,7 @@ get_clusterassignment = function(template_dir, input_type, num_graphs = "All", w
     # sort columns
     df <- df[,c('docname', 'writer', 'doc', 'cluster', 'slope', 'xvar', 'yvar', 'covar', 'pc_rotation', 'pc_wrapped')]
 
-    saveRDS(df, file = file.path(output_dir, paste0(doc$docname, ".rds")))
+    saveRDS(df, file = file.path(output_dir, paste0(stringr::str_replace(doc$docname, ".png", ""), ".rds")))
     
     return(df)
   }
