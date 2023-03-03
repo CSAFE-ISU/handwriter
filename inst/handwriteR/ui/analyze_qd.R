@@ -10,12 +10,14 @@ tabPanel("Analyze Questioned Documents",
              
              # model
              fileInput("q_load_model_qd", label="Load model", accept = c('rds')),
+             helpText("Choose a model that was trained using handwriting samples from the person's of interest. You 
+                      can create a new model by selecting create new model under the tools menu."),
              hr(),
              
              # questioned documents
-             shinyDirButton("q_questioned_docs", "Questioned Document", "Choose the questioned document directory"),
+             shinyDirButton("q_questioned_docs", "Questioned Documents", "Choose the questioned documents directory"),
              verbatimTextOutput("q_questioned_docs", placeholder = TRUE),  
-             helpText("Select the folder that contains the questioned document."),
+             helpText("Select a directory that contains one or more questioned documents."),
              
              # analyze
              fluidRow(column(width = 6, numericInput("q_writer_start_qd", "Writer ID starting character", value=2, min=1, step=1)),
@@ -28,12 +30,29 @@ tabPanel("Analyze Questioned Documents",
              actionButton("q_analyze_docs", "Analyze")
            ),
            mainPanel(
-             h4("Questioned Document:"),
-             tableOutput("q_questioned_docs_list"),
-             h4("Questioned writer's profile estimate:"),
-             plotOutput("q_questioned_docs_cluster_fill_counts"),
-             h4("Posterior probabilities of writership:"),
-             plotOutput("q_posterior_probabilities")
+             tabsetPanel(
+               tabPanel("Current Questioned Documents",
+                  tableOutput("q_questioned_docs_list"),
+               ),
+               tabPanel("Writer Profiles",
+                        h4("Questioned writer profiles"),
+                        helpText("Estimates of the writer profiles of the writers of the questioned documents. The 
+                                 plot shows the cluster fill rates, the percentage of graphs from a questioned document that 
+                                 are assigned to each cluster in the clustering template."),
+                        plotOutput("q_questioned_docs_cluster_fill_rates"),
+                        h4("Persons of interest writer profiles"),
+                        helpText("Estimates of the writer profiles of the persons of interest. The plot shows the median
+                                 of the model parameter that estimates the true cluster fill rate for a person of interest, and 
+                                 the bars show the 95% credible intervals."),
+                        plotOutput("q_model_profiles"),
+                        ),
+               tabPanel("Posterior Probabilities",
+                        h4("Posterior probabilities of writership:"),
+                        DT::DTOutput("q_posterior_probabilities_table", width = "100%"),
+                        br(),
+                        plotOutput("q_posterior_probabilities")
+                        )
+             )
          )
   )
 )

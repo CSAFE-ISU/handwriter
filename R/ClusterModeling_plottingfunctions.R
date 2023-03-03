@@ -62,6 +62,74 @@ plot_cluster_fill_counts <- function(formatted_data, facet = FALSE) {
   return(p)
 }
 
+#' Plot Cluster Fill Rates
+#'
+#' Plot the cluster fill rates for each document in `formatted_data`.
+#'
+#' @param formatted_data Data created by [`format_template_data`],
+#'   [`fit_model`], or [`analyze_questioned_documents`]
+#' @param facet `TRUE` uses `facet_wrap` to create a subplot for each writer.
+#'   `FALSE` plots the data on a single plot.
+#' @return ggplot plot of cluster fill rates
+#'
+#' @examples
+#' # Plot cluster fill rates for template training documents
+#' template_data <- format_template_data(example_cluster_template)
+#' plot_cluster_fill_rates(formatted_data = template_data, facet = TRUE)
+#'
+#' # Plot cluster fill rates for model training documents
+#' plot_cluster_fill_rates(formatted_data = example_model_1chain, facet = TRUE)
+#'
+#' # Plot cluster fill rates for questioned documents
+#' plot_cluster_fill_rates(formatted_data = example_analysis_1chain, facet = FALSE)
+#'
+#' @export
+#' @md
+plot_cluster_fill_rates <- function(formatted_data, facet = FALSE) {
+  counts <- formatted_data$cluster_fill_counts
+  
+  # calculate rates
+  rates <- counts
+  rates[,-c(1,2,3)] <- rates[,-c(1,2,3)] / rowSums(rates[, -c(1,2,3)])
+  
+  # only one doc per writer?
+  single_doc <- ifelse(length(unique(rates$writer)) == length(rates$writer), TRUE, FALSE)
+  
+  # make cluster and rate columns
+  rates <- rates %>%
+    tidyr::pivot_longer(cols = -c(1, 2, 3), names_to = "cluster", values_to = "rate")
+  
+  # change writer to factor
+  rates <- rates %>%
+    dplyr::mutate(writer = factor(writer))
+  
+  # plot
+  if (single_doc) { # one doc per writer
+    p <- rates %>%
+      dplyr::mutate(cluster = as.integer(cluster)) %>% # allow lines between clusters
+      ggplot2::ggplot(aes(x = cluster, y = rate, color = writer)) +
+      geom_line() +
+      geom_point() +
+      scale_x_continuous(breaks = as.integer(unique(rates$cluster))) +
+      theme_bw()
+  } else { # at least one writer has more than one doc
+    p <- rates %>%
+      dplyr::mutate(cluster = as.integer(cluster)) %>% # allow lines between clusters
+      ggplot2::ggplot(aes(x = cluster, y = rate, group = interaction(writer, doc), color = writer)) +
+      geom_line() +
+      geom_point() +
+      scale_x_continuous(breaks = as.integer(unique(rates$cluster))) +
+      theme_bw()
+  }
+  
+  # facet (optional)
+  if (facet) {
+    p <- p + facet_wrap(~writer)
+  }
+  
+  return(p)
+}
+
 
 #' Plot Trace
 #'
@@ -143,6 +211,7 @@ plot_credible_intervals <- function(model, interval_min = 0.025, interval_max = 
   colnames(ci) <- stringr::str_replace_all(colnames(ci), "_", " ")
   ci <- ci %>% tidyr::pivot_longer(cols = starts_with("cluster"), names_to = "cluster", values_to = "pi")
   ci$writer <- as.factor(ci$writer)
+  ci$cluster <- as.factor(ci$cluster)
   ci <- ci %>% tidyr::pivot_wider(names_from=quantile, values_from=pi)
   
   # plot
@@ -151,7 +220,7 @@ plot_credible_intervals <- function(model, interval_min = 0.025, interval_max = 
     geom_line() +
     geom_errorbar(aes(ymin=!!sym(paste0(100*interval_min, "%")), ymax=!!sym(paste0(100*interval_max, "%")), group=writer), width=0.15, alpha=0.75) +
     theme_bw() +
-    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
     labs(y = "median", color = "writer")
 
   # facet (optional)

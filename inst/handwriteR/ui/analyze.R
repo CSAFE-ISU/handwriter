@@ -1,5 +1,5 @@
-tabPanel("Analyze Questioned Document",
-         navbarPage("Analyze",
+tabPanel("Analyze Handwriting",
+         navbarPage("",
                     source(file.path("ui", "analyze_qd.R"), local = TRUE)$value,
                     navbarMenu("Tools",
                                "Template",

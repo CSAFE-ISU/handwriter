@@ -35,7 +35,8 @@ observeEvent(input$q_load_model_qd, {
 })
 
 
-#======================= QUESTIONED DOCS =============================
+
+# QUESTIONED DOCUMENTS ------------------------------------------------
 # UPDATE: questioned documents directory ----
 shinyDirChoose(
   input,
@@ -55,11 +56,20 @@ observeEvent(ignoreNULL = TRUE,
                  file.path(home, paste(unlist(q_questioned_docs()$path[-1]), collapse = .Platform$file.sep))
              })
 
-# UPDATE: current qd writer
-observe({
-  analysis$q_current_writer <- substr(input$q_select_qd, input$q_writer_start_qd, input$q_writer_end_qd)
+# RENDER: questioned docs directory ----
+output$q_questioned_docs <- renderText({
+  analysis$q_questioned_docs
 })
 
+# RENDER: questioned documents file names ----
+output$q_questioned_docs_list <- renderTable({ 
+  if ( !is.null(analysis$q_questioned_docs) ){
+    data.frame("filename"=list.files(analysis$q_questioned_docs))
+  }
+})
+
+
+# ANALYZE -----------------------------------------------------------------
 # BUTTON: analyze questioned documents ----
 observeEvent(input$q_analyze_docs, {
   if ( !file.exists(file.path(analysis$q_main_datapath, "data", "model.rds"))){
@@ -79,27 +89,24 @@ observeEvent(input$q_analyze_docs, {
   }
 })
 
-# RENDER: questioned docs directory ----
-output$q_questioned_docs <- renderText({
-  analysis$q_questioned_docs
-})
-
-# RENDER: questioned documents file names ----
-output$q_questioned_docs_list <- renderTable({ 
-  if ( !is.null(analysis$q_questioned_docs) ){
-    data.frame("filename"=list.files(analysis$q_questioned_docs))
+# RENDER: questioned docs cluster fill rates
+output$q_questioned_docs_cluster_fill_rates <- renderPlot({
+  if ( !is.null(analysis$q_results)){
+    plot_cluster_fill_rates(analysis$q_results, facet = TRUE)
   }
 })
 
-# RENDER: current qd writer ----
-output$q_writer <- renderPrint({
-  analysis$q_current_writer
+# RENDER: model writers' profiles
+output$q_model_profiles <- renderPlot({
+  if ( !is.null(analysis$q_model) ){
+    plot_credible_intervals(model = analysis$q_model, facet = TRUE)
+  }
 })
 
-# RENDER: questioned docs cluster fill counts
-output$q_questioned_docs_cluster_fill_counts <- renderPlot({
+# RENDER: posterior probabilities table
+output$q_posterior_probabilities_table <- DT::renderDataTable({
   if ( !is.null(analysis$q_results)){
-    plot_cluster_fill_counts(analysis$q_results, facet = TRUE)
+    analysis$q_results$posterior_probabilities
   }
 })
 
