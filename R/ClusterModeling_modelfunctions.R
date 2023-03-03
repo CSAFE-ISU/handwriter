@@ -258,7 +258,6 @@ about_variable <- function(variable, model) {
 #' @export
 #' @md
 get_credible_intervals <- function(model, interval_min=0.025, interval_max=0.975){
-  model <- example_model_1chain
   pis <- get_pi_dataframes(model)
   ci <- lapply(1:model$rjags_data$W, function(i) get_credible_intervals_for_writer(writer=i, 
                                                                                    writer_pis=pis[[i]]))
