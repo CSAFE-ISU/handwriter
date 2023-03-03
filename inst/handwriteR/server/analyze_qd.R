@@ -1,4 +1,5 @@
-# UPDATE: main directory on questioned documents page ----
+# MAIN DIRECTORY ----------------------------------------------------------
+# This page needs the main directory as input for analyze_questioned_documents
 shinyDirChoose(
   input,
   'q_main_dir_qd',
@@ -20,6 +21,17 @@ observeEvent(ignoreNULL = TRUE,
 # RENDER: main directory on model qd page ----
 output$dir_qd <- renderText({
   analysis$q_main_datapath
+})
+
+
+# LOAD MODEL --------------------------------------------------------------
+# BUTTON: load model ----
+observeEvent(input$q_load_model_qd, {
+  file <- input$q_load_model_qd
+  ext <- tools::file_ext(file$datapath)
+  req(file)
+  validate(need(ext == "rds", "Please upload a rds file"))
+  analysis$q_model <- readRDS(file$datapath)
 })
 
 

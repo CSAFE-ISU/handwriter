@@ -1,16 +1,17 @@
 tabPanel("Diagnostics",
          sidebarLayout(
            sidebarPanel(
-             # main directory
-             shinyDirButton("q_main_dir_diagnostics", "Main Directory", "Choose main directory"),
-             verbatimTextOutput("dir_diagnostics", placeholder = TRUE),
-             helpText("The cluster template, the fitted model, and other related files will be stored in
-                                                     this directory."),
-             actionButton("q_load_model", "Load model"),
+             fileInput("q_load_model", label="Load model", accept = c('rds')),
              hr(),
              
              h5("Trace Plots"),
-             selectInput("q_trace_variable", "Select variable to view trace plot", choices = c(NA))
+             selectInput("q_trace_variable", "Select variable to view trace plot", choices = c(NA)),
+             hr(),
+             
+             h5("Burn-in"),
+             numericInput("q_select_burnin", "Select iterations for burn-in", value=0, min=0, step=1),
+             actionButton("q_drop_burnin", "Drob burn-in"),
+             downloadButton("q_save_model", "Save model"),
            ),
            mainPanel(
              plotOutput("q_trace_plot")

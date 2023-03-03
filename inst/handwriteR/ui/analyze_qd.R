@@ -5,8 +5,12 @@ tabPanel("Analyze Questioned Documents",
              # main directory
              shinyDirButton("q_main_dir_qd", "Main Directory", "Choose main directory"),
              verbatimTextOutput("dir_qd", placeholder = TRUE),
-             helpText("The cluster template, the fitted model, and other related files will be stored in
-                                                     this directory."),
+             helpText("The analysis results will be saved as analysis.rds in Main Directory > data."),
+             hr(),
+             
+             # model
+             fileInput("q_load_model_qd", label="Load model", accept = c('rds')),
+             hr(),
              
              # questioned documents
              shinyDirButton("q_questioned_docs", "Questioned Document", "Choose the questioned document directory"),
