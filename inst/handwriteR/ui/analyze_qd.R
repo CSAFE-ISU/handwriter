@@ -34,7 +34,11 @@ tabPanel("Analyze Questioned Documents",
            mainPanel(
              tabsetPanel(
                tabPanel("Questioned Documents",
-                  tableOutput("q_questioned_docs_list"),
+                        fluidRow(column(width=3, tableOutput("q_questioned_docs_list")),
+                                 column(width=3, tableOutput("q_writers")),
+                                 column(width=3, tableOutput("q_doc_ids"))),
+                  hr(),
+                  
                   selectInput("q_select_qd", "Display Questioned Document", choice = NA),
                   imageOutput("q_qd_image")
                ),

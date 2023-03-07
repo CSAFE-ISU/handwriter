@@ -56,6 +56,13 @@ observeEvent(ignoreNULL = TRUE,
                  file.path(home, paste(unlist(q_questioned_docs()$path[-1]), collapse = .Platform$file.sep))
              })
 
+# UPDATE: select questioned document for display ----
+observe({
+  if ( !is.null(analysis$q_questioned_docs) ){
+    updateSelectInput(session, "q_select_qd", choices = list.files(analysis$q_questioned_docs))
+  }
+})
+
 # RENDER: questioned docs directory ----
 output$q_questioned_docs <- renderText({
   analysis$q_questioned_docs
@@ -64,16 +71,28 @@ output$q_questioned_docs <- renderText({
 # RENDER: questioned documents file names ----
 output$q_questioned_docs_list <- renderTable({ 
   if ( !is.null(analysis$q_questioned_docs) ){
-    data.frame("filename"=list.files(analysis$q_questioned_docs))
+    data.frame("filenames"=list.files(analysis$q_questioned_docs))
   }
 })
 
-# UPDATE: select questioned document for display ----
-observe({
+# RENDER: qd writer IDs ----
+output$q_writers <- renderTable({
   if ( !is.null(analysis$q_questioned_docs) ){
-    updateSelectInput(session, "q_select_qd", choices = list.files(analysis$q_questioned_docs))
+    qdocs <- list.files(analysis$q_questioned_docs)
+    writers <- substr(qdocs, input$q_writer_start_qd, input$q_writer_end_qd)
+    data.frame("writers"=writers)
   }
 })
+
+# RENDER: qd doc IDs ----
+output$q_doc_ids <- renderTable({
+  if ( !is.null(analysis$q_questioned_docs) ){
+    qdocs <- list.files(analysis$q_questioned_docs)
+    docs <- substr(qdocs, input$q_doc_start_qd, input$q_doc_end_qd)
+    data.frame("documents"=docs)
+  }
+})
+
 
 # RENDER: display questioned image ----
 output$q_qd_image <- renderImage({
