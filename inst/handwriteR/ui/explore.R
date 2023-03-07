@@ -4,7 +4,7 @@ tabPanel("Explore How Handwriter Works",
          sidebarLayout(
            sidebarPanel(width = 4,
                         h2("Explore How Handwriter Works"),
-                        p("handwriter decomposes handwriting into component shapes called graphs."),
+                        p("handwriter breaks handwriting into component shapes called graphs."),
                         br(),
                         h4("Current document:"),
                         fluidRow(column(width=11, offset=1, textOutput("plot_image_name"))),
