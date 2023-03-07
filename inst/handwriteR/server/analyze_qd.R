@@ -68,6 +68,25 @@ output$q_questioned_docs_list <- renderTable({
   }
 })
 
+# UPDATE: select questioned document for display ----
+observe({
+  if ( !is.null(analysis$q_questioned_docs) ){
+    updateSelectInput(session, "q_select_qd", choices = list.files(analysis$q_questioned_docs))
+  }
+})
+
+# RENDER: display questioned image ----
+output$q_qd_image <- renderImage({
+  if ( !is.null(analysis$q_questioned_docs) ){
+    filename <- normalizePath(file.path(analysis$q_questioned_docs, input$q_select_qd))
+    
+    # Return a list containing the filename and alt text
+    list(src = filename)
+  } else{
+    list(src = "")
+  }
+}, deleteFile = FALSE)
+
 
 # ANALYZE -----------------------------------------------------------------
 # BUTTON: analyze questioned documents ----

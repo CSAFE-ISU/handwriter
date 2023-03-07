@@ -33,6 +33,8 @@ tabPanel("Analyze Questioned Documents",
              tabsetPanel(
                tabPanel("Current Questioned Documents",
                   tableOutput("q_questioned_docs_list"),
+                  selectInput("q_select_qd", "Display Questioned Document", choice = NA),
+                  imageOutput("q_qd_image")
                ),
                tabPanel("Writer Profiles",
                         h4("Questioned writer profiles"),
