@@ -1,3 +1,4 @@
+# Main directory ----------------------------------------------------------
 # UPDATE: main directory on create model page ----
 shinyDirChoose(
   input,
@@ -22,7 +23,8 @@ output$dir_model <- renderText({
   analysis$q_main_datapath
 })
 
-#======================= MODEL =============================
+
+# Model -------------------------------------------------------------------
 # ENABLE/DISABLE: fit model ----
 observe({
   if (analysis$q_main_datapath != "" &&
@@ -90,9 +92,9 @@ output$q_model_docs <- renderText({
 })
 
 # RENDER: model documents file names ----
-output$q_model_docs_list <- renderPrint({ 
+output$q_model_docs_list <- renderTable({ 
   if ( !is.null(analysis$q_model_docs)) {
-    list.files(analysis$q_model_docs) 
+    data.frame("filenames" = list.files(analysis$q_model_docs))
   }
 })
 
