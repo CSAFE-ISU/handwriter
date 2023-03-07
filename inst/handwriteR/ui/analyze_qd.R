@@ -2,18 +2,6 @@ tabPanel("Analyze Questioned Documents",
          h3("Analyze Questioned Documents"),
          sidebarLayout(
            sidebarPanel(
-             # main directory
-             shinyDirButton("q_main_dir_qd", "Main Directory", "Choose main directory"),
-             verbatimTextOutput("dir_qd", placeholder = TRUE),
-             helpText("The analysis results will be saved as analysis.rds in Main Directory > data."),
-             hr(),
-             
-             # model
-             fileInput("q_load_model_qd", label="Load model", accept = c('rds')),
-             helpText("Choose a model that was trained using handwriting samples from the person's of interest. You 
-                      can create a new model by selecting create new model under the tools menu."),
-             hr(),
-             
              # questioned documents
              shinyDirButton("q_questioned_docs", "Questioned Documents", "Choose the questioned documents directory"),
              verbatimTextOutput("q_questioned_docs", placeholder = TRUE),  
@@ -27,11 +15,25 @@ tabPanel("Analyze Questioned Documents",
                       column(width = 6, numericInput("q_doc_end_qd", "Document name ending character", value=17, min=1, step=1))
              ),
              numericInput("q_num_cores_qd", "num cores", value=2, min=1, step=1),
+             hr(),
+             
+             # model
+             fileInput("q_load_model_qd", label="Load model", accept = c('rds')),
+             helpText("Choose a model that was trained using handwriting samples from the person's of interest. You 
+                      can create a new model by selecting create new model under the tools menu."),
+             hr(),
+             
+             # output directory - AKA main directory
+             shinyDirButton("q_main_dir_qd", "Output Directory", "Choose main directory"),
+             verbatimTextOutput("dir_qd", placeholder = TRUE),
+             helpText("The analysis results will be saved as analysis.rds in Output Directory > data."),
+             hr(),
+             
              actionButton("q_analyze_docs", "Analyze")
            ),
            mainPanel(
              tabsetPanel(
-               tabPanel("Current Questioned Documents",
+               tabPanel("Questioned Documents",
                   tableOutput("q_questioned_docs_list"),
                   selectInput("q_select_qd", "Display Questioned Document", choice = NA),
                   imageOutput("q_qd_image")
@@ -48,7 +50,7 @@ tabPanel("Analyze Questioned Documents",
                                  the bars show the 95% credible intervals."),
                         plotOutput("q_model_profiles"),
                         ),
-               tabPanel("Posterior Probabilities",
+               tabPanel("Results",
                         h4("Posterior probabilities of writership:"),
                         DT::DTOutput("q_posterior_probabilities_table", width = "100%"),
                         br(),
