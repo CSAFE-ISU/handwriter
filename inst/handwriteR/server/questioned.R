@@ -1,3 +1,4 @@
+# Choose a directory and render its file path
 directoryServer <- function(id) {
   moduleServer(id, function(input, output, session) {
     values <- reactiveValues()
@@ -20,6 +21,17 @@ directoryServer <- function(id) {
                  })
     output$dir_path <- renderText({
       values$dir_path
+    })
+    # return dir_path
+    reactive(values$dir_path)
+  })
+}
+
+# List the files in directory. NOTE: dir_path is reactive and output of directoryServer
+directoryContentsServer <- function(id, dir_path) {
+  moduleServer(id, function(input, output, session) {
+    output$dir_contents <- renderTable({
+      data.frame("filenames"=list.files(dir_path()))
     })
   })
 }
