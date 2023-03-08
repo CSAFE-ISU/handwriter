@@ -19,6 +19,7 @@ ui <- shinyUI({
       source(file.path("ui", "explore.R"), local = TRUE)$value,
       source(file.path("ui", "preProcess.R"), local = TRUE)$value,
       source(file.path("ui", "analyze.R"), local = TRUE)$value,
+      source(file.path("ui", "questioned.R"), local = TRUE)$value
     )
   )
 })

@@ -31,8 +31,19 @@ tabPanel("Create New",
              actionButton("q_fit_model", "Fit model"),
            ),
            mainPanel(
-             h3("Training Data for Model"),
-             helpText("Model Training Documents:"),
-             tableOutput("q_model_docs_list"),
-             helpText("Cluster Fill Counts for Model Training Documents"),
-             plotOutput("q_model_cluster_fill_counts"))))
+             tabsetPanel(
+               tabPanel("Model Documents",
+                        h4("Handwriting samples from persons of interest"),
+                        tableOutput("q_model_docs_list"),
+                        hr(),
+                        
+                        selectInput("q_select_model_doc", "Display Document", choice = NA),
+                        imageOutput("q_model_image")),
+               tabPanel("Writer Profiles",
+                        h4("Persons of interest writer profiles"),
+                        plotOutput("q_model_cluster_fill_counts"))
+             ),
+           )
+         )
+)
+

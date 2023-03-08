@@ -1,4 +1,32 @@
-# Main directory ----------------------------------------------------------
+# Model Settings ----------------------------------------------------------
+# UPDATE: model training documents directory ----
+shinyDirChoose(
+  input,
+  'q_model_docs',
+  roots = c(home = '~'),
+  filetypes = c('png')
+)
+q_model_docs <- reactive(input$q_model_docs)
+observeEvent(ignoreNULL = TRUE,
+             eventExpr = {
+               input$q_model_docs
+             },
+             handlerExpr = {
+               if (!"path" %in% names(q_model_docs())) return()
+               home <- normalizePath("~")
+               analysis$q_model_docs <-
+                 file.path(home, paste(unlist(q_model_docs()$path[-1]), collapse = .Platform$file.sep))
+             })
+
+# RENDER: model training documents directory ----
+output$q_model_docs <- renderText({
+  if ( !is.null(analysis$q_model_docs) ) {
+    analysis$q_model_docs
+  }
+})
+
+
+# Main Directory ----------------------------------------------------------
 # UPDATE: main directory on create model page ----
 shinyDirChoose(
   input,
@@ -24,39 +52,7 @@ output$dir_model <- renderText({
 })
 
 
-# Model -------------------------------------------------------------------
-# ENABLE/DISABLE: fit model ----
-observe({
-  if (analysis$q_main_datapath != "" &&
-      !is.null(analysis$q_template) && 
-      !is.null(analysis$q_model_docs) &&
-      dir.exists(analysis$q_model_docs) && 
-      (length(list.files(analysis$q_model_docs)) > 0)) {
-    shinyjs::enable("q_fit_model")
-  } else {
-    shinyjs::disable("q_fit_model")
-  }
-})
-
-# UPDATE: model training documents directory ----
-shinyDirChoose(
-  input,
-  'q_model_docs',
-  roots = c(home = '~'),
-  filetypes = c('png')
-)
-q_model_docs <- reactive(input$q_model_docs)
-observeEvent(ignoreNULL = TRUE,
-             eventExpr = {
-               input$q_model_docs
-             },
-             handlerExpr = {
-               if (!"path" %in% names(q_model_docs())) return()
-               home <- normalizePath("~")
-               analysis$q_model_docs <-
-                 file.path(home, paste(unlist(q_model_docs()$path[-1]), collapse = .Platform$file.sep))
-             })
-
+# Template ----------------------------------------------------------------
 # BUTTON: load template ----
 observeEvent(input$q_load_template, {
   if ( input$q_select_template == "default"){
@@ -68,6 +64,21 @@ observeEvent(input$q_load_template, {
   } else {
     showNotification("The main directory does not contain a template. Create a new template on the Cluster Template tab.",
                      duration = analysis$msg_duration)
+  }
+})
+
+
+# Fit Model ---------------------------------------------------------------
+# ENABLE/DISABLE: fit model ----
+observe({
+  if (analysis$q_main_datapath != "" &&
+      !is.null(analysis$q_template) && 
+      !is.null(analysis$q_model_docs) &&
+      dir.exists(analysis$q_model_docs) && 
+      (length(list.files(analysis$q_model_docs)) > 0)) {
+    shinyjs::enable("q_fit_model")
+  } else {
+    shinyjs::disable("q_fit_model")
   }
 })
 
@@ -84,10 +95,12 @@ observeEvent(input$q_fit_model, {
                    duration = analysis$msg_duration)
 })
 
-# RENDER: model training documents directory ----
-output$q_model_docs <- renderText({
-  if ( !is.null(analysis$q_model_docs) ) {
-    analysis$q_model_docs
+
+# Model Documents Tab -----------------------------------------------------
+# UPDATE: select model document for display ----
+observe({
+  if ( !is.null(analysis$q_model_docs) ){
+    updateSelectInput(session, "q_select_model_doc", choices = list.files(analysis$q_model_docs))
   }
 })
 
@@ -98,6 +111,39 @@ output$q_model_docs_list <- renderTable({
   }
 })
 
+# RENDER: qd writer IDs ----
+output$q_model_writers <- renderTable({
+  if ( !is.null(analysis$q_model_docs) ){
+    model_docs <- list.files(analysis$q_model_docs)
+    writers <- substr(model_docs, input$q_writer_start_qd, input$q_writer_end_qd)
+    data.frame("writers"=writers)
+  }
+})
+
+# RENDER: qd doc IDs ----
+output$q_doc_ids <- renderTable({
+  if ( !is.null(analysis$q_questioned_docs) ){
+    qdocs <- list.files(analysis$q_questioned_docs)
+    docs <- substr(qdocs, input$q_doc_start_qd, input$q_doc_end_qd)
+    data.frame("documents"=docs)
+  }
+})
+
+
+# RENDER: display model image ----
+output$q_model_image <- renderImage({
+  if ( !is.null(analysis$q_model_docs) ){
+    filename <- normalizePath(file.path(analysis$q_model_docs, input$q_select_model_doc))
+    
+    # Return a list containing the filename and alt text
+    list(src = filename)
+  } else{
+    list(src = "")
+  }
+}, deleteFile = FALSE)
+
+
+# Writer Profiles Tab -----------------------------------------------------
 # RENDER: model cluster fill counts plot ----
 output$q_model_cluster_fill_counts <- renderPlot({
   if ( !is.null(analysis$q_model) ) {
