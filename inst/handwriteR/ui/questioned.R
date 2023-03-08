@@ -46,7 +46,6 @@ loadUI <- function(id, label) {
 }
 
 
-
 # Tab Contents ------------------------------------------------------------
 tabPanel("Questioned Documents",
          navbarPage("",

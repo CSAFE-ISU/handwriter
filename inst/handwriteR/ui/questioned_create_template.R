@@ -14,12 +14,12 @@ tabPanel("Create new template",
              # template settings
              h4("Template Settings"),
              substringIndicesUI("t_writer_indices", "writer start character", "writer stop character"),
-             fluidRow(column(width=6, numericInput("t_K", "# clusters", value=10, min=1, max=100)),
-                      column(width=6, numericInput("t_max_iters", "# iterations", value=25, min=1, max=500))),
+             fluidRow(column(width=6, numericInput("t_K", "# clusters", value=8, min=1, max=100)),
+                      column(width=6, numericInput("t_max_iters", "# iterations", value=3, min=1, max=500))),
              fluidRow(column(width=6, numericInput("t_cores", "# cores", value=2, min=1, max=100)),
                       column(width=6, radioButtons("t_num_graphs", "# graphs", choices=c(1000, 5000, "All")))),
              fluidRow(column(width=6, numericInput("t_centers_seed", "centers seed", value=100, min=1, step=1)),
-                      column(width=6, numericInput("t_graphs_seed", "graphs seed", value=200, min=1, step=1))),
+                      column(width=6, numericInput("t_graphs_seed", "graphs seed", value=101, min=1, step=1))),
                       
              # make template
              actionButton("t_create", "Create template")

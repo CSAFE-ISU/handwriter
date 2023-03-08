@@ -8,7 +8,7 @@ tabPanel("Persons of Interest",
              
              # output dir
              directoryUI("poi_output", label="Output Directory"),
-             helpText("The model and supporting files will be saved as model.rds in Output Directory > data."),
+             helpText("The model and supporting files will be saved in Output Directory > data."),
              hr(),
              
              h4("Model Settings"),
