@@ -14,6 +14,14 @@ directoryContentsUI <- function(id) {
   )
 }
 
+# MODULE: display image
+displayImageUI <- function(id, label) {
+  tagList(
+    selectInput(NS(id, "select_image"), label, choices = NA),
+    imageOutput(NS(id, "image"))
+  )
+}
+
 # MODULE: start and stop substring indices
 substringIndicesUI <- function(id, start_label, stop_label){
   tagList(

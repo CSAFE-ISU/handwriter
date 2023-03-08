@@ -39,6 +39,27 @@ directoryContentsServer <- function(id, dir_path) {
   })
 }
 
+displayImageServer <- function(id, dir_path) {
+  moduleServer(id, function(input, output, session) {
+    observe({
+      if ( !is.null(dir_path()) ){
+        updateSelectInput(session, "select_image", choices = list.files(dir_path()))
+      }
+    })
+    
+    output$image <- renderImage({
+      if ( !is.null(dir_path()) ){
+        filename <- normalizePath(file.path(dir_path(), input$select_image))
+        
+        # Return a list containing the filename and alt text
+        list(src = filename)
+      } else{
+        list(src = "")
+      }
+    }, deleteFile = FALSE)
+  })
+}
+
 # MODULE: start and stop substring indices
 substringIndicesServer <- function(id) {
   moduleServer(id, function(input, output, session) {

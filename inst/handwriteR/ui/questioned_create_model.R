@@ -26,8 +26,17 @@ tabPanel("Persons of Interest",
                tabPanel("Documents",
                         fluidRow(column(width=3, directoryContentsUI("poi_docs_list")),
                                  column(width=2, substringsUI("poi_writers")),
-                                 column(width=3, substringsUI("poi_doccodes")))
+                                 column(width=3, substringsUI("poi_doccodes"))),
+                        hr(),
+                        
+                        displayImageUI("poi_image", "Document")
                ),
+               tabPanel("Writer Profiles",
+                        h4("Persons of Interest Writer Profiles"),
+                        helpText("This plot shows the median of the model parameters that estimate the true cluster fill rate for 
+                                 each person of interest and each cluster. The error bars show the 95% credible intervals."),
+                        plotOutput("poi_profiles"),                         
+                        ),
              )
            )
          )
