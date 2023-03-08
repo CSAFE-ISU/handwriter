@@ -57,7 +57,8 @@ tabPanel("Questioned Documents",
                                "Persons of Interest",
                                source(file.path("ui", "questioned_create_model.R"), local = TRUE)$value,
                                "----",
-                               "Questioned Documents"
+                               "Questioned Documents",
+                               source(file.path("ui", "questioned_analyze.R"), local = TRUE)$value,
                     ),
          )
 )

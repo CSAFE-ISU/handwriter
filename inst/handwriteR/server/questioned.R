@@ -95,3 +95,4 @@ loadServer <- function(id) {
 # Tab Contents ------------------------------------------------------------
 source(file.path("server", "questioned_create_template.R"), local = TRUE)$value
 source(file.path("server", "questioned_create_model.R"), local = TRUE)$value
+source(file.path("server", "questioned_analyze.R"), local = TRUE)$value

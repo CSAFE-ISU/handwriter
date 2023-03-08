@@ -1,4 +1,4 @@
-tabPanel("Create New",
+tabPanel("Create New Model",
          h2("Create a New Model"),
          sidebarLayout(
            sidebarPanel(
