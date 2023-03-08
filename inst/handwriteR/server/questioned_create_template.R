@@ -1,0 +1,1 @@
+directoryServer("t_main_dir")
