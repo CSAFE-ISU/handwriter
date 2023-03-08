@@ -1,3 +1,4 @@
+# Modules -----------------------------------------------------------------
 # MODULE: choose a directory and render its file path
 directoryUI <- function(id, label) {
   tagList(
@@ -28,6 +29,17 @@ substringsUI <- function(id) {
   )
 }
 
+# MODULE: load file
+loadUI <- function(id, label) {
+  tagList(fileInput(NS(id, "file"), 
+                     label,
+                     multiple = FALSE,
+                     accept = c(".rds")))
+}
+
+
+
+# Tab Contents ------------------------------------------------------------
 tabPanel("Questioned Documents",
          navbarPage("",
                     navbarMenu("Analyze",
@@ -35,6 +47,7 @@ tabPanel("Questioned Documents",
                                source(file.path("ui", "questioned_create_template.R"), local = TRUE)$value,
                                "----",
                                "Persons of Interest",
+                               source(file.path("ui", "questioned_create_model.R"), local = TRUE)$value,
                                "----",
                                "Questioned Documents"
                     ),

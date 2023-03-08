@@ -1,3 +1,4 @@
+# Modules -----------------------------------------------------------------
 # MODULE:  Choose a directory and render its file path
 directoryServer <- function(id) {
   moduleServer(id, function(input, output, session) {
@@ -62,5 +63,14 @@ substringsServer <- function(id, dir_path, indices, df_label="writers"){
   })
 }
 
-# Pages ----
+# MODULE: load file
+loadServer <- function(id) {
+  moduleServer(id, function(input, output, session) {
+    reactive(readRDS(input$file$datapath))
+  })
+}
+
+
+# Tab Contents ------------------------------------------------------------
 source(file.path("server", "questioned_create_template.R"), local = TRUE)$value
+source(file.path("server", "questioned_create_model.R"), local = TRUE)$value
