@@ -1,4 +1,4 @@
-# Choose a directory and render its file path
+# MODULE:  Choose a directory and render its file path
 directoryServer <- function(id) {
   moduleServer(id, function(input, output, session) {
     values <- reactiveValues()
@@ -27,11 +27,37 @@ directoryServer <- function(id) {
   })
 }
 
-# List the files in directory. NOTE: dir_path is reactive and output of directoryServer
+# MODULE:  List the files in directory. NOTE: dir_path is reactive and output of directoryServer
 directoryContentsServer <- function(id, dir_path) {
   moduleServer(id, function(input, output, session) {
     output$dir_contents <- renderTable({
-      data.frame("filenames"=list.files(dir_path()))
+      if ( !is.null(dir_path()) ){
+        data.frame("filenames"=list.files(dir_path()))
+      }
+    })
+  })
+}
+
+# MODULE: start and stop substring indices
+substringIndicesServer <- function(id) {
+  moduleServer(id, function(input, output, session) {
+    start <- reactive(input$start)
+    stop <- reactive(input$stop)
+    list("start"=start, "stop"=stop)
+  })
+}
+
+# MODULE: display unique substrings in data frame
+substringsServer <- function(id, dir_path, indices, df_label="writers"){
+  moduleServer(id, function(input, output, session) {
+    output$substrings <- renderTable({
+      if ( !is.null(dir_path()) ){
+        docs <- list.files(dir_path())
+        substrings <- unique(substr(docs, indices$start(), indices$stop()))
+        df <- data.frame("temp" = substrings)
+        colnames(df) <- df_label
+        df
+      }
     })
   })
 }
