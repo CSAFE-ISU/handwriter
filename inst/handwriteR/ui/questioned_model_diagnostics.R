@@ -13,4 +13,5 @@ tabPanel("Model Diagnostics",
              h4("Trace Plot"),
              plotOutput("md_trace")
            )
-         ))
+         )
+)
