@@ -26,7 +26,7 @@ displayImageUI <- function(id, label) {
 substringIndicesUI <- function(id, start_label, stop_label){
   tagList(
     fluidRow(column(width=3, numericInput(NS(id, "start"), start_label, value=1, min=1, step=1),),
-             column(width=3, numericInput(NS(id, "stop"), stop_label, value=1, min=1, step=1)))
+             column(width=3, numericInput(NS(id, "stop"), stop_label, value=5, min=1, step=1)))
   )
 }
 
@@ -50,14 +50,17 @@ loadUI <- function(id, label) {
 tabPanel("Questioned Documents",
          navbarPage("",
                     navbarMenu("Analyze",
-                               "Template",
+                               "STEP 1: Set-Up",
+                               source(file.path("ui", "questioned_setup.R"), local = TRUE)$value,
+                               "----",
+                               "STEP 2: Template",
                                source(file.path("ui", "questioned_create_template.R"), local = TRUE)$value,
                                "----",
-                               "Persons of Interest",
+                               "STEP 3: Statistical Model",
                                source(file.path("ui", "questioned_create_model.R"), local = TRUE)$value,
                                source(file.path("ui", "questioned_model_diagnostics.R"), local = TRUE)$value,
                                "----",
-                               "Questioned Documents",
+                               "STEP 4: Questioned Documents",
                                source(file.path("ui", "questioned_analyze.R"), local = TRUE)$value,
                     ),
          )

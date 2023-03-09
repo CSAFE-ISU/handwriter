@@ -1,25 +1,27 @@
 tabPanel("Analyze documents",
-         h2("Analyze Questioned Documents"),
+         h2("STEP 4: Analyze Questioned Documents"),
          sidebarLayout(
            sidebarPanel(
-             # questioned docs
-             directoryUI("q_docs", label="Questioned Documents"),
-             hr(),
-             
              # output directory
-             directoryUI("q_output", label="Main Directory"),
-             helpText("This is the output directory you used to create a template. The analysis and supporting 
-                      files will be saved in Main Directory > data."),
+             directoryUI("q_main_dir", label="Main Directory"),
+             helpText("Select the main directory you used to create the template and fit the model. The analysis and supporting 
+                      files will be saved in Directory > data."),
              hr(),
              
              # load model
              loadUI("q_load_model", label="Load Model"),
+             helpText("Load the model you created for handwriting samples from the persons of interest."),
+             hr(),
+             
+             # questioned docs
+             directoryUI("q_docs", label="Questioned Documents"),
              hr(),
              
              # settings
              substringIndicesUI("q_writer_indices", "writer start character", "writer stop character"),
              substringIndicesUI("q_doccode_indices", "doc start character", "doc stop character"),
              numericInput("q_cores", "# cores", value=1, min=1, max=100),
+             hr(),
              
              # analyze button
              actionButton("q_analyze", "Analyze")

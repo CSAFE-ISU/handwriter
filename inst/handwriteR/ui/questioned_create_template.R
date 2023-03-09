@@ -1,26 +1,28 @@
 tabPanel("Create new template",
-         h2("Create a New Tempalte"),
+         h2("STEP 2: Create a New Tempalte"),
          sidebarLayout(
            sidebarPanel(
-             # template dir
-             directoryUI("t_docs", label = "Template Training Documents"),
+             # main dir
+             h4("Main Directory"),
+             directoryUI("t_main_dir", label = "Choose Directory"),
+             helpText("The template and other related files with be saved in Directory > data."),
              hr(),
              
-             # output dir
-             directoryUI("t_output", label = "Output Directory"),
-             helpText("The template and other related files with be saved in Output Directory > data."),
+             # template dir
+             h4("Template Training Documents"),
+             directoryUI("t_docs", label = "Choose Directory"),
              hr(),
              
              # template settings
              h4("Template Settings"),
              substringIndicesUI("t_writer_indices", "writer start character", "writer stop character"),
-             fluidRow(column(width=6, numericInput("t_K", "# clusters", value=8, min=1, max=100)),
-                      column(width=6, numericInput("t_max_iters", "# iterations", value=3, min=1, max=500))),
-             fluidRow(column(width=6, numericInput("t_cores", "# cores", value=2, min=1, max=100)),
-                      column(width=6, radioButtons("t_num_graphs", "# graphs", choices=c(1000, 5000, "All")))),
-             fluidRow(column(width=6, numericInput("t_centers_seed", "centers seed", value=100, min=1, step=1)),
-                      column(width=6, numericInput("t_graphs_seed", "graphs seed", value=101, min=1, step=1))),
-                      
+             fluidRow(column(width=3, numericInput("t_K", "# clusters", value=8, min=1, max=100)),
+                      column(width=3, numericInput("t_max_iters", "# iterations", value=3, min=1, max=500))),
+             fluidRow(column(width=3, numericInput("t_centers_seed", "centers seed", value=100, min=1, step=1)),
+                      column(width=3, numericInput("t_graphs_seed", "graphs seed", value=101, min=1, step=1))),
+             fluidRow(column(width=3, numericInput("t_cores", "# cores", value=2, min=1, max=100))),
+             hr(),
+
              # make template
              actionButton("t_create", "Create template")
 

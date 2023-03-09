@@ -5,7 +5,7 @@ q_docs_path <- directoryServer("q_docs")
 directoryContentsServer("q_docs_list", q_docs_path)
 
 # output directory
-q_output_path <- directoryServer("q_output")
+q_main_path <- directoryServer("q_main_dir")
 
 # load model
 q_model <- loadServer("q_load_model")
@@ -19,7 +19,7 @@ substringsServer("q_doccodes", q_docs_path, q_doccode_ind, "doc code")
 # analyze
 observeEvent(input$q_analyze, {
   q_values$analysis <- analyze_questioned_documents(
-    template_dir = q_output_path(),
+    template_dir = q_main_path(),
     questioned_images_dir = q_docs_path(),
     model = q_model(),
     num_cores = input$q_cores,

@@ -4,19 +4,19 @@ poi_values <- reactiveValues()
 poi_docs_path <- directoryServer("poi_docs")
 directoryContentsServer("poi_docs_list", poi_docs_path)
 
-# output dir
-poi_output_path <- directoryServer("poi_output")
-
 # model settings
 poi_writer_ind <- substringIndicesServer("poi_writer_indices")
 substringsServer("poi_writers", poi_docs_path, poi_writer_ind, "writers")
 poi_doccode_ind <- substringIndicesServer("poi_doccode_indices")
 substringsServer("poi_doccodes", poi_docs_path, poi_doccode_ind, "doc code")
 
+# output dir
+poi_main_path <- directoryServer("poi_main_dir")
+
 # fit model
 observeEvent(input$poi_create, {
   # save model as reactive values so it can be used for other tasks
-  poi_values$model <- fit_model(template_dir = poi_output_path(),
+  poi_values$model <- fit_model(template_dir = poi_main_path(),
             model_images_dir = poi_docs_path(),
             num_iters = input$poi_num_iters,
             num_chains = input$poi_chains,
