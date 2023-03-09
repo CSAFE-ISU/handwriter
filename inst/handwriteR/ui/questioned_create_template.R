@@ -19,8 +19,7 @@ tabPanel("Create new template",
              fluidRow(column(width=3, numericInput("t_K", "# clusters", value=8, min=1, max=100)),
                       column(width=3, numericInput("t_max_iters", "# iterations", value=3, min=1, max=500))),
              fluidRow(column(width=3, numericInput("t_centers_seed", "centers seed", value=100, min=1, step=1)),
-                      column(width=3, numericInput("t_graphs_seed", "graphs seed", value=101, min=1, step=1))),
-             fluidRow(column(width=3, numericInput("t_cores", "# cores", value=2, min=1, max=100))),
+                      column(width=3, numericInput("t_cores", "# cores", value=2, min=1, max=100))),
              hr(),
 
              # make template

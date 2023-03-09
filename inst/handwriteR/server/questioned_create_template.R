@@ -16,7 +16,7 @@ observeEvent(input$t_create, {
     template_images_dir = t_docs_path(),
     writer_indices = c(t_writer_ind$start(), t_writer_ind$stop()),
     centers_seed = input$t_centers_seed,
-    graphs_seed = input$t_graphs_seed,
+    graphs_seed = 100,
     K = input$t_K,
     num_dist_cores = input$t_cores,
     max_iters = input$t_max_iters,
