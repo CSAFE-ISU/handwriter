@@ -342,20 +342,16 @@ getGraphInfo = function(imageList1, imageList2, isProto1, isProto2, numPathCuts)
   pathCheckNum = max(numPaths1, numPaths2)
   
   # Initialize. Will store path cut points
-  pq1 = replicate(pathCheckNum, matrix(NA, ncol = 2, nrow = numPathCuts - 1))
-  pq2 = replicate(pathCheckNum, matrix(NA, ncol = 2, nrow = numPathCuts - 1))
+  pq1 = pq2 = array(NA,dim=c(numPathCuts - 1,2,pathCheckNum))
   
   # Initialize. Will store path end points
-  pe1 = replicate(pathCheckNum, matrix(NA, ncol = 2, nrow = 2))
-  pe2 = replicate(pathCheckNum, matrix(NA, ncol = 2, nrow = 2))
+  pe1 = pe2 = array(NA,dim=c(2,2,pathCheckNum))
   
   # Initialize. Will store path centers
-  cent1 = array(NA, c(1, 2, pathCheckNum))
-  cent2 = array(NA, c(1, 2, pathCheckNum))
+  cent1 = cent2 = array(NA, c(1, 2, pathCheckNum))
   
   # Initialize. Will store path lengths
-  len1 = rep(0, pathCheckNum)
-  len2 = rep(0, pathCheckNum)
+  len1 = len2 = rep(0, pathCheckNum)
   
   # Initialize. For each possible pair an edge from graph 1 with an edge from graph 2,
   # will store whether the pair "matches" i.e. produces the smallest distance between the
@@ -378,12 +374,7 @@ getGraphInfo = function(imageList1, imageList2, isProto1, isProto2, numPathCuts)
         byrow = TRUE
       )
       cent1[1, , ii] = imageList1$pathCenter[ii, ]
-      
-      for (i in 1:(numPathCuts - 1))
-      {
-        pq1[i, , ii] = imageList1$pathQuarters[ii, c((i - 1) * 2 + 1, (i - 1) *
-                                                       2 + 2)]
-      }
+      pq1[, , ii] <- matrix(imageList1$pathQuarters[ii,][1:(2*(numPathCuts - 1))],numPathCuts - 1,byrow=TRUE)
     }
     else if (ii <= numPaths1)
     {
@@ -392,13 +383,8 @@ getGraphInfo = function(imageList1, imageList2, isProto1, isProto2, numPathCuts)
       pe1[, , ii] = imageList1$pathEndsrc[[ii]]
       
       pathRC = pathToRC(imageList1$allPaths[[ii]], dim(imageList1$image))
-      cent1[1, , ii] = c(mean(pathRC[, 1]), mean(pathRC[, 2])) - imageList1$centroid
-      
-      for (i in 1:(numPathCuts - 1))
-      {
-        pq1[i, , ii] = pathRC[ceiling(length(imageList1$allPaths[[ii]]) / (numPathCuts /
-                                                                             i)), ] - imageList1$centroid
-      }
+      cent1[1, , ii] = colMeans(pathRC) - imageList1$centroid
+      pq1[, , ii] = Rfast::eachrow(pathRC[ceiling(length(imageList1$allPaths[[ii]]) / (numPathCuts /1:(numPathCuts-1))),],imageList1$centroid,"-")
     }
   }
   
@@ -416,10 +402,7 @@ getGraphInfo = function(imageList1, imageList2, isProto1, isProto2, numPathCuts)
       )
       
       cent2[1, , jj] = imageList2$pathCenter[jj, ]
-      for (i in 1:(numPathCuts - 1))
-      {
-        pq2[i, , jj] = imageList2$pathQuarters[jj, (i - 1) * 2 + 1:2]
-      }
+      pq2[, , jj] <- matrix(imageList2$pathQuarters[jj,][1:(2*(numPathCuts - 1))],numPathCuts - 1,byrow=TRUE)
     }
     else if (jj <= numPaths2)
     {
@@ -428,13 +411,8 @@ getGraphInfo = function(imageList1, imageList2, isProto1, isProto2, numPathCuts)
       pe2[, , jj] = imageList2$pathEndsrc[[jj]]
       
       pathRC = pathToRC(imageList2$allPaths[[jj]], dim(imageList2$image))
-      cent2[1, , jj] = c(mean(pathRC[, 1]), mean(pathRC[, 2])) - imageList2$centroid
-      
-      for (i in 1:(numPathCuts - 1))
-      {
-        pq2[i, , jj] = pathRC[ceiling(length(imageList2$allPaths[[jj]]) / (numPathCuts /
-                                                                             i)), ] - imageList2$centroid
-      }
+      cent2[1, , jj] = colMeans(pathRC) - imageList2$centroid
+      pq2[, , ii] = Rfast::eachrow(pathRC[ceiling(length(imageList2$allPaths[[jj]]) / (numPathCuts /1:(numPathCuts-1))),],imageList2$centroid,"-")
     }
   }
   
