@@ -113,44 +113,24 @@ dist_sh = function(graphInfo, numPathCuts, path_ii, path_jj)
   # Initialize
   path_ii_sh = graphInfo$pq1
   path_jj_sh = graphInfo$pq2
-  
   # For each cut in the path
-  for (i in 1:(numPathCuts - 1))
-  {
-    # Find the shape points for the ii-th path. Subtract the i-th
+  # Find the shape points for the ii-th path. Subtract the i-th
     # cutpoint on the straight line between the ii-th path's endpoints
     # from the i-th cutpoint on the path itself. Denoted s_i^(e_1) in
     # paper.
-    path_ii_sh[i, , path_ii] = pointLineProportionVect(graphInfo$pe1[1, , path_ii],
-                                                       graphInfo$pe1[2, , path_ii],
-                                                       i / numPathCuts,
-                                                       graphInfo$pq1[i, , path_ii])
-    # Find the shape points on the jj-th path. Subtract the i-th cutpoint
-    # on the straight line between the jj-th path's endpoints from the
-    # i-th cutpoint on the path itself. Denoted s_i^(e_2) in
-    # paper.
-    path_jj_sh[i, , path_jj] = pointLineProportionVect(graphInfo$pe2[1, , path_jj],
-                                                       graphInfo$pe2[2, , path_jj],
-                                                       i / numPathCuts,
-                                                       graphInfo$pq2[i, , path_jj])
-  }
+  path_ii_sh[,,path_ii]  = graphInfo$pq1[, , path_ii] - Rfast::eachrow(t(matrix((graphInfo$pe1[2, , path_ii]-graphInfo$pe1[1, , path_ii])) %*% matrix(1:(numPathCuts - 1)/numPathCuts,1)),graphInfo$pe1[1, , path_ii],"+")
+  # # Find the shape points on the jj-th path. Subtract the i-th cutpoint
+  #   # on the straight line between the jj-th path's endpoints from the
+  #   # i-th cutpoint on the path itself. Denoted s_i^(e_2) in
+  #   # paper.
+  path_jj_sh[,,path_jj]  = graphInfo$pq2[, , path_jj] - Rfast::eachrow(t(matrix((graphInfo$pe2[2, , path_jj]-graphInfo$pe2[1, , path_jj])) %*% matrix(1:(numPathCuts - 1)/numPathCuts,1)),graphInfo$pe2[1, , path_jj],"+")  
   
   # Find the distance the i-th shape points in the plus direction. Denoted d_sh+ in paper.
-  d_sh_plus = 0
-  for (i in 1:(numPathCuts - 1))
-  {
-    d_sh_plus = d_sh_plus + distXY(path_ii_sh[i, , path_ii], path_jj_sh[i, , path_jj]) /
-      (numPathCuts - 1)
-  }
-  
+  d_sh_plus = sum(sqrt(Rfast::rowsums((path_jj_sh[, , path_jj]-path_ii_sh[,,path_ii])^2)))/(numPathCuts - 1)
+
   # Find the distance the i-th shape points in the minus direction. Denoted d_sh+ in paper.
-  d_sh_minus = 0
-  for (i in 1:(numPathCuts - 1))
-  {
-    d_sh_minus = d_sh_minus + distXY(path_ii_sh[i, , path_ii], path_jj_sh[numPathCuts - i, , path_jj]) /
-      (numPathCuts - 1)
-  }
-  
+  d_sh_minus = sum(sqrt(Rfast::rowsums((path_jj_sh[nrow(path_jj_sh):1,,path_jj]-path_ii_sh[,,path_ii])^2)))/(numPathCuts - 1)
+
   # Shape distance
   d_sh = c(d_sh_plus, d_sh_minus)
   return(d_sh)
