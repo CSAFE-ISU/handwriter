@@ -392,7 +392,7 @@ getGraphInfo = function(imageList1, imageList2, isProto1, isProto2, numPathCuts)
       
       pathRC = pathToRC(imageList2$allPaths[[jj]], dim(imageList2$image))
       cent2[1, , jj] = colMeans(pathRC) - imageList2$centroid
-      pq2[, , ii] = Rfast::eachrow(pathRC[ceiling(length(imageList2$allPaths[[jj]]) / (numPathCuts /1:(numPathCuts-1))),],imageList2$centroid,"-")
+      pq2[, , jj] = Rfast::eachrow(pathRC[ceiling(length(imageList2$allPaths[[jj]]) / (numPathCuts /1:(numPathCuts-1))),],imageList2$centroid,"-")
     }
   }
   
