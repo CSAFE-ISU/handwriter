@@ -111,25 +111,30 @@ dist_sld = function(p1e1, p1e2, p2e1, p2e2)
 dist_sh = function(graphInfo, numPathCuts, path_ii, path_jj)
 {
   # Initialize
-  path_ii_sh = graphInfo$pq1
-  path_jj_sh = graphInfo$pq2
+  path_ii_sh = graphInfo$pq1[,,path_ii]
+  path_jj_sh = graphInfo$pq2[,,path_jj]
+  graphInfo_pe1 = graphInfo$pe1[, , path_ii]
+  graphInfo_pe2 = graphInfo$pe2[, , path_jj]
+
   # For each cut in the path
   # Find the shape points for the ii-th path. Subtract the i-th
     # cutpoint on the straight line between the ii-th path's endpoints
     # from the i-th cutpoint on the path itself. Denoted s_i^(e_1) in
     # paper.
-  path_ii_sh[,,path_ii]  = graphInfo$pq1[, , path_ii] - Rfast::eachrow(t(matrix((graphInfo$pe1[2, , path_ii]-graphInfo$pe1[1, , path_ii])) %*% matrix(1:(numPathCuts - 1)/numPathCuts,1)),graphInfo$pe1[1, , path_ii],"+")
+  tabii = t((graphInfo_pe1[2,]-graphInfo_pe1[1,]) %*% matrix(1:(numPathCuts - 1)/numPathCuts,1))
+  path_ii_sh  = path_ii_sh - (tabii+graphInfo_pe1[1,col(tabii)])
   # # Find the shape points on the jj-th path. Subtract the i-th cutpoint
   #   # on the straight line between the jj-th path's endpoints from the
   #   # i-th cutpoint on the path itself. Denoted s_i^(e_2) in
   #   # paper.
-  path_jj_sh[,,path_jj]  = graphInfo$pq2[, , path_jj] - Rfast::eachrow(t(matrix((graphInfo$pe2[2, , path_jj]-graphInfo$pe2[1, , path_jj])) %*% matrix(1:(numPathCuts - 1)/numPathCuts,1)),graphInfo$pe2[1, , path_jj],"+")  
+  tabjj = t((graphInfo_pe2[2,]-graphInfo_pe2[1,]) %*% matrix(1:(numPathCuts - 1)/numPathCuts,1))
+  path_jj_sh  = path_jj_sh - (tabjj+graphInfo_pe2[1,col(tabjj)])  
   
   # Find the distance the i-th shape points in the plus direction. Denoted d_sh+ in paper.
-  d_sh_plus = sum(sqrt(Rfast::rowsums((path_jj_sh[, , path_jj]-path_ii_sh[,,path_ii])^2)))/(numPathCuts - 1)
+  d_sh_plus = sum(sqrt(Rfast::rowsums((path_jj_sh-path_ii_sh)^2)))/(numPathCuts - 1)
 
   # Find the distance the i-th shape points in the minus direction. Denoted d_sh+ in paper.
-  d_sh_minus = sum(sqrt(Rfast::rowsums((path_jj_sh[nrow(path_jj_sh):1,,path_jj]-path_ii_sh[,,path_ii])^2)))/(numPathCuts - 1)
+  d_sh_minus = sum(sqrt(Rfast::rowsums((path_jj_sh[nrow(path_jj_sh):1,]-path_ii_sh)^2)))/(numPathCuts - 1)
 
   # Shape distance
   d_sh = c(d_sh_plus, d_sh_minus)
