@@ -208,20 +208,11 @@ solveLP = function(dists)
   # Initialize constraints matrix. NOTE: There are dims*dims possible edge pairs where
   # one edge comes from path 1 and the other edge comes from path 2. Each column of the
   # matrix considers one edge pair. The matrix has a row for each edge.
-  A = matrix(0, nrow = 2 * dims, ncol = dims * dims)
-  
   # Fill the first dims rows with repeated (dims x dims) identity matrices.
-  for (i in 1:(dims))
-  {
-    # Set the i-th row and columns (i, i+dims, i+2dims,...,i+dims*(dims-1)) to 1
-    A[i, seq(from = i, to = dims * dims, by = dims)] = 1
-  }
+  A <- matrix(rbind(diag(dims),matrix(0,nrow=dims,ncol=dims)),nrow=2 * dims,ncol=dims * dims)
   
   # Set more entries in the matrix to 1.
-  for (i in 1:dims)
-  {
-    A[dims + i, (i - 1) * dims + (1:dims)] = 1
-  }
+  A[cbind(row=dims + rep(1:dims,each=dims),col=1:dims^2)] = 1
   
   # Make a vector of ones with length 2*dims
   b = rep(1, 2 * dims)
