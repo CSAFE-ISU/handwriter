@@ -434,20 +434,28 @@ getAllPairsDistances = function(graphInfo, numPathCuts)
       else
         # plus is direction 1, minus is direction 2
       {
+        ## Resolve values once to reduce overhead
+        graphInfo_pe1 = graphInfo$pe1[, , ii]
+        p1e1 = graphInfo_pe1[1, ]
+        p1e2 = graphInfo_pe1[2, ]
+        graphInfo_pe2 = graphInfo$pe2[, , jj]
+        p2e1 = graphInfo_pe2[1, ]
+        p2e2 = graphInfo_pe2[2, ]
+
         # Distance between endpoint locations
         d = dist_loc(
-          p1e1 = graphInfo$pe1[1, , ii],
-          p1e2 = graphInfo$pe1[2, , ii],
-          p2e1 = graphInfo$pe2[1, , jj],
-          p2e2 = graphInfo$pe2[2, , jj]
+          p1e1 = p1e1,
+          p1e2 = p1e2,
+          p2e1 = p2e1,
+          p2e2 = p2e2
         )
         
         # Add straight line distance
         d = d + 0.5 * dist_sld(
-          p1e1 = graphInfo$pe1[1, , ii],
-          p1e2 = graphInfo$pe1[2, , ii],
-          p2e1 = graphInfo$pe2[1, , jj],
-          p2e2 = graphInfo$pe2[2, , jj]
+          p1e1 = p1e1,
+          p1e2 = p1e2,
+          p2e1 = p2e1,
+          p2e2 = p2e2
         )
         
         # Add shape distance
