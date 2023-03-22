@@ -299,7 +299,7 @@ getGraphInfo = function(imageList1, imageList2, isProto1, isProto2, numPathCuts)
   letterSize = rep(0, 2)
   if (!isProto1)
   {
-    letterSize[1] = sum(unlist(lapply(imageList1$allPaths, length)))
+    letterSize[1] = length(unlist(imageList1$allPaths,use.names=FALSE))
   } else if (isProto1)
   {
     letterSize[1] = sum(imageList1$lengths)
@@ -308,7 +308,7 @@ getGraphInfo = function(imageList1, imageList2, isProto1, isProto2, numPathCuts)
   # Find the sum of the lengths of paths in graph 2
   if (!isProto2)
   {
-    letterSize[2] = sum(unlist(lapply(imageList2$allPaths, length)))
+    letterSize[2] = length(unlist(imageList2$allPaths,use.names=FALSE))
   } else if (isProto2)
   {
     letterSize[2] = sum(imageList2$lengths)
@@ -333,7 +333,7 @@ getGraphInfo = function(imageList1, imageList2, isProto1, isProto2, numPathCuts)
   # will store whether the pair "matches" i.e. produces the smallest distance between the
   # two graphs
   pathEndPointsMatch = rep(TRUE, pathCheckNum ^ 2)
-  
+
   # Initialize. Will store the weights, aka distances, between the two graphs
   weights = matrix(NA, ncol = pathCheckNum, nrow = pathCheckNum)
   
