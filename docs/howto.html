@@ -131,7 +131,49 @@
                       <pre>
                         <code>csafe_processlist = processHandwriting(csafe$thin, dim(csafe$image))</code>
                       </pre>
-                      <p> <b>processHandwriting()</b> will return tons of information about the document. It is worth exploring, and we've provided a handy list here of what each element of the list means </p>
+                      
+                      <!--Mac users additional information -Jon -->
+                       <button type="button" class="collapsible">Additional Information for Mac Users </button>
+                      <div class="content">
+                        
+                        <p>Handwriter uses the RCPP package, an R package that allows RStudio to compile the C++ code in the handwriter program. When a Mac user runs handwriter, the machine will use its default C++ compiler called clang. This default will produce an error that says: "ld: warning: directory not found for option '-L/usr/local/gfortran/lib/gcc/x86_64-apple-darwin15/6.1.0'"</p>
+                        
+                        <p>The following steps will help you to fix this issue:</p>
+                        <ul>
+                          <li> <b>If you have previously used clang4, clang6, clang7, clang8, or the macos-rtools, consider deleting the old components that 
+                          were installed. To do this, execute the following lines in the Terminal app:</b> 
+                          
+                          <p># Delete the clang4,6,7 binary</p></li>
+                          
+                           <ul> <li><b>sudo rm -rf /usr/local/clang{4,6,7}</b></li></ul>
+                            <p># Delete the prior version of gfortran installed</p>
+                           <ul> <li><b>sudo rm -rf /usr/local/gfortran</b></li>
+                            <li><b>sudo rm -rf /usr/local/bin/gfortran</b></li> </ul>
+                            
+                            <p># Remove the gfortran install receipts (run after the above commands)</p>
+                            
+                           <ul> <li><b>sudo rm /private/var/db/receipts/com.gnu.gfortran.bom</b></li>
+                            <li><b>sudo rm /private/var/db/receipts/com.gnu.gfortran.plist</b></li> </ul>
+                            <p></p>
+                            <p># Remove the clang4 installer receipt</p>
+                           <ul> <li><b>sudo rm /private/var/db/receipts/com.rbinaries.clang4.bom</b></li>
+                            <li><b>sudo rm /private/var/db/receipts/com.rbinaries.clang4.plist</b></li></ul>
+                            <p></p>
+                            <li>You will need to remove both the ~/.R/Makevars and ~/.Renviron files before continuing. You can do this by using:</li>
+                            <ul><li><b>unlink (“~/.R/Makevars”)</b></li>
+                            <li><b>unlink (“~/.Renviron”)</b></li></ul>
+                            <p></p>
+                            <li>Next, still in the Terminal, you will need to install the Xcode Command Line Tools or Xcode CLI. To do this execute:<b> xcode-select --install</b></li>
+                            <p></p>
+                            <li>If you encounter an error while installing, the Xcode CLI might already be installed. This may mean that a software update of the tools is in order, execute the following line: <b>softwareupdate --install -a.</b></li>
+                            <p></p>
+                            <li>After installing the Xcode CLI, you will need to install OS-specific GFortran Binary. To do this, you will first need to verify your macOS version.</li>
+                            <p></p>
+                            <li>Knowing what version of macOS your computer is running, you will then go to:  <a href="https://github.com/fxcoudert/gfortran-for-macOS" target="_blank">GFortran-for-macOs-Repo</a>. This link will direct you to a GitHub page that will contain installation packages containing GFortran binary for different macOS versions. After downloading the folder, open the GFortran folder inside and run the gfortran.pkg. This will prompt an installation window that will help you successfully install the binary.</li>
+
+                        </ul>
+                        </div>
+                    <br>  <p> <b>processHandwriting()</b> will return tons of information about the document. It is worth exploring, and we've provided a handy list here of what each element of the list means </p>
                       <button type="button" class="collapsible">Information returned from <b>processHandwriting()</b></button>
                       <div class="content">
                         <p>On a document level:</p>
@@ -184,6 +226,7 @@
                             </ul>
                         </ul>
                       </div>
+                      </br>
 
                       <br><h2><b>Exploring processed writing</b></h2>
                       <p> Using the information returned from <b>processHandwriting()</b>, Handwriter allows plotting on a letter (or graph), word, sentence, or the entire document.</p>

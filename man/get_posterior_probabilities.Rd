@@ -10,7 +10,7 @@ get_posterior_probabilities(analysis, questioned_doc)
 \item{analysis}{The output of \code{\link{analyze_questioned_documents}}. If more than
 one questioned document was analyzed with this function, then the data frame
 analysis$posterior_probabilities lists the posterior probabilities for all
-questioned documents. \code{show_posterior_probabilities} creates a data frame of the
+questioned documents. \code{get_posterior_probabilities} creates a data frame of the
 posterior probabilities for a single questioned document and sorts the known writers
 from the most likely to least likely to have writen the questioned document.}
 
@@ -25,11 +25,11 @@ Get the posterior probabilities for a questioned document.
 \examples{
 get_posterior_probabilities(
   analysis = example_analysis_1chain,
-  questioned_doc = "w0009_s03_pWOZ_r1.png"
+  questioned_doc = "w0009_s03_pWOZ_r01.png"
 )
 get_posterior_probabilities(
   analysis = example_analysis_1chain,
-  questioned_doc = "w0030_s03_pWOZ_r1.png"
+  questioned_doc = "w0030_s03_pWOZ_r01.png"
 )
 
 }

@@ -101,14 +101,17 @@ analyze_questioned_documents <- function(template_dir, questioned_images_dir, mo
   my_cluster <- parallel::makeCluster(num_cores)
   doParallel::registerDoParallel(my_cluster)
 
-  # list writers
-  writers <- unique(questioned_data$graph_measurements$writer)
+  # list questioned writers
+  qwriters <- unique(questioned_data$graph_measurements$writer)
+  
+  # list known writers
+  kwriters <- unique(model$graph_measurements$writer)
 
   # obtain posterior samples of model parameters
   message("Obtaining likelihood evaluations...")
   likelihood_evals <- foreach::foreach(d = 1:nrow(questioned_data$cluster_fill_counts)) %dopar% { # d is document
     # filter docs for current writer
-    qdoc2 <- questioned_data$graph_measurements %>% dplyr::filter(writer == writers[d]) # identical to m_qdoc
+    qdoc2 <- questioned_data$graph_measurements %>% dplyr::filter(writer == qwriters[d]) # identical to m_qdoc
 
     # get cluster assignments
     qcluster2 <- as.numeric(qdoc2$cluster) # identical to m_cluster
@@ -135,7 +138,7 @@ analyze_questioned_documents <- function(template_dir, questioned_images_dir, mo
     }
     nn <- dmult2 + dwc_sums2 + abs(max(colMeans(dmult2 + dwc_sums2)))
     likelihoods <- as.data.frame(exp(nn) / rowSums(exp(nn)))
-    colnames(likelihoods) <- paste0("known_writer_", writers)
+    colnames(likelihoods) <- paste0("known_writer_", kwriters)
     return(likelihoods)
   }
   names(likelihood_evals) <- questioned_data$cluster_fill_counts$docname
