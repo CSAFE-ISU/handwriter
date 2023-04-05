@@ -111,46 +111,31 @@ dist_sld = function(p1e1, p1e2, p2e1, p2e2)
 dist_sh = function(graphInfo, numPathCuts, path_ii, path_jj)
 {
   # Initialize
-  path_ii_sh = graphInfo$pq1
-  path_jj_sh = graphInfo$pq2
-  
+  path_ii_sh = graphInfo$pq1[,,path_ii]
+  path_jj_sh = graphInfo$pq2[,,path_jj]
+  graphInfo_pe1 = graphInfo$pe1[, , path_ii]
+  graphInfo_pe2 = graphInfo$pe2[, , path_jj]
+
   # For each cut in the path
-  for (i in 1:(numPathCuts - 1))
-  {
-    # Find the shape points for the ii-th path. Subtract the i-th
+  # Find the shape points for the ii-th path. Subtract the i-th
     # cutpoint on the straight line between the ii-th path's endpoints
     # from the i-th cutpoint on the path itself. Denoted s_i^(e_1) in
     # paper.
-    path_ii_sh[i, , path_ii] = pointLineProportionVect(graphInfo$pe1[1, , path_ii],
-                                                       graphInfo$pe1[2, , path_ii],
-                                                       i / numPathCuts,
-                                                       graphInfo$pq1[i, , path_ii])
-    # Find the shape points on the jj-th path. Subtract the i-th cutpoint
-    # on the straight line between the jj-th path's endpoints from the
-    # i-th cutpoint on the path itself. Denoted s_i^(e_2) in
-    # paper.
-    path_jj_sh[i, , path_jj] = pointLineProportionVect(graphInfo$pe2[1, , path_jj],
-                                                       graphInfo$pe2[2, , path_jj],
-                                                       i / numPathCuts,
-                                                       graphInfo$pq2[i, , path_jj])
-  }
+  tabii = t((graphInfo_pe1[2,]-graphInfo_pe1[1,]) %*% matrix(1:(numPathCuts - 1)/numPathCuts,1))
+  path_ii_sh  = path_ii_sh - (tabii+graphInfo_pe1[1,col(tabii)])
+  # # Find the shape points on the jj-th path. Subtract the i-th cutpoint
+  #   # on the straight line between the jj-th path's endpoints from the
+  #   # i-th cutpoint on the path itself. Denoted s_i^(e_2) in
+  #   # paper.
+  tabjj = t((graphInfo_pe2[2,]-graphInfo_pe2[1,]) %*% matrix(1:(numPathCuts - 1)/numPathCuts,1))
+  path_jj_sh  = path_jj_sh - (tabjj+graphInfo_pe2[1,col(tabjj)])  
   
   # Find the distance the i-th shape points in the plus direction. Denoted d_sh+ in paper.
-  d_sh_plus = 0
-  for (i in 1:(numPathCuts - 1))
-  {
-    d_sh_plus = d_sh_plus + distXY(path_ii_sh[i, , path_ii], path_jj_sh[i, , path_jj]) /
-      (numPathCuts - 1)
-  }
-  
+  d_sh_plus = sum(sqrt(Rfast::rowsums((path_jj_sh-path_ii_sh)^2)))/(numPathCuts - 1)
+
   # Find the distance the i-th shape points in the minus direction. Denoted d_sh+ in paper.
-  d_sh_minus = 0
-  for (i in 1:(numPathCuts - 1))
-  {
-    d_sh_minus = d_sh_minus + distXY(path_ii_sh[i, , path_ii], path_jj_sh[numPathCuts - i, , path_jj]) /
-      (numPathCuts - 1)
-  }
-  
+  d_sh_minus = sum(sqrt(Rfast::rowsums((path_jj_sh[nrow(path_jj_sh):1,]-path_ii_sh)^2)))/(numPathCuts - 1)
+
   # Shape distance
   d_sh = c(d_sh_plus, d_sh_minus)
   return(d_sh)
@@ -223,20 +208,11 @@ solveLP = function(dists)
   # Initialize constraints matrix. NOTE: There are dims*dims possible edge pairs where
   # one edge comes from path 1 and the other edge comes from path 2. Each column of the
   # matrix considers one edge pair. The matrix has a row for each edge.
-  A = matrix(0, nrow = 2 * dims, ncol = dims * dims)
-  
   # Fill the first dims rows with repeated (dims x dims) identity matrices.
-  for (i in 1:(dims))
-  {
-    # Set the i-th row and columns (i, i+dims, i+2dims,...,i+dims*(dims-1)) to 1
-    A[i, seq(from = i, to = dims * dims, by = dims)] = 1
-  }
+  A <- matrix(rbind(diag(dims),matrix(0,nrow=dims,ncol=dims)),nrow=2 * dims,ncol=dims * dims)
   
   # Set more entries in the matrix to 1.
-  for (i in 1:dims)
-  {
-    A[dims + i, (i - 1) * dims + (1:dims)] = 1
-  }
+  A[cbind(row=dims + rep(1:dims,each=dims),col=1:dims^2)] = 1
   
   # Make a vector of ones with length 2*dims
   b = rep(1, 2 * dims)
@@ -323,7 +299,7 @@ getGraphInfo = function(imageList1, imageList2, isProto1, isProto2, numPathCuts)
   letterSize = rep(0, 2)
   if (!isProto1)
   {
-    letterSize[1] = sum(unlist(lapply(imageList1$allPaths, length)))
+    letterSize[1] = length(unlist(imageList1$allPaths,use.names=FALSE))
   } else if (isProto1)
   {
     letterSize[1] = sum(imageList1$lengths)
@@ -332,7 +308,7 @@ getGraphInfo = function(imageList1, imageList2, isProto1, isProto2, numPathCuts)
   # Find the sum of the lengths of paths in graph 2
   if (!isProto2)
   {
-    letterSize[2] = sum(unlist(lapply(imageList2$allPaths, length)))
+    letterSize[2] = length(unlist(imageList2$allPaths,use.names=FALSE))
   } else if (isProto2)
   {
     letterSize[2] = sum(imageList2$lengths)
@@ -342,26 +318,22 @@ getGraphInfo = function(imageList1, imageList2, isProto1, isProto2, numPathCuts)
   pathCheckNum = max(numPaths1, numPaths2)
   
   # Initialize. Will store path cut points
-  pq1 = replicate(pathCheckNum, matrix(NA, ncol = 2, nrow = numPathCuts - 1))
-  pq2 = replicate(pathCheckNum, matrix(NA, ncol = 2, nrow = numPathCuts - 1))
+  pq1 = pq2 = array(NA,dim=c(numPathCuts - 1,2,pathCheckNum))
   
   # Initialize. Will store path end points
-  pe1 = replicate(pathCheckNum, matrix(NA, ncol = 2, nrow = 2))
-  pe2 = replicate(pathCheckNum, matrix(NA, ncol = 2, nrow = 2))
+  pe1 = pe2 = array(NA,dim=c(2,2,pathCheckNum))
   
   # Initialize. Will store path centers
-  cent1 = array(NA, c(1, 2, pathCheckNum))
-  cent2 = array(NA, c(1, 2, pathCheckNum))
+  cent1 = cent2 = array(NA, c(1, 2, pathCheckNum))
   
   # Initialize. Will store path lengths
-  len1 = rep(0, pathCheckNum)
-  len2 = rep(0, pathCheckNum)
+  len1 = len2 = rep(0, pathCheckNum)
   
   # Initialize. For each possible pair an edge from graph 1 with an edge from graph 2,
   # will store whether the pair "matches" i.e. produces the smallest distance between the
   # two graphs
   pathEndPointsMatch = rep(TRUE, pathCheckNum ^ 2)
-  
+
   # Initialize. Will store the weights, aka distances, between the two graphs
   weights = matrix(NA, ncol = pathCheckNum, nrow = pathCheckNum)
   
@@ -378,12 +350,7 @@ getGraphInfo = function(imageList1, imageList2, isProto1, isProto2, numPathCuts)
         byrow = TRUE
       )
       cent1[1, , ii] = imageList1$pathCenter[ii, ]
-      
-      for (i in 1:(numPathCuts - 1))
-      {
-        pq1[i, , ii] = imageList1$pathQuarters[ii, c((i - 1) * 2 + 1, (i - 1) *
-                                                       2 + 2)]
-      }
+      pq1[, , ii] <- matrix(imageList1$pathQuarters[ii,][1:(2*(numPathCuts - 1))],numPathCuts - 1,byrow=TRUE)
     }
     else if (ii <= numPaths1)
     {
@@ -392,13 +359,8 @@ getGraphInfo = function(imageList1, imageList2, isProto1, isProto2, numPathCuts)
       pe1[, , ii] = imageList1$pathEndsrc[[ii]]
       
       pathRC = pathToRC(imageList1$allPaths[[ii]], dim(imageList1$image))
-      cent1[1, , ii] = c(mean(pathRC[, 1]), mean(pathRC[, 2])) - imageList1$centroid
-      
-      for (i in 1:(numPathCuts - 1))
-      {
-        pq1[i, , ii] = pathRC[ceiling(length(imageList1$allPaths[[ii]]) / (numPathCuts /
-                                                                             i)), ] - imageList1$centroid
-      }
+      cent1[1, , ii] = colMeans(pathRC) - imageList1$centroid
+      pq1[, , ii] = Rfast::eachrow(pathRC[ceiling(length(imageList1$allPaths[[ii]]) / (numPathCuts /1:(numPathCuts-1))),],imageList1$centroid,"-")
     }
   }
   
@@ -416,10 +378,7 @@ getGraphInfo = function(imageList1, imageList2, isProto1, isProto2, numPathCuts)
       )
       
       cent2[1, , jj] = imageList2$pathCenter[jj, ]
-      for (i in 1:(numPathCuts - 1))
-      {
-        pq2[i, , jj] = imageList2$pathQuarters[jj, (i - 1) * 2 + 1:2]
-      }
+      pq2[, , jj] <- matrix(imageList2$pathQuarters[jj,][1:(2*(numPathCuts - 1))],numPathCuts - 1,byrow=TRUE)
     }
     else if (jj <= numPaths2)
     {
@@ -428,13 +387,8 @@ getGraphInfo = function(imageList1, imageList2, isProto1, isProto2, numPathCuts)
       pe2[, , jj] = imageList2$pathEndsrc[[jj]]
       
       pathRC = pathToRC(imageList2$allPaths[[jj]], dim(imageList2$image))
-      cent2[1, , jj] = c(mean(pathRC[, 1]), mean(pathRC[, 2])) - imageList2$centroid
-      
-      for (i in 1:(numPathCuts - 1))
-      {
-        pq2[i, , jj] = pathRC[ceiling(length(imageList2$allPaths[[jj]]) / (numPathCuts /
-                                                                             i)), ] - imageList2$centroid
-      }
+      cent2[1, , jj] = colMeans(pathRC) - imageList2$centroid
+      pq2[, , jj] = Rfast::eachrow(pathRC[ceiling(length(imageList2$allPaths[[jj]]) / (numPathCuts /1:(numPathCuts-1))),],imageList2$centroid,"-")
     }
   }
   
@@ -480,20 +434,28 @@ getAllPairsDistances = function(graphInfo, numPathCuts)
       else
         # plus is direction 1, minus is direction 2
       {
+        ## Resolve values once to reduce overhead
+        graphInfo_pe1 = graphInfo$pe1[, , ii]
+        p1e1 = graphInfo_pe1[1, ]
+        p1e2 = graphInfo_pe1[2, ]
+        graphInfo_pe2 = graphInfo$pe2[, , jj]
+        p2e1 = graphInfo_pe2[1, ]
+        p2e2 = graphInfo_pe2[2, ]
+
         # Distance between endpoint locations
         d = dist_loc(
-          p1e1 = graphInfo$pe1[1, , ii],
-          p1e2 = graphInfo$pe1[2, , ii],
-          p2e1 = graphInfo$pe2[1, , jj],
-          p2e2 = graphInfo$pe2[2, , jj]
+          p1e1 = p1e1,
+          p1e2 = p1e2,
+          p2e1 = p2e1,
+          p2e2 = p2e2
         )
         
         # Add straight line distance
         d = d + 0.5 * dist_sld(
-          p1e1 = graphInfo$pe1[1, , ii],
-          p1e2 = graphInfo$pe1[2, , ii],
-          p2e1 = graphInfo$pe2[1, , jj],
-          p2e2 = graphInfo$pe2[2, , jj]
+          p1e1 = p1e1,
+          p1e2 = p1e2,
+          p2e1 = p2e1,
+          p2e2 = p2e2
         )
         
         # Add shape distance

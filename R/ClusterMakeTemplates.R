@@ -713,7 +713,7 @@ letterKmeansWithOutlier_parallel <- function(template_proc_list, template_images
     for (i in 1:K)
     {
       if (centerMoved[i]) { # call the mean graph function with the graphs in cluster i sorted by distance, from closest to furthest) to cluster i's center
-        centers[[i]] <- meanGraphSet_slowchange(template_images_list[cluster == i][order(current_wcd[cluster == i])], num_path_cuts = num_path_cuts) # meanGraphSet_Kmeans(template_images_list[cluster == i], num_path_cuts=num_path_cuts)
+        centers[[i]] <- meanGraphSet_slowchange(template_images_list[cluster == i][order(current_wcd[cluster == i])], num_path_cuts = num_path_cuts,num_dist_cores=num_dist_cores) # meanGraphSet_Kmeans(template_images_list[cluster == i], num_path_cuts=num_path_cuts)
       }
     }
 
@@ -758,7 +758,7 @@ letterKmeansWithOutlier_parallel <- function(template_proc_list, template_images
 #' @return The input graph closest to the mean graph
 #'
 #' @noRd
-meanGraphSet_slowchange <- function(template_images_list, num_path_cuts = 4) {
+meanGraphSet_slowchange <- function(template_images_list, num_path_cuts = 4,num_dist_cores) {
   # indices=sample.int(length(template_images_list)) # adds graphs to mean calculations in a random order
   indices <- 1:length(template_images_list) # adds graphs in order
   if (length(template_images_list) < 1) stop("Please specify more than 0 graphs to mean.")
@@ -778,9 +778,13 @@ meanGraphSet_slowchange <- function(template_images_list, num_path_cuts = 4) {
   }
 
   # calculate the distance between the new mean graph and each graph in the cluster
-  for (i in 1:length(template_images_list))
-  {
-    dists[i] <- getGraphDistance(meanGraph1, template_images_list[[i]], isProto1 = TRUE, numPathCuts = num_path_cuts)$matching_weight
+  # for (i in 1:length(template_images_list))
+  # {
+  #   dists[i] <- getGraphDistance(meanGraph1, template_images_list[[i]], isProto1 = TRUE, numPathCuts = num_path_cuts)$matching_weight
+  # }
+  doParallel::registerDoParallel(num_dist_cores)
+  dists <- foreach::foreach(i = 1:length(template_images_list), .export = c("getGraphDistance"), .packages = c("lpSolve"),.combine='c') %dopar% {
+    return(handwriter:::getGraphDistance(meanGraph1, template_images_list[[i]], isProto1 = TRUE, numPathCuts = num_path_cuts)$matching_weight)
   }
 
   # find the index of the graph that is closest to the mean graph
