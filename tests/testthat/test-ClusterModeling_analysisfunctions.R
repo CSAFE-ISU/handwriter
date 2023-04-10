@@ -96,13 +96,3 @@ test_that("count csafe top writer works on multiple chains", {
   expect_equal(results$correct, 4)
   expect_equal(results$total, 5)
 })
-
-
-
-
-
-
-
-
-
-
