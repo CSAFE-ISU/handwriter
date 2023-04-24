@@ -1,10 +1,10 @@
 test_that("an error occurs when the sum of template and model writers is greater than the total number of CSAFE writers", {
-  expect_error(select_csafe_docs(num_template_writers = 100,
+  expect_error(select_csafe_docs(num_template_writers = 200,
                                  template_sessions = 1,
                                  template_reps = 1,
                                  template_prompts = "London Letter",
                                  template_seed = 100,
-                                 num_model_writers = 200,
+                                 num_model_writers = 300,
                                  model_sessions = 1,
                                  model_reps = c(1,2,3),
                                  model_prompts = "Wizard of Oz",
