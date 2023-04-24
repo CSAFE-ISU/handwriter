@@ -5,7 +5,7 @@
 \alias{csafe_docs}
 \title{CSAFE Documents}
 \format{
-A data frame of handwriting documents available in the CSAFE handwriting database.:
+A data frame of handwriting documents available in the CSAFE handwriting database version 4:
 \describe{
 \item{doc}{The document file name. E.g., w0001_s01_pLND_r01.png}
 \item{writer}{The writer id. E.g., w0001}
