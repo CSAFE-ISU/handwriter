@@ -16,7 +16,8 @@ make_clustering_templates(
   num_path_cuts = 8,
   max_iters = 1,
   gamma = 3,
-  num_graphs = "All"
+  num_graphs = "All",
+  numstrat = c(5, 2, 5, 6, 5, 3, 2, 2, 2, rep(1, 8))
 )
 }
 \arguments{
@@ -53,6 +54,8 @@ to run}
 
 \item{num_graphs}{Number of graphs to use to create the cluster template.
 \code{All} uses all available graphs. An integer uses a random sample of graphs.}
+
+\item{numstrat}{Vector of number of graphs to sample from each stratum}
 }
 \value{
 List containing the cluster template

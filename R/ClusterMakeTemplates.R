@@ -31,6 +31,7 @@
 #' @param gamma Parameter for outliers
 #' @param num_graphs Number of graphs to use to create the cluster template.
 #'   `All` uses all available graphs. An integer uses a random sample of graphs.
+#' @param numstrat Vector of number of graphs to sample from each stratum
 #' @return List containing the cluster template
 #'
 #' @examples
@@ -67,7 +68,8 @@ make_clustering_templates <- function(template_dir,
                                       num_path_cuts = 8,
                                       max_iters = 1,
                                       gamma = 3,
-                                      num_graphs = "All") { # use integer for testing with a subset of graphs or use 'All'
+                                      num_graphs = "All",
+                                      numstrat = c(5, 2, 5, 6, 5, 3, 2, 2, 2, rep(1, 8))) { # use integer for testing with a subset of graphs or use 'All'
 
   options(scipen = 999)
 
@@ -108,7 +110,7 @@ make_clustering_templates <- function(template_dir,
   # Choose cluster centers. NOTE: Even if you are testing the code on a small number of
   # graphs, you need to select centers from the full list of graphs.
   message("Choosing starting cluster centers...")
-  centers <- chooseCenters(seed = centers_seed, K = K, template_proc_list = template_proc_list, template_images_list = full_template_images_list)
+  centers <- chooseCenters(seed = centers_seed, K = K, template_proc_list = template_proc_list, template_images_list = full_template_images_list, numstrat = numstrat)
 
   # Run Kmeans
   template <- letterKmeansWithOutlier_parallel(
@@ -458,10 +460,11 @@ make_dir <- function(dir_path) {
 #' @param K Integer number of clusters
 #' @param template_proc_list List of graphs output by make_proc_list()
 #' @param template_images_list List of graphs output by make_images_list()
+#' @param numstrat Vector of number of graphs to sample from each stratum
 #' @return List of starting cluster centers
 #'
 #' @noRd
-chooseCenters <- function(seed, K, template_proc_list, template_images_list) {
+chooseCenters <- function(seed, K, template_proc_list, template_images_list, numstrat) {
   
   set.seed(seed = seed)
 
@@ -479,15 +482,14 @@ chooseCenters <- function(seed, K, template_proc_list, template_images_list) {
   # Select graphs as starting cluster centers by randomly selecting 5 graphs with 1 loop, 2 graphs with 2 loops,
   # 5 graphs with 1 edge, 6 graphs with 2 edges, and so on. NOTE: numstrat must sum to # of
   # clusters K.
-  numstrat <- c(5, 2, 5, 6, 5, 3, 2, 2, 2, rep(1, 8))
-  if (length(lvls) > length(numstrat)) {
+  if (length(lvls) > length(numstrat)) {    
     # Add trailing zeros to make numstrat the same length as lvls
     numstrat <- c(numstrat, rep(0, length(lvls) - length(numstrat)))
   } else if (length(lvls) < length(numstrat)) {
     # Drop trailing items in numstrat to make it the same length as lvls
-    numstrat <- numstrat[1:length(lvls)]
+    numstrat <- numstrat[1:length(lvls)] 
   }
-
+  
   samplingdf <- data.frame(doc = doc, letter = letter, stratum = stratum_a, ind = 1:length(stratum_a))
   samplingdf <- samplingdf %>%
     dplyr::mutate(stratumfac = factor(stratum, levels = lvls)) %>%

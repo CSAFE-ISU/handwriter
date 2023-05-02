@@ -12,4 +12,4 @@ isnt/model2/data/
 inst/doc
 vignettes/handwriter_example/
 inst/.DS_Store
-scratch/
+scratch.R
