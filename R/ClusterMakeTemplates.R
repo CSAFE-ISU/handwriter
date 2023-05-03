@@ -124,7 +124,8 @@ make_clustering_templates <- function(template_dir,
     centers = centers,
     num_dist_cores = num_dist_cores,
     centers_seed = centers_seed,
-    graphs_seed = graphs_seed
+    graphs_seed = graphs_seed,
+    numstrat = numstrat
   )
   message("Saving template...")
   saveRDS(template, file = file.path(template_dir, "data", "template.rds"))
@@ -547,11 +548,12 @@ PathToRC = function(pathList, dims)
 #'   selecting starting cluster centers.
 #' @param graphs_seed Integer seed for the random number generator when
 #'   selecting graphs. If `num_graphs = 'All'` then `graphs_seed` won't be used
+#' @param numstrat Vector of number of graphs to sample from each stratum
 #' @return Cluster template
 #'
 #' @noRd
 letterKmeansWithOutlier_parallel <- function(template_proc_list, template_images_list, K, centers, num_path_cuts, max_iters, gamma,
-                                             num_outliers, num_dist_cores, centers_seed, graphs_seed) {
+                                             num_outliers, num_dist_cores, centers_seed, graphs_seed, numstrat) {
   get("within_cluster_sum_of_squares")
 
   # Initialize ----
@@ -744,7 +746,8 @@ letterKmeansWithOutlier_parallel <- function(template_proc_list, template_images
     wcss = wcss, 
     rmse = rmse, 
     DaviesBouldinIndex = db, 
-    VarianceRatioCriterion = vrc
+    VarianceRatioCriterion = vrc,
+    numstrat = numstrat
   ))
 }
 
