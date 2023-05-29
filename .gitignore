@@ -13,3 +13,6 @@ inst/doc
 vignettes/handwriter_example/
 inst/.DS_Store
 scratch/
+inst/.DS_Store
+*.pyc
+inst/.DS_Store

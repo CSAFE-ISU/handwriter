@@ -3,10 +3,52 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
-def separate_word(file_name, ret="image"):
-  # Set image path
-  file_name = os.path.join("images", file_name)
+
+def detect_lines(file_name):
+  # Read Input image
+  input_image = cv2.imread(file_name)
+  gray = cv2.cvtColor(input_image, cv2.COLOR_BGR2GRAY)
   
+  # Threshold and median blur
+  thresh_value, binary_image = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+
+  ## (3) minAreaRect on the nozeros
+  pts = cv2.findNonZero(binary_image)
+  ret = cv2.minAreaRect(pts)
+  
+  (cx,cy), (w,h), ang = ret
+  # if w>h:
+  w,h = h,w
+  ang -= 90
+  
+  ## (4) Find rotated matrix, do rotation
+  M = cv2.getRotationMatrix2D((cx,cy), ang, 1.0)
+  rotated_1 = cv2.warpAffine(binary_image, M, (input_image.shape[1], input_image.shape[0]))
+  
+  ## (5) find and draw the upper and lower boundary of each lines
+  hist = cv2.reduce(rotated_1,1, cv2.REDUCE_AVG).reshape(-1)
+  
+  th = 2
+  H,W = input_image.shape[:2]
+  uppers = [y for y in range(H-1) if hist[y]<=th and hist[y+1]>th]
+  lowers = [y for y in range(H-1) if hist[y]>th and hist[y+1]<=th]
+  
+  rotated = cv2.cvtColor(rotated_1, cv2.COLOR_GRAY2BGR)
+  
+  for y in lowers[1:2]:
+    cv2.line(rotated, (0,y), (W, y), (255,255,255), 1)
+    cv2.line(rotated, (0,y + 1), (W, y + 1), (255,255,255), 1)
+    cv2.line(rotated, (0,y + 2), (W, y + 2), (255,255,255), 1)
+    cv2.line(rotated, (0,y - 1), (W, y - 1), (255,255,255), 1)
+    cv2.line(rotated, (0,y - 2), (W, y - 2), (255,255,255), 1)
+
+  plt.imshow(rotated, cmap='Greys_r')
+  plt.show()
+  
+  return rotated
+
+
+def separate_word(file_name, ret="image"):
   # Read Input image
   input_image = cv2.imread(os.path.join(file_name))
   gray = cv2.cvtColor(input_image, cv2.COLOR_BGR2GRAY)
@@ -76,7 +118,6 @@ def annotate_image(file_name, contours):
   # Read Input image
   if type(file_name) == str:
     # Set image path
-    file_name = os.path.join("images", file_name)
     input_copy = cv2.imread(os.path.join(file_name))
   else:
     input_copy = file_name
