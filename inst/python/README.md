@@ -23,10 +23,30 @@ The next set of steps depend on whether you (a) prefer to run the code natively 
 
 4. Open up a terminal
 5. Change your working directory to the root of the `handwriter` repository. For example, on MacOS, you would run `cd /path/to/cloned/handwriter`, replacing the path with the actual path on your local machine.
-6. Launch the Python interpreter by calling: `python`
-7. Import the module: `import inst.python.word_separation as ws`
-8. Split the lines: `ws.detect_lines(file_name="inst/python/images/early_bird.png")`
-8. Separate the word: `ws.show_image(ws.separate_word(file_name="inst/python/images/early_bird.png"))`
+6. Launch the Python interpreter by calling: 
+
+```bash
+python
+```
+
+7. Import the module: 
+
+```python
+import inst.python.word_separation as ws
+```
+
+8. Split the lines: 
+
+```python
+ws.detect_lines(file_name="inst/python/images/early_bird.png")
+```
+
+8. Separate the word:
+
+```python
+ws.show_image(ws.separate_word(file_name="inst/python/images/early_bird.png"))
+```
+
 10. Display the contours!
 
 ```python
