@@ -17,7 +17,7 @@ Here are the step by step instructions for Python Word Separation:
 2. Clone the `handwriter` repository to your local machine
 3. Install the following python packages: `pip install opencv-python matplotlib ipython jupyter`
 4. Open up a terminal
-5. Change your working directory to the root of the `handwriter` repository. For example, on MacOS, you would run `cd /path/to/cloned/handwriter`, replacing the path with the actual path on your local machine.
+5. Change your working directory to the `inst/python` directory of the `handwriter` repository. For example, on MacOS, you would run `cd /path/to/cloned/handwriter/inst/python`, replacing the path with the actual path on your local machine.
 
 The next set of steps depend on whether you (a) prefer to run the code natively in Python, (b) prefer to run the code from a Jupyter Notebook, or (c) prefer to run the code from R.
 
@@ -32,26 +32,26 @@ python
 7. Import the module: 
 
 ```python
-import inst.python.word_separation as ws
+from word_separation import *
 ```
 
 8. Split the lines: 
 
 ```python
-ws.detect_lines(file_name="inst/python/images/early_bird.png")
+detect_lines(file_name="images/early_bird.png")
 ```
 
 8. Separate the word:
 
 ```python
-ws.show_image(ws.separate_word(file_name="inst/python/images/early_bird.png"))
+show_image(separate_word(file_name="images/early_bird.png"))
 ```
 
 10. Display the contours!
 
 ```python
-im1_contours = ws.separate_word(file_name="inst/python/images/early_bird.png", ret="contours")
-ws.annotate_image("inst/python/images/early_bird.png", im1_contours)
+im1_contours = separate_word(file_name="images/early_bird.png", ret="contours")
+annotate_image("images/early_bird.png", im1_contours)
 ```
 
 ### Option B: Run Natively through Jupyter
@@ -69,4 +69,20 @@ jupyter notebook
 
 ### Option C: Run in R with `reticulate`
 
-Coming soon!
+Execute the `word_separation.R` script in the `inst/python` directory:
+
+```r
+library(reticulate)
+
+# Make sure you're using the right version of Python
+use_python("/Users/erichare/.pyenv/shims/python")
+
+# Source in the word separation code from this directory!
+source_python("word_separation.py")
+
+# Call the functions
+detect_lines(file_name="images/early_bird.png")
+show_image(separate_word(file_name="images/early_bird.png"))
+im1_contours <- separate_word(file_name="images/early_bird.png", ret="contours")
+ws.annotate_image("inst/python/images/early_bird.png", im1_contours)
+```
