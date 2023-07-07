@@ -12,7 +12,7 @@ def detect_lines(file_name):
   # Threshold and median blur
   thresh_value, binary_image = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
 
-  ## (3) minAreaRect on the nozeros
+  ## (3) minAreaRect on the nonzeros
   pts = cv2.findNonZero(binary_image)
   ret = cv2.minAreaRect(pts)
   
@@ -41,6 +41,12 @@ def detect_lines(file_name):
     cv2.line(rotated, (0,y + 2), (W, y + 2), (255,255,255), 1)
     cv2.line(rotated, (0,y - 1), (W, y - 1), (255,255,255), 1)
     cv2.line(rotated, (0,y - 2), (W, y - 2), (255,255,255), 1)
+    
+    split_1 = rotated[0:y, ]
+    split_2 = rotated[y:W, ]
+    
+    cv2.imwrite(f'images/1_{os.path.basename(file_name)}', split_1)
+    cv2.imwrite(f'images/2_{os.path.basename(file_name)}', split_2)
 
   plt.imshow(rotated, cmap='Greys_r')
   plt.show()
@@ -144,6 +150,10 @@ def annotate_image(file_name, contours):
       
       cv2.rectangle(input_copy, (int(rectX), int(rectY)),
                     (int(rectX + rectWidth), int(rectY + rectHeight)), color, 2)
+                    
+      word = input_copy[int(rectY):(int(rectY + rectHeight)), int(rectX):(int(rectX + rectWidth))]
+      cv2.imwrite(f'images/w{_}_{os.path.basename(file_name)}', word)
+
   #    print(_)
   #    print(c)
   # Get top left corner of every corner
@@ -167,3 +177,12 @@ def annotate_image(file_name, contours):
   plt.imshow(cv2.cvtColor(input_copy, cv2.COLOR_BGR2RGB))
   plt.show()
 
+  # TODO DONE: Function that given an annotated image, return (1) images of each word as separate images, (2) the x y position + width + height of each rectangle.
+  # TODO: Wrapper function to batch process images, (maintain naming conventions, per-writer output - first five chars indicate writer - w0001_s01_pLND_r01)
+  # TODO: Naming convention for different lines of split images (line-num)
+
+
+def batch_process(file_names):
+  for file_name in file_names:
+    im1_contours = separate_word(file_name=file_name, ret="contours")
+    annotate_image(file_name, im1_contours)
