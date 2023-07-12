@@ -32,26 +32,48 @@ python
 7. Import the module: 
 
 ```python
-from word_separation import *
+import word_separation as ws
 ```
 
 8. Split the lines: 
 
 ```python
-detect_lines(file_name="images/early_bird.png")
+input_image="images/w0001_s03_pPHR_r01.png"
+
+# Split the lines
+split_images = ws.detect_lines(input_image)
+split_images
 ```
 
-8. Separate the word:
+9. Separate the word:
 
 ```python
-show_image(separate_word(file_name="images/early_bird.png"))
+# Display each split image
+for split_image in split_images:
+    ws.show_image(ws.separate_word(file_name=split_image))
 ```
 
 10. Display the contours!
 
 ```python
-im1_contours = separate_word(file_name="images/early_bird.png", ret="contours")
-annotate_image("images/early_bird.png", im1_contours)
+# Get every word extracted as a contour
+all_words = []
+for split_image in split_images:
+    im1_contours = ws.separate_word(file_name=split_image, ret="contours")
+    all_words.append(ws.annotate_image(split_image, im1_contours))
+```
+
+11. Display the Bounding Boxes!
+
+```python
+# Let's take a look!
+all_words
+```
+
+12. Batch Processing
+
+```python
+batched = ws.batch_process("images")
 ```
 
 ### Option B: Run Natively through Jupyter
@@ -72,6 +94,7 @@ jupyter notebook
 Execute the `word_separation.R` script in the `inst/python` directory:
 
 ```r
+# We will need reticulate to call the Python functions
 library(reticulate)
 
 # Make sure you're using the right version of Python
@@ -80,9 +103,30 @@ use_python("/Users/erichare/.pyenv/shims/python")
 # Source in the word separation code from this directory!
 source_python("word_separation.py")
 
-# Call the functions
-detect_lines(file_name="images/early_bird.png")
-show_image(separate_word(file_name="images/early_bird.png"))
-im1_contours <- separate_word(file_name="images/early_bird.png", ret="contours")
-ws.annotate_image("inst/python/images/early_bird.png", im1_contours)
+# Configure the input image
+input_image="images/w0001_s03_pPHR_r01.png"
+
+# Split the lines
+split_images = detect_lines(input_image)
+split_images
+
+# Display each split image
+for (split_image in split_images) {
+  show_image(separate_word(file_name=split_image))
+}
+
+# Get every word extracted as a contour
+all_words <- list()
+for (split_image in split_images) {
+  im1_contours = separate_word(file_name=split_image, ret="contours")
+  all_words[[length(all_words) + 1]] <- annotate_image(split_image, im1_contours)
+}
+
+# Let's take a look!
+all_words
+
+###
+# Batch Processing
+###
+batch_process("images")
 ```
