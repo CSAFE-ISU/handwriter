@@ -35,6 +35,13 @@ def detect_lines(file_name):
   
   rotated = cv2.cvtColor(rotated_1, cv2.COLOR_GRAY2BGR)
   
+  all_files = []
+  
+  (dir_path, extension) = os.path.splitext(file_name)
+  
+  if not os.path.exists(dir_path):
+    os.mkdir(dir_path)
+  
   for y in lowers[1:2]:
     cv2.line(rotated, (0,y), (W, y), (255,255,255), 1)
     cv2.line(rotated, (0,y + 1), (W, y + 1), (255,255,255), 1)
@@ -42,16 +49,19 @@ def detect_lines(file_name):
     cv2.line(rotated, (0,y - 1), (W, y - 1), (255,255,255), 1)
     cv2.line(rotated, (0,y - 2), (W, y - 2), (255,255,255), 1)
     
-    split_1 = rotated[0:y, ]
-    split_2 = rotated[y:W, ]
-    
-    cv2.imwrite(f'images/1_{os.path.basename(file_name)}', split_1)
-    cv2.imwrite(f'images/2_{os.path.basename(file_name)}', split_2)
+    split_1 = input_image[0:y, ]
+    split_2 = input_image[y:W, ]
+      
+    all_files.append(os.path.join(dir_path, "line-1.png"))
+    all_files.append(os.path.join(dir_path, "line-2.png"))
+
+    cv2.imwrite(os.path.join(dir_path, "line-1.png"), split_1)
+    cv2.imwrite(os.path.join(dir_path, "line-2.png"), split_2)
 
   plt.imshow(rotated, cmap='Greys_r')
   plt.show()
   
-  return rotated
+  return all_files
 
 
 def separate_word(file_name, ret="image"):
@@ -127,32 +137,54 @@ def annotate_image(file_name, contours):
     input_copy = cv2.imread(os.path.join(file_name))
   else:
     input_copy = file_name
+
+  (dir_path, extension) = os.path.splitext(file_name)
   
+  contours = [x for x in contours if cv2.contourArea(x) > 1000] # TODO: DYNAMIC!
+  cntr_index = np.argsort([cv2.boundingRect(i)[0] for i in contours])
+
   # Look for the outer bounding boxes (no children):
-  for _, c in enumerate(contours):
+  return_list = []
+  for ind, i in enumerate(cntr_index):
+    c = contours[i]
     area = cv2.contourArea(c)
-    if area > 1000:
-        
-      # Get the bounding rectangle of the current contour:
-      boundRect = cv2.boundingRect(c)
-  
-      # Get the bounding rectangle data:
-      rectX = boundRect[0]
-      rectY = boundRect[1]
-      rectWidth = boundRect[2]
-      rectHeight = boundRect[3]
-  
-      # Estimate the bounding rect area:
-      rectArea = rectWidth * rectHeight
-  
-      # Draw bounding box:
-      color = (0, 255, 0)
-      
-      cv2.rectangle(input_copy, (int(rectX), int(rectY)),
-                    (int(rectX + rectWidth), int(rectY + rectHeight)), color, 2)
-                    
-      word = input_copy[int(rectY):(int(rectY + rectHeight)), int(rectX):(int(rectX + rectWidth))]
-      cv2.imwrite(f'images/w{_}_{os.path.basename(file_name)}', word)
+    
+    # Get the bounding rectangle of the current contour:
+    boundRect = cv2.boundingRect(c)
+
+    # Get the bounding rectangle data:
+    rectX = boundRect[0]
+    rectY = boundRect[1]
+    rectWidth = boundRect[2]
+    rectHeight = boundRect[3]
+
+    # Estimate the bounding rect area:
+    rectArea = rectWidth * rectHeight
+
+    # Draw bounding box:
+    color = (0, 255, 0)
+    
+    cv2.rectangle(input_copy, (int(rectX), int(rectY)),
+                  (int(rectX + rectWidth), int(rectY + rectHeight)), color, 2)
+                  
+    word = input_copy[int(rectY):(int(rectY + rectHeight)), int(rectX):(int(rectX + rectWidth))]
+    print(f'{dir_path}-word-{ind}.png')
+    print(f"rectY: {rectY}")
+    print(f"rectX: {rectX}")
+    print(f"rectHeight: {rectHeight}")
+    print(f"rectWidth: {rectWidth}")
+    print("\n")
+    cv2.imwrite(f'{dir_path}-word-{ind}.png', word)
+    
+    return_list.append(
+      { 
+        "file": f'{dir_path}-word-{ind}.png',
+        "rectY": rectY,
+        "rectX": rectX,
+        "rectHeight": rectHeight,
+        "rectWidth": rectWidth
+      }
+    )
 
   #    print(_)
   #    print(c)
@@ -176,13 +208,24 @@ def annotate_image(file_name, contours):
   
   plt.imshow(cv2.cvtColor(input_copy, cv2.COLOR_BGR2RGB))
   plt.show()
+  
+  return return_list
 
   # TODO DONE: Function that given an annotated image, return (1) images of each word as separate images, (2) the x y position + width + height of each rectangle.
   # TODO: Wrapper function to batch process images, (maintain naming conventions, per-writer output - first five chars indicate writer - w0001_s01_pLND_r01)
   # TODO: Naming convention for different lines of split images (line-num)
 
 
-def batch_process(file_names):
+def batch_process(dir_name):
+  all_words = []
+  file_names = [os.path.join(dir_name, x) for x in os.listdir(dir_name) if x.endswith(".png")]
   for file_name in file_names:
-    im1_contours = separate_word(file_name=file_name, ret="contours")
-    annotate_image(file_name, im1_contours)
+    split_images = detect_lines(file_name)
+    
+    for split_image in split_images:
+      show_image(separate_word(file_name=split_image))
+
+      im1_contours = separate_word(file_name=split_image, ret="contours")
+      all_words.append(annotate_image(split_image, im1_contours))
+      
+  return(all_words)
