@@ -8,10 +8,10 @@ use_python("/Users/erichare/.pyenv/shims/python")
 source_python("word_separation.py")
 
 # Configure the input image
-input_image="images/w0001_s03_pPHR_r01.png"
+input_image <- "images/w0001_s03_pPHR_r01.png"
 
 # Split the lines
-split_images = detect_lines(input_image)
+split_images <- detect_lines(input_image)
 split_images
 
 # Display each split image
