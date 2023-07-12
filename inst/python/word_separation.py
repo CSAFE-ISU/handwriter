@@ -38,6 +38,7 @@ def detect_lines(file_name):
   all_files = []
   
   (dir_path, extension) = os.path.splitext(file_name)
+  name_convention = os.path.basename(dir_path)
   
   if not os.path.exists(dir_path):
     os.mkdir(dir_path)
@@ -52,14 +53,18 @@ def detect_lines(file_name):
     split_1 = input_image[0:y, ]
     split_2 = input_image[y:W, ]
       
-    all_files.append(os.path.join(dir_path, "line-1.png"))
-    all_files.append(os.path.join(dir_path, "line-2.png"))
+    all_files.append(os.path.join(dir_path, f"{name_convention}-l1.png"))
+    all_files.append(os.path.join(dir_path, f"{name_convention}-l2.png"))
 
-    cv2.imwrite(os.path.join(dir_path, "line-1.png"), split_1)
-    cv2.imwrite(os.path.join(dir_path, "line-2.png"), split_2)
-
+    cv2.imwrite(os.path.join(dir_path, f"{name_convention}-l1.png"), split_1)
+    cv2.imwrite(os.path.join(dir_path, f"{name_convention}-l2.png"), split_2)
+    
   plt.imshow(rotated, cmap='Greys_r')
   plt.show()
+    
+  if not lowers[1:2]:
+    cv2.imwrite(os.path.join(dir_path, f"{name_convention}-l1.png"), input_image)
+    all_files.append(os.path.join(dir_path, f"{name_convention}-l1.png"))
   
   return all_files
 
@@ -145,6 +150,8 @@ def annotate_image(file_name, contours):
 
   # Look for the outer bounding boxes (no children):
   return_list = []
+  name_convention = os.path.basename(dir_path)
+
   for ind, i in enumerate(cntr_index):
     c = contours[i]
     area = cv2.contourArea(c)
@@ -168,17 +175,17 @@ def annotate_image(file_name, contours):
                   (int(rectX + rectWidth), int(rectY + rectHeight)), color, 2)
                   
     word = input_copy[int(rectY):(int(rectY + rectHeight)), int(rectX):(int(rectX + rectWidth))]
-    print(f'{dir_path}-word-{ind}.png')
-    print(f"rectY: {rectY}")
-    print(f"rectX: {rectX}")
-    print(f"rectHeight: {rectHeight}")
-    print(f"rectWidth: {rectWidth}")
-    print("\n")
-    cv2.imwrite(f'{dir_path}-word-{ind}.png', word)
+    # print(f'{dir_path}-word-{ind}.png')
+    # print(f"rectY: {rectY}")
+    # print(f"rectX: {rectX}")
+    # print(f"rectHeight: {rectHeight}")
+    # print(f"rectWidth: {rectWidth}")
+    # print("\n")
+    cv2.imwrite(f'{dir_path}-wd{ind}.png', word)
     
     return_list.append(
       { 
-        "file": f'{dir_path}-word-{ind}.png',
+        "file": f'{dir_path}-wd{ind}.png',
         "rectY": rectY,
         "rectX": rectX,
         "rectHeight": rectHeight,
