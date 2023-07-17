@@ -135,6 +135,7 @@ def concat_images(im1, im2):
   
   return(v_img)
 
+
 def annotate_image(file_name, contours):
   # Read Input image
   if type(file_name) == str:
@@ -168,19 +169,15 @@ def annotate_image(file_name, contours):
     # Estimate the bounding rect area:
     rectArea = rectWidth * rectHeight
 
-    # Draw bounding box:
-    color = (0, 255, 0)
-    
-    cv2.rectangle(input_copy, (int(rectX), int(rectY)),
-                  (int(rectX + rectWidth), int(rectY + rectHeight)), color, 2)
-                  
     word = input_copy[int(rectY):(int(rectY + rectHeight)), int(rectX):(int(rectX + rectWidth))]
+
     # print(f'{dir_path}-word-{ind}.png')
     # print(f"rectY: {rectY}")
     # print(f"rectX: {rectX}")
     # print(f"rectHeight: {rectHeight}")
     # print(f"rectWidth: {rectWidth}")
     # print("\n")
+
     cv2.imwrite(f'{dir_path}-wd{ind}.png', word)
     
     return_list.append(
@@ -217,10 +214,6 @@ def annotate_image(file_name, contours):
   plt.show()
   
   return return_list
-
-  # TODO DONE: Function that given an annotated image, return (1) images of each word as separate images, (2) the x y position + width + height of each rectangle.
-  # TODO: Wrapper function to batch process images, (maintain naming conventions, per-writer output - first five chars indicate writer - w0001_s01_pLND_r01)
-  # TODO: Naming convention for different lines of split images (line-num)
 
 
 def batch_process(dir_name):
