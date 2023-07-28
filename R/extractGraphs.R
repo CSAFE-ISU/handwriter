@@ -49,7 +49,7 @@ extractGraphs = function(source_folder = getwd(), save_folder = getwd()){
     path = paste0(source_folder,"/", filenames[[i]])
     writer_id = paste0(substr(basename(path), start = 0, stop = nchar(basename(path))-17))
     
-    setwd(save_folder)
+    #setwd(save_folder)
     ifelse(!dir.exists(file.path(save_folder, writer_id)), dir.create(file.path(save_folder, writer_id)), FALSE)
     graph_writer = paste0(save_folder, writer_id, "/")
     
