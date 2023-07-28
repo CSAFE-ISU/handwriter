@@ -487,7 +487,28 @@ getAllPairsDistances = function(graphInfo, numPathCuts)
   return(graphInfo)
 }
 
-
+#' Calculate the graph distance between two sets of images.
+#'
+#' This function calculates the graph distance between two sets of images represented
+#' by image lists. The graph distance is calculated using linear programming to find
+#' the optimal edge pairings between the two graphs.
+#'
+#' @param imageList1 The first image list.
+#' @param imageList2 The second image list.
+#' @param isProto1 Logical. If TRUE, imageList1 is a prototype; otherwise, it's not.
+#' @param isProto2 Logical. If TRUE, imageList2 is a prototype; otherwise, it's not.
+#' @param numPathCuts The number of path cuts. Default is 8.
+#'
+#' @return A list containing the graph distance calculation result. The list includes:
+#' \item{matching_weight}{The weight of the optimal edge pairings.}
+#' \item{matching_size}{The size of the optimal edge pairings.}
+#'
+#' @details This function internally uses \code{\link[handwriter]{getGraphInfo}} to
+#'   find and format the parameter values. It then employs \code{\link[handwriter]{getAllPairsDistances}}
+#'   to calculate the distances between each pair of edges. Finally, the function uses linear programming
+#'   to find the optimal edge pairings and returns the matching weight and size.
+#'
+#' @export
 getGraphDistance = function(imageList1, imageList2, isProto1 = FALSE, isProto2 = FALSE, numPathCuts = 8)
 {
   if (numPathCuts < 1)

@@ -1,7 +1,0 @@
-Sentences Used:
-
-Files Used:
-s1_w0001_s01_pLND_r1 
-s2_w0001_s01_pLND_r1
-
-Folders Used:

@@ -34,7 +34,12 @@ make_example_template <- function(main_dir, centers_seed, graphs_seed) {
   # save to data folder
   usethis::use_data(example_cluster_template, overwrite = TRUE)
 }
-
+#' Wrapped-Cauchy Stan model code.
+#'
+#' This object contains the Stan model code for the wrapped-Cauchy model.
+#'
+#' @name model_wrapped_cauchy
+#' @rdname model_wrapped_cauchy
 make_model_wrapped_cauchy <- function(){
   model_wrapped_cauchy <- "
 model {

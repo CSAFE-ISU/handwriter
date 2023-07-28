@@ -28,15 +28,13 @@ Imports:
     tidyr,
     foreach,
     doParallel,
-    tidyverse,
-    gridExtra,
     lpSolve,
     purrr,
     rjags,
     mc2d,
-    circular,
     futile.logger,
-    Rfast
+    Rfast,
+    shiny
 Suggests: 
     knitr,
     rmarkdown,
