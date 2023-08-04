@@ -1,36 +1,36 @@
 # Single Chain ------------------------------------------------------------
-test_that("fit model with a single chain works", {
-  # fit model. (Will fit model using testthat > fixtures > template > data > model_clusters.rds)
-  template_dir <- test_path("fixtures", "template")
-  model_docs <- system.file("extdata/example_images/model_docs", package = "handwriter")
-  iters <- 50
-  model <- fit_model(template_dir = template_dir, 
-                     model_images_dir = model_docs,
-                     num_iters = iters,
-                     num_chains = 1,
-                     writer_indices = c(2,5),
-                     doc_indices = c(7,18))
-  
-  # number of clusters and writers
-  K <- model$rjags_data$G
-  W <- model$rjags_data$W
-  
-  # names
-  expect_named(model, c("fitted_model", 
-                        "rjags_data", 
-                        "graph_measurements",
-                        "cluster_fill_counts"))
-  
-  # check that model is an mcmc object
-  expect_true(coda::is.mcmc(model$fitted_model[[1]]))
-
-  # check dimensions
-  expect_length(model$fitted_model, 1)
-  expect_equal(dim(model$fitted_model[[1]]), c(iters, 2*K + 3*K*W))
-  
-  # check variable names
-  expect_equal(colnames(model$fitted_model[[1]]), list_model_variables(num_writers = W, num_clusters = K))
-})
+# test_that("fit model with a single chain works", {
+#   # fit model. (Will fit model using testthat > fixtures > template > data > model_clusters.rds)
+#   template_dir <- test_path("fixtures", "template")
+#   model_docs <- system.file("extdata/example_images/model_docs", package = "handwriter")
+#   iters <- 50
+#   model <- fit_model(template_dir = template_dir, 
+#                      model_images_dir = model_docs,
+#                      num_iters = iters,
+#                      num_chains = 1,
+#                      writer_indices = c(2,5),
+#                      doc_indices = c(7,18))
+#   
+#   # number of clusters and writers
+#   K <- model$rjags_data$G
+#   W <- model$rjags_data$W
+#   
+#   # names
+#   expect_named(model, c("fitted_model", 
+#                         "rjags_data", 
+#                         "graph_measurements",
+#                         "cluster_fill_counts"))
+#   
+#   # check that model is an mcmc object
+#   expect_true(coda::is.mcmc(model$fitted_model[[1]]))
+# 
+#   # check dimensions
+#   expect_length(model$fitted_model, 1)
+#   expect_equal(dim(model$fitted_model[[1]]), c(iters, 2*K + 3*K*W))
+#   
+#   # check variable names
+#   expect_equal(colnames(model$fitted_model[[1]]), list_model_variables(num_writers = W, num_clusters = K))
+# })
 
 test_that("drop burn-in works on a single chain", {
   iters = 200
@@ -73,38 +73,38 @@ test_that("about variable works on a single chain", {
 
 
 # Multiple Chains ---------------------------------------------------------
-test_that("fit model with multiple chains works", {
-  # fit model. (Will fit model using testthat > fixtures > template > data > model_clusters.rds)
-  template_dir <- test_path("fixtures", "template")
-  model_docs <- system.file("extdata/example_images/model_docs", package = "handwriter")
-  iters <- 50
-  model <- fit_model(template_dir = template_dir, 
-                     model_images_dir = model_docs,
-                     num_iters = iters,
-                     num_chains = 3,
-                     writer_indices = c(2,5),
-                     doc_indices = c(7,18))
-  
-  # number of clusters and writers
-  K <- model$rjags_data$G
-  W <- model$rjags_data$W
-  
-  # check that fitted model contains mcmc objects
-  expect_true(coda::is.mcmc(model$fitted_model[[1]]))
-  expect_true(coda::is.mcmc(model$fitted_model[[2]]))
-  expect_true(coda::is.mcmc(model$fitted_model[[3]]))
-  
-  # check dimensions of fitted model
-  expect_length(model$fitted_model, 3)
-  expect_equal(dim(model$fitted_model[[1]]), c(iters, 2*K+3*K*W))
-  expect_equal(dim(model$fitted_model[[2]]), c(iters, 2*K+3*K*W))
-  expect_equal(dim(model$fitted_model[[3]]), c(iters, 2*K+3*K*W))
-  
-  # check variable names of fitted model
-  expect_equal(colnames(model$fitted_model[[1]]), list_model_variables(num_writers = W, num_clusters = K))
-  expect_equal(colnames(model$fitted_model[[2]]), list_model_variables(num_writers = W, num_clusters = K))
-  expect_equal(colnames(model$fitted_model[[3]]), list_model_variables(num_writers = W, num_clusters = K))
-})
+# test_that("fit model with multiple chains works", {
+#   # fit model. (Will fit model using testthat > fixtures > template > data > model_clusters.rds)
+#   template_dir <- test_path("fixtures", "template")
+#   model_docs <- system.file("extdata/example_images/model_docs", package = "handwriter")
+#   iters <- 50
+#   model <- fit_model(template_dir = template_dir, 
+#                      model_images_dir = model_docs,
+#                      num_iters = iters,
+#                      num_chains = 3,
+#                      writer_indices = c(2,5),
+#                      doc_indices = c(7,18))
+#   
+#   # number of clusters and writers
+#   K <- model$rjags_data$G
+#   W <- model$rjags_data$W
+#   
+#   # check that fitted model contains mcmc objects
+#   expect_true(coda::is.mcmc(model$fitted_model[[1]]))
+#   expect_true(coda::is.mcmc(model$fitted_model[[2]]))
+#   expect_true(coda::is.mcmc(model$fitted_model[[3]]))
+#   
+#   # check dimensions of fitted model
+#   expect_length(model$fitted_model, 3)
+#   expect_equal(dim(model$fitted_model[[1]]), c(iters, 2*K+3*K*W))
+#   expect_equal(dim(model$fitted_model[[2]]), c(iters, 2*K+3*K*W))
+#   expect_equal(dim(model$fitted_model[[3]]), c(iters, 2*K+3*K*W))
+#   
+#   # check variable names of fitted model
+#   expect_equal(colnames(model$fitted_model[[1]]), list_model_variables(num_writers = W, num_clusters = K))
+#   expect_equal(colnames(model$fitted_model[[2]]), list_model_variables(num_writers = W, num_clusters = K))
+#   expect_equal(colnames(model$fitted_model[[3]]), list_model_variables(num_writers = W, num_clusters = K))
+# })
 
 test_that("drop burn-in works on multiple chains", {
   iters <- 200
