@@ -242,6 +242,22 @@
 #' @md
 "example_analysis_2chains"
 
+#' Wrapped-Cauchy RJAGS Model
+#'
+#' The hierarchical model used in [`fit_model`] and described in Crawford, Amy
+#' M., Danica M. Ommen, and Alicia L. Carriquiry. "A rotation-based feature and
+#' Bayesian hierarchical model for the forensic evaluation of handwriting
+#' evidence in a closed set." The Annals of Applied Statistics 17, no. 2 (2023):
+#' 1127-1151.
+#'
+#' @format An RJAGS model written as text.
+#' @examples
+#' # view the Wrapped-Cauchy RJAGS model
+#' model_wrapped_cauchy
+#'
+#' @md
+"model_wrapped_cauchy"
+
 #' CSAFE Documents
 #'
 #' @format A data frame of handwriting documents available in the CSAFE handwriting database version 4:
