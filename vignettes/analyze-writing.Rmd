@@ -1,11 +1,10 @@
 ---
-title: "Analyzing handwritten documents with handwriter"
+title: "analyze-writing"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{handwriter-writership-analysis}
+  %\VignetteIndexEntry{analyze-writing}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
-  %\VignetteDepends{coda}
 ---
 
 ```{r, include = FALSE}
@@ -187,17 +186,9 @@ analysis$posterior_probabilities
 ```
 
 
- Plot the posterior probabilities of writership.
-
-```{r, fig.cap="Posterior probabilities of writership."}
-plot_posterior_probabilities(analysis)
-```
-
 ### For Research Only
 In practice, we would not know who wrote a questioned document, but in research we often perform tests to evaluate models using data where we know the ground truth. Because in this example, we know the true writer of each questioned document, we can measure the accuracy of the model. We define accuracy as the average posterior probability assigned to the true writer. The accuracy of our model is
 
 ```{r}
 calculate_accuracy(analysis)
 ```
-
-
