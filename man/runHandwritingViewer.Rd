@@ -11,7 +11,7 @@ None
 }
 \description{
 This function opens and runs a shiny app that allows for viewing of an object 
-that comes from the `processHandwriting` function.` Requires \link[pkg]{shiny}.
+that comes from the `processHandwriting` function.` Requires \pkg{\link{shiny}}.
 }
 \examples{
 \dontrun{

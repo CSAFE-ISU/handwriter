@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="Homepage for the handwriter R package." />
+        <meta name="author" content="Julia Lundstrum" />
+        <meta name="datePublished" content = "July 30, 2021" />
+        <title>Handwriter</title>
+        <!-- Core theme CSS (includes Bootstrap)-->
+        <link href="css/styles.css" rel="stylesheet" />
+        <link href="css/collapsiblestyle.css" rel="stylesheet" />
+        <link rel="icon" href="https://forensicstats.org/wp-content/uploads/2017/01/favicon-32x32.png" sizes="32x32">
+        <link href="https://fonts.googleapis.com/css?family=Montserrat:100,200,300,400" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css?family=Indie+Flower" rel="stylesheet">
+    </head>
+    <body>
+        <div class="d-flex" id="wrapper">
+            <!-- Page content wrapper-->
+            <div id="page-content-wrapper">
+                <!-- Top navigation-->
+                <nav class="navbar navbar-expand-lg navbar-light bg-navy border-bottom">
+                    <div class="container-fluid">
+                        <a href = "https://forensicstats.org/" target="_blank">
+                          <img src = "resources/images/csafe-logo-90.png">
+                        </a>
+                      <div class="title-text-center">
+                        <h1 style ="font-size:5vw"><a class="title-link" href="index.html">Handwriter</a></h1>
+                      </div>
+                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+                        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                            <ul class="navbar-nav ms-auto mt-2 mt-lg-0">
+                                <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                                <li class="nav-item"><a class="nav-link" href="methods.html">Methods</a></li>
+                                <li class="nav-item active"><a class="nav-link" href="#!">How To</a></li>
+                                <li class="nav-item"><a class="nav-link" href="workflow.html">Workflow Integration</a></li>
+                                <li class="nav-item"><a class="nav-link" href="research.html">Research</a></li>
+                                <!--
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Resources</a>
+                                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                        <a class="dropdown-item" href="#!">CSAFE</a>
+                                        <a class="dropdown-item" href="#!">Github</a>
+                                        <a class="dropdown-item" href="#!">Research</a>
+                                    </div>
+                                </li>
+                              -->
+                            </ul>
+                        </div>
+                    </div>
+
+                </nav>
+                <!-- Page content-->
+                <div class = "container-fluid">
+                  <h1 style ="padding-top:20px">How to use the <b>handwriter</b> package</h1>
+                  <br>
+                  <h2><b>Interested in trying it out yourself?</b></h2>
+                  <p>While we work on something interactive and web-based, you can download the package yourself and give it a try.
+                    The following is a step by step tutorial to help you along the way.</p>
+
+                  <p> Recently we have been incorporating our research work built on top of <b>handwriter</b> so that you may also use those.
+                    See the <a href="#research_pipelines"> Research Pipelines</a> section for more. </p>
+                  <br>
+                  <h2><b>Things you'll need:</b></h2>
+                  <ul>
+                    <li>The R software environment, downloadable from
+                      <a href="https://www.r-project.org/" target="_blank"><b>The R Project</b></a>.
+                      You may use <a href="https://mirror.las.iastate.edu/CRAN/" target="_blank"> this </a> mirror from Iowa State if you wish.
+                    </li>
+                    <li>
+                      <a href="https://rstudio.com/products/rstudio/download/" target="_blank"><b>RStudio Desktop</b></a>, an IDE that should simplify the experience.</li>
+                    <li>A sample of handwriting in .png format, you can:
+                      <ul>
+                        <li> Write something up (black and white works best) and scan it digitally.</li>
+                        <li>
+                        Use an online tool like
+                        <a href="https://sketch.io/sketchpad/" target="_blank"><b>Sketch.io</b></a>
+                        create and export some handwriting easily.</li>
+                        <li>Use one of <a href="OLDwritingsamples.html" target="_blank">our images</a> to get started.</li>
+                      </ul>
+                    </li>
+                  </ul>
+                  <br><h2><b>Terms to know</b></h2>
+                  <ul>
+                    <li> <b> Graphs </b> | Often letters, but not always due to the separation algorithm used.</li>
+                    <li> <b> Index </b> | Top to bottom and left to right, our way of keeping track where a pixel sits on the document as a whole.</li>
+                  </ul>
+                  <br>
+                  <h2><b>Getting started</b></h2>
+                  <p>Once you have R installed, you'll want to install and load our package from CRAN using:
+                    <pre>
+                      <code>install.packages("handwriter")
+                        library(handwriter)</code>
+                    </pre>
+                    <p>
+                      Get your image as a .png (we'll use this one, available
+                      <a href="OLDwritingsamples.html">here</a>):
+                      <div class = "container-sm">
+                        <img src="resources/images/Writing_csafe_single.png" alt="Writing_csafe_single">
+                      </div>
+                      <p>
+                        Once you have that, read in the image:
+                        The image is also cropped as part of this process.
+                      </p>
+                      <pre>
+                        <code>csafe = list()
+                          csafe$image = readPNGBinary("path/to/the/picture.png")</code>
+                      </pre>
+                      <br><br>
+                      <h2><b>Preparing the image for processing</b></h2>
+                      <p> Plot the original, cropped image: </p>
+                      <pre>
+                        <code>plotImage(csafe$image)</code>
+                      </pre>
+                      <div class = "container-sm">
+                        <img src="resources/images/csafe_cropped.png" alt="Writing_csafe_single">
+                      </div>
+                      <p>
+                      <br>thin the image and you can plot it again:
+                      </p>
+                      <pre>
+                        <code>csafe$thin = thinImage(csafe$image)
+                          plotImageThinned(csafe$image, csafe$thin)</code>
+                      </pre>
+                      <div class = "container-sm">
+                        <img src="resources/images/csafe_thinned.png" alt="Writing_csafe_single">
+                      </div>
+                      <h2><b>Processing the image exploring the results</b></h2>
+                      <p>
+                        Process the image</p>
+                      <pre>
+                        <code>csafe_processlist = processHandwriting(csafe$thin, dim(csafe$image))</code>
+                      </pre>
+                      
+                      <!--Mac users additional information -Jon -->
+                       <button type="button" class="collapsible">Additional Information for Mac Users </button>
+                      <div class="content">
+                        
+                        <p>Handwriter uses the RCPP package, an R package that allows RStudio to compile the C++ code in the handwriter program. When a Mac user runs handwriter, the machine will use its default C++ compiler called clang. This default will produce an error that says: "ld: warning: directory not found for option '-L/usr/local/gfortran/lib/gcc/x86_64-apple-darwin15/6.1.0'"</p>
+                        
+                        <p>The following steps will help you to fix this issue:</p>
+                        <ul>
+                          <li> <b>If you have previously used clang4, clang6, clang7, clang8, or the macos-rtools, consider deleting the old components that 
+                          were installed. To do this, execute the following lines in the Terminal app:</b> 
+                          
+                          <p># Delete the clang4,6,7 binary</p></li>
+                          
+                           <ul> <li><b>sudo rm -rf /usr/local/clang{4,6,7}</b></li></ul>
+                            <p># Delete the prior version of gfortran installed</p>
+                           <ul> <li><b>sudo rm -rf /usr/local/gfortran</b></li>
+                            <li><b>sudo rm -rf /usr/local/bin/gfortran</b></li> </ul>
+                            
+                            <p># Remove the gfortran install receipts (run after the above commands)</p>
+                            
+                           <ul> <li><b>sudo rm /private/var/db/receipts/com.gnu.gfortran.bom</b></li>
+                            <li><b>sudo rm /private/var/db/receipts/com.gnu.gfortran.plist</b></li> </ul>
+                            <p></p>
+                            <p># Remove the clang4 installer receipt</p>
+                           <ul> <li><b>sudo rm /private/var/db/receipts/com.rbinaries.clang4.bom</b></li>
+                            <li><b>sudo rm /private/var/db/receipts/com.rbinaries.clang4.plist</b></li></ul>
+                            <p></p>
+                            <li>You will need to remove both the ~/.R/Makevars and ~/.Renviron files before continuing. You can do this by using:</li>
+                            <ul><li><b>unlink (“~/.R/Makevars”)</b></li>
+                            <li><b>unlink (“~/.Renviron”)</b></li></ul>
+                            <p></p>
+                            <li>Next, still in the Terminal, you will need to install the Xcode Command Line Tools or Xcode CLI. To do this execute:<b> xcode-select --install</b></li>
+                            <p></p>
+                            <li>If you encounter an error while installing, the Xcode CLI might already be installed. This may mean that a software update of the tools is in order, execute the following line: <b>softwareupdate --install -a.</b></li>
+                            <p></p>
+                            <li>After installing the Xcode CLI, you will need to install OS-specific GFortran Binary. To do this, you will first need to verify your macOS version.</li>
+                            <p></p>
+                            <li>Knowing what version of macOS your computer is running, you will then go to:  <a href="https://github.com/fxcoudert/gfortran-for-macOS" target="_blank">GFortran-for-macOs-Repo</a>. This link will direct you to a GitHub page that will contain installation packages containing GFortran binary for different macOS versions. After downloading the folder, open the GFortran folder inside and run the gfortran.pkg. This will prompt an installation window that will help you successfully install the binary.</li>
+
+                        </ul>
+                        </div>
+                    <br>  <p> <b>processHandwriting()</b> will return tons of information about the document. It is worth exploring, and we've provided a handy list here of what each element of the list means </p>
+                      <button type="button" class="collapsible">Information returned from <b>processHandwriting()</b></button>
+                      <div class="content">
+                        <p>On a document level:</p>
+                        <ul>
+                          <li> <b>nodes</b> | A list of all 'points of interest' </li>
+                          <li> <b>connectingNodes</b> | A list of all nodes where graphs connect </li>
+                          <li> <b>terminalNodes</b> | A list of all nodes where a path in a graphs ends </li>
+                          <li> <b>breakPoints</b> | A list of calculated points to break graphs apart (based on connectingNodes) </li>
+                        </ul>
+
+                        <p>As well as a <b> letterList </b> for each letter/graph that includes:</p>
+                        <ul>
+                          <li> <b>path</b> | A list of all points  </li>
+                          <li> <b>nodes</b> | A list of all 'points of interest' </li>
+                          <li> <b>allPaths</b> | A list of lists of calculated 'paths'  </li>
+                          <li> <b>adjMatrix</b> | Adjacency matrix </li>
+                          <li> <b>letterCode</b> | A unique letter code </li>
+                          <li> <b>connectingNodes</b> | A list of all nodes where the graph connects  </li>
+                          <li> <b>terminalNodes</b> | A list of all nodes where a path in the graph ends </li>
+                          <li> <b>characterFeatures</b> | A list of all 'points of interest' in the document </li>
+                            <ul>
+                              <li> <b>aspect_ratio</b> | Height to width ratio </li>
+                              <li> <b>height</b> | Height of the graph, measured in pixels </li>
+                              <li> <b>width</b> | Width of the graph, measured in pixels  </li>
+                              <li> <b>topmost_row</b> | The top-most row, as its y coordinate </li>
+                              <li> <b>bottom_row</b> | The bottom-most row, as its y coordinate </li>
+                              <li> <b>leftmost_col</b> | The left-most column, as its x coordinate </li>
+                              <li> <b>rightmost_col</b> | The left-most column, as its x coordinate </li>
+                              <li> <b>centroid_index</b> | The centroid of the graph, as its index </li>
+                              <li> <b>centroid_y</b> | The y coordinate of the centroid  </li>
+                              <li> <b>centroid_x</b> | The x coordinate of the centroid </li>
+                              <li> <b>centroid_horiz_location</b> |   </li>
+                              <li> <b>centroid_vert_location</b> | </li>
+                              <li> <b>lHalf</b> | List of all points on the left half of the graph </li>
+                              <li> <b>rHalf</b> | List of all points on the right half of the graph </li>
+                              <li> <b>disjoint_centroids</b> | The centroids of the left and right halves, as their idicies </li>
+                              <li> <b>slope</b> | The slope of the graph as it runs through the centroid  </li>
+                              <li> <b>pixel_density</b> |   </li>
+                              <li> <b>box_density</b> |  </li>
+                              <li> <b>uniqueid</b> | A unique numerical identifier for the graph </li>
+                              <li> <b>down_dist</b> |  Distance from the lowest point of a graph to the next graph, measured in pixels</li>
+                              <li> <b>line_number</b> | The position of the graph in the line </li>
+                              <li> <b>order_within_line</b> | The ordered within the line the graph falls in </li>
+                              <li> <b>l_neighbor_dist</b> | Distance from the left-most point in the graph to its left neighbor, measured in pixels</li>
+                              <li> <b>r_neighbor_dist</b> | Distance from the right-most point in the graph to its left neighbor, measured in pixels</li>
+                              <li> <b>xvar</b> | Variance of X, used to calculate the covariance in covar </li>
+                              <li> <b>yvar</b> | Variance of Y, used to calculate the covariance in covar </li>
+                              <li> <b>covar</b> | Covarience of the graph </li>
+                              <li> <b>wordIndex</b> | Word number the graph belongs to </li>
+                            </ul>
+                        </ul>
+                      </div>
+                      </br>
+
+                      <br><h2><b>Exploring processed writing</b></h2>
+                      <p> Using the information returned from <b>processHandwriting()</b>, Handwriter allows plotting on a letter (or graph), word, sentence, or the entire document.</p>
+                      <p>Make sure to save this information so that the plotting functions work correctly</p>
+                      <pre>
+                        <code>csafe$nodes = csafe_processlist$nodes
+                          csafe$breaks = csafe_processlist$breakPoints
+                          dims = dim(csafe$image)</code>
+                      </pre>
+                      <button type="button" class="collapsible">Plotting Letters</button>
+                      <div class="content">
+                      <p>Also included is the ability to plot individual graphs from the sample of writing, using
+                        plotLetter(). First lets look at the parameters and options, and then run through a few examples.</p>
+                      <p>The parameters include:</p>
+                      <ul>
+                        <li>
+                          letterList Object
+                        </li>
+                        <li>
+                          The index of the graph you wish to plot
+                        </li>
+                        <li>
+                          dims Object
+                        </li>
+                        <li>
+                          OPTIONAL: Boolean - Number the paths within the graph
+                        </li>
+                        <li>
+                          OPTIONAL: Boolean - Plot the centroid of the graph
+                        </li>
+                        <li>
+                          OPTIONAL: Boolean - Plot the slope of the graph
+                        </li>
+                      </ul>
+                      <p>The following will result in the first graph being plotted with all optional paramters:</p>
+                      <pre>
+                        <code>plotLetter(csafe_processList$letterlist, 1, dims)
+
+                          #Note: No optional parameters specified is the same as:
+                          #plotLetter(csafe_processlist$letterList, 1, dims, TRUE, TRUE, TRUE)</code>
+                      </pre>
+                      <div class = "container-sm">
+                        <img src="resources/images/c_all_features.png" alt="c_all_features">
+                      </div>
+                      <p>This will plot the fifth graph with just the slope and centroid:</p>
+                      <pre>
+                        <code>plotLetter(csafe_processlist$letterList, 5, dims, FALSE, TRUE, TRUE)</code>
+                      </pre>
+                      <div class = "container-sm">
+                        <img src="resources/images/f_slope_and_centroid.png" alt="c_all_features">
+                      </div>
+                    </div>
+
+                    <button type="button" class="collapsible">Plotting Words</button>
+                    <div class="content">
+                      <p> To plot words, a little bit of extra processing must be done: </p>
+                      <pre>
+                        <code>words = create_words(csafe_processList)
+                              words_after_processing = process_words(words, dim(csafe_document$image), TRUE)</code>
+                      </pre>
+
+                      <p> Then you can plot just the word with <b>plotWord</b></p>
+                        <pre>
+                          <code>plotWord(csafe_processList$letterList, 1, dims)</code>
+                        </pre>
+
+                        <p> Or optionally, use the <b>plotColorNodes</b> function to show some additional information. </p>
+                        <pre>
+                          <code>plotColorNodes(csafe_processList$letterList, 1, dims, words_after_processing)</code>
+                        </pre>
+                      <div class = "container-sm">
+                        <img src="resources/images/csafe_colors.png" alt="Writing_csafe_single">
+                      </div>
+                    </div>
+
+                    <button type="button" class="collapsible">Plotting Lines</button>
+                    <div class="content">
+                      <p> Plot the line, where the second parameters is the line_number </p>
+                      <pre>
+                        <code>plotLine(csafe_processList$letterList, 1, dims)</code>
+                      </pre>
+                    </div>
+
+                    <button type="button" class="collapsible">Plotting Documents</button>
+                    <div class="content">
+                      <p> Plot the original, cropped image </p>
+                      <pre>
+                        <code>plotImage(csafe$image)</code>
+                      </pre>
+                      <div class = "container-sm">
+                        <img src="resources/images/csafe_cropped.png" alt="Writing_csafe_single">
+                      </div>
+                      <p> Plot the thinned image </p>
+                      <pre>
+                        <code>plotImageThinned(csafe$image, csafe$thin)</code>
+                      </pre>
+                      <div class = "container-sm">
+                        <img src="resources/images/csafe_thinned.png" alt="Writing_csafe_single">
+                      </div>
+                      <p>
+                        Plot all nodes found during processing</p>
+                      <pre>
+                        <code>plotNodes(csafe$image, csafe$thin, csafe$nodes)</code>
+                      </pre>
+                      <div class = "container-sm">
+                        <img src="resources/images/csafe_nodes.png" alt="Writing_csafe_single">
+                      </div>
+                      <p>Plot all graph breaks found during processing</p>
+                      <pre>
+                        <code>plotNodes(csafe$image, csafe$thin, csafe$breaks)</code>
+                      </pre>
+                      <div class = "container-sm">
+                        <img src="resources/images/csafe_breaks.png" alt="Writing_csafe_single">
+                      </div>
+                    </div>
+                    <br><h2><b> <a id= "research_pipelines" > Research Pipelines </a></b></h2>
+                    <p> <b> K-means Clustering </b> | Perform K-means clustering on a graph level | <a href= "clustering.html">Read more</a></p>
+                    <p> <b> Triangle Decomposition </b> | Perform triangle decomposition on a word level | <a href= "decomposition.html">Read more</a></p>
+              </div>
+
+
+            </br>
+            <!-- Footer -->
+            <footer class = "bg-green foot">
+              <a href = "https://www.iastate.edu/" target="_blank">
+                <img src = "resources/images/isu-white.png" class = "foot-logo">
+              </a>
+              <a href = "https://forensicstats.org/" target="_blank">
+                <img src = "resources/images/csafe-logo_white.png" class = "foot-logo">
+              </a>
+              <a href = "https://github.com/CSAFE-ISU/handwriter" target="_blank">
+                <img src = "resources/images/GitHub-Mark-Light-64px.png" class = "foot-logo">
+              </a>
+              </div>
+            </footer>
+            </div>
+        </div>
+        <!-- Bootstrap core JS-->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Core theme JS-->
+        <script src="js/scripts.js"></script>
+        <script>
+        var coll = document.getElementsByClassName("collapsible");
+        var i;
+
+        for (i = 0; i < coll.length; i++) {
+          coll[i].addEventListener("click", function() {
+            this.classList.toggle("active");
+            var content = this.nextElementSibling;
+            if (content.style.maxHeight){
+              content.style.maxHeight = null;
+            } else {
+              content.style.maxHeight = content.scrollHeight + "px";
+            }
+          });
+        }
+        </script>
+    </body>
+</html>

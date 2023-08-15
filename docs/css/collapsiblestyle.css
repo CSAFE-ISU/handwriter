@@ -1,0 +1,47 @@
+@charset "UTF-8";
+
+.collapsible {
+background-color: #01579b;
+outline-color: #01579b;
+color: white;
+cursor: pointer;
+padding: 18px;
+width: 100%;
+border: none;
+text-align: left;
+outline: none;
+font-size: 15px;
+}
+
+.collapsible:hover {
+background-color: #0091ea;
+}
+
+.collapsible:after {
+content: '\002B';
+color: white;
+font-weight: bold;
+float: ight;
+margin-left: 5px;
+}
+
+.active:after {
+content: "\2212";
+}
+
+.content {
+padding: 0 18px;
+max-height: 0;
+overflow: hidden;
+transition: max-height 0.2s ease-out;
+outline-color: #f1f1f1;
+}
+
+
+code{
+  font-family: var(--font-monospace);
+  background-color: #ededed;
+  font-size: 1em;
+  direction: ltr /* rtl:ignore */;
+  unicode-bidi: bidi-override;
+}
