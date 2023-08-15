@@ -691,6 +691,9 @@ processHandwriting = function(img, dims){
   message("Adding character features...")
   letterList = add_character_features(img, letterList, letters, dims)
   
+  message("Adding word information...")
+  letterList = add_word_info(letterList, dims)
+  
   message("Document processing complete.\n")
   
   return(list(nodes = nodeList, connectingNodes = nodeConnections, terminalNodes = terminalNodes, breakPoints = sort(finalBreaks), letterList = letterList))
@@ -830,7 +833,6 @@ add_character_features = function(img, letterList, letters, dims){
   letterPlaces = matrix(unlist(lapply(featureSets, FUN = function(x) {c(x$line_number, x$order_within_line)})), ncol = 2, byrow = TRUE)
   letterOrder = order(letterPlaces[,1], letterPlaces[,2])
   letterList = letterList[letterOrder]
-  letterList = add_word_info(letterList, dims)
   
   return(letterList)
 }
