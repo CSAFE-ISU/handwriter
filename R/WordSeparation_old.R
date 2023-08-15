@@ -225,3 +225,206 @@ add_word_info = function(letterList, dims){
 #   
 #   return(letterList)
 # }
+
+#' create_words
+#'
+#' creates word objects based on splits found in processHandwriting
+#' 
+#' @param processList Output from processHandwriting - contains all glyph information
+#' @return list of word objects
+#' 
+#' @examples 
+#' twoSent_document = list()
+#' twoSent_document$image = twoSent
+#' twoSent_document$thin = thinImage(twoSent_document$image)
+#' twoSent_processList = processHandwriting(twoSent_document$thin, dim(twoSent_document$image))
+#' 
+#' dims = dim(twoSent_document$image)
+#' words = create_words(twoSent_processList) 
+#' words_after_processing = process_words(words, dim(twoSent_document$image), TRUE)
+#' @export
+create_words = function(processList){
+  message("Creating words..")
+  words = list()
+  letterList = processList$letterList
+  
+  allNodes = c()
+  wordPath = c()
+  terminalNodes = c()
+  connectingNodes = c()
+  
+  wordIndex = 1
+  for(i in letterList){
+    #if about to go to next word, create all word info and then index, make new empty lists
+    if(wordIndex != i$characterFeatures$wordIndex){
+      wordsInfo <- list(wordIndex = wordIndex, wordPath = wordPath, allNodes = allNodes, terminalNodes = terminalNodes, connectingNodes = connectingNodes)
+      words[[wordIndex]] <- wordsInfo
+      
+      wordIndex = wordIndex + 1
+      allNodes = c()
+      wordPath = c()
+      terminalNodes = c()
+      connectingNodes = c()
+    }
+    
+    #As long as in word, keep apending next graphs info.
+    if(wordIndex == i$characterFeatures$wordIndex){
+      allNodes <- append(allNodes, i$nodes)
+      wordPath <- append(wordPath, i$path)
+      terminalNodes <- append(terminalNodes, i$terminalNodes)
+      connectingNodes <- append(connectingNodes, i$connectingNodes)
+    }
+  }
+  
+  wordsInfo <- list(wordIndex = wordIndex, wordPath = wordPath, allNodes = allNodes, terminalNodes = terminalNodes, connectingNodes = connectingNodes)
+  words[[wordIndex]] <- wordsInfo
+  
+  nameList = list()
+  
+  #Naming objects
+  for (i in 1:length(words)){
+    name = paste("wordIndex:",i,sep=" ")
+    nameList <- append(nameList, name)
+  }
+  names(words) <- nameList
+  
+  return(words)
+}
+
+#' make_single_word
+#' 
+#' @param letterList A list of graphs
+#' 
+#' @export
+make_single_word = function(letterList){
+  
+  for(i in 1:length(letterList)){
+    letterList[[i]]$characterFeatures$wordIndex = 1
+  }
+  
+  return(letterList)
+}
+
+#' plotWord
+#'
+#' This function returns a plot of a single Word extracted from a document. It uses the letterList parameter from the processHandwriting function and accepts a single value as whichLetter. Dims requires the dimensions of the entire document, since this isn't contained in processHandwriting.
+#' 
+#' @param letterList Letter list from processHandwriting function
+#' @param whichWord Single word value denoting which line to plot - checked if too big inside function.
+#' @param dims Dimensions of the original document
+#' @return Plot of single word.
+#' 
+#' @examples
+#' \dontrun{
+#' twoSent_document = list()
+#' twoSent_document$image = twoSent
+#' twoSent_document$thin = thinImage(twoSent_document$image)
+#' twoSent_processList = processHandwriting(twoSent_document$thin, dim(twoSent_document$image))
+#' 
+#' dims = dim(twoSent_document$image)
+#' words = create_words(twoSent_processList) 
+#' words_after_processing = process_words(words, dim(twoSent_document$image), TRUE)
+#' plotWord(twoSent_processList$letterList, 1, dims)
+#' }
+#' @import ggplot2
+#' @export
+plotWord = function(letterList, whichWord, dims)
+{
+  X <- Y <- NULL
+  
+  pathList = list()
+  wordListIndex = list()
+  #stitch all paths together
+  count = 1
+  for(i in letterList){
+    
+    wordIndex = i$characterFeatures$wordIndex
+    if(wordIndex == whichWord)
+    {
+      pathList <- append(pathList, i$path)
+      wordListIndex <- append(wordListIndex, count)
+    }
+    
+    count = count + 1
+  }
+  
+  #if nothing was found on that line, just exit out because it is too big (or small)
+  if (length(pathList) == 0){
+    stop("ERROR: no letters found on that path - valid lines are 1:max")
+  }
+  
+  pathVec <- unlist(pathList)
+  countVec <- unlist(wordListIndex)
+  
+  r = ((pathVec-1) %% dims[1]) + 1
+  c = ((pathVec-1) %/% dims[1]) + 1
+  
+  img = matrix(1, nrow = diff(range(r))+1, ncol = diff(range(c))+1)
+  
+  nodeList = list()
+  for(i in letterList[c(countVec)]){
+    nodes = i$nodes
+    nodesr = ((nodes-1) %% dims[1]) + 1
+    nodesc = ((nodes-1) %/% dims[1]) + 1
+    nodesr = nodesr - min(r) + 1
+    nodesc = nodesc - min(c) + 1
+    
+    nodes = ((nodesc - 1)*(diff(range(r))+1)) + nodesr
+    nodeList <- append(nodeList, nodes)
+  }
+  
+  nodeList <- unlist(nodeList)
+  
+  rnew = r-min(r)+1
+  cnew = c-min(c)+1
+  
+  img[cbind(rnew,cnew)] = 0
+  
+  #Plot line
+  p = plotImage(img)
+  
+  #plot nodes
+  #nodeSize = 4
+  #nodeColor = "red"
+  #pointSet = data.frame(X = ((nodeList - 1) %/% dim(img)[1]) + 1, Y = dim(img)[1] - ((nodeList - 1) %% dim(img)[1]))
+  #p = p + geom_point(data = pointSet, aes(X, Y), size = nodeSize, shape = I(16), color = I(nodeColor), alpha = I(.6))
+  
+  return(p)
+}
+
+#' process_words
+#'
+#' Gets information on a word level
+#' 
+#' @param words List of words and some glyph level information
+#' @param dims The dimensions of the image (important for r/c features)
+#' @param triangulate Logical value that begins the triangulation process when set to TRUE. 
+#' @return A new list with word level information for each word.
+#' 
+#' @examples
+#' twoSent_document = list()
+#' twoSent_document$image = twoSent
+#' twoSent_document$thin = thinImage(twoSent_document$image)
+#' twoSent_processList = processHandwriting(twoSent_document$thin, dim(twoSent_document$image))
+#' 
+#' dims = dim(twoSent_document$image)
+#' words = create_words(twoSent_processList) 
+#' words_after_processing = process_words(words, dim(twoSent_document$image), TRUE)
+#' 
+#' @export
+process_words = function(words, dims, triangulate = FALSE){
+  #Will do different things depending on what is passed in, pass in TRUE to start the triangulation process
+  if(triangulate){ 
+    colorpoints_df <- lapply(words, find_colorpoints, dims=dims);
+    #triangulate(colorpoints_df, dims)
+  }
+  
+  #add word information to the word list that was passed in
+  for(i in 1:length(words)){
+    words[[i]] <- append(words[[i]], list(colorpoints_df = colorpoints_df[[i]]))
+  }
+  
+  message("   ... words processed")
+  
+  return(words);
+}
