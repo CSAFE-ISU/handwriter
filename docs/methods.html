@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="Homepage for the handwriter R package." />
+        <meta name="author" content="Julia Lundstrum" />
+        <meta name="datePublished" content = "July 30, 2021" />
+        <title>Handwriter</title>
+        <!-- Core theme CSS (includes Bootstrap)-->
+        <link href="css/styles.css" rel="stylesheet" />
+        <link rel="icon" href="https://forensicstats.org/wp-content/uploads/2017/01/favicon-32x32.png" sizes="32x32">
+        <link href="https://fonts.googleapis.com/css?family=Montserrat:100,200,300,400" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css?family=Indie+Flower" rel="stylesheet">
+    </head>
+    <body>
+        <div class="d-flex" id="wrapper">
+            <!-- Page content wrapper-->
+            <div id="page-content-wrapper">
+                <!-- Top navigation-->
+                <nav class="navbar navbar-expand-lg navbar-light bg-navy border-bottom">
+                    <div class="container-fluid">
+                        <a href = "https://forensicstats.org/" target="_blank">
+                          <img src = "resources/images/csafe-logo-90.png">
+                        </a>
+                      <div class="title-text-center">
+                        <h1 style ="font-size:5vw"><a class="title-link" href="index.html">Handwriter</a></h1>
+                      </div>
+                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+                        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                            <ul class="navbar-nav ms-auto mt-2 mt-lg-0">
+                                <li class="nav-item active"><a class="nav-link" href="index.html">Home</a></li>
+                                <li class="nav-item"><a class="nav-link" href="#!">Methods</a></li>
+                                <li class="nav-item"><a class="nav-link" href="howto.html">How To</a></li>
+                                <li class="nav-item"><a class="nav-link" href="workflow.html">Workflow Integration</a></li>
+                                <li class="nav-item"><a class="nav-link" href="research.html">Research</a></li>
+                                <!--
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Resources</a>
+                                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                        <a class="dropdown-item" href="#!">CSAFE</a>
+                                        <a class="dropdown-item" href="#!">Github</a>
+                                        <a class="dropdown-item" href="#!">Research</a>
+                                    </div>
+                                </li>
+                              -->
+                            </ul>
+                        </div>
+                    </div>
+
+                </nav>
+                <!-- Page content-->
+                <div class = "container-fluid ">
+                    <h1 style ="padding-top:20px">Methods</h1>
+                    <p>Handwriter is a developmental R package hosted at <a href="https://github.com/CSAFE-ISU/handwriter" target="_blank">github.com/CSAFE-ISU/handwriter</a>.
+                      It is our major computational tool for the project. The package takes in scanned
+                      handwritten documents and the following are performed:</p>
+                    <ol>
+                      <li style ="margin:1rem"><b>Binarize</b> - Turn the image into pure black and white</li>
+                      <li style ="margin:1rem"><b>Skeletonize</b> - Reduce writing to a 1 pixel wide skeleton</li>
+                      <li style ="margin:1rem"><b>Break</b> - Connected writing is decomposed into small manageable pieces called graphs with nodes and edges that usually repond to Roman letters.</li>
+                      <li style ="margin:1rem"><b>Measure</b> - Measurements are taken on each graph</li>
+                    </ol>
+                    <p>Below is an example we commonly use, the word 'csafe' in cursive. In this example you can see the gray background of the writing,
+                      a result of <b>binarization</b>. The colored lines is the single pixel <b>skeleton</b>. The change from green to blue marks
+                      the changes after the piece of writing is <b>broken</b> into graphs. The red dots are the endpoints and intersections
+                      of each graph.</p>
+                      <div class = "container-sm">
+                        <img src="resources/images/csafe_all_features.png" style = "padding-top: 20px" class="img-fluid" alt="csafe_all_features">
+                      </div>
+                    <p>From this point, measurements are taken on each graph individually. These measurements are calculated in
+                      <a href="https://cran.r-project.org/web/packages/Rcpp/index.html" target="_blank">Rcpp</a>,
+                      a power package that allows for R functions to be implemented in C++. The measurements we looked at are <b>Rotational Angle, Compactness, and Loops</b>.
+                      Rotation Angle is by far the most useful measurement, but we feel all are worth mentioning. </p>
+                    <br>
+                    <h2>Rotational Angle</h2>
+                    <p>The first principal component for each graph, or “letter”, is calculated through an eigendecomposition of the covariance matrix.
+                      The first principal component enjoys the property of having two invariant directions, and so we take the vector that lies in the
+                      upper half plane. The rotation angle of the graph is defined as the angle between the vector (0,1), and the unit principal component
+                      vector on the upper half plane. The angle is measured in radians and is considered a feature of the graph defined on the interval (0,π). </p>
+                    <p><b>Let's walk through an example of how rotational angle can help differentiate between two writers.</b></p>
+                    <p> Here is the scanned writing of "Our London business is good," from our first writer, writer A: </p>
+                      <div class = "container-sm">
+                        <img src="resources/images/London_Writing_1.png" class="img-fluid" alt="London_writing_1">
+                      </div>
+                    <p>These measurements are used to differentiate inside of each cluster, so we will look at the cluster of graphs most similar to the letter 'u' in the roman alphabet.</p>
+                    <p>On the left is the cluster for this graph. On the right is 4 individual graphs from the writing, as well as a graph with each graphs direction of greatest variability.</p>
+                      <div class = "container-sm">
+                        <img src="resources/images/London_u_1.png" class="img-fluid" alt="London_u_1">
+                      </div>
+                    <p> Now, the directions determined above are compiled for each cluster from each writer. The compiled graph for the graph closed to the letter u from our writer A is shown on the left below.
+                      These data are then normalized to respect the polar coordinate system, and a curve is fit to approximate the distribuition of the rotation angle, show on the right </p>
+                      <div class = "container-sm">
+                        <img src="resources/images/London_Graph_1.png" class="img-fluid" alt="London_Graph_1">
+                      </div>
+                    <br>
+                    <p> The same can be done for a writer B: </p>
+                      <div class = "container-sm">
+                        <img src="resources/images/London_Writing_2.png" class="img-fluid" alt="London_writing_2">
+                        <img src="resources/images/London_u_2.png" class="img-fluid" alt="London_u_2">
+                        <img src="resources/images/London_Graph_2.png" class="img-fluid" alt="London_Graph_2">
+                      </div>
+                    <p> There is great disparity in the distribuition of the rotation angle between writer A and B when dealing with this cluster. We have found this measurement to be the most influential
+                      in correctly identifying a writer.</p>
+                    <br>
+                    <h2>Compactness</h2>
+                    <p>Compactness is computed as:</p>
+                    <img src="resources/images/compactness_equation.png" class="img-fluid" alt="compactness_equation">
+                    <p>It can be thought of as the tightness of black pixels in each graph based on distance from the centroid</p>
+                    <p>A compactness value is found, and can be plotted around the centroid as such:</p>
+                      <div class = "container-sm">
+                        <img src="resources/images/compactness_examples.png" class="img-fluid" alt="compactness_examples">
+                      </div>
+                    <p>Unfortunatley, while informative for comparing like-sized graphs, this measurement suffers from the inherently
+                      spatial dependence between pixels and (unfortunately) does not scale well for modelling.</p>
+                    <br>
+                    <h2>Loops</h2>
+                    <p>The number of loops in a given graph is found, as well as the height to width ratio of each.</p>
+                    <p> Unfortunatley, we found that most loops in handwriting are generally about the same shape, and
+                      didn't produce any useful information in differentiating between writers. </p>
+                    <br>
+                    <h2>What's next?</h2>
+                    <p>Once each graph's measrurements have been taken and saved, the job of <b> handwriter </b> is done. You can now take this information and integrate it into your specific workflow. </p>
+                    <p style="padding-bottom: 20px">For an example of our workflow that involved <b>handwriter</b>, take a look at <a href="workflow.html">Our Workflow</a>
+                </div>
+            <!-- Footer -->
+            <footer class = "bg-green foot">
+              <a href = "https://www.iastate.edu/" target="_blank">
+                <img src = "resources/images/isu-white.png" class = "foot-logo">
+              </a>
+              <a href = "https://forensicstats.org/" target="_blank">
+                <img src = "resources/images/csafe-logo_white.png" class = "foot-logo">
+              </a>
+              <a href = "https://github.com/CSAFE-ISU/handwriter" target="_blank">
+                <img src = "resources/images/GitHub-Mark-Light-64px.png" class = "foot-logo">
+              </a>
+              </div>
+            </footer>
+            </div>
+        </div>
+        <!-- Bootstrap core JS-->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Core theme JS-->
+        <script src="js/scripts.js"></script>
+    </body>
+</html>

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="Homepage for the handwriter R package." />
+        <meta name="author" content="Julia Lundstrum" />
+        <meta name="datePublished" content = "July 30, 2021" />
+        <title>Handwriter</title>
+        <!-- Core theme CSS (includes Bootstrap)-->
+        <link href="css/styles.css" rel="stylesheet" />
+        <link rel="icon" href="https://forensicstats.org/wp-content/uploads/2017/01/favicon-32x32.png" sizes="32x32">
+        <link href="https://fonts.googleapis.com/css?family=Montserrat:100,200,300,400" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css?family=Indie+Flower" rel="stylesheet">
+    </head>
+    <body>
+        <div class="d-flex" id="wrapper">
+            <!-- Page content wrapper-->
+            <div id="page-content-wrapper">
+                <!-- Top navigation-->
+                <nav class="navbar navbar-expand-lg navbar-light bg-navy border-bottom">
+                    <div class="container-fluid">
+                        <a href = "https://forensicstats.org/" target="_blank">
+                          <img src = "resources/images/csafe-logo-90.png" class = "img-fluid">
+                        </a>
+                      <div class="title-text-center">
+                        <h1 style ="font-size:5vw"><a class="title-link" href="index.html">Handwriter</a></h1>
+                      </div>
+                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+                        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                            <ul class="navbar-nav ms-auto mt-2 mt-lg-0">
+                                <li class="nav-item active"><a class="nav-link" href="index.html">Home</a></li>
+                                <li class="nav-item"><a class="nav-link" href="methods.html">Methods</a></li>
+                                <li class="nav-item"><a class="nav-link" href="howto.html">How To</a></li>
+                                <li class="nav-item"><a class="nav-link" href="#!">Workflow Integration</a></li>
+                                <li class="nav-item"><a class="nav-link" href="research.html">Research</a></li>
+                                <!--
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Resources</a>
+                                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                        <a class="dropdown-item" href="#!">CSAFE</a>
+                                        <a class="dropdown-item" href="#!">Github</a>
+                                        <a class="dropdown-item" href="#!">Research</a>
+                                    </div>
+                                </li>
+                              -->
+                            </ul>
+                        </div>
+                    </div>
+
+                </nav>
+                <!-- Page content-->
+                <div class = "container-fluid ">
+                    <h1 style ="padding-top:20px">Integrating <b>handwriter</b> into a workflow </h1>
+                    <br>
+                    <h2>Interested in how to integrate <b>handwriter</b> into your own project?</h2>
+                    <p> This page will give you a little more information on integration, as well as an example of how we used it </p>
+                    <br>
+                    <h2>Inputs & Outputs</h2>
+                    <p> As an input, <b>handwriter</b> take a .png image of handwriting. To input a .png image into <b>handwriter</b>, please follow the steps described in the <a href="methods.html">methods</a> section.
+                      As a result, <b>handwriter</b> outputs the information and measurements for each graph as a list of lists. You will want to keep this in mind as you integrate <b>handwriter</b> into your
+                      own workflow</p>
+                    <br>
+                    <h2> How we use it </h2>
+                    <p> The <b>handwriter</b> package is one of the tools in the larger system to automate the examination of handwritten samples.
+                      Depending on the type of question on which the examiner is interested, the steps in the workflow may vary.
+                      In all cases however, decomposing handwritten samples into graphical structures that are amenable for quantitative analyses using <b>handwriter</b> is a required step.
+                      Roughly, we can think of three major components in the workflow:</p>
+                    <ol>
+                      <li style = "padding-top: 20px">Data Collection
+                        <ul>
+                          <li>Collect handwriting samples </li>
+                          <li>Scan, load, and crop images via batch processing</li>
+                        </ul>
+                      </li>
+                      <li style = "padding-top: 10px">Computational Tools</li>
+                      <ul>
+                        <li>Binarize: Turn image to black and white</li>
+                        <li>Skeltonize: Reduce writing to 1 pixel wide</li>
+                        <li>Break into graphs: Decompose into managable pieces</li>
+                        <li>Measure: Extract various measurements of these graphs</li>
+                      </ul>
+                      <li style = "padding-top: 10px">Statistical analysis</li>
+                      <ul>
+                        <li>Clustering: Separate graphs based on shape</li>
+                        <li>Model: Fit a statistical model to the data</li>
+                        <li>Quantify: Compute the probability of writership of a questioned document.</li>
+                      </ul>
+                    </ol>
+                    <br>
+                    <h3>Step 1: Data Collection</h3>
+                    <p> We are conducting a large data collection study to gather handwriting samples
+                      from a variety of participants across the world (most in the Midwest).
+                      Each participant provides replicate handwriting samples during three sessions separated by about a month.
+                      They also provide other information (e.g., time of day in which writing was done) by filling out a short survey. </p>
+                    <p>
+                      Once recieved, we scan all surveys and writing samples. Scans are loaded,
+                      cropped, and saved using a Shiny app. The app also facilitates survey data entry,
+                      saving that participant data to lines in an excel spreadsheet. </p>
+                    <p> A public database of handwriting samples we have collected can be found at
+                      <a href="https://forensicstats.org/handwritingdatabase/">forensicstats.org/handwritingdatabase</a>.</p>
+                    <p> A data article regarding these samples was accepted at <a href="https://www.sciencedirect.com/science/article/pii/S2352340919314155?via%3Dihub"> Data in Brief </a><br>
+                      Crawford, A., Ray, A., & Carriquiry, A. (2020). A database of handwriting samples for applications in forensic statistics. Data in brief, 28, 105059.</p>
+                    <br>
+                    <h3>Step 2: Computational Tools</h3>
+                    <p> Information on computational tools can be found in the <a href="methods.html">methods</a> section. </p>
+                    <br>
+                    <h3>Step 3: Statistical Analysis</h3>
+                    <h3> Clustering </h3>
+                    <p> Rather than impose rigid grouping rules (the previously used ‘’adjacency grouping’’) we consider a more robust, dynamic K −
+                      means type clustering method that is focused on major graph structural components.</p>
+                    <p>For a clustering algorithm we need two things: </p>
+                    <ol>
+                      <li> <b>A distance measure </b> - For us, a way to measure the discrepency between graphs. </li>
+                      <li> <b>A measure of center </b> - A graph-like structure that is the exemplar representation of a group of graphs. </li>
+                    </ol>
+                    <br>
+                    <h2> Graph Distance Measurement </h2>
+                    <p> We begin by defining edge to edge distances. Edge to edge distances are subsequently combined for an overall graph to graph distance. </p>
+                    <p> Consider the following single edge graphs e1 and e2. Make 3 edits to e1 to match e2. Then combine the magnitude of each edit. </p>
+                    <div class = "container-sm"?
+                      <img src="resources/images/edge_to_edge_1.png" class="img-fluid" alt="edge_to_edge_1">
+                    </div>
+                    <p> Measure 1 (Left) - <b>Shift</b>: Anchor to the nearest endpoint by shifting. In our example, the shift value is 1.4.</p>
+                    <p> Measure 2 (Center) - <b>Stretch</b>: Make the end points the same distance apart. Stretch value of 9.9.</p>
+                    <p> Measure 3 (Right and Bottom) - <b>Shape</b>: Bend and twist the edge using 7 shape points. Shape points are 'matched' and the distance
+                      between them is averaged to obtain the shape value. Shape value of 8.4 after averaging </p>
+                    <div class = "container-sm">
+                      <img src="resources/images/edge_to_edge_6.png" class="img-fluid" alt="edge_to_edge_6">
+                    </div>
+                    <center> <br>Shape measurements averaged <br></center>
+
+                    <div class = "container-sm">
+                      <img src="resources/images/edge_to_edge_5.png" class="img-fluid" alt="edge_to_edge_2">
+                    </div>
+
+                    <p> <br>So, our edge to edge distance: <b>D(e1, e2) = 1.4 + 9.9 + 8.4 = 19.7</b><br></p>
+
+                    <h2><br>Measure of graph Centers </h2>
+                    <p> For this measurement, we take the weighted average of endpoints, 7 shape points, and edge length</p>
+
+                    <div class = "container-sm">
+                      <img src="resources/images/measure_center_1.png" class="img-fluid" alt="measure_center_1">
+                    </div>
+
+                    <h2> <br>K-means clustering algorithm for graphs </h2>
+                    <p> We implement a standard K-means. We begin with a fixed K and set of exemplars. Iterate between the following steps until cluster assignments don't change: </p>
+                    <p> <b>1. Assign each graph to the cluster anchored by the nearest exemplar using the distance measure defined earlier </b></p>
+                    <p> <b>2. Calculate the new cluster means as described above and find the exemplar graph that is nearest the new mean. </b></p>
+
+                    <div class = "container-sm">
+                      <img src="resources/images/k_means_1.png" class="img-fluid" alt="k_means_1">
+                    </div>
+
+                    <p> <br>An example cluster when K = 40 is shown below. Examplar is shown on the left in red,
+                      with other cluster members shown in black in the background. On the right is the cluster mean. </p>
+                    <p> During clustering, outliers are considered graphs that are a certain distance from the exemplar. The algorithm sets a ceiling on the allowable number of outliers. </p>
+
+                    <br>
+                    <h2> Statistical Modeling </h2>
+                    <p> The modeling approach depends on the forensic question of interest.
+                      If the goal is to identify the most likely author of a questioned sample from among a closed set of potential authors,
+                      then the approach that is described in <a href = "resources/documents/Crawford2020.pdf"> Crawford et al. (2020) </a> and
+                      in <a href = "resources/documents/Crawford2022.pdf"> Crawford et al. (2022) </a> is appropriate.
+                      If, however, the problem involves a one-to-many comparison, as in the case of an open set of potential writers,
+                      then the methods described in <a href = "resources/documents/JohnsonOmmen2022.pdf"> Johnson and Ommen (2022) </a> can be applied.
+                      The code to implement all of those statistical modeling approaches can be requested by contacting the manuscript authors.
+                      We will eventually include all computational tools as part of the open-source package,
+                      once extensive testing and documentation of the programs has been completed.
+                    </p></br>
+                  </div>
+            <!-- Footer -->
+            <footer class = "bg-green foot">
+              <a href = "https://www.iastate.edu/" target="_blank">
+                <img src = "resources/images/isu-white.png" class = "foot-logo">
+              </a>
+              <a href = "https://forensicstats.org/" target="_blank">
+                <img src = "resources/images/csafe-logo_white.png" class = "foot-logo">
+              </a>
+              <a href = "https://github.com/CSAFE-ISU/handwriter" target="_blank">
+                <img src = "resources/images/GitHub-Mark-Light-64px.png" class = "foot-logo">
+              </a>
+              </div>
+            </footer>
+            </div>
+        </div>
+        <!-- Bootstrap core JS-->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Core theme JS-->
+        <script src="js/scripts.js"></script>
+    </body>
+</html>
