@@ -26,15 +26,14 @@
 #' @export
 readPNGBinary = function(path, cutoffAdjust = 0, clean = TRUE, crop = TRUE, inversion = FALSE)
 {
-  library(magick)
   message(paste0('path in readPNGBinary: ', path))
   if(endsWith(path, "RData") || endsWith(path, "rda")){
     load(path)
     
     f <- file.path(tempdir(), "temp_png")
-    magick_img <- image_read(magick_image)
+    magick_img <- magick::image_read(magick_image)
 
-    image_write(magick_img, path = f, format = "png")
+    magick::image_write(magick_img, path = f, format = "png")
     img = png::readPNG(f)
     
   }else{
