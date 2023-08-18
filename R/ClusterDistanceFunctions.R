@@ -504,7 +504,7 @@ getAllPairsDistances = function(graphInfo, numPathCuts)
 #' \item{matching_size}{The size of the optimal edge pairings.}
 #'
 #' @details This function internally uses \code{\link[handwriter]{getGraphInfo}} to
-#'   find and format the parameter values. It then employs \code{\link[handwriter]{getAllPairsDistances}}
+#'   find and format the parameter values. It then employs the internal function getAllPairsDistances
 #'   to calculate the distances between each pair of edges. Finally, the function uses linear programming
 #'   to find the optimal edge pairings and returns the matching weight and size.
 #'
