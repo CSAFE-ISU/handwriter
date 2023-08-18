@@ -830,7 +830,6 @@ add_character_features = function(img, letterList, letters, dims){
   letterPlaces = matrix(unlist(lapply(featureSets, FUN = function(x) {c(x$line_number, x$order_within_line)})), ncol = 2, byrow = TRUE)
   letterOrder = order(letterPlaces[,1], letterPlaces[,2])
   letterList = letterList[letterOrder]
-  letterList = add_word_info(letterList, dims)
   
   return(letterList)
 }
