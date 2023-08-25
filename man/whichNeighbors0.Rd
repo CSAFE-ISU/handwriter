@@ -12,7 +12,7 @@ whichNeighbors0(coords, img)
 \item{img}{The image as a bitmap}
 }
 \value{
-Return a list of which neighbors are a black pixel excluding diagonals to the 
+Return a list of which neighbors are a black pixel excluding diagonals to the
 middle point when a non-diagonal between those two vertices exists.
 }
 \description{
