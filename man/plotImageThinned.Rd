@@ -4,24 +4,20 @@
 \alias{plotImageThinned}
 \title{plotImageThinned}
 \usage{
-plotImageThinned(img, thinned)
+plotImageThinned(doc)
 }
 \arguments{
-\item{img}{Full image matrix}
-
-\item{thinned}{Thinned image matrix}
+\item{doc}{A document processed with [handwriter::processHandwriting()]}
 }
 \value{
-Plot of full and thinned image.
+Plot of thinned image
 }
 \description{
 This function returns a plot with the full image plotted in light gray and the skeleton printed in black on top.
 }
 \examples{
 \dontrun{
-csafe_document = list()
-csafe_document$image = nature1
-csafe_document$thin = thinImage(csafe_document$image)
-plotImageThinned(csafe_document$image, csafe_document$thin)
+document = processHandwriting('path/to/image.png')
+plotImageThinned(document)
 }
 }

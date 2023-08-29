@@ -16,9 +16,9 @@ Cursive written word: csafe
 \examples{
 csafe_document <- list()
 csafe_document$image <- csafe
-plotImage(csafe_document$image)
+plotImage(csafe_document)
 csafe_document$thin <- thinImage(csafe_document$image)
-plotImageThinned(csafe_document$image, csafe_document$thin)
+plotImageThinned(csafe_document)
 csafe_processList <- processHandwriting(csafe_document$thin, dim(csafe_document$image))
 }
 \keyword{datasets}

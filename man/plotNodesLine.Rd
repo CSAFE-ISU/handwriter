@@ -4,14 +4,10 @@
 \alias{plotNodesLine}
 \title{plotNodesLine}
 \usage{
-plotNodesLine(img, thinned, nodeList, nodeSize = 3, nodeColor = "red")
+plotNodesLine(doc, nodeSize = 3, nodeColor = "red")
 }
 \arguments{
-\item{img}{full image matrix; used to call plotImageThinned()}
-
-\item{thinned}{thinned image matrix; used to call plotImageThinned()}
-
-\item{nodeList}{list of nodes}
+\item{doc}{A document processed with [handwriter::processHandwriter()]}
 
 \item{nodeSize}{size of node; default set to 3}
 

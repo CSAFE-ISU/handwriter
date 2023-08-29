@@ -4,14 +4,12 @@
 \alias{plotNodes}
 \title{plotNodes}
 \usage{
-plotNodes(img, thinned, nodeList, nodeSize = 3, nodeColor = "red")
+plotNodes(doc, plot_break_pts = FALSE, nodeSize = 3, nodeColor = "red")
 }
 \arguments{
-\item{img}{Full image matrix, unthinned.}
+\item{doc}{A document processed with [handwriter::processHandwriting()]}
 
-\item{thinned}{Thinned image matrix}
-
-\item{nodeList}{Nodelist returned from getNodes.}
+\item{plot_break_pts}{Logical value as to whether to plot nodes or break points. plot_break_pts=FALSE plots nodes and plot_break_pts=TRUE plots break point.}
 
 \item{nodeSize}{Size of triangles printed. 3 by default. Move down to 2 or 1 for small text images.}
 
@@ -26,14 +24,10 @@ Also called from plotPath, which is a more useful function, in general.
 }
 \examples{
 \dontrun{
-twoSent_document = list()
-twoSent_document$image = twoSent
-twoSent_document$thin = thinImage(twoSent_document$image)
-twoSent_processList = processHandwriting(twoSent_document$thin, dim(twoSent_document$image))
-
-twoSent_document$nodes = twoSent_processList$nodes
-twoSent_document$breaks = twoSent_processList$breakPoints
-plotNodes(twoSent_document$image, twoSent_document$thin, twoSent_document$nodes)
-plotNodes(twoSent_document$image, twoSent_document$thin, twoSent_document$breaks)
+twoSent_doc = list()
+twoSent_doc$image = twoSent
+twoSent_doc$thin = thinImage(twoSent_doc$image)
+twoSent_doc$process = processHandwriting(twoSent_doc$thin, dim(twoSent_doc$image))
+plotNodes(twoSent_doc)
 }
 }

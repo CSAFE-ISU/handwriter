@@ -5,9 +5,8 @@
 \title{plotLetter}
 \usage{
 plotLetter(
-  letterList,
+  doc,
   whichLetter,
-  dims,
   showPaths = TRUE,
   showCentroid = TRUE,
   showSlope = TRUE,
@@ -15,11 +14,9 @@ plotLetter(
 )
 }
 \arguments{
-\item{letterList}{Letter list from processHandwriting function}
+\item{doc}{A document processed with [handwriter::processDocument()]}
 
 \item{whichLetter}{Single value in 1:length(letterList) denoting which letter to plot.}
-
-\item{dims}{Dimensions of the original document}
 
 \item{showPaths}{Whether the calculated paths on the letter should be shown with numbers.}
 
@@ -41,9 +38,8 @@ Dims requires the dimensions of the entire document, since this isn't contained 
 twoSent_document = list()
 twoSent_document$image = twoSent
 twoSent_document$thin = thinImage(twoSent_document$image)
-twoSent_processList = processHandwriting(twoSent_document$thin, dim(twoSent_document$image))
+twoSent_document$process = processHandwriting(twoSent_document$thin, dim(twoSent_document$image))
+plotLetter(twoSent_document, 1)
+plotLetter(twoSent_document, 4, showPaths = FALSE)
 
-dims = dim(twoSent_document$image)
-plotLetter(twoSent_processList$letterList, 1, dims)
-plotLetter(twoSent_processList$letterList, 4, dims)
 }

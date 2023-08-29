@@ -17,9 +17,9 @@ Two sentence printed example handwriting
 \dontrun{
 twoSent_document <- list()
 twoSent_document$image <- twoSent
-plotImage(twoSent_document$image)
+plotImage(twoSent_document)
 twoSent_document$thin <- thinImage(twoSent_document$image)
-plotImageThinned(twoSent_document$image, twoSent_document$thin)
+plotImageThinned(twoSent_document)
 twoSent_processList <- processHandwriting(twoSent_document$thin, dim(twoSent_document$image))
 }
 }

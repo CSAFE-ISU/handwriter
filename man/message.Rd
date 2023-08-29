@@ -17,9 +17,9 @@ Full page image of the handwritten London letter.
 \dontrun{
 message_document <- list()
 message_document$image <- message
-plotImage(message_document$image)
+plotImage(message_document)
 message_document$thin <- thinImage(message_document$image)
-plotImageThinned(message_document$image, message_document$thin)
+plotImageThinned(message_document)
 message_processList <- processHandwriting(message_document$thin, dim(message_document$image))
 }
 }

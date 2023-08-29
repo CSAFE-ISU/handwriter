@@ -17,9 +17,9 @@ Full page image of the 4th sample (nature) of handwriting from the first writer.
 \dontrun{
 nature1_document <- list()
 nature1_document$image <- nature1
-plotImage(nature1_document$image)
+plotImage(nature1_document)
 nature1_document$thin <- thinImage(nature1_document$image)
-plotImageThinned(nature1_document$image, nature1_document$thin)
+plotImageThinned(nature1_document)
 nature1_processList <- processHandwriting(nature1_document$thin, dim(nature1_document$image))
 }
 }
