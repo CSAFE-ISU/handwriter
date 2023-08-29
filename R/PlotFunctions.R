@@ -1,51 +1,58 @@
 #' plotImage
 #'
-#' This function plots a basic binary image.
-#' @param x Binary matrix, usually from readPNGBinary
-#' @return Returns plot of x.
+#' This function plots a basic black and white image.
+#' @param doc A document processed with [handwriter::processDocument()] or a binary matrix (all entries are 0 or 1)
+#' @return Returns plot of doc$image.
 #' 
 #' @keywords plot
 #' 
 #' @examples
-#' csafe_document = list()
-#' csafe_document$image = csafe
-#' plotImage(csafe_document$image)
+#' csafe_document <- list()
+#' csafe_document$image <- csafe
+#' plotImage(csafe_document)
 #' 
-#' @import ggplot2
+#' \dontrun{
+#' document = processDocument('path/to/image.png')
+#' plotImage(document)
+#' }
+#' 
 #' @export
-plotImage = function(x)
+plotImage = function(doc)
 {
   Var2 <- Var1 <- value <- NULL
-  xm = melt(x)
+  if ('image' %in% names(doc)){
+    xm = melt(doc$image)
+  } else {
+    xm = melt(doc)
+  }
   names(xm) = c("Var1", "Var2", "value")
-  p = ggplot(xm, aes(Var2, rev(Var1))) + geom_raster(aes(fill = as.factor(value)), na.rm=TRUE) + scale_fill_manual(values = c("black", "white"), guide = "none") + coord_fixed() + theme_void()
+  p = ggplot2::ggplot(xm, ggplot2::aes(Var2, rev(Var1))) + 
+    ggplot2::geom_raster(aes(fill = as.factor(value)), na.rm=TRUE) + 
+    ggplot2::scale_fill_manual(values = c("black", "white"), guide = "none") + 
+    ggplot2::coord_fixed() + 
+    ggplot2::theme_void()
   return(p)
 }
 
 #' plotImageThinned
 #'
 #' This function returns a plot with the full image plotted in light gray and the skeleton printed in black on top.
-#' @param img Full image matrix
-#' @param thinned Thinned image matrix
-#' @return Plot of full and thinned image.
-#' 
-#' @import ggplot2
+#' @param doc A document processed with [handwriter::processHandwriting()]
+#' @return Plot of thinned image
 #' 
 #' @examples
 #' \dontrun{
-#' csafe_document = list()
-#' csafe_document$image = nature1
-#' csafe_document$thin = thinImage(csafe_document$image)
-#' plotImageThinned(csafe_document$image, csafe_document$thin)
+#' document = processHandwriting('path/to/image.png')
+#' plotImageThinned(document)
 #' }
 #' @export
-plotImageThinned = function(img, thinned)
+plotImageThinned = function(doc)
 {
   Var2 <- Var1 <- value <- NULL
-  l.m = melt(img)
+  l.m = melt(doc$image)
   names(l.m) = c("Var1", "Var2", "value")
-  l.m$value[thinned] = 2
-  p = ggplot(l.m, aes(Var2, rev(Var1))) + geom_raster(aes(fill = as.factor(value), alpha = as.factor(value)), na.rm=TRUE) + scale_alpha_manual(values = c(.1, NA, 1), guide = "none") + scale_fill_manual(values = c("black", "white", "black"), guide = "none") + coord_fixed() + theme_void()
+  l.m$value[doc$thin] = 2
+  p = ggplot2::ggplot(l.m, ggplot2::aes(Var2, rev(Var1))) + ggplot2::geom_raster(ggplot2::aes(fill = as.factor(value), alpha = as.factor(value)), na.rm=TRUE) + ggplot2::scale_alpha_manual(values = c(.1, NA, 1), guide = "none") + ggplot2::scale_fill_manual(values = c("black", "white", "black"), guide = "none") + ggplot2::coord_fixed() + ggplot2::theme_void()
   return(p)
 }
 
@@ -54,34 +61,35 @@ plotImageThinned = function(img, thinned)
 #' This function returns a plot with the full image plotted in light gray and the skeleton printed in black, with red triangles over the vertices.
 #' Also called from plotPath, which is a more useful function, in general.
 #' 
-#' @param img Full image matrix, unthinned.
-#' @param thinned Thinned image matrix
-#' @param nodeList Nodelist returned from getNodes.
+#' @param doc A document processed with [handwriter::processHandwriting()]
+#' @param plot_break_pts Logical value as to whether to plot nodes or break points. plot_break_pts=FALSE plots nodes and plot_break_pts=TRUE plots break point.
 #' @param nodeSize Size of triangles printed. 3 by default. Move down to 2 or 1 for small text images.
 #' @param nodeColor Which color the nodes should be
 #' @return Plot of full and thinned image with vertices overlaid.
 #' 
 #' @examples
 #' \dontrun{
-#' twoSent_document = list()
-#' twoSent_document$image = twoSent
-#' twoSent_document$thin = thinImage(twoSent_document$image)
-#' twoSent_processList = processHandwriting(twoSent_document$thin, dim(twoSent_document$image))
-#' 
-#' twoSent_document$nodes = twoSent_processList$nodes
-#' twoSent_document$breaks = twoSent_processList$breakPoints
-#' plotNodes(twoSent_document$image, twoSent_document$thin, twoSent_document$nodes)
-#' plotNodes(twoSent_document$image, twoSent_document$thin, twoSent_document$breaks)
+#' twoSent_doc = list()
+#' twoSent_doc$image = twoSent
+#' twoSent_doc$thin = thinImage(twoSent_doc$image)
+#' twoSent_doc$process = processHandwriting(twoSent_doc$thin, dim(twoSent_doc$image))
+#' plotNodes(twoSent_doc)
 #' }
 #' @import ggplot2
 #' @export
-plotNodes = function(img, thinned, nodeList, nodeSize = 3, nodeColor = "red")
+plotNodes = function(doc, plot_break_pts = FALSE, nodeSize = 3, nodeColor = "red")
 {
   X <- Y <- NULL
   
-  p = plotImageThinned(img, thinned)
-  pointSet = data.frame(X = ((nodeList - 1) %/% dim(img)[1]) + 1, Y = dim(img)[1] - ((nodeList - 1) %% dim(img)[1]))
-  p = p + geom_point(data = pointSet, aes(X, Y), size = nodeSize, shape = I(16), color = I(nodeColor), alpha = I(.4))
+  p = plotImageThinned(doc)
+  if (plot_break_pts){
+    nodeList <- doc$process$breakPoints
+  } else {
+    nodeList <- doc$process$nodes
+  }
+  
+  pointSet = data.frame(X = ((nodeList - 1) %/% dim(doc$image)[1]) + 1, Y = dim(doc$image)[1] - ((nodeList - 1) %% dim(doc$image)[1]))
+  p = p + ggplot2::geom_point(data = pointSet, ggplot2::aes(X, Y), size = nodeSize, shape = I(16), color = I(nodeColor), alpha = I(.4))
   return(p)
 }
 
@@ -175,9 +183,8 @@ plotLine = function(letterList, whichLine, dims)
 #' This function returns a plot of a single letter extracted from a document. 
 #' It uses the letterList parameter from the processHandwriting function and accepts a single value as whichLetter. 
 #' Dims requires the dimensions of the entire document, since this isn't contained in processHandwriting.
-#' @param letterList Letter list from processHandwriting function
+#' @param doc A document processed with [handwriter::processDocument()]
 #' @param whichLetter Single value in 1:length(letterList) denoting which letter to plot.
-#' @param dims Dimensions of the original document
 #' @param showPaths Whether the calculated paths on the letter should be shown with numbers.
 #' @param showCentroid Whether the centroid should be shown
 #' @param showSlope Whether the slope should be shown
@@ -188,25 +195,32 @@ plotLine = function(letterList, whichLine, dims)
 #' twoSent_document = list()
 #' twoSent_document$image = twoSent
 #' twoSent_document$thin = thinImage(twoSent_document$image)
-#' twoSent_processList = processHandwriting(twoSent_document$thin, dim(twoSent_document$image))
+#' twoSent_document$process = processHandwriting(twoSent_document$thin, dim(twoSent_document$image))
+#' plotLetter(twoSent_document, 1)
+#' plotLetter(twoSent_document, 4, showPaths = FALSE)
 #' 
-#' dims = dim(twoSent_document$image)
-#' plotLetter(twoSent_processList$letterList, 1, dims)
-#' plotLetter(twoSent_processList$letterList, 4, dims)
-#' @import ggplot2
 #' @export
-plotLetter = function(letterList, whichLetter, dims, showPaths = TRUE, showCentroid = TRUE, showSlope = TRUE, showNodes = TRUE)#, showTightness = TRUE, showLoopDims = TRUE)
+plotLetter = function(doc, whichLetter, showPaths = TRUE, showCentroid = TRUE, showSlope = TRUE, showNodes = TRUE)
 {
   X <- Y <- NULL
-  path = letterList[[whichLetter]]$path
-  r = ((path-1) %% dims[1]) + 1
-  c = ((path-1) %/% dims[1]) + 1
   
+  # dimensions of original image
+  dims <- dim(doc$image)
+  
+  path = doc$process$letterList[[whichLetter]]$path
+  # convert index to row and column
+  rc <- i_to_rc(path, dims)
+  r = rc[,1]
+  c = rc[,2]
+  
+  # matrix of ones
   img = matrix(1, nrow = diff(range(r))+1, ncol = diff(range(c))+1)
   
-  nodes = letterList[[whichLetter]]$nodes
-  nodesr = ((nodes-1) %% dims[1]) + 1
-  nodesc = ((nodes-1) %/% dims[1]) + 1
+  nodes = doc$process$letterList[[whichLetter]]$nodes
+  # convert index to row and column
+  nodesrc = i_to_rc(nodes, dims)
+  nodesr = nodesrc[,1]
+  nodesc = nodesrc[,2]
   nodesr = nodesr - min(r) + 1
   nodesc = nodesc - min(c) + 1
   
@@ -215,19 +229,29 @@ plotLetter = function(letterList, whichLetter, dims, showPaths = TRUE, showCentr
   nodes = ((nodesc - 1)*(diff(range(r))+1)) + nodesr
   img[cbind(rnew,cnew)] = 0
   
+  # format like output of processDocument so that we can use plotNodes() or plotImageThinned()
+  img_doc <- list()
+  img_doc$image <- img
+  img_doc$thin <- which(img == 1)
+  img_doc$process$nodes <- nodes
+  
   if (showNodes){
-    p = plotNodes(img, which(img == 1), nodes)
-  }else p = plotImageThinned(img, which(img == 1))
+    p = plotNodes(img_doc)
+  } else {
+    p = plotImageThinned(img_doc)
+  }
   
   #End of plotting the Nodes, 
   #Start finding info for optional features to display
-  centroid_y = letterList[[whichLetter]]$characterFeatures$centroid_y - min(r) + 1
-  centroid_x = letterList[[whichLetter]]$characterFeatures$centroid_x - min(c) + 1
-  
-  lHalfr = ((letterList[[whichLetter]]$characterFeatures$lHalf - 1) %% dims[1]) + 1
-  lHalfc = ((letterList[[whichLetter]]$characterFeatures$lHalf - 1) %/% dims[1]) + 1
-  rHalfr = ((letterList[[whichLetter]]$characterFeatures$rHalf - 1) %% dims[1]) + 1
-  rHalfc = ((letterList[[whichLetter]]$characterFeatures$rHalf - 1) %/% dims[1]) + 1
+  centroid_y = doc$process$letterList[[whichLetter]]$characterFeatures$centroid_y - min(r) + 1
+  centroid_x = doc$process$letterList[[whichLetter]]$characterFeatures$centroid_x - min(c) + 1
+  # convert index to row and column
+  lHalfrc <- i_to_rc(doc$process$letterList[[whichLetter]]$characterFeatures$lHalf, dims)
+  lHalfr = lHalfrc[,1]
+  lHalfc = lHalfrc[,2]
+  rHalfrc <- i_to_rc(doc$process$letterList[[whichLetter]]$characterFeatures$rHalf, dims)
+  rHalfr = rHalfrc[,1]
+  rHalfc = rHalfrc[,2]
   
   lHalfr = lHalfr - min(r) + 1
   lHalfc = lHalfc - min(c) + 1
@@ -237,19 +261,18 @@ plotLetter = function(letterList, whichLetter, dims, showPaths = TRUE, showCentr
   lCentroid = c(mean(lHalfr), mean(lHalfc))
   rCentroid = c(mean(rHalfr), mean(rHalfc))
   
-  ranger = letterList[[whichLetter]]$characterFeatures$height
-  rangec = letterList[[whichLetter]]$characterFeatures$width
+  ranger = doc$process$letterList[[whichLetter]]$characterFeatures$height
+  rangec = doc$process$letterList[[whichLetter]]$characterFeatures$width
   
   centroidDat = data.frame(X = centroid_x, 
                            Y = ranger - centroid_y + 1)
   halfCentroidDat = data.frame(X = c(lCentroid[2], rCentroid[2]), 
                                Y = c(ranger - c(lCentroid[1], rCentroid[1]) + 1))
   tightnessDat = data.frame(x0 = centroid_x, y0 = ranger - centroid_y + 1)
-  tightness = letterList[[whichLetter]]$characterFeatures$compactness
-  
+  tightness = doc$process$letterList[[whichLetter]]$characterFeatures$compactness
   
   pathPoints = NULL
-  pathSets = letterList[[whichLetter]]$allPaths
+  pathSets = doc$process$letterList[[whichLetter]]$allPaths
   for(i in 1:length(pathSets))
   {
     pathr = ((pathSets[[i]]-1) %% dims[1]) + 1
@@ -260,69 +283,22 @@ plotLetter = function(letterList, whichLetter, dims, showPaths = TRUE, showCentr
     pathPoints = rbind(pathPoints, cbind(pathr, pathc, i))
   }
   
-  
   #Plot paths as numbers
-  if(showPaths) p = p + geom_text(data = as.data.frame(pathPoints), aes(x = pathc, y = max(rnew) - pathr + 1, label = i))
+  if (showPaths){
+    p = p + ggplot2::geom_text(data = as.data.frame(pathPoints), ggplot2::aes(x = pathc, y = max(rnew) - pathr + 1, label = i))
+  }
   
   #Plot Centroid
-  if(showCentroid) p = p + geom_point(data = centroidDat, aes(x = X, y = Y, color = I("red"), size = I(3), shape = I(7)))
+  if (showCentroid){
+    p = p + ggplot2::geom_point(data = centroidDat, aes(x = X, y = Y, color = I("red"), size = I(3), shape = I(7)))
+  }
   
   #Plot Slope of Letter
-  if(showSlope) p = p + geom_point(data = halfCentroidDat, aes(x = X, y = Y, color = I("red"), shape = I(4))) + 
-    geom_line(data = halfCentroidDat, aes(x = X, y = Y, color = I("red")))
+  if (showSlope){
+    p = p + ggplot2::geom_point(data = halfCentroidDat, ggplot2::aes(x = X, y = Y, color = I("red"), shape = I(4))) + 
+      ggplot2::geom_line(data = halfCentroidDat, ggplot2::aes(x = X, y = Y, color = I("red")))
+  }
   
-  # #Plot tightness of letter, where tightness scales area (not radius)
-  # if(showTightness) p = p + geom_point(data = tightnessDat, aes(x = x0, y=y0, size = (sqrt(tightness/pi))*25, pch = 1, color = I("red"), stroke = 2))
-  # 
-  # #Plot centroid and longest line through centroid (and its perpendicular line) of all loops
-  # if(showLoopDims){
-  #   loops = letterList[[whichLetter]]$characterFeatures$loopInfo$loopPlottingInfo
-  #   for(i in 1:length(loops)){
-  #     if(length(loops) == 0) break
-  #     loop = loops[[i]]
-  #     loopCentroid = loop[[1]]
-  #     longestLine = loop[[2]]
-  #     shortestLine = loop[[3]]
-  #     
-  #     
-  #     #Plot Centroid of loop
-  #     #loopCentroid_y = (dims[[1]] - loopCentroid[2]) - min(r)+1
-  #     loopCentroid_y = loopCentroid[2] - min(r)
-  #     loopCentroid_x = loopCentroid[1] - min(c)
-  #     loopCentroidDat = data.frame(X=loopCentroid_x+1, Y=ranger-loopCentroid_y)
-  #     p=p+geom_point(data = loopCentroidDat, aes(x=X, y=Y, color = I("blue"), size = I(2), shape = I(7)))
-  #     
-  #     #Plot long line of loop
-  #     longp1 = longestLine[[1]]
-  #     longp2 = longestLine[[2]]
-  #     
-  #     longx1 = longp1[[1]]-min(c)
-  #     #longy1 = (dims[[1]] - longp1[2]) - min(r)+1
-  #     longy1 = longp1[[2]] - min(r)
-  #     longx2 = longp2[[1]]-min(c)
-  #     #longy2 = (dims[[1]] - longp2[2]) - min(r)+1
-  #     longy2 = longp2[[2]] - min(r)
-  #     
-  #     loopLongestLine = data.frame(X = c(longx1, longx2)+1, 
-  #                                  Y = c(ranger - c(longy1, longy2)))
-  #     p=p+geom_line(data = loopLongestLine, aes(x = X, y = Y, color = I("blue")))
-  #     
-  #     #Plot short line of loop
-  #     shortp1 = shortestLine[[1]]
-  #     shortp2 = shortestLine[[2]]
-  #     
-  #     shortx1 = shortp1[1]-min(c)
-  #     #shorty1 = (dims[[1]] - shortp1[2]) - min(r)+1
-  #     shorty1 = shortp1[2] - min(r)
-  #     shortx2 = shortp2[1]-min(c)
-  #     #shorty2 = (dims[[1]] - shortp2[2]) - min(r)+1
-  #     shorty2 = shortp2[2] - min(r)
-  #     
-  #     loopShortestLine = data.frame(X = c(shortx1, shortx2)+1, 
-  #                                  Y = c(ranger - c(shorty1, shorty2)))
-  #     p=p+geom_line(data = loopShortestLine, aes(x = X, y = Y, color = I("blue")))
-  #   }
-  # }
   return(p)
 }
 

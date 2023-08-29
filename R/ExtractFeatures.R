@@ -52,17 +52,15 @@ char_to_feature = function(character, dims, uniqueid){
 #'
 #' Internal function for drawing a line from two given nodes.
 #'  
-#' @param img full image matrix; used to call plotImageThinned()
-#' @param thinned thinned image matrix; used to call plotImageThinned()
-#' @param nodeList list of nodes
+#' @param doc A document processed with [handwriter::processHandwriter()]
 #' @param nodeSize size of node; default set to 3
 #' @param nodeColor color of node; default set to red
 #' @return a line in between the two nodes
-plotNodesLine = function(img, thinned, nodeList, nodeSize = 3, nodeColor = "red")
+plotNodesLine = function(doc, nodeSize = 3, nodeColor = "red")
 {
   X <- Y <- NULL
-  p = plotImageThinned(img, thinned)
-  pointSet = data.frame(X = ((nodeList - 1) %/% dim(img)[1]) + 1, Y = dim(img)[1] - ((nodeList - 1) %% dim(img)[1]))
+  p = plotImageThinned(doc)
+  pointSet = data.frame(X = ((doc$process$nodes - 1) %/% dim(doc$image)[1]) + 1, Y = dim(doc$image)[1] - ((doc$process$nodes - 1) %% dim(doc$image)[1]))
   sx = pointSet[[1]][[1]]
   sy = pointSet[[2]][[1]]
   ex = pointSet[[1]][[2]]
@@ -72,11 +70,11 @@ plotNodesLine = function(img, thinned, nodeList, nodeSize = 3, nodeColor = "red"
   return(p)
 }
 
-plotNodesLine1 = function(img, thinned, nodeList, nodeSize = 3, nodeColor = "red")
+plotNodesLine1 = function(doc, nodeSize = 3, nodeColor = "red")
 {
   X <- Y <- NULL
-  p = plotImageThinned(img, thinned)
-  pointSet = data.frame(X = ((nodeList - 1) %/% dim(img)[1]) + 1, Y = dim(img)[1] - ((nodeList - 1) %% dim(img)[1]))
+  p = plotImageThinned(doc)
+  pointSet = data.frame(X = ((doc$process$nodes - 1) %/% dim(doc$image)[1]) + 1, Y = dim(doc$image)[1] - ((doc$process$nodes - 1) %% dim(doc$image)[1]))
   sx = pointSet[[1]][[1]]
   sy = pointSet[[2]][[1]]
   ex = pointSet[[1]][[2]]

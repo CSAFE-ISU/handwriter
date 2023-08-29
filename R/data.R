@@ -6,9 +6,9 @@
 #' @examples
 #' csafe_document <- list()
 #' csafe_document$image <- csafe
-#' plotImage(csafe_document$image)
+#' plotImage(csafe_document)
 #' csafe_document$thin <- thinImage(csafe_document$image)
-#' plotImageThinned(csafe_document$image, csafe_document$thin)
+#' plotImageThinned(csafe_document)
 #' csafe_processList <- processHandwriting(csafe_document$thin, dim(csafe_document$image))
 "csafe"
 
@@ -18,9 +18,9 @@
 #' @examples
 #' london_document <- list()
 #' london_document$image <- london
-#' plotImage(london_document$image)
+#' plotImage(london_document)
 #' london_document$thin <- thinImage(london_document$image)
-#' plotImageThinned(london_document$image, london_document$thin)
+#' plotImageThinned(london_document)
 #' london_processList <- processHandwriting(london_document$thin, dim(london_document$image))
 "london"
 
@@ -31,9 +31,9 @@
 #' \dontrun{
 #' message_document <- list()
 #' message_document$image <- message
-#' plotImage(message_document$image)
+#' plotImage(message_document)
 #' message_document$thin <- thinImage(message_document$image)
-#' plotImageThinned(message_document$image, message_document$thin)
+#' plotImageThinned(message_document)
 #' message_processList <- processHandwriting(message_document$thin, dim(message_document$image))
 #' }
 "message"
@@ -45,9 +45,9 @@
 #' \dontrun{
 #' nature1_document <- list()
 #' nature1_document$image <- nature1
-#' plotImage(nature1_document$image)
+#' plotImage(nature1_document)
 #' nature1_document$thin <- thinImage(nature1_document$image)
-#' plotImageThinned(nature1_document$image, nature1_document$thin)
+#' plotImageThinned(nature1_document)
 #' nature1_processList <- processHandwriting(nature1_document$thin, dim(nature1_document$image))
 #' }
 "nature1"
@@ -59,9 +59,9 @@
 #' \dontrun{
 #' twoSent_document <- list()
 #' twoSent_document$image <- twoSent
-#' plotImage(twoSent_document$image)
+#' plotImage(twoSent_document)
 #' twoSent_document$thin <- thinImage(twoSent_document$image)
-#' plotImageThinned(twoSent_document$image, twoSent_document$thin)
+#' plotImageThinned(twoSent_document)
 #' twoSent_processList <- processHandwriting(twoSent_document$thin, dim(twoSent_document$image))
 #' }
 "twoSent"

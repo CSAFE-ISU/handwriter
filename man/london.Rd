@@ -16,9 +16,9 @@ Cursive written word: London
 \examples{
 london_document <- list()
 london_document$image <- london
-plotImage(london_document$image)
+plotImage(london_document)
 london_document$thin <- thinImage(london_document$image)
-plotImageThinned(london_document$image, london_document$thin)
+plotImageThinned(london_document)
 london_processList <- processHandwriting(london_document$thin, dim(london_document$image))
 }
 \keyword{datasets}
