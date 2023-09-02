@@ -12,7 +12,7 @@ whichNeighbors(coords, img)
 \item{img}{The image as a bitmap}
 }
 \value{
-Return a list of which neighbors are a black pixel
+Return a matrix of which neighbors are a black pixel
 }
 \description{
 Internal function for identifying which neighbors are black.

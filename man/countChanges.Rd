@@ -7,13 +7,13 @@
 countChanges(coords, img)
 }
 \arguments{
-\item{coords}{coordinates to consider}
+\item{coords}{\(row, column\) coordinates of a single point to consider}
 
-\item{img}{The non-thinned image as binary bit map}
+\item{img}{The non-thinned image as binary bit map. Double-check: processHandwriting might call countChanges on thinned image}
 }
 \value{
-The sum of the 4-connected components around a pixel.
+The number of edges connected to coords
 }
 \description{
-Internal function for counting 4-connected components around a pixel.
+Internal function for counting the number of edges connected to a point
 }

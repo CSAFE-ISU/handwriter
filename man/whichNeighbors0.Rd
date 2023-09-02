@@ -17,5 +17,7 @@ middle point when a non-diagonal between those two vertices exists.
 }
 \description{
 Internal function for identifying which neighbors are black excluding diagonals
-to the middle point when a non-diagonal between those two vertices exists.
+to the middle point when a non-diagonal between those two vertices exists. For example, 
+if the pixel above and the pixel to the right are black then exclude (set to zero) the pixel
+above and to the right (the diagonal between the two) from the neighbors list
 }

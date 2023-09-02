@@ -7,7 +7,8 @@
 getNodes(indices, dims)
 }
 \arguments{
-\item{indices}{Where to check for intersection at}
+\item{indices}{Where to check for intersection. The indices of pixels locations in 
+the thinned image created by thinImage}
 
 \item{dims}{dimensions of the image}
 }
