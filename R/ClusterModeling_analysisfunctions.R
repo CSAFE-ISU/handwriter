@@ -38,6 +38,9 @@
 #' @export
 #' @md
 analyze_questioned_documents <- function(template_dir, questioned_images_dir, model, num_cores, num_graphs = "All", writer_indices, doc_indices) {
+  # bind global variables to fix check() note
+  writer <- d <- NULL
+  
   # process questioned documents
   message("Processing questioned documents...")
   questioned_proc_list <- process_batch_dir(

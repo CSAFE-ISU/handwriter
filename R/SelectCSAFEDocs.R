@@ -72,10 +72,10 @@ select_csafe_docs <- function(num_template_writers,
                               questioned_sessions,
                               questioned_reps,
                               questioned_prompts) {
-  if ((num_template_writers + num_model_writers) > length(unique(csafe_docs$writer))) {
+  if ((num_template_writers + num_model_writers) > length(unique(handwriter::csafe_docs$writer))) {
     stop(paste(
       "The sum of num_tempalte_writers and num_model_writers must be less than or equal to",
-      length(unique(csafe_docs$writer))
+      length(unique(handwriter::csafe_docs$writer))
     ))
   }
 
@@ -125,13 +125,16 @@ select_csafe_docs <- function(num_template_writers,
 #'
 #' @export
 select_template_docs <- function(num_writers, sessions, reps, prompts, seed) {
+  # bind global variables to fix check() note
+  writer <- session <- repetition <- NULL
+  
   # format sessions, prompts, and reps
   sessions <- paste0("s0", sessions)
   reps <- paste0("r0", reps)
   prompts <- sapply(prompts, get_prompt_code, USE.NAMES = FALSE)
 
   # filter sessions, prompts, and reps
-  df <- csafe_docs %>% dplyr::filter(session %in% sessions, prompt %in% prompts, repetition %in% reps)
+  df <- handwriter::csafe_docs %>% dplyr::filter(session %in% sessions, prompt %in% prompts, repetition %in% reps)
 
   # randomly sample writers
   set.seed(seed = seed)
@@ -156,8 +159,11 @@ select_template_docs <- function(num_writers, sessions, reps, prompts, seed) {
 #'
 #' @export
 select_model_docs <- function(template_df, num_writers, sessions, reps, prompts, seed) {
+  # bind global variables to fix check() note
+  writer <- session <- repetition <- NULL
+  
   # drop template writers
-  df <- csafe_docs %>% dplyr::filter(!(writer %in% unique(template_df$writer)))
+  df <- handwriter::csafe_docs %>% dplyr::filter(!(writer %in% unique(template_df$writer)))
 
   # filter model sessions, prompts, and reps
   # format sessions, prompts, and reps
@@ -186,13 +192,16 @@ select_model_docs <- function(template_df, num_writers, sessions, reps, prompts,
 #'
 #' @export
 select_questioned_docs <- function(model_df, sessions, reps, prompts) {
+  # bind global variables to fix check() note
+  writer <- session <- repetition <- NULL
+  
   # format sessions, prompts, and reps
   sessions <- paste0("s0", sessions)
   reps <- paste0("r0", reps)
   prompts <- sapply(prompts, get_prompt_code, USE.NAMES = FALSE)
 
   # filter documents
-  df <- csafe_docs %>% dplyr::filter(
+  df <- handwriter::csafe_docs %>% dplyr::filter(
     writer %in% unique(model_df$writer),
     session %in% sessions,
     repetition %in% reps,

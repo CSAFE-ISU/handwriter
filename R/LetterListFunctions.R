@@ -164,12 +164,11 @@ MakeLetterListLetterSpecific = function(letterList, dims)
 #' @param procList List of handwriting samples
 #' @param K Integer number of clusters
 #' @param numPathCuts Integer number of cuts to make when comparing segments of paths
-#' @param imagesList A list of graphs
 #' @return centerstarts List of K graphs
 #'
 #' @keywords ?
 #' @noRd
-MakeCenterStarts = function(procList, K, numPathCuts, imagesList)
+MakeCenterStarts = function(procList, K, numPathCuts)
 {
   # Add the numloops and stratum fields to the characterFeatures for each letter
   # in each handwriting sample. numloops is the number of loops in a letter found
@@ -180,24 +179,10 @@ MakeCenterStarts = function(procList, K, numPathCuts, imagesList)
   # Make sampling dataframe
   samplingdf <- MakeSamplingDF(procList = procList)
   
-  # Make a list of K empty lists
-  # centerstarts = replicate(K, list())
-  # 
-  # # For each letter in samplingdf, format the letter to be the starting center
-  # # of a cluster
-  # for(k in 1:K){
-  #   # Find the index for the k-th letter
-  #   letter_ind <- samplingdf$ind[k]
-  #   # Cut the paths into 8 segments and find (x,y) coordinates of the pathEnds,
-  #   # pathQuarters, and pathCenter with the letter's centroid at (0,0). Also find
-  #   # the lengths of the paths in the letter.
-  #   centerstarts[[k]] = letterToPrototype(imagesList[[letter_ind]], numPathCuts, imagesList)
-  # }
-  
   centerstarts = list()
   startingIndices = sample(1:length(procList), K, replace = FALSE)
   for(j in 1:K) {
-    centerstarts[[j]] = letterToPrototype(procList[[startingIndices[j]]], numPathCuts, imagesList)
+    centerstarts[[j]] = letterToPrototype(procList[[startingIndices[j]]], numPathCuts)
   }
   
   return(centerstarts)
@@ -242,7 +227,9 @@ AddSamplingStrata = function(letterList){
 #'
 #' @keywords ?
 MakeSamplingDF <- function(procList)
-{ # Initialize
+{ stratum <- stratumfac <- data <- n <- samp <- NULL
+  
+  # Initialize
   doc = letter = stratum_a = c()
   
   # Create a vector called doc that numbers each handwriting sample. Create a
@@ -277,15 +264,15 @@ MakeSamplingDF <- function(procList)
   
   # Randomly select graphs by stratum level
   samplingdf = samplingdf %>%
-    mutate(stratumfac = factor(stratum, levels = lvls)) %>%  # convert to factor
-    group_by(stratumfac) %>%
-    nest() %>%  # make nested dataframe for each factor level            
-    ungroup() %>% 
-    arrange(stratumfac) %>%  # sort by factor levels
-    mutate(n = numstrat) %>%  # add column with number to sample from each nested dataframe
-    mutate(samp = purrr::map2(data, n, dplyr::sample_n)) %>%  # sample n graphs from each nested dataframe
-    select(-data) %>%  # Remove old rows
-    unnest(samp)  # Keep sampled rows
+    dplyr::mutate(stratumfac = factor(stratum, levels = lvls)) %>%  # convert to factor
+    dplyr::group_by(stratumfac) %>%
+    tidyr::nest() %>%  # make nested dataframe for each factor level            
+    dplyr::ungroup() %>% 
+    dplyr::arrange(stratumfac) %>%  # sort by factor levels
+    dplyr::mutate(n = numstrat) %>%  # add column with number to sample from each nested dataframe
+    dplyr::mutate(samp = purrr::map2(data, n, dplyr::sample_n)) %>%  # sample n graphs from each nested dataframe
+    dplyr::select(-data) %>%  # Remove old rows
+    tidyr::unnest(samp)  # Keep sampled rows
   
   return(samplingdf)
   
@@ -382,7 +369,6 @@ centeredImageOnCentroid <- function(letter){
 #' @keywords ?
 i_to_r = function(index_num, num_rows){
   r = ((index_num-1) %% num_rows) + 1
-  rc[['col']] = ((index_num-1) %/% hs_num_rows) + 1
   return(r)
 }
 
@@ -436,6 +422,41 @@ i_to_y = function(index_num, num_rows){
   return(y)
 }
 
+#' i_to_rc
+#'
+#' Function for converting indices to respective row, col.
+#' 
+#' @param nodes nodes to be converted.
+#' @param dims dimensions of binary image
+#' @return returns matrix mapping nodes to respective row, 
+#'  
+#' @keywords row column binary image
+i_to_rc = function(nodes, dims)
+{
+  cs = (nodes-1)%/%dims[1] + 1
+  rs = (nodes-1)%%dims[1] + 1
+  return(matrix(c(rs,cs), ncol = 2))
+}
+
+#' i_to_rci
+#'
+#' Function for converting indices to respective row, col and associates the original index.
+#' 
+#' @param nodes nodes to be converted.
+#' @param dims dimensions of binary image
+#' @param fixed instead of normal computation of rows, put it in a fixed location.
+#' @return returns matrix mapping nodes' indices to respective row, col
+#' 
+#' @keywords row column binary image index
+i_to_rci = function(nodes, dims, fixed = FALSE)
+{
+  cs = (nodes-1)%/%dims[1] + 1
+  rs = (nodes-1)%%dims[1] + 1
+  if(fixed) rs = dims[1] - rs + 1
+  rowcolmatrix = cbind(rs,cs,nodes)
+  colnames(rowcolmatrix) = c('y','x','index')
+  return(rowcolmatrix)
+}
 
 #' i_hs_to_rc_hs
 #'
@@ -505,6 +526,25 @@ i_hs_to_i_letter = function(index_nums, hs_num_rows, letter_num_rows, letter_top
   return(i)
 }
 
+#' rc_to_i
+#'
+#' Convert rows and columns to their respective indices.
+#' This is index sensitive, so row_y[[1]] should correspond to col_x[[1]]
+#' 
+#' @param row_y Row(s) to be converted to an index
+#' @param col_x Columns(s) to be converted to an index
+#' @param dims Dimensions of binary image
+#' @param fixed Logical value asking if row_y is fixed to a point.
+#' @return Returns index(icies) of all row_y's and col_x's
+#' 
+#' @keywords row column binary image index
+rc_to_i = function(row_y,col_x,dims, fixed = FALSE)
+{
+  row_y = as.integer(row_y)
+  if(fixed) row_y = dims[1] - row_y + 1
+  col_x = as.integer(col_x)
+  return((col_x-1)*dims[1]+row_y)
+}
 
 #' rc_hs_to_rc_letter
 #'

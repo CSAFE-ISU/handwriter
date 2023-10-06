@@ -83,62 +83,6 @@ plotNodesLine1 = function(doc, nodeSize = 3, nodeColor = "red")
   return(p)
 }
 
-#' i_to_rc
-#'
-#' Function for converting indices to respective row, col.
-#' 
-#' @param nodes nodes to be converted.
-#' @param dims dimensions of binary image
-#' @return returns matrix mapping nodes to respective row, 
-#'  
-#' @keywords row column binary image
-i_to_rc = function(nodes, dims)
-{
-  cs = (nodes-1)%/%dims[1] + 1
-  rs = (nodes-1)%%dims[1] + 1
-  return(matrix(c(rs,cs), ncol = 2))
-}
-
-#' i_to_rci
-#'
-#' Function for converting indices to respective row, col and associates the original index.
-#' 
-#' @param nodes nodes to be converted.
-#' @param dims dimensions of binary image
-#' @param fixed instead of normal computation of rows, put it in a fixed location.
-#' @return returns matrix mapping nodes' indices to respective row, col
-#' 
-#' @keywords row column binary image index
-i_to_rci = function(nodes, dims, fixed = FALSE)
-{
-  cs = (nodes-1)%/%dims[1] + 1
-  rs = (nodes-1)%%dims[1] + 1
-  if(fixed) rs = dims[1] - rs + 1
-  rowcolmatrix = cbind(rs,cs,nodes)
-  colnames(rowcolmatrix) = c('y','x','index')
-  return(rowcolmatrix)
-}
-
-#' rc_to_i
-#'
-#' Convert rows and columns to their respective indices.
-#' This is index sensitive, so row_y[[1]] should correspond to col_x[[1]]
-#' 
-#' @param row_y Row(s) to be converted to an index
-#' @param col_x Columns(s) to be converted to an index
-#' @param dims Dimensions of binary image
-#' @param fixed Logical value asking if row_y is fixed to a point.
-#' @return Returns index(icies) of all row_y's and col_x's
-#' 
-#' @keywords row column binary image index
-rc_to_i = function(row_y,col_x,dims, fixed = FALSE)
-{
-  row_y = as.integer(row_y)
-  if(fixed) row_y = dims[1] - row_y + 1
-  col_x = as.integer(col_x)
-  return((col_x-1)*dims[1]+row_y)
-}
-
 #' get_aspect_info
 #'
 #' Extracts aspect ratio & supporting information from a character

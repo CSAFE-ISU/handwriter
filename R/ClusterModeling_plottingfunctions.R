@@ -22,6 +22,9 @@
 #' @export
 #' @md
 plot_cluster_fill_counts <- function(formatted_data, facet = FALSE) {
+  # bind global variables to fix check() note
+  writer <- cluster <- count <- doc <- NULL
+  
   counts <- formatted_data$cluster_fill_counts
 
   # only one doc per writer?
@@ -86,6 +89,9 @@ plot_cluster_fill_counts <- function(formatted_data, facet = FALSE) {
 #' @export
 #' @md
 plot_cluster_fill_rates <- function(formatted_data, facet = FALSE) {
+  # bind globabl variables to fix check() note
+  writer <- cluster <- rate <- doc <- NULL
+  
   counts <- formatted_data$cluster_fill_counts
   
   # calculate rates
@@ -151,6 +157,9 @@ plot_cluster_fill_rates <- function(formatted_data, facet = FALSE) {
 #' @export
 #' @md
 plot_trace <- function(variable, model) {
+  # bind global variable to fix check() note
+  iteration <- y <- NULL
+  
   # format MCMC draws from fitted model
   formatted_model <- format_draws(model)
 
@@ -200,6 +209,9 @@ plot_trace <- function(variable, model) {
 #' @export
 #' @md
 plot_credible_intervals <- function(model, interval_min = 0.025, interval_max = 0.975, facet = FALSE) {
+  # bind global variables to fix check() note
+  cluster <- writer <- quantile <- `50%` <- NULL
+  
   ci <- get_credible_intervals(
     model = model,
     interval_min = interval_min,
@@ -209,7 +221,7 @@ plot_credible_intervals <- function(model, interval_min = 0.025, interval_max = 
   # reshape and clean-up for plotting
   ci <- do.call(rbind, ci)
   colnames(ci) <- stringr::str_replace_all(colnames(ci), "_", " ")
-  ci <- ci %>% tidyr::pivot_longer(cols = starts_with("cluster"), names_to = "cluster", values_to = "pi")
+  ci <- ci %>% tidyr::pivot_longer(cols = dplyr::starts_with("cluster"), names_to = "cluster", values_to = "pi")
   ci$writer <- as.factor(ci$writer)
   ci$cluster <- as.factor(ci$cluster)
   ci <- ci %>% tidyr::pivot_wider(names_from=quantile, values_from=pi)
@@ -248,7 +260,9 @@ plot_credible_intervals <- function(model, interval_min = 0.025, interval_max = 
 #' @export
 #' @md
 plot_posterior_probabilities <- function(analysis) {
-
+  # bind global variables to fix check() note
+  known_writer <- posterior_probability <- questioned_document <- NULL
+  
   # reshape
   pp <- analysis$posterior_probabilities %>%
     tidyr::pivot_longer(

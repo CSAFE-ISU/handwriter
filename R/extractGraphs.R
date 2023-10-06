@@ -41,6 +41,9 @@ getGraphs = function(image, source_folder = getwd(), save_folder = getwd()){
 #' }
 #' @export
 extractGraphs = function(source_folder = getwd(), save_folder = getwd()){
+  # bind global variable to fix check() note
+  i <- NULL
+  
   doParallel::registerDoParallel(1)
   #setwd(source_folder)
   filenames = as.list(list.files(source_folder, pattern = ".png"))

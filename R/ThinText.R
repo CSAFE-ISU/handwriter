@@ -25,21 +25,23 @@
 #' 
 #' @export
 readPNGBinary = function(path, cutoffAdjust = 0, clean = TRUE, crop = TRUE, inversion = FALSE)
-{
-  message(paste0('path in readPNGBinary: ', path))
-  if(endsWith(path, "RData") || endsWith(path, "rda")){
-    load(path)
-    
-    f <- file.path(tempdir(), "temp_png")
-    magick_img <- magick::image_read(magick_image)
+{ mask <- NULL
 
-    magick::image_write(magick_img, path = f, format = "png")
-    img = png::readPNG(f)
+  message(paste0('path in readPNGBinary: ', path))
+  # if(endsWith(path, "RData") || endsWith(path, "rda")){
+  #   load(path)
+  #   
+  #   f <- file.path(tempdir(), "temp_png")
+  #   magick_img <- magick::image_read(magick_image)
+  # 
+  #   magick::image_write(magick_img, path = f, format = "png")
+  #   img = png::readPNG(f)
+  #   
+  # }else{
+  
+  img = png::readPNG(path)
     
-  }else{
-    img = png::readPNG(path)
-    
-  }
+  # }
   
   img = as.array(img)
   

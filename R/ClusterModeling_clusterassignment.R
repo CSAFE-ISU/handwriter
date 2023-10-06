@@ -22,6 +22,8 @@ makeassignment = function(imageListElement, templateCenterList, outliercut){
 #'
 #' @md
 get_clusterassignment = function(template_dir, input_type, num_graphs = "All", writer_indices, doc_indices, num_cores){
+  # bind global variables to fix check() note
+  i <- outliercut <- docname <- NULL
   
   # load cluster file if it already exists
   if ( input_type == "model" ){
@@ -143,8 +145,7 @@ get_clusterassignment = function(template_dir, input_type, num_graphs = "All", w
 
 
 GetImageMatrix = function(letterList, maxImageSize = 50)
-{
-  imagesList = list()
+{ imagesList = list()
   imagesList = c(imagesList, lapply(letterList, function(x){centeredImage(x)}))
   
   # letterList = unlist(letListFull,recursive=FALSE)
@@ -170,7 +171,7 @@ GetImageMatrix = function(letterList, maxImageSize = 50)
   
   for(i in 1:length(imagesList)){
     if(any(dim(imagesList[[i]]$image) > maxImageSize)){
-      imagesList[[i]]$image = imagesList[[i]]$image %>% as.raster() %>% image_read() %>% image_resize(paste0(maxImageSize,"x",maxImageSize)) %>% image_quantize(max = 2, dither = FALSE, colorspace = "gray") %>% `[[`(1) %>% as.numeric() %>% `[`(,,1)
+      imagesList[[i]]$image = imagesList[[i]]$image %>% as.raster() %>% magick::image_read() %>% magick::image_resize(paste0(maxImageSize,"x",maxImageSize)) %>% magick::image_quantize(max = 2, dither = FALSE, colorspace = "gray") %>% `[[`(1) %>% as.numeric() %>% `[`(,,1)
       imagesList[[i]]$image = rbind(1,cbind(1,imagesList[[i]]$image,1),1)
       thinned = thinImage(imagesList[[i]]$image)
       imagesList[[i]]$image[] = 1

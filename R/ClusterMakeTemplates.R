@@ -379,6 +379,8 @@ make_images_list <- function(template_proc_list, template_dir, writer_indices) {
 #'
 #' @noRd
 chooseGraphs <- function(seed, num_graphs, full_template_images_list) {
+  # bind global variable to fix check() note
+  docname <- NULL
   
   set.seed(seed = seed)
 
@@ -462,6 +464,7 @@ make_dir <- function(dir_path) {
 #'
 #' @noRd
 chooseCenters <- function(seed, K, template_proc_list, template_images_list) {
+  stratum <- stratumfac <- data <- n <- samp <- NULL
   
   set.seed(seed = seed)
 
@@ -683,7 +686,7 @@ letterKmeansWithOutlier_parallel <- function(template_proc_list, template_images
       stop_reason <- "3 percent"
       break
     }
-    if ((length(tail(changes, n = 3)) == 3) & (length(unique(tail(changes, n = 3))) == 1)) {
+    if ((length(utils::tail(changes, n = 3)) == 3) & (length(unique(utils::tail(changes, n = 3))) == 1)) {
       message("The same number of graphs have changed clusters on the last three iterations. Stopping K-means algorithm...")
       stop_reason <- "flatline"
       break
@@ -788,7 +791,7 @@ meanGraphSet_slowchange <- function(template_images_list, num_path_cuts = 4,num_
   }
 
   # find the index of the graph that is closest to the mean graph
-  if (dists[1] >= quantile(dists, 0)) {
+  if (dists[1] >= stats::quantile(dists, 0)) {
     retindex <- which.min(dists)
   } else {
     retindex <- 1
@@ -835,7 +838,7 @@ overall_meanGraph <- function(centers, num_path_cuts = 8) {
   }
 
   # find the index of the graph that is closest to the mean graph
-  if (dists[1] >= quantile(dists, 0)) {
+  if (dists[1] >= stats::quantile(dists, 0)) {
     retindex <- which.min(dists)
   } else {
     retindex <- 1

@@ -18,6 +18,8 @@
 #' @export
 #' @md
 format_template_data <- function(template) {
+  writer <- doc <- cluster <- count <- NULL
+  
   # make dataframe
   counts <- data.frame("writer" = template$writers, "doc" = template$doc, "cluster" = template$cluster)
 
@@ -69,6 +71,8 @@ format_template_data <- function(template) {
 #'
 #' @noRd
 format_model_data <- function(model_clusters, writer_indices, doc_indices, a = 2, b = 0.25, c = 2, d = 2, e = 0.5) {
+  # bind global variable to fix
+  cluster <- NULL
   
   graph_measurements <- model_clusters 
   
@@ -128,7 +132,9 @@ format_model_data <- function(model_clusters, writer_indices, doc_indices, a = 2
 #'
 #' @noRd
 format_questioned_data <- function(model, questioned_clusters, writer_indices, doc_indices) {
-
+  # bind global variable to fix check() note
+  old_cluster <- cluster <- NULL
+  
   graph_measurements <- questioned_clusters
 
   # if model clusters were relabeled, relabel the questioned clusters
@@ -160,7 +166,7 @@ format_questioned_data <- function(model, questioned_clusters, writer_indices, d
     full_cluster_fill_counts$doc <- cluster_fill_counts$doc
     # add missing columns
     full_cluster_fill_counts <- dplyr::left_join(cluster_fill_counts, full_cluster_fill_counts) %>% 
-      dplyr::mutate(across(where(is.numeric), ~ tidyr::replace_na(.x, 0)))
+      dplyr::mutate(dplyr::across(dplyr::where(is.numeric), ~ tidyr::replace_na(.x, 0)))
     # sort columns
     cols <- c(colnames(full_cluster_fill_counts[, c(1, 2)]), sort(as.numeric(colnames(full_cluster_fill_counts[, -c(1, 2)]))))
     full_cluster_fill_counts <- full_cluster_fill_counts[, cols]
@@ -188,6 +194,8 @@ format_questioned_data <- function(model, questioned_clusters, writer_indices, d
 #'
 #' @noRd
 get_cluster_fill_counts <- function(df) {
+  docname <- writer <- doc <- cluster <- n <- NULL
+  
   # count number of graphs in each cluster for each writer
   cluster_fill_counts <- df %>%
     dplyr::group_by(docname, writer, doc, cluster) %>%

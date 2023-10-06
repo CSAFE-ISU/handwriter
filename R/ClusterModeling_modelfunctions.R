@@ -115,7 +115,46 @@ fit_model <- function(template_dir,
   )
 
   rjags_data <- model_data$rjags_data
-
+  
+  model_wrapped_cauchy <- "model {
+    for(letter in 1:numletters){
+      # numletters = num unique letters with measurements
+      # use zeros trick to sample from wrapped-Cauchy distribution
+      nll_datamodel[letter] = -log( (1-pow(tau[letterwriter[letter], lettercluster[letter]],2)) / (2*pi_constant*(1+pow(tau[letterwriter[letter], lettercluster[letter]],2)-2*tau[letterwriter[letter], lettercluster[letter]]*cos(pc_wrapped[letter]-mu[letterwriter[letter], lettercluster[letter]]))) ) + C
+      zero_vec[letter] ~ dpois( nll_datamodel[letter] )
+    }
+    
+    # Priors for wrapped cauchy
+    for(g in 1:Gsmall){
+      # g = cluster
+      gamma[g] ~ dgamma(a, b)
+      eta[g] ~ dunif(0,2*pi_constant)
+      for(w in 1:W){
+        # W = num unique writers
+        # use zeros trick to sample from wrapped-Cauchy distribution
+        mu[w,g]  ~ dunif(0,2*pi_constant)
+        nld_locationparam[w,g] = -log( (1-pow(e,2)) / (2*pi_constant*(1+pow(e,2)-2*e*cos(mu[w,g]-eta[g]))) ) + C
+        zero_mat[w,g] ~ dpois(nld_locationparam[w,g])
+        tau[w,g] ~ dbeta(c,d)
+      }
+    }
+    
+    for (w in 1:W) {
+      # w = writer
+      pi[w,1:G] ~ ddirch(gamma[1:G] + 0.001)
+    }
+    
+    for(d in 1:D) {
+      # d = document
+      Y[d,1:G] ~ dmulti(pi[docwriter[d],1:G], docN[d])
+    }
+    
+    # other values
+    C = 30   # for the zeros trick
+    pi_constant = 3.14159
+    pi_1 = -pi_constant
+  }"
+    
   # fit model with rjags
   message("Fitting the model with RJAGS")
   model <-
@@ -377,7 +416,7 @@ get_pi_dataframes <- function(model) {
 #' @noRd
 get_credible_intervals_for_writer <- function(writer, writer_pis, interval_min=0.025, interval_max=0.975){
   df <- sapply(writer_pis[,-which(names(writer_pis) %in% c("iter", "writer"))], 
-               function(x) quantile(x,  probs = c(interval_min, 0.5, interval_max)), USE.NAMES = FALSE)
+               function(x) stats::quantile(x,  probs = c(interval_min, 0.5, interval_max)), USE.NAMES = FALSE)
   df <- data.frame(quantile = row.names(df), df)
   df$writer <- writer
   rownames(df) <- NULL
