@@ -126,7 +126,7 @@ select_csafe_docs <- function(num_template_writers,
 #' @export
 select_template_docs <- function(num_writers, sessions, reps, prompts, seed) {
   # bind global variables to fix check() note
-  writer <- session <- repetition <- NULL
+  writer <- session <- repetition <- prompt <- NULL
   
   # format sessions, prompts, and reps
   sessions <- paste0("s0", sessions)
@@ -160,7 +160,7 @@ select_template_docs <- function(num_writers, sessions, reps, prompts, seed) {
 #' @export
 select_model_docs <- function(template_df, num_writers, sessions, reps, prompts, seed) {
   # bind global variables to fix check() note
-  writer <- session <- repetition <- NULL
+  writer <- session <- repetition <- prompt <- NULL
   
   # drop template writers
   df <- handwriter::csafe_docs %>% dplyr::filter(!(writer %in% unique(template_df$writer)))
@@ -193,7 +193,7 @@ select_model_docs <- function(template_df, num_writers, sessions, reps, prompts,
 #' @export
 select_questioned_docs <- function(model_df, sessions, reps, prompts) {
   # bind global variables to fix check() note
-  writer <- session <- repetition <- NULL
+  writer <- session <- repetition <- prompt <- NULL
   
   # format sessions, prompts, and reps
   sessions <- paste0("s0", sessions)
