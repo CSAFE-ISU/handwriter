@@ -224,6 +224,8 @@ AddSamplingStrata = function(letterList){
 #'
 #' @param procList List of handwriting samples
 #' @return Dataframe
+#' 
+#' @importFrom purrr map2
 #'
 #' @keywords ?
 MakeSamplingDF <- function(procList)

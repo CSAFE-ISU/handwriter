@@ -28,7 +28,6 @@ getGraphs = function(image, source_folder = getwd(), save_folder = getwd()){
 #' 
 #' @import foreach
 #' @import doParallel
-#' @import purrr
 #' 
 #' @param source_folder path to folder containing .png images
 #' @param save_folder path to folder where graphs are saved to
