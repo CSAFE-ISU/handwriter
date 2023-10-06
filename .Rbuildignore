@@ -4,3 +4,4 @@
 ^docs$
 ^examples$
 ^data-raw$
+^\.github$
