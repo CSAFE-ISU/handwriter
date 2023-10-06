@@ -28,10 +28,14 @@ readPNGBinary = function(path, cutoffAdjust = 0, clean = TRUE, crop = TRUE, inve
 { mask <- NULL
 
   message(paste0('path in readPNGBinary: ', path))
+
+  # TODO: magick_image not defined. Fix bug and uncomment
   # if(endsWith(path, "RData") || endsWith(path, "rda")){
   #   load(path)
   #   
   #   f <- file.path(tempdir(), "temp_png")
+
+  #   # TODO: fix bug. magick_image not defined
   #   magick_img <- magick::image_read(magick_image)
   # 
   #   magick::image_write(magick_img, path = f, format = "png")
