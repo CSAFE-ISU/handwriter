@@ -6,15 +6,30 @@
 \alias{handwriter-package}
 \title{handwriter: Handwriting Analysis in R}
 \description{
-Process handwriting document into letters, words, and lines. Provides measurements at all levels. Webpage provided at: \url{https://csafe-isu.github.io/handwriter/index.html}.
+Perform statistical writership analysis of scanned handwritten documents. Webpage provided at: \url{https://csafe-isu.github.io/handwriter/index.html}.
+}
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/CSAFE-ISU/handwriter}
+  \item Report bugs at \url{https://github.com/CSAFE-ISU/handwriter/issues}
+}
+
 }
 \author{
-\strong{Maintainer}: James Taylor \email{jamesetay1@gmail.com}
+\strong{Maintainer}: Stephanie Reinders \email{srein@iastate.edu}
 
 Authors:
 \itemize{
-  \item Nick Berry \email{berryni@iastate.edu}
-  \item Felix Baez-Santiago \email{felbasa@iastate.edu}
+  \item Iowa State University of Science and Technology on behalf of its Center for Statistics and Applications in Forensic Evidence [copyright holder, funder]
+  \item Nick Berry
+  \item James Taylor
+}
+
+Other contributors:
+\itemize{
+  \item Felix Baez-Santiago [contributor]
+  \item Jon González [contributor]
 }
 
 }
