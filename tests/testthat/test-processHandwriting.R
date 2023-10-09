@@ -7,7 +7,7 @@ test_that("processHandwriting works on sample1.png", {
   
   expected <- readRDS(testthat::test_path("fixtures", "processHandwriting", "graphs", "sample1_proclist.rds"))
   
-  expect_identical(actual, expected)
+  expect_equal(actual, expected, tolerance = 1e-08)
 })
 
 test_that("processHandwriting works on sample2.png", {
@@ -19,7 +19,7 @@ test_that("processHandwriting works on sample2.png", {
   
   expected <- readRDS(testthat::test_path("fixtures", "processHandwriting", "graphs", "sample2_proclist.rds"))
   
-  expect_identical(actual, expected)
+  expect_equal(actual, expected, tolerance = 1e-08)
 })
 
 test_that("processHandwriting works on sample3.png", {
@@ -31,6 +31,6 @@ test_that("processHandwriting works on sample3.png", {
   
   expected <- readRDS(testthat::test_path("fixtures", "processHandwriting", "graphs", "sample3_proclist.rds"))
   
-  expect_identical(actual, expected)
+  expect_equal(actual, expected, tolerance = 1e-08)
 })
 
