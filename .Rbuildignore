@@ -8,3 +8,4 @@
 ^\.github$
 ^LICENSE.txt
 ^cran-comments\.md$
+^CRAN-SUBMISSION$
