@@ -39,3 +39,5 @@ Suggests:
     coda
 Config/testthat/edition: 3
 VignetteBuilder: knitr
+URL: https://github.com/CSAFE-ISU/handwriter
+BugReports: https://github.com/CSAFE-ISU/handwriter/issues
