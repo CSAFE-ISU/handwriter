@@ -124,7 +124,7 @@ We can list the variables in the model:
 names(as.data.frame(coda::as.mcmc(model$fitted_model[[1]])))
 ```
 
-View a description of a variable with the `about_variable` funciton.
+View a description of a variable with the `about_variable` function.
 
 ```{r}
 about_variable(variable = "mu[1,1]", model = model)

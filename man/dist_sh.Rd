@@ -23,7 +23,7 @@ Calculate the difference in shapes of two paths. Measure the shape of a path
 by cutting it into numPathCuts segments of equal length. Call the cutpoints on
 the path edge-points. Also cut the straight line between the path's endpoints
 into numPathCuts segments of equal length. Call the cut points on the straight
-line line-points. Subtact the line-points from the edge-points to get the
+line line-points. Subtract the line-points from the edge-points to get the
 shape-points for the path. Find the Euclidean distances between the
 shape-points of the two paths by pairing the shape-points in the plus
 direction: find the distance between the i-th shape-point of the first path

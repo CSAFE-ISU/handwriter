@@ -484,7 +484,7 @@ checkBreakPoints <- function(candidateNodes, allPaths, nodeGraph, terminalNodes,
 #' @param nodeGraph0 skeletonized graph
 #' @param nodeList list of nodes
 #' @param terminalNodes nodes at the ends of letters
-#' @param hasTrough wether or not break has a trough
+#' @param hasTrough whether or not break has a trough
 #' @param dims graph dimensions
 #' @return removes breakpoints on simple graphs
 checkSimplicityBreaks <- function(candidateBreaks, pathList, loopList, letters, nodeGraph0, nodeList, terminalNodes, hasTrough, dims) {

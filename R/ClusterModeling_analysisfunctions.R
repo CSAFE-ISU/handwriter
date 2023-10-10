@@ -202,7 +202,7 @@ calculate_accuracy <- function(analysis) {
 #'   analysis$posterior_probabilities lists the posterior probabilities for all
 #'   questioned documents. `get_posterior_probabilities` creates a data frame of the
 #'   posterior probabilities for a single questioned document and sorts the known writers
-#'   from the most likely to least likely to have writen the questioned document.
+#'   from the most likely to least likely to have written the questioned document.
 #' @param questioned_doc The name of a questioned document
 #'
 #' @return A data frame of posterior probabilities for the questioned document
@@ -237,7 +237,7 @@ get_posterior_probabilities <- function(analysis, questioned_doc) {
 #'   frame analysis$posterior_probabilities lists the posterior probabilities
 #'   for all questioned documents. `show_posterior_probabilities` creates a data
 #'   frame of the posterior probabilities for a single questioned document and
-#'   sorts the known writers from the most likely to least likely to have writen
+#'   sorts the known writers from the most likely to least likely to have written
 #'   the questioned document.
 #'
 #' @return A list of the number of correct top writers and the total number of
@@ -292,7 +292,7 @@ count_csafe_correct_top_writer <- function(analysis) {
 #'   analysis$posterior_probabilities lists the posterior probabilities for all
 #'   questioned documents. `show_posterior_probabilities` creates a data frame of the
 #'   posterior probabilities for a single questioned document and sorts the known writers
-#'   from the most likely to least likely to have writen the questioned document.
+#'   from the most likely to least likely to have written the questioned document.
 #' @param questioned_doc The name of a questioned document
 #'
 #' @return A string

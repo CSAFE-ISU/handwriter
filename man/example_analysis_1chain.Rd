@@ -13,7 +13,7 @@ questioned documents.}
 \item{cluster_fill_counts}{A data frame of the cluster fill counts for each questioned document.}
 \item{likelihoods}{A list of data frames where each data frame
 contains the likelihoods for a questioned document for each MCMC iteration.}
-\item{votes}{A list of vote tallys for each questioned document.}
+\item{votes}{A list of vote tallies for each questioned document.}
 \item{posterior_probabilites}{A list of posterior probabilities of writership
 for each questioned document and each known writer in the closed set used to train the
 hierarchical model.}

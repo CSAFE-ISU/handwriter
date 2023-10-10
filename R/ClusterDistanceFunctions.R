@@ -56,7 +56,7 @@ dist_loc = function(p1e1, p1e2, p2e1, p2e2)
 
 #' dist_sld
 #'
-#' Calculate the difference between the straigt line distances of two paths.
+#' Calculate the difference between the straight line distances of two paths.
 #' The straightline distance for a path is the Euclidean distance between its
 #' two endpoints.
 #'
@@ -91,7 +91,7 @@ dist_sld = function(p1e1, p1e2, p2e1, p2e2)
 #' by cutting it into numPathCuts segments of equal length. Call the cutpoints on
 #' the path edge-points. Also cut the straight line between the path's endpoints
 #' into numPathCuts segments of equal length. Call the cut points on the straight
-#' line line-points. Subtact the line-points from the edge-points to get the
+#' line line-points. Subtract the line-points from the edge-points to get the
 #' shape-points for the path. Find the Euclidean distances between the
 #' shape-points of the two paths by pairing the shape-points in the plus
 #' direction: find the distance between the i-th shape-point of the first path

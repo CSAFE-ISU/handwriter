@@ -12,7 +12,7 @@ one questioned document was analyzed with this function, then the data frame
 analysis$posterior_probabilities lists the posterior probabilities for all
 questioned documents. \code{get_posterior_probabilities} creates a data frame of the
 posterior probabilities for a single questioned document and sorts the known writers
-from the most likely to least likely to have writen the questioned document.}
+from the most likely to least likely to have written the questioned document.}
 
 \item{questioned_doc}{The name of a questioned document}
 }

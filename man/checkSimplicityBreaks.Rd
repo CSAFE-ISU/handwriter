@@ -31,7 +31,7 @@ checkSimplicityBreaks(
 
 \item{terminalNodes}{nodes at the ends of letters}
 
-\item{hasTrough}{wether or not break has a trough}
+\item{hasTrough}{whether or not break has a trough}
 
 \item{dims}{graph dimensions}
 }

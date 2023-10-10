@@ -23,7 +23,7 @@ path}
 Difference between the straight line distances of the two paths
 }
 \description{
-Calculate the difference between the straigt line distances of two paths.
+Calculate the difference between the straight line distances of two paths.
 The straightline distance for a path is the Euclidean distance between its
 two endpoints.
 }
