@@ -6,7 +6,6 @@
 #' @param dims Dimensions of the handwriting sample
 #' @return letterList with locations given with respect to each letter
 #' 
-#' @keywords ?
 MakeLetterListLetterSpecific = function(letterList, dims)
 {
   # NOTE: There are two ways to specify the location of the paths and nodes in a
@@ -166,7 +165,6 @@ MakeLetterListLetterSpecific = function(letterList, dims)
 #' @param numPathCuts Integer number of cuts to make when comparing segments of paths
 #' @return centerstarts List of K graphs
 #'
-#' @keywords ?
 #' @noRd
 MakeCenterStarts = function(procList, K, numPathCuts)
 {
@@ -197,7 +195,6 @@ MakeCenterStarts = function(procList, K, numPathCuts)
 #' @param letterList List of letters
 #' @return List of letters
 #'
-#' @keywords ?
 AddSamplingStrata = function(letterList){
   # For each letter in the sample
   for(i in 1:length(letterList)){
@@ -227,7 +224,6 @@ AddSamplingStrata = function(letterList){
 #' 
 #' @importFrom purrr map2
 #'
-#' @keywords ?
 MakeSamplingDF <- function(procList)
 { stratum <- stratumfac <- data <- n <- samp <- NULL
   
@@ -287,9 +283,7 @@ MakeSamplingDF <- function(procList)
 #' Picks out loops for later character association.
 #' 
 #' @param allPaths All character (formerly letter) paths from processHandwriting()
-#' @keywords character loops line
 #' 
-#' @return List of all loops 
 loop_extract = function(allPaths){
   loops = list()
   for(i in 1:length(allPaths)){
@@ -312,7 +306,6 @@ loop_extract = function(allPaths){
 #' @param letter A letter
 #' @return a named list with fields nodes, centroid, proptroid, image and allPaths
 #'
-#' @keywords ?
 centeredImage = function(letter)
 {
   res = list()
@@ -337,7 +330,6 @@ centeredImage = function(letter)
 #' @return The letter with it's paths and path ends locations given relative to the 
 #' letter's centroid.
 #'
-#' @keywords ?
 centeredImageOnCentroid <- function(letter){
   # column number of node from the left of the letter image
   nodes_c = ((letter$nodes-1) %/% dim(letter$image)[1]) + 1
@@ -368,7 +360,6 @@ centeredImageOnCentroid <- function(letter){
 #' @param num_rows Number of rows in matrix
 #' @return Row number location in matrix
 #' 
-#' @keywords ?
 i_to_r = function(index_num, num_rows){
   r = ((index_num-1) %% num_rows) + 1
   return(r)
@@ -384,7 +375,6 @@ i_to_r = function(index_num, num_rows){
 #' @param num_rows Number of rows in matrix
 #' @return Column number location in matrix
 #' 
-#' @keywords ?
 i_to_c = function(index_num, num_rows){
   c = ((index_num-1) %/% num_rows) + 1
   return(c)
@@ -401,7 +391,6 @@ i_to_c = function(index_num, num_rows){
 #' @param num_rows Number of rows in matrix
 #' @return x-coordinate location in matrix
 #' 
-#' @keywords ?
 i_to_x = function(index_num, num_rows){
   x = ((index_num-1) %/% num_rows) + 1
   return(x)
@@ -418,7 +407,6 @@ i_to_x = function(index_num, num_rows){
 #' @param num_rows Number of rows in matrix
 #' @return y-coordinate location in matrix
 #' 
-#' @keywords ?
 i_to_y = function(index_num, num_rows){
   y = num_rows - (index_num-1) %% num_rows
   return(y)
@@ -432,7 +420,6 @@ i_to_y = function(index_num, num_rows){
 #' @param dims dimensions of binary image
 #' @return returns matrix mapping nodes to respective row, 
 #'  
-#' @keywords row column binary image
 i_to_rc = function(nodes, dims)
 {
   cs = (nodes-1)%/%dims[1] + 1
@@ -449,7 +436,6 @@ i_to_rc = function(nodes, dims)
 #' @param fixed instead of normal computation of rows, put it in a fixed location.
 #' @return returns matrix mapping nodes' indices to respective row, col
 #' 
-#' @keywords row column binary image index
 i_to_rci = function(nodes, dims, fixed = FALSE)
 {
   cs = (nodes-1)%/%dims[1] + 1
@@ -469,7 +455,6 @@ i_to_rci = function(nodes, dims, fixed = FALSE)
 #' @param hs_num_rows Number of rows in handwriting sample
 #' @return List of row and column number(s) locations in handwriting sample
 #' 
-#' @keywords ?
 i_hs_to_rc_hs = function(index_nums, hs_num_rows){
   rc = list()
   rc[['row']] = ((index_nums-1) %% hs_num_rows) + 1
@@ -490,7 +475,6 @@ i_hs_to_rc_hs = function(index_nums, hs_num_rows){
 #' @param letter_leftmost_col Integer number of the left column of letter
 #' @return List of row and column number(s) locations in letter
 #' 
-#' @keywords ?
 i_hs_to_rc_letter = function(index_nums, hs_num_rows, letter_topmost_row, letter_leftmost_col){
   rc = list()
   
@@ -516,7 +500,6 @@ i_hs_to_rc_letter = function(index_nums, hs_num_rows, letter_topmost_row, letter
 #' @param letter_leftmost_col Integer number of the left column of letter
 #' @return Integer index number(s) locations in letter
 #' 
-#' @keywords ?
 i_hs_to_i_letter = function(index_nums, hs_num_rows, letter_num_rows, letter_topmost_row, letter_leftmost_col){
   
   # Find locations (row and column numbers) in letter
@@ -539,7 +522,6 @@ i_hs_to_i_letter = function(index_nums, hs_num_rows, letter_num_rows, letter_top
 #' @param fixed Logical value asking if row_y is fixed to a point.
 #' @return Returns index(icies) of all row_y's and col_x's
 #' 
-#' @keywords row column binary image index
 rc_to_i = function(row_y,col_x,dims, fixed = FALSE)
 {
   row_y = as.integer(row_y)
@@ -559,7 +541,6 @@ rc_to_i = function(row_y,col_x,dims, fixed = FALSE)
 #' @param letter_leftmost_col Integer number of the left column of letter
 #' @return List of row and column number(s) locations in letter
 #' 
-#' @keywords ?
 rc_hs_to_rc_letter = function(row_nums, col_nums, letter_topmost_row, letter_leftmost_col){
   rc = list()
   

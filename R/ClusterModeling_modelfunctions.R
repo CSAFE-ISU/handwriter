@@ -65,8 +65,6 @@
 #' analysis$posterior_probabilities
 #' }
 #'
-#' @keywords model
-#'
 #' @export
 #' @md
 fit_model <- function(template_dir,
@@ -194,8 +192,6 @@ fit_model <- function(template_dir,
 #' model <- drop_burnin(model = example_model_2chains, burn_in = 25)
 #' plot_trace(variable = "mu[1,2]", model = example_model_2chains)
 #'
-#' @keywords model
-#'
 #' @export
 #' @md
 drop_burnin <- function(model, burn_in) {
@@ -224,8 +220,6 @@ drop_burnin <- function(model, burn_in) {
 #'   variable = "gamma[5]",
 #'   model = example_model_2chains
 #' )
-#'
-#' @keywords model
 #'
 #' @export
 #' @md
@@ -291,8 +285,6 @@ about_variable <- function(variable, model) {
 #' @examples
 #' get_credible_intervals(model=example_model_1chain)
 #' get_credible_intervals(model=example_model_1chain, interval_min=0.05, interval_max=0.95)
-#'
-#' @keywords model
 #'
 #' @export
 #' @md

@@ -33,8 +33,6 @@
 #' analysis$posterior_probabilities
 #' }
 #'
-#' @keywords model
-#'
 #' @export
 #' @md
 analyze_questioned_documents <- function(template_dir, questioned_images_dir, model, num_cores, num_graphs = "All", writer_indices, doc_indices) {

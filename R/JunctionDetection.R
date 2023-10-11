@@ -907,7 +907,6 @@ getLoops <- function(nodeList, graph, graph0, pathList, dims) {
 #' @param dims dimensions of the image
 #' @return Returns image matrix. 1 is blank, 0 is a node.
 #'
-#' @keywords vertex Zhang
 getNodes <- function(indices, dims) {
   ## First, we find endpoints and intersections of skeleton.
   

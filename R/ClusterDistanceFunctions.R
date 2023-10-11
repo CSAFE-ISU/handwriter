@@ -8,7 +8,6 @@
 #' @param xy2 Vector of (x,y) coordinates of the second point
 #' @return Euclidean distance between the two points
 #'
-#' @keywords ?
 distXY = function(xy1, xy2)
 {
   return(sqrt((xy2[1] - xy1[1]) ^ 2 + (xy2[2] - xy1[2]) ^ 2))
@@ -36,7 +35,6 @@ distXY = function(xy1, xy2)
 #'   path
 #' @return Distances between endpoints
 #'
-#' @keywords ?
 dist_loc = function(p1e1, p1e2, p2e1, p2e2)
 {
   # Find minimum distance between the two pairs of endpoints using direction 1
@@ -70,7 +68,6 @@ dist_loc = function(p1e1, p1e2, p2e1, p2e2)
 #'   path
 #' @return Difference between the straight line distances of the two paths
 #'
-#' @keywords ?
 dist_sld = function(p1e1, p1e2, p2e1, p2e2)
 {
   # Straight line distance of the first path
@@ -107,7 +104,6 @@ dist_sld = function(p1e1, p1e2, p2e1, p2e2)
 #' @param path_jj Integer path number of the second path
 #' @return Shape distances between the two paths
 #'
-#' @keywords ?
 dist_sh = function(graphInfo, numPathCuts, path_ii, path_jj)
 {
   # Initialize
@@ -153,7 +149,6 @@ dist_sh = function(graphInfo, numPathCuts, path_ii, path_jj)
 #' @param dims Dimensions of the graph's image
 #' @return Vector of (x,y) coordinates of the graph's paths
 #'
-#' @keywords ?
 pathToRC = function(pathList, dims)
 {
   return(cbind((pathList - 1) %/% dims[1] + 1, dims[1] - (pathList - 1) %% dims[1]))
@@ -173,7 +168,6 @@ pathToRC = function(pathList, dims)
 #' @param edgecutpt_n The (x,y) coordinates of the n-th cut point on the path
 #' @return Vector of (x,y) coordinates
 #'
-#' @keywords ?
 pointLineProportionVect = function(endpt1,
                                    endpt2,
                                    edgecut_prop_n,
@@ -196,7 +190,6 @@ pointLineProportionVect = function(endpt1,
 #' @param dists ?
 #' @return A list of information about the optimal pairings
 #'
-#' @keywords ?
 solveLP = function(dists)
 {
   # Number of rows
@@ -246,7 +239,6 @@ solveLP = function(dists)
 #' pathQuarters gives the (x,y) coordinates of the path at the cut points and despite the
 #' name, the path might not be cut into quarters.
 #'
-#' @keywords ?
 letterToPrototype = function(letter, numPathCuts = 8)
 {
   pathCount = length(letter$allPaths)
@@ -288,7 +280,6 @@ letterToPrototype = function(letter, numPathCuts = 8)
 #' @param numPathCuts An integer number of cuts to make when comparing segments of paths
 #' @return List of formatted parameters
 #' 
-#' @keywords ?
 getGraphInfo = function(imageList1, imageList2, isProto1, isProto2, numPathCuts)
 {
   # Find number of paths in each graph
@@ -553,7 +544,6 @@ getGraphDistance = function(imageList1, imageList2, isProto1 = FALSE, isProto2 =
 #' @param numPathCuts Number of cuts
 #' @return ?
 #'
-#' @keywords ?
 weightedMeanGraphs = function(imageList1, imageList2, p1, isProto1 = FALSE, isProto2 = FALSE, numPathCuts = 8)
 {
   graph_info = getGraphInfo(imageList1, imageList2, isProto1, isProto2, numPathCuts)

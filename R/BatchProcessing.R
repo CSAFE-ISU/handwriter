@@ -9,7 +9,6 @@
 #' @param transform_output The type of transformation to perform on the output
 #' @return A list of processed documents. The list is also saved to output_dir.
 #'
-#' @keywords ?
 #' @export
 process_batch_list <- function(image_list, output_dir, return_result = TRUE, transform_output = "document") {
   if (!dir.exists(output_dir)) {
@@ -60,7 +59,6 @@ process_batch_list <- function(image_list, output_dir, return_result = TRUE, tra
 #' @param transform_output The type of transformation to perform on the output
 #' @return A list of processed documents. The list is also saved to output_dir.
 #'
-#' @keywords ?
 #' @export
 process_batch_dir <- function(input_dir, output_dir = ".", return_result = TRUE, transform_output = "document") {
   message("Listing documents to be processed...")
@@ -80,7 +78,6 @@ process_batch_dir <- function(input_dir, output_dir = ".", return_result = TRUE,
 #' @param transform_output The type of transformation to perform on the output
 #' @return A list of the processed image components
 #'
-#' @keywords ?
 #' @export
 read_and_process <- function(image_name, transform_output) {
   document <- list()

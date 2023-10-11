@@ -4,8 +4,6 @@
 #' @param doc A document processed with [handwriter::processDocument()] or a binary matrix (all entries are 0 or 1)
 #' @return Returns plot of doc$image.
 #' 
-#' @keywords plot
-#' 
 #' @examples
 #' csafe_document <- list()
 #' csafe_document$image <- csafe

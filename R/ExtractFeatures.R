@@ -7,7 +7,6 @@
 #' @param dims Dimensions of binary image
 #' @return nested lists associating features to respective characters.
 #' 
-#' @keywords centroid skew slant lean character
 extract_character_features = function(img, character_lists,dims){
   
   character_features = list()
@@ -35,7 +34,6 @@ extract_character_features = function(img, character_lists,dims){
 #' @param uniqueid Unique numerical reference to character
 #' @return List containing features of character
 #' 
-#' @keywords character features
 char_to_feature = function(character, dims, uniqueid){
   aspect_info = get_aspect_info(character$path,dims)
   centroid_info = get_centroid_info(character$path,dims)
@@ -95,7 +93,6 @@ plotNodesLine1 = function(doc, nodeSize = 3, nodeColor = "red")
 #' @param dims Dimensions of binary image
 #' @return List containing aspect_ratio, 
 #' 
-#' @keywords aspect ratio character
 get_aspect_info = function(character, dims)
 {
   rowcol = i_to_rci(character,dims)
@@ -124,7 +121,6 @@ get_aspect_info = function(character, dims)
 #' @param dims Dimensions of binary image
 #' @return List containing centroid, pixel density,letter 'lean', and all supporting information
 #' 
-#' @keywords centroid skew slant lean character
 get_centroid_info = function(character, dims)
 {
   rowcol = i_to_rci(character,dims)
@@ -173,7 +169,6 @@ get_centroid_info = function(character, dims)
 #' @param dims Dimensions of binary image
 #' @return nested lists associating features to respective characters.
 #' 
-#' @keywords centroid skew slant lean character
 add_covariance_matrix = function(character_lists, character_features, dims){
   for(i in 1:length(character_lists)){
     matrix = i_to_rc(character_lists[[i]]$path, dims)
@@ -202,7 +197,6 @@ add_covariance_matrix = function(character_lists, character_features, dims){
 #' @param dims Dimensions of binary image
 #' @return Appends line information to character features
 #' 
-#' @keywords character features line number
 add_line_info = function(character_features,dims){
   line_info = line_number_extract(all_down_dists(character_features), all_centroids(character_features), dims)
   line_order = lapply(line_info, sort)
@@ -265,7 +259,6 @@ add_updown_neighboring_char_dist = function(character_features, character_lists,
 #' @param dims Dimensions of binary image
 #' @return Loop information to respective character
 #' 
-#' @keywords character loop associate
 get_loop_info = function(character,dims){
   
   #loops = loop_extract(character$allPaths)
@@ -323,7 +316,6 @@ character_features_by_line = function(character_features){
 #' Picks out loops for later character association.
 #' 
 #' @param allPaths All character (formerly letter) paths from processHandwriting()
-#' @keywords character loops line
 #' 
 #' @return List of all loops 
 loop_extract = function(allPaths){
@@ -347,7 +339,6 @@ loop_extract = function(allPaths){
 #' @param character_features Features extracted from any given document
 #' @return All centroids concatenated with one another (unlisted)
 #' 
-#' @keywords character loops line
 all_centroids = function(character_features){
   centroids = list()
   for(i in 1:length(character_features)){
@@ -364,7 +355,6 @@ all_centroids = function(character_features){
 #' @param character_features Features extracted from any given document
 #' @return All downdistance concatenated with one another (unlisted)
 #' 
-#' @keywords character neighbor line
 all_down_dists = function(character_features){
   down_dists = list()
   for(i in 1:length(character_features)){
@@ -381,8 +371,6 @@ all_down_dists = function(character_features){
 #' @param all_centroids List of centroids extracted from cumulative character_features
 #' @param dims Dimensions of binary image
 #' @return List associating line numbers to characters
-#' 
-#' @keywords character features line number
 #' 
 #' @importFrom stats median
 #' @importFrom utils head

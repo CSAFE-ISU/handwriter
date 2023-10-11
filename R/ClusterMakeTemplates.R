@@ -52,8 +52,6 @@
 #' )
 #' }
 #'
-#' @keywords clustering templates
-#'
 #' @export
 #' @md
 make_clustering_templates <- function(template_dir,
