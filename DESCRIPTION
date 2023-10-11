@@ -32,7 +32,6 @@ Imports:
     reshape2,
     Rfast,
     rjags,
-    shiny,
     stringr,
     tidyr
 Suggests: 
