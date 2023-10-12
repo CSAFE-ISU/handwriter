@@ -11,7 +11,5 @@ inst/.DS_Store
 
 *.pyc
 
-vignettes/handwriter_example/
-
 # reverse dependency checks folder
 revdep/

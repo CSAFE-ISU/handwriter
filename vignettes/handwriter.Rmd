@@ -64,7 +64,6 @@ template <- make_clustering_templates(
 
 Type `?make_clustering_templates` in the RStudio console for more information about the function's arguments.
 
-
 For the remainder of this tutorial, we use a small example cluster template, `example_cluster_template` included in handwriter. 
 ```{r}
 template <- example_cluster_template
