@@ -22,4 +22,3 @@ List of row and column number(s) locations in letter
 Convert row and column number(s) locations in a handwriting sample to 
 row and column number(s) locations in a letter in that handwriting sample.
 }
-\keyword{?}

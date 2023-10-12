@@ -16,4 +16,3 @@ A list of information about the optimal pairings
 Use linear programming to solve a constrained minimization optimization
 problem to find the optimal pairings of paths between two graphs.
 }
-\keyword{?}

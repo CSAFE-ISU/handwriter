@@ -29,4 +29,3 @@ A list of processed documents. The list is also saved to output_dir.
 \description{
 process_batch_list
 }
-\keyword{?}

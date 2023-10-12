@@ -17,7 +17,3 @@ returns matrix mapping nodes to respective row,
 \description{
 Function for converting indices to respective row, col.
 }
-\keyword{binary}
-\keyword{column}
-\keyword{image}
-\keyword{row}

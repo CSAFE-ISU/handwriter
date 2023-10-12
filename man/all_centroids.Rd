@@ -16,6 +16,3 @@ All centroids concatenated with one another (unlisted)
 Iterates through extracted character features, extracting
 all centroids found for later use in line numbering.
 }
-\keyword{character}
-\keyword{line}
-\keyword{loops}

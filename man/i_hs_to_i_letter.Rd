@@ -30,4 +30,3 @@ Integer index number(s) locations in letter
 Convert index number(s) locations in a handwriting sample to 
 index number(s) locations in a letter in that handwriting sample.
 }
-\keyword{?}

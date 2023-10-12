@@ -17,4 +17,3 @@ A list of the processed image components
 \description{
 read_and_process
 }
-\keyword{?}

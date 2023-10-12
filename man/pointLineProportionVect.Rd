@@ -22,4 +22,3 @@ Vector of (x,y) coordinates
 Subtract the n-th cutpoint on the straight line between the path's endpoints
 from the n-th cutpoint on the path itself.
 }
-\keyword{?}

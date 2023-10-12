@@ -32,4 +32,3 @@ distance between p1e1 and p2e2 and between p1e2 and p2e1. Return the shortest
 distance in the plus direction and the shortest distance in the minus
 direction.
 }
-\keyword{?}

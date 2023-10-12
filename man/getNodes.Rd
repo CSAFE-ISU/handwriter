@@ -18,5 +18,3 @@ Returns image matrix. 1 is blank, 0 is a node.
 \description{
 Detect intersection points of an image thinned with thinImage.
 }
-\keyword{Zhang}
-\keyword{vertex}

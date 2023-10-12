@@ -29,4 +29,3 @@ get_credible_intervals(model=example_model_1chain)
 get_credible_intervals(model=example_model_1chain, interval_min=0.05, interval_max=0.95)
 
 }
-\keyword{model}

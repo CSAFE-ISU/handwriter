@@ -18,4 +18,3 @@ List of row and column number(s) locations in handwriting sample
 Convert index number(s) locations in a handwriting sample to 
 the row and column number(s) locations in that handwriting sample.
 }
-\keyword{?}

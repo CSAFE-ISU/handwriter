@@ -20,4 +20,3 @@ name, the path might not be cut into quarters.
 \description{
 Convert the graph to a prototype graph, a graph that serves as a cluster center.
 }
-\keyword{?}

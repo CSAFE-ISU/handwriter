@@ -24,4 +24,3 @@ List of formatted parameters
 Gather and format the parameter values need to calculate the distance between
 two graphs.
 }
-\keyword{?}

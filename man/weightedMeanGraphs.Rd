@@ -32,4 +32,3 @@ weightedMeanGraphs(
 \description{
 Description
 }
-\keyword{?}

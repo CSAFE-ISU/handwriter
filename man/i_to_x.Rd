@@ -19,4 +19,3 @@ Convert index number location in a matrix to
 the x-coordinate location in that matrix where (0,0)
 is the bottom left corner of the matrix
 }
-\keyword{?}

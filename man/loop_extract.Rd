@@ -13,8 +13,6 @@ loop_extract(allPaths)
 }
 \value{
 List of all loops
-
-List of all loops
 }
 \description{
 Iterates through all available paths from processHandwriting()
@@ -23,6 +21,3 @@ Picks out loops for later character association.
 Iterates through all available paths from processHandwriting()
 Picks out loops for later character association.
 }
-\keyword{character}
-\keyword{line}
-\keyword{loops}

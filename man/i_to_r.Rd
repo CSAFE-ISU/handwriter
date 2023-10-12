@@ -18,4 +18,3 @@ Row number location in matrix
 Convert index number location in a matrix to 
 the row number location in that matrix.
 }
-\keyword{?}

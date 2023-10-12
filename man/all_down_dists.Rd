@@ -16,6 +16,3 @@ All downdistance concatenated with one another (unlisted)
 Iterates through extracted character features, extracting
 all downward distances found for later use in line separating.
 }
-\keyword{character}
-\keyword{line}
-\keyword{neighbor}

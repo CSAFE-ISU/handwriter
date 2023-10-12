@@ -28,4 +28,3 @@ about_variable(
 )
 
 }
-\keyword{model}

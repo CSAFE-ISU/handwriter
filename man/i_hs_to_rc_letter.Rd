@@ -28,4 +28,3 @@ Convert index number(s) locations in a handwriting sample to
 the row and column number(s) locations in a letter in that 
 handwriting sample.
 }
-\keyword{?}

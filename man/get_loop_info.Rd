@@ -21,6 +21,3 @@ Loop Count, how many loops are found in the letter
 Loop Major, length of farthest line that can be drawn inside of a loop
 Loop Minor, length of the perpendicular bisector of the loop major.
 }
-\keyword{associate}
-\keyword{character}
-\keyword{loop}

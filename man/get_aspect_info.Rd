@@ -21,6 +21,3 @@ Aspect Ratio: Row (Height) over (Column Width)
 Height, Width (Each measure of pixels)
 The rest are supporting features that are minor independently.
 }
-\keyword{aspect}
-\keyword{character}
-\keyword{ratio}

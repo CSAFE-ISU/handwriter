@@ -17,4 +17,3 @@ letterList with locations given with respect to each letter
 \description{
 Description
 }
-\keyword{?}

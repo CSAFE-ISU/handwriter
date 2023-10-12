@@ -84,5 +84,3 @@ template_list <- make_clustering_templates(
 }
 
 }
-\keyword{clustering}
-\keyword{templates}

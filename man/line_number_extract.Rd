@@ -19,7 +19,3 @@ List associating line numbers to characters
 \description{
 Primary logic unit for line number to character association.
 }
-\keyword{character}
-\keyword{features}
-\keyword{line}
-\keyword{number}

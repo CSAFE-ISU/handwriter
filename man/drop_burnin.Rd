@@ -25,4 +25,3 @@ model <- drop_burnin(model = example_model_2chains, burn_in = 25)
 plot_trace(variable = "mu[1,2]", model = example_model_2chains)
 
 }
-\keyword{model}

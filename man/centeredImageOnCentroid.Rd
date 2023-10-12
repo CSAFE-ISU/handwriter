@@ -17,4 +17,3 @@ letter's centroid.
 Place the letter's centroid at (0,0) and find the locations (column and row
 numbers) of a letter's paths and path ends relative to the letter's centroid.
 }
-\keyword{?}

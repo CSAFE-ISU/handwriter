@@ -17,4 +17,3 @@ Group each letter in procList by stratum -- the number of loops if the letter ha
 or the number of paths in the letter -- and randomly sample letters from each group. The numstrat
 parameter sets the number of letters to sample from each group.
 }
-\keyword{?}

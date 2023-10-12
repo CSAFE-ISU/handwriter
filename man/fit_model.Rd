@@ -97,4 +97,3 @@ analysis$posterior_probabilities
 }
 
 }
-\keyword{model}

@@ -18,4 +18,3 @@ Vector of (x,y) coordinates of the graph's paths
 Convert the index number locations of graph's paths to (x,y) coordinates with
 (0,0) in the bottom left corner of the graph's image.
 }
-\keyword{?}

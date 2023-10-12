@@ -26,4 +26,3 @@ plotImage(document)
 }
 
 }
-\keyword{plot}

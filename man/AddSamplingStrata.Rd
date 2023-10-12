@@ -16,4 +16,3 @@ List of letters
 Add two new fields, numloops and stratum, to the characterFeatures list for
 each letter in letterList.
 }
-\keyword{?}

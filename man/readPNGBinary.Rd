@@ -38,4 +38,3 @@ csafe_processList = processHandwriting(csafe_document$thin, dim(csafe_document$i
 }
 
 }
-\keyword{binary}

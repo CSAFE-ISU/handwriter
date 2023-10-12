@@ -17,4 +17,3 @@ Euclidean distance between the two points
 \description{
 Calculate the Euclidean distance between two points
 }
-\keyword{?}

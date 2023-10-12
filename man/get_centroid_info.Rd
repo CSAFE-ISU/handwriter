@@ -26,8 +26,3 @@ The letter is split in half, each halve's centroid is calculated independently, 
 Box Density: (Dimensions of box around letter width height) / (how much of the document it covers) //Might be a more document as opposed to letter based feature
 Pixel Density: Ratio of black to white pixels found in box drawn around the letter.
 }
-\keyword{centroid}
-\keyword{character}
-\keyword{lean}
-\keyword{skew}
-\keyword{slant}

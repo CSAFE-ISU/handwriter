@@ -16,4 +16,3 @@ a named list with fields nodes, centroid, proptroid, image and allPaths
 Find the letter's centroid and proptroid relative to the bottom left corner of the
 letter's image.
 }
-\keyword{?}

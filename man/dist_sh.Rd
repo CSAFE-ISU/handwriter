@@ -33,4 +33,3 @@ minus direction: find the distance between the i-th shape-point of the first pat
 and the (numPathCuts-i)-th shape-point of the second path, for i=1,2,...,numPathCuts-1.
 Return the shape distances in the plus and minus directions.
 }
-\keyword{?}

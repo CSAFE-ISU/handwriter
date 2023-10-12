@@ -19,8 +19,3 @@ returns matrix mapping nodes' indices to respective row, col
 \description{
 Function for converting indices to respective row, col and associates the original index.
 }
-\keyword{binary}
-\keyword{column}
-\keyword{image}
-\keyword{index}
-\keyword{row}
