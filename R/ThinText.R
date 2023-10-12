@@ -1,6 +1,6 @@
-#' readPNGBinary
+#' Read PNG Binary
 #' 
-#' This function reads in and binarizes PNG images from the specified file path.
+#' This function reads in and binarizes a PNG image.
 #' 
 #' @param path File path for image.
 #' @param cutoffAdjust Multiplicative adjustment to the K-means estimated binarization cutoff.
@@ -14,14 +14,13 @@
 #' @importFrom Rcpp sourceCpp
 #' 
 #' @examples
-#' \dontrun{
-#' csafe_document = list()
-#' csafe_document$image = readPNGBinary("examples/Writing_csafe_single.png")
-#' csafe_document$thin = thinImage(csafe_document$image)
-#' csafe_processList = processHandwriting(csafe_document$thin, dim(csafe_document$image))
-#' }
+#' image_path <- system.file("extdata", "phrase_example.png", package = "handwriter")
+#' csafe_document <- list()
+#' csafe_document$image = readPNGBinary(image_path)
+#' plotImage(csafe_document)
 #' 
 #' @export
+#' @md
 readPNGBinary = function(path, cutoffAdjust = 0, clean = TRUE, crop = TRUE, inversion = FALSE)
 { mask <- NULL
 
@@ -102,6 +101,9 @@ readPNGBinary = function(path, cutoffAdjust = 0, clean = TRUE, crop = TRUE, inve
   return(img + 0)
 }
 
+# Internal Functions ------------------------------------------------------
+
+
 #' otsuBinarization
 #' 
 #' Uses Otsu's Method to binarize given image, performing automatic image thresholding. 
@@ -110,6 +112,7 @@ readPNGBinary = function(path, cutoffAdjust = 0, clean = TRUE, crop = TRUE, inve
 #' @param breaks a single number giving the number of cells for the histogram
 #' 
 #' @return separated image into foreground and background
+#' @noRd
 otsuBinarization = function(img, breaks = 512)
 {
   histVals = hist(img, breaks = breaks, plot = FALSE)
@@ -124,14 +127,13 @@ otsuBinarization = function(img, breaks = 512)
   return(histVals$mids[peak])
 }
 
-#' crop
+#' Crop
 #'
 #' This function crops an image down so that there is 1 pixel of padding on each side of the outermost 0 points.
 #' 
-#' @export
-#' 
 #' @param img Full image matrix to be cropped
 #' @return Cropped image matrix.
+#' @noRd
 crop = function(img)
 {
   if(any(img[,1] != 1)) {img = cbind(rep(1, dim(img)[1]), img)}
