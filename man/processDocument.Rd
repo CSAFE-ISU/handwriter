@@ -2,7 +2,7 @@
 % Please edit documentation in R/JunctionDetection.R
 \name{processDocument}
 \alias{processDocument}
-\title{processDocument}
+\title{Process Document}
 \usage{
 processDocument(path)
 }
@@ -10,8 +10,16 @@ processDocument(path)
 \item{path}{File path for handwriting document. The document must be in PNG file format.}
 }
 \value{
-A named list
+The processed document as a list
 }
 \description{
 Load a handwriting sample from a PNG image. Then binarize, thin, and split the handwriting into graphs.
+}
+\examples{
+image_path <- system.file("extdata", "phrase_example.png", package = "handwriter")
+doc <- processDocument(image_path)
+plotImage(doc)
+plotImageThinned(doc)
+plotNodes(doc)
+
 }

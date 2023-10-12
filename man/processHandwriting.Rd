@@ -2,24 +2,21 @@
 % Please edit documentation in R/JunctionDetection.R
 \name{processHandwriting}
 \alias{processHandwriting}
-\title{processHandwriting}
+\title{Process Handwriting}
 \usage{
 processHandwriting(img, dims)
 }
 \arguments{
-\item{img}{Thinned binary image.}
+\item{img}{Thinned binary image created with \code{\link[=thinImage]{thinImage()}}.}
 
 \item{dims}{Dimensions of thinned binary image.}
 }
 \value{
-Returns a list of length 3. Object [[1]] (breakPoints) is the set of final letter separation points.
-Object [[2]] (pathList) is a list of the paths between the input specified nodes.
-Object [[3]] (letters) is a list of the pixels in the different letters in the handwriting sample.
+A list of the processed image
 }
 \description{
-Main driver of handwriting processing.
-Takes in thin image form and the breakpoints suggested by getNodes and parses the writing into letters.
-Returns final letter separation points, a list of the paths in the image, and a list of the letter paths in the image.
+The main driver of handwriting processing. Takes in an image of thinned handwriting created
+with \code{\link[=thinImage]{thinImage()}} and splits the the handwriting into component shapes called \emph{graphs}.
 }
 \examples{
 twoSent_document <- list()
