@@ -2,7 +2,7 @@
 % Please edit documentation in R/PlotFunctions.R
 \name{AddLetterImages}
 \alias{AddLetterImages}
-\title{AddLetterImages}
+\title{Add Letter Images}
 \usage{
 AddLetterImages(letterList, dims)
 }
@@ -12,7 +12,7 @@ AddLetterImages(letterList, dims)
 \item{dims}{Dimensions of the original document}
 }
 \value{
-letterList with a new matrix `image` value for each sublist.
+letterList with a new matrix \code{image} value for each sublist.
 }
 \description{
 Pulls out letterlist as its own object, and adds the image matrix as well

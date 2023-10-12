@@ -2,7 +2,7 @@
 % Please edit documentation in R/PlotFunctions.R
 \name{plotLine}
 \alias{plotLine}
-\title{plotLine}
+\title{Plot Line}
 \usage{
 plotLine(letterList, whichLine, dims)
 }
@@ -14,11 +14,11 @@ plotLine(letterList, whichLine, dims)
 \item{dims}{Dimensions of the original document}
 }
 \value{
-Plot of single line.
+ggplot plot of single line
 }
 \description{
-This function returns a plot of a single line extracted from a document. 
-It uses the letterList parameter from the processHandwriting function and accepts a single value as whichLetter. 
+This function returns a plot of a single line extracted from a document.
+It uses the letterList parameter from the processHandwriting function and accepts a single value as whichLetter.
 Dims requires the dimensions of the entire document, since this isn't contained in processHandwriting.
 }
 \examples{

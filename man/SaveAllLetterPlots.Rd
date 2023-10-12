@@ -2,12 +2,13 @@
 % Please edit documentation in R/PlotFunctions.R
 \name{SaveAllLetterPlots}
 \alias{SaveAllLetterPlots}
-\title{SaveAllLetterPlots}
+\title{Save All Letter Plots}
 \usage{
 SaveAllLetterPlots(letterList, filePaths, dims, bgTransparent = TRUE)
 }
 \arguments{
-\item{letterList}{Letter list from processHandwriting function}
+\item{letterList}{Letter list from \code{\link[=processHandwriting]{processHandwriting()}} or
+\code{\link[=processDocument]{processDocument()}} function}
 
 \item{filePaths}{Folder path to save images to}
 
@@ -19,7 +20,12 @@ SaveAllLetterPlots(letterList, filePaths, dims, bgTransparent = TRUE)
 No return value.
 }
 \description{
-This function returns a plot of a single letter extracted from a document. It uses the letterList parameter from the processHandwriting function and accepts a single value as whichLetter. Dims requires the dimensions of the entire document, since this isn't contained in processHandwriting. Requires the \pkg{\link{magick}} package.
+This function returns a plot of a single graph extracted from a document. It
+uses the letterList parameter from the \code{\link[=processHandwriting]{processHandwriting()}} or
+\code{\link[=processDocument]{processDocument()}} function and accepts a single value as whichLetter.
+Dims requires the dimensions of the entire document, since this isn't
+contained in \code{\link[=processHandwriting]{processHandwriting()}} or
+\code{\link[=processDocument]{processDocument()}}. Requires the \pkg{\link{magick}} package.
 }
 \examples{
 twoSent_document = list()

@@ -2,12 +2,12 @@
 % Please edit documentation in R/PlotFunctions.R
 \name{plotNodes}
 \alias{plotNodes}
-\title{plotNodes}
+\title{Plot Nodes}
 \usage{
 plotNodes(doc, plot_break_pts = FALSE, nodeSize = 3, nodeColor = "red")
 }
 \arguments{
-\item{doc}{A document processed with [handwriter::processHandwriting()]}
+\item{doc}{A document processed with \code{\link[=processHandwriting]{processHandwriting()}}}
 
 \item{plot_break_pts}{Logical value as to whether to plot nodes or break points. plot_break_pts=FALSE plots nodes and plot_break_pts=TRUE plots break point.}
 
@@ -23,11 +23,11 @@ This function returns a plot with the full image plotted in light gray and the s
 Also called from plotPath, which is a more useful function, in general.
 }
 \examples{
-\dontrun{
-twoSent_doc = list()
-twoSent_doc$image = twoSent
-twoSent_doc$thin = thinImage(twoSent_doc$image)
-twoSent_doc$process = processHandwriting(twoSent_doc$thin, dim(twoSent_doc$image))
-plotNodes(twoSent_doc)
-}
+csafe_document <- list()
+csafe_document$image <- csafe
+csafe_document$thin <- thinImage(csafe_document$image)
+csafe_document$process <- processHandwriting(csafe_document$thin, dim(csafe_document$image))
+plotNodes(csafe_document)
+plotNodes(csafe_document, nodeSize=6, nodeColor="black")
+
 }

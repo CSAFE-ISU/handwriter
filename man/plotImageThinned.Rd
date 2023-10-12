@@ -2,22 +2,23 @@
 % Please edit documentation in R/PlotFunctions.R
 \name{plotImageThinned}
 \alias{plotImageThinned}
-\title{plotImageThinned}
+\title{Plot Thinned Image}
 \usage{
 plotImageThinned(doc)
 }
 \arguments{
-\item{doc}{A document processed with [handwriter::processHandwriting()]}
+\item{doc}{A document processed with \code{\link[=processHandwriting]{processHandwriting()}}}
 }
 \value{
-Plot of thinned image
+gpplot plot of thinned image
 }
 \description{
-This function returns a plot with the full image plotted in light gray and the skeleton printed in black on top.
+This function returns a plot with the full image plotted in light gray and the thinned skeleton printed in black on top.
 }
 \examples{
-\dontrun{
-document = processHandwriting('path/to/image.png')
-plotImageThinned(document)
-}
+csafe_document <- list()
+csafe_document$image <- csafe
+csafe_document$thin <- thinImage(csafe_document$image)
+plotImageThinned(csafe_document)
+
 }
