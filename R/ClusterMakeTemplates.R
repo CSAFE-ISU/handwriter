@@ -1,10 +1,11 @@
-### Cluster Template Creation Functions
+
+# EXPORTED ----------------------------------------------------------------
 
 
-#' make_clustering_templates
+#' Make Clustering Templates
 #'
 #' `make_clustering_templates()` applies a K-means clustering algorithm to the
-#' input handwriting samples pre-processed with [process_batch_dir()] and saved
+#' input handwriting samples pre-processed with [`process_batch_dir()`] and saved
 #' in the input folder `template_dir > data > template_graphs`. The K-means
 #' algorithm sorts the graphs in the input handwriting samples into groups, or
 #' *clusters*, of similar graphs.
@@ -127,13 +128,16 @@ make_clustering_templates <- function(template_dir,
 }
 
 
-#' make_proc_list
+# Internal Functions ------------------------------------------------------
+
+
+#' Make Processed List
 #'
-#' process_batch_dir() needs to be run first to processes handwriting documents
-#' in a specified folder. process_batch_dir() creates an RDS file for each
+#' `process_batch_dir()` needs to be run first to processes handwriting documents
+#' in a specified folder. `process_batch_dir()` creates an RDS file for each
 #' document that contains the extracted graphs in the document and saves the
-#' file in template_dir > data > template_graphs in rds files. make_proc_list()
-#' loads the graph RDS files from template_dir > data > template_graphs into a
+#' file in `template_dir > data > template_graphs` in rds files. `make_proc_list()`
+#' loads the graph RDS files from `template_dir > data > template_graphs` into a
 #' single list. This function also adds the graph image matrix and the number of
 #' loops and edges to each item in the list. This function also records the
 #' locations information of each graph with respect to the individual graph
@@ -191,9 +195,9 @@ make_proc_list <- function(template_dir) {
 }
 
 
-#' get_strata
+#' Get Strata
 #'
-#' get_strata() creates a table that shows the number of graphs in template_proc_list for
+#' `get_strata()` creates a table that shows the number of graphs in template_proc_list for
 #' each strata (number of loops or edges)
 #'
 #' @param template_proc_list List of graphs output by make_proc_list()
@@ -237,10 +241,10 @@ get_strata <- function(template_proc_list, template_dir) {
 }
 
 
-#' delete_crazy_graphs
+#' Delete Crazy Graphs
 #'
-#' delete_crazy_graphs() removes graphs with more than max_edges from the
-#' template_proc_list output by make_proc_list()
+#' `delete_crazy_graphs()` removes graphs with more than max_edges from the
+#' template_proc_list output by `make_proc_list()`
 #'
 #' @param template_proc_list List of graphs output by make_proc_list()
 #' @param max_edges Maximum number of edges to allow in each graph
@@ -296,9 +300,9 @@ delete_crazy_graphs <- function(template_proc_list, max_edges, template_dir) {
 }
 
 
-#' make_images_list
+#' Make Images List
 #'
-#' make_images_list() takes as input the template_proc_list output by make_proc_list().
+#' `make_images_list()` takes as input the template_proc_list output by make_proc_list().
 #' It finds the graph locations (column and row numbers) relative to the
 #' centroid of the graph image.
 #'
@@ -358,9 +362,9 @@ make_images_list <- function(template_proc_list, template_dir, writer_indices) {
 }
 
 
-#' chooseGraphs
+#' Choose Graphs
 #'
-#' `chooseGraphs` randomly selects `num_graphs` to use to create a new cluster
+#' `chooseGraphs()` randomly selects `num_graphs` to use to create a new cluster
 #' template. If `num_graphs = 'All'` then all available training graphs will be
 #' used. If `num_graphs` is an positive integer `n` then `floor(num_graphs / n)`
 #' graphs are randomly selected from each template training document.
@@ -408,7 +412,7 @@ chooseGraphs <- function(seed, num_graphs, full_template_images_list) {
 }
 
 
-#' do_setup
+#' Do Setup
 #'
 #' `do_setup()` creates the folder template_dir > starting_seed. It also creates
 #' data and logs subfolders in the starting_seed folder.
@@ -428,7 +432,7 @@ do_setup <- function(template_dir) {
 }
 
 
-#' make_dir
+#' Make Directory
 #'
 #' `make_dir()` creates the folder dir_path if it doesn't already exist. Note
 #' that dirname(dir_path) must already exist.
@@ -443,7 +447,7 @@ make_dir <- function(dir_path) {
 }
 
 
-#' chooseCenters
+#' Choose Centers
 #'
 #' `chooseCenters()` selects starting centers for the K-means algorithm. All
 #' graphs in template_proc_list and template_images_list are sorted by strata, the number of loops
@@ -509,7 +513,7 @@ chooseCenters <- function(seed, K, template_proc_list, template_images_list) {
   return(centerstarts)
 }
 
-#' PathToRC
+#' Path to RC
 #'
 #' Helper function for chooseCenters
 #' 
@@ -523,7 +527,7 @@ PathToRC = function(pathList, dims)
   return(cbind((pathList -1 ) %/% dims[1] + 1, dims[1] - (pathList - 1) %% dims[1]))
 }
 
-#' letterKmeansWithOutlier_parallel
+#' Letter Kmeans with Outliers Parallel
 #'
 #' `letterKmeansWithOutlier_parallel()` runs the K-means clustering algorithm on
 #' template_images_list with centers as the starting cluster centers.
@@ -747,7 +751,7 @@ letterKmeansWithOutlier_parallel <- function(template_proc_list, template_images
 }
 
 
-#' meanGraphSet_slowchange
+#' Mean Graph Set Slow Change
 #'
 #' `meanGraphSet_slowchange()` calculates the mean graph of the graphs in the input template_images_list and returns the
 #' graph in template_images_list closest to the mean graph
@@ -799,7 +803,7 @@ meanGraphSet_slowchange <- function(template_images_list, num_path_cuts = 4,num_
 }
 
 
-#' overall_meanGraph
+#' Overall Mean Graph
 #'
 #' `overall_meanGraph()` calculates the overall mean graph of the cluster
 #' centers and returns the cluster center that is closest to the overall mean
@@ -845,7 +849,7 @@ overall_meanGraph <- function(centers, num_path_cuts = 8) {
 }
 
 
-#' davies_bouldin
+#' Davies Bouldin Index
 #'
 #' davies_bouldin() calculates the Davies-Bouldin Index for the current
 #' iteration of the K-means algorithm
@@ -903,9 +907,9 @@ davies_bouldin <- function(wcd, cluster, centers, K, num_path_cuts) {
 }
 
 
-#' variance_ratio_criterion
+#' Variance Ratio Criterion
 #'
-#' variance_ratio_criterion() calculates the varience-ratio criterion for the
+#' `variance_ratio_criterion()` calculates the varience-ratio criterion for the
 #' current iteration of the K-means algorithm
 #'
 #' @param wcd Matrix of within-cluster distances: the distances between each
@@ -945,9 +949,9 @@ variance_ratio_criterion <- function(wcd, cluster, centers, K, num_path_cuts) {
 }
 
 
-#' within_cluster_sum_of_squares
+#' Within Cluster Sum of Squares
 #'
-#' within_cluster_sum_of_squares() calculates the the within-cluster sum of squares for the
+#' `within_cluster_sum_of_squares()` calculates the the within-cluster sum of squares for the
 #' current iteration of the K-means algorithm
 #'
 #' @param wcd Matrix of within-cluster distances: the distances between each
@@ -967,9 +971,9 @@ within_cluster_sum_of_squares <- function(wcd, cluster) {
 }
 
 
-#' root_mean_square_error
+#' Root Mean Square Error
 #'
-#' root_mean_square_error() calculates the the root mean square error for the
+#' `root_mean_square_error()` calculates the the root mean square error for the
 #' current iteration of the K-means algorithm
 #'
 #' @param wcd Matrix of within-cluster distances: the distances between each

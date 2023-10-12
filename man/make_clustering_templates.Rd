@@ -2,7 +2,7 @@
 % Please edit documentation in R/ClusterMakeTemplates.R
 \name{make_clustering_templates}
 \alias{make_clustering_templates}
-\title{make_clustering_templates}
+\title{Make Clustering Templates}
 \usage{
 make_clustering_templates(
   template_dir,
