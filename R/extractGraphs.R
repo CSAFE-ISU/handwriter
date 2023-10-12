@@ -1,30 +1,14 @@
-#' Extracts graphs from a .png image using handwriter functions
-#' 
-#' extractGraphs
-#' 
-#' @param image .png image to be processed
-#' @param source_folder path to folder containing .png images
-#' @param save_folder path to folder where graphs are saved to
-#' @return saves proclist to an rds file
-getGraphs = function(image, source_folder = getwd(), save_folder = getwd()){
-  #setwd(source_folder)
-  doc = proclist = list() 
-  doc$image = readPNGBinary(image)
-  doc$thin = thinImage(doc$image)
-  proclist[["process"]] = processHandwriting(doc$thin, dim(doc$image))
-  proclist[["docname"]] = substr(basename(image), start = 0, stop = nchar(basename(image))-4)
-  proclist[["thin"]] = doc$thin
-  proclist[["image"]] = doc$image
-  
-  #setwd(save_folder)  
-  saveRDS(object = proclist, file = paste0(save_folder, "/", substr(basename(image), start = 0, stop = nchar(basename(image))-4), "_proclist.rds"))
-  gc()
-}
+
+# EXPORTED ----------------------------------------------------------------
 
 
-#' Extracts graphs from .png images and saves each by their respective writer
+#' Extract Graphs
 #' 
-#' extractGraphs
+#' `r lifecycle::badge("superseded")`
+#' 
+#' Development on `extractGraphs()` is complete. We recommend using `process_batch_dir()` instead.
+#' 
+#' Extracts graphs from .png images and saves each by their respective writer.
 #' 
 #' @import foreach
 #' @import doParallel
@@ -57,4 +41,32 @@ extractGraphs = function(source_folder = getwd(), save_folder = getwd()){
     
     getGraphs(filenames[[i]], source_folder = source_folder, save_folder = graph_writer)
   }
+}
+
+
+# Internal Functions ------------------------------------------------------
+
+#' Extracts graphs from a .png image using handwriter functions
+#' 
+#' extractGraphs
+#' 
+#' @param image .png image to be processed
+#' @param source_folder path to folder containing .png images
+#' @param save_folder path to folder where graphs are saved to
+#' @return saves proclist to an rds file
+#' 
+#' @noRd
+getGraphs = function(image, source_folder = getwd(), save_folder = getwd()){
+  #setwd(source_folder)
+  doc = proclist = list() 
+  doc$image = readPNGBinary(image)
+  doc$thin = thinImage(doc$image)
+  proclist[["process"]] = processHandwriting(doc$thin, dim(doc$image))
+  proclist[["docname"]] = substr(basename(image), start = 0, stop = nchar(basename(image))-4)
+  proclist[["thin"]] = doc$thin
+  proclist[["image"]] = doc$image
+  
+  #setwd(save_folder)  
+  saveRDS(object = proclist, file = paste0(save_folder, "/", substr(basename(image), start = 0, stop = nchar(basename(image))-4), "_proclist.rds"))
+  gc()
 }

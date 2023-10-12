@@ -2,7 +2,7 @@
 % Please edit documentation in R/extractGraphs.R
 \name{extractGraphs}
 \alias{extractGraphs}
-\title{Extracts graphs from .png images and saves each by their respective writer}
+\title{Extract Graphs}
 \usage{
 extractGraphs(source_folder = getwd(), save_folder = getwd())
 }
@@ -15,7 +15,12 @@ extractGraphs(source_folder = getwd(), save_folder = getwd())
 saves graphs in an rds file
 }
 \description{
-extractGraphs
+`r lifecycle::badge("superseded")`
+}
+\details{
+Development on `extractGraphs()` is complete. We recommend using `process_batch_dir()` instead.
+
+Extracts graphs from .png images and saves each by their respective writer.
 }
 \examples{
 \dontrun{
