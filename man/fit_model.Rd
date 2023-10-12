@@ -2,7 +2,7 @@
 % Please edit documentation in R/ClusterModeling_modelfunctions.R
 \name{fit_model}
 \alias{fit_model}
-\title{fit_model}
+\title{Fit Model}
 \usage{
 fit_model(
   template_dir,
@@ -21,7 +21,7 @@ fit_model(
 }
 \arguments{
 \item{template_dir}{A directory that contains a cluster template created by
-\code{\link{make_clustering_templates}}}
+\code{\link[=make_clustering_templates]{make_clustering_templates()}}}
 
 \item{model_images_dir}{A directory containing model training documents}
 
@@ -62,8 +62,9 @@ model}
 A list of training data used to fit the model and the fitted model
 }
 \description{
-\code{fit_model()} fits a Bayesian hierarchical model to \code{model_training_data} and
-draws samples from the model with MCMC.
+\code{fit_model()} fits a Bayesian hierarchical model to the model training data
+in \code{model_images_dir} and draws samples from the model as Markov Chain Monte
+Carlo (MCMC) estimates.
 }
 \examples{
 \dontrun{

@@ -1,13 +1,14 @@
 # EXPORTED ----------------------------------------------------------------
 
 
-#' fit_model
+#' Fit Model
 #'
-#' `fit_model()` fits a Bayesian hierarchical model to `model_training_data` and
-#' draws samples from the model with MCMC.
+#' `fit_model()` fits a Bayesian hierarchical model to the model training data
+#' in `model_images_dir` and draws samples from the model as Markov Chain Monte
+#' Carlo (MCMC) estimates.
 #'
 #' @param template_dir A directory that contains a cluster template created by
-#'   [`make_clustering_templates`]
+#'   [`make_clustering_templates()`]
 #' @param model_images_dir A directory containing model training documents
 #' @param num_iters An integer number of iterations of MCMC.
 #' @param num_chains An integer number of chains to use.
@@ -176,9 +177,9 @@ fit_model <- function(template_dir,
 }
 
 
-#' drop_burnin
+#' Drop Burn-In
 #'
-#' `drop_burnin()` removes the burn-in from the MCMC draws.
+#' `drop_burnin()` removes the burn-in from the Markov Chain Monte Carlo (MCMC) draws.
 #'
 #' @param model A list of MCMC draws from a model fit with [`fit_model()`].
 #' @param burn_in An integer number of starting iterations to drop from each MCMC chain.
@@ -202,12 +203,12 @@ drop_burnin <- function(model, burn_in) {
 }
 
 
-#' about_variable
+#' About Varialbe
 #'
 #' `about_variable()` returns information about the model variable.
 #'
-#' @param variable A variable in the fitted model output by [`fit_model`]
-#' @param model A fitted model created by [`fit_model`]
+#' @param variable A variable in the fitted model output by [`fit_model()`]
+#' @param model A fitted model created by [`fit_model()`]
 #' @return Text that explains the variable
 #'
 #' @examples
@@ -267,14 +268,14 @@ about_variable <- function(variable, model) {
   return(about)
 }
 
-#' get_credible_intervals
+#' Get Credible Intervals
 #'
-#' In a model created with [`fit_model`] the pi parameters are the estimate of
+#' In a model created with [`fit_model()`] the pi parameters are the estimate of
 #' the true cluster fill count for a particular writer and cluster. The function
-#' `get_credible_intervals` calculates the credible intervals of the pi
+#' `get_credible_intervals()` calculates the credible intervals of the pi
 #' parameters for each writer in the model.
 #'
-#' @param model A model output by [`fit_model`]
+#' @param model A model output by [`fit_model()`]
 #' @param interval_min The lower bound for the credible interval. The number
 #'   must be between 0 and 1.
 #' @param interval_max The upper bound for the credible interval. The number
@@ -294,8 +295,8 @@ get_credible_intervals <- function(model, interval_min=0.025, interval_max=0.975
   return(ci)
 }
 
+# Internal Functions ------------------------------------------------------
 
-# NOT EXPORTED ------------------------------------------------------------
 
 #' format_draws
 #'
@@ -413,4 +414,3 @@ get_credible_intervals_for_writer <- function(writer, writer_pis, interval_min=0
   rownames(df) <- NULL
   return(df)
 }
-
