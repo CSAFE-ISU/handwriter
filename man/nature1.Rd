@@ -14,6 +14,10 @@ nature1
 Full page image of the 4th sample (nature) of handwriting from the first writer.
 }
 \examples{
+nature1_document <- list()
+nature1_document$image <- nature1
+plotImage(nature1_document)
+
 \dontrun{
 nature1_document <- list()
 nature1_document$image <- nature1

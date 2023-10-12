@@ -9,14 +9,14 @@ plot_trace(variable, model)
 \arguments{
 \item{variable}{The name of a variable in the model}
 
-\item{model}{A model created by \code{\link{fit_model}}}
+\item{model}{A model created by \code{\link[=fit_model]{fit_model()}}}
 }
 \value{
 A trace plot
 }
 \description{
 Create a trace plot for all chains for a single variable of a fitted model
-created by \code{\link{fit_model}}. If the model contains more than one chain, the
+created by \code{\link[=fit_model]{fit_model()}}. If the model contains more than one chain, the
 chains will be combined by pasting them together.
 }
 \examples{

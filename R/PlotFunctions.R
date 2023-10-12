@@ -1,10 +1,29 @@
-#' plotImage
+# The handwriter R package performs writership analysis of handwritten documents. 
+# Copyright (C) 2021 Iowa State University of Science and Technology on behalf of its Center for Statistics and Applications in Forensic Evidence
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+
+# EXPORTED ----------------------------------------------------------------
+
+
+#' Plot Image
 #'
 #' This function plots a basic black and white image.
-#' @param doc A document processed with [handwriter::processDocument()] or a binary matrix (all entries are 0 or 1)
-#' @return Returns plot of doc$image.
 #' 
-#' @keywords plot
+#' @param doc A document processed with [`processDocument()`] or a binary matrix (all entries are 0 or 1)
+#' @return ggplot plot
 #' 
 #' @examples
 #' csafe_document <- list()
@@ -12,11 +31,12 @@
 #' plotImage(csafe_document)
 #' 
 #' \dontrun{
-#' document = processDocument('path/to/image.png')
+#' document <- processDocument('path/to/image.png')
 #' plotImage(document)
 #' }
 #' 
 #' @export
+#' @md
 plotImage = function(doc)
 {
   Var2 <- Var1 <- value <- NULL
@@ -34,18 +54,21 @@ plotImage = function(doc)
   return(p)
 }
 
-#' plotImageThinned
+#' Plot Thinned Image
 #'
-#' This function returns a plot with the full image plotted in light gray and the skeleton printed in black on top.
-#' @param doc A document processed with [handwriter::processHandwriting()]
-#' @return Plot of thinned image
+#' This function returns a plot with the full image plotted in light gray and the thinned skeleton printed in black on top.
+#' 
+#' @param doc A document processed with [`processHandwriting()`]
+#' @return gpplot plot of thinned image
 #' 
 #' @examples
-#' \dontrun{
-#' document = processHandwriting('path/to/image.png')
-#' plotImageThinned(document)
-#' }
+#' csafe_document <- list()
+#' csafe_document$image <- csafe
+#' csafe_document$thin <- thinImage(csafe_document$image)
+#' plotImageThinned(csafe_document)
+#' 
 #' @export
+#' @md
 plotImageThinned = function(doc)
 {
   Var2 <- Var1 <- value <- NULL
@@ -56,27 +79,29 @@ plotImageThinned = function(doc)
   return(p)
 }
 
-#' plotNodes
+#' Plot Nodes
 #'
 #' This function returns a plot with the full image plotted in light gray and the skeleton printed in black, with red triangles over the vertices.
 #' Also called from plotPath, which is a more useful function, in general.
 #' 
-#' @param doc A document processed with [handwriter::processHandwriting()]
+#' @param doc A document processed with [`processHandwriting()`]
 #' @param plot_break_pts Logical value as to whether to plot nodes or break points. plot_break_pts=FALSE plots nodes and plot_break_pts=TRUE plots break point.
 #' @param nodeSize Size of triangles printed. 3 by default. Move down to 2 or 1 for small text images.
 #' @param nodeColor Which color the nodes should be
 #' @return Plot of full and thinned image with vertices overlaid.
 #' 
 #' @examples
-#' \dontrun{
-#' twoSent_doc = list()
-#' twoSent_doc$image = twoSent
-#' twoSent_doc$thin = thinImage(twoSent_doc$image)
-#' twoSent_doc$process = processHandwriting(twoSent_doc$thin, dim(twoSent_doc$image))
-#' plotNodes(twoSent_doc)
-#' }
+#' csafe_document <- list()
+#' csafe_document$image <- csafe
+#' csafe_document$thin <- thinImage(csafe_document$image)
+#' csafe_document$process <- processHandwriting(csafe_document$thin, dim(csafe_document$image))
+#' plotNodes(csafe_document)
+#' plotNodes(csafe_document, nodeSize=6, nodeColor="black")
+#' 
 #' @import ggplot2
+#' 
 #' @export
+#' @md
 plotNodes = function(doc, plot_break_pts = FALSE, nodeSize = 3, nodeColor = "red")
 {
   X <- Y <- NULL
@@ -93,7 +118,7 @@ plotNodes = function(doc, plot_break_pts = FALSE, nodeSize = 3, nodeColor = "red
   return(p)
 }
 
-#' plotLine
+#' Plot Line
 #'
 #' This function returns a plot of a single line extracted from a document. 
 #' It uses the letterList parameter from the processHandwriting function and accepts a single value as whichLetter. 
@@ -102,7 +127,7 @@ plotNodes = function(doc, plot_break_pts = FALSE, nodeSize = 3, nodeColor = "red
 #' @param letterList Letter list from processHandwriting function
 #' @param whichLine Single value denoting which line to plot - checked if too big inside function.
 #' @param dims Dimensions of the original document
-#' @return Plot of single line.
+#' @return ggplot plot of single line
 #' 
 #' @examples
 #' twoSent_document = list()
@@ -115,6 +140,7 @@ plotNodes = function(doc, plot_break_pts = FALSE, nodeSize = 3, nodeColor = "red
 #' 
 #' @import ggplot2
 #' @export
+#' @md
 plotLine = function(letterList, whichLine, dims)
 {
   pathList = list()
@@ -178,19 +204,23 @@ plotLine = function(letterList, whichLine, dims)
   return(p)
 }
 
-#' plotLetter
+#' Plot Letter
 #'
-#' This function returns a plot of a single letter extracted from a document. 
-#' It uses the letterList parameter from the processHandwriting function and accepts a single value as whichLetter. 
-#' Dims requires the dimensions of the entire document, since this isn't contained in processHandwriting.
-#' @param doc A document processed with [handwriter::processDocument()]
-#' @param whichLetter Single value in 1:length(letterList) denoting which letter to plot.
-#' @param showPaths Whether the calculated paths on the letter should be shown with numbers.
+#' This function returns a plot of a single graph extracted from a document. It
+#' uses the letterList parameter from the [`processHandwriting()`] or [`processDocument()`] function and
+#' accepts a single value as `whichLetter`. Dims requires the dimensions of the
+#' entire document, since this isn't contained in [`processHandwriting()`] or [`processDocument()`].
+#'
+#' @param doc A document processed with [`processHandwriting()`] or [`processDocument()`]
+#' @param whichLetter Single value in 1:length(letterList) denoting which letter
+#'   to plot.
+#' @param showPaths Whether the calculated paths on the letter should be shown
+#'   with numbers.
 #' @param showCentroid Whether the centroid should be shown
 #' @param showSlope Whether the slope should be shown
 #' @param showNodes Whether the nodes should be shown
 #' @return Plot of single letter.
-#' 
+#'
 #' @examples
 #' twoSent_document = list()
 #' twoSent_document$image = twoSent
@@ -198,8 +228,9 @@ plotLine = function(letterList, whichLine, dims)
 #' twoSent_document$process = processHandwriting(twoSent_document$thin, dim(twoSent_document$image))
 #' plotLetter(twoSent_document, 1)
 #' plotLetter(twoSent_document, 4, showPaths = FALSE)
-#' 
+#'
 #' @export
+#' @md
 plotLetter = function(doc, whichLetter, showPaths = TRUE, showCentroid = TRUE, showSlope = TRUE, showNodes = TRUE)
 {
   X <- Y <- NULL
@@ -302,7 +333,7 @@ plotLetter = function(doc, whichLetter, showPaths = TRUE, showCentroid = TRUE, s
   return(p)
 }
 
-#' AddLetterImages
+#' Add Letter Images
 #'
 #' Pulls out letterlist as its own object, and adds the image matrix as well
 #' 
@@ -320,7 +351,8 @@ plotLetter = function(doc, whichLetter, showPaths = TRUE, showCentroid = TRUE, s
 #' withLetterImages = AddLetterImages(twoSent_processList$letterList, dims)
 #' 
 #' @export
-AddLetterImages = function(letterList, dims)
+#' @md
+AddLetterImages <- function(letterList, dims)
 {
   skeletons = lapply(letterList, function(x) x$path)
   r = lapply(skeletons, function(x) {((x-1) %% dims[1]) + 1})
@@ -335,31 +367,39 @@ AddLetterImages = function(letterList, dims)
   return(letterList)
 }
 
-#' SaveAllLetterPlots
+#' Save All Letter Plots
 #'
-#' This function returns a plot of a single letter extracted from a document. It uses the letterList parameter from the processHandwriting function and accepts a single value as whichLetter. Dims requires the dimensions of the entire document, since this isn't contained in processHandwriting. Requires the \pkg{\link{magick}} package.
-#' @param letterList Letter list from processHandwriting function
+#' This function returns a plot of a single graph extracted from a document. It
+#' uses the letterList parameter from the [`processHandwriting()`] or
+#' [`processDocument()`] function and accepts a single value as whichLetter.
+#' Dims requires the dimensions of the entire document, since this isn't
+#' contained in [`processHandwriting()`] or
+#' [`processDocument()`]. Requires the \pkg{\link{magick}} package.
+#'
+#' @param letterList Letter list from [`processHandwriting()`] or
+#' [`processDocument()`] function
 #' @param filePaths Folder path to save images to
 #' @param dims Dimensions of original document
 #' @param bgTransparent Logical determines if the image is transparent
 #' @return No return value.
-#' 
-#' @examples 
+#'
+#' @examples
 #' twoSent_document = list()
 #' twoSent_document$image = twoSent
 #' twoSent_document$thin = thinImage(twoSent_document$image)
 #' twoSent_processList = processHandwriting(twoSent_document$thin, dim(twoSent_document$image))
-#' 
+#'
 #' dims = dim(twoSent_document$image)
 #' \dontrun{
 #' withLetterImages = AddLetterImages(twoSent_processList$letterList, "path/to/save", dims)
 #' }
-#' 
-#' @seealso \code{\link[magick]{image_transparent}}  
-#' @seealso \code{\link[magick]{image_write}}  
+#'
+#' @seealso \code{\link[magick]{image_transparent}}
+#' @seealso \code{\link[magick]{image_write}}
 #' @seealso \code{\link[magick]{image_read}}
-#' 
+#'
 #' @export
+#' @md
 SaveAllLetterPlots = function(letterList, filePaths, dims, bgTransparent = TRUE)
 {
   if(is.null(letterList[[1]]$image))
@@ -374,4 +414,3 @@ SaveAllLetterPlots = function(letterList, filePaths, dims, bgTransparent = TRUE)
     }
   }
 }
-

@@ -2,14 +2,14 @@
 % Please edit documentation in R/ClusterModeling_modelfunctions.R
 \name{about_variable}
 \alias{about_variable}
-\title{about_variable}
+\title{About Varialbe}
 \usage{
 about_variable(variable, model)
 }
 \arguments{
-\item{variable}{A variable in the fitted model output by \code{\link{fit_model}}}
+\item{variable}{A variable in the fitted model output by \code{\link[=fit_model]{fit_model()}}}
 
-\item{model}{A fitted model created by \code{\link{fit_model}}}
+\item{model}{A fitted model created by \code{\link[=fit_model]{fit_model()}}}
 }
 \value{
 Text that explains the variable
@@ -28,4 +28,3 @@ about_variable(
 )
 
 }
-\keyword{model}

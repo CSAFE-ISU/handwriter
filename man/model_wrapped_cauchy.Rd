@@ -11,7 +11,7 @@ An RJAGS model written as text.
 model_wrapped_cauchy
 }
 \description{
-The hierarchical model used in \code{\link{fit_model}} and described in Crawford, Amy
+The hierarchical model used in \code{\link[=fit_model]{fit_model()}} and described in Crawford, Amy
 M., Danica M. Ommen, and Alicia L. Carriquiry. "A rotation-based feature and
 Bayesian hierarchical model for the forensic evaluation of handwriting
 evidence in a closed set." The Annals of Applied Statistics 17, no. 2 (2023):

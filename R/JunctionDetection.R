@@ -1,3 +1,20 @@
+# The handwriter R package performs writership analysis of handwritten documents. 
+# Copyright (C) 2021 Iowa State University of Science and Technology on behalf of its Center for Statistics and Applications in Forensic Evidence
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+
 ## Junction Detection ##
 # Provide skeletonized image from ThinText.
 # A black pixel becomes a node if its removal creates exactly one or at least
@@ -5,16 +22,26 @@
 # Also from Zhang thinning paper (allegedly)
 
 
-#' processDocument
+# EXPORTED ----------------------------------------------------------------
+
+
+#' Process Document
 #'
 #' Load a handwriting sample from a PNG image. Then binarize, thin, and split the handwriting into graphs.
 #'
 #' @param path File path for handwriting document. The document must be in PNG file format.
 #'
-#' @return A named list
-#'
+#' @return The processed document as a list
+#' 
+#' @examples
+#' image_path <- system.file("extdata", "phrase_example.png", package = "handwriter")
+#' doc <- processDocument(image_path)
+#' plotImage(doc)
+#' plotImageThinned(doc)
+#' plotNodes(doc)
+#' 
 #' @export
-#'
+#' @md
 processDocument <- function(path) {
   doc <- list()
   doc$image <- readPNGBinary(path)
@@ -27,17 +54,14 @@ processDocument <- function(path) {
 }
 
 
-#' processHandwriting
+#' Process Handwriting
 #'
-#' Main driver of handwriting processing.
-#' Takes in thin image form and the breakpoints suggested by getNodes and parses the writing into letters.
-#' Returns final letter separation points, a list of the paths in the image, and a list of the letter paths in the image.
+#' The main driver of handwriting processing. Takes in an image of thinned handwriting created
+#' with [`thinImage()`] and splits the the handwriting into component shapes called *graphs*.
 #'
-#' @param img Thinned binary image.
+#' @param img Thinned binary image created with [`thinImage()`].
 #' @param dims Dimensions of thinned binary image.
-#' @return Returns a list of length 3. Object [[1]] (breakPoints) is the set of final letter separation points.
-#' Object [[2]] (pathList) is a list of the paths between the input specified nodes.
-#' Object [[3]] (letters) is a list of the pixels in the different letters in the handwriting sample.
+#' @return A list of the processed image
 #'
 #' @useDynLib handwriter, .registration = TRUE
 #'
@@ -56,6 +80,7 @@ processDocument <- function(path) {
 #' twoSent_processList <- processHandwriting(twoSent_document$thin, dim(twoSent_document$image))
 #'
 #' @export
+#' @md
 processHandwriting <- function(img, dims) {
   value <- from <- to <- nodeOnlyDist <- man_dist <- euc_dist <- pen_dist <- NULL
 
@@ -381,6 +406,7 @@ processHandwriting <- function(img, dims) {
 #' @param letters individual characters from letterList
 #' @param dims image graph dimensions
 #' @return a list of letters with features applied
+#' @noRd
 add_character_features <- function(img, letterList, letters, dims) {
   featureSets <- extract_character_features(img, letterList, dims)
 
@@ -406,6 +432,7 @@ add_character_features <- function(img, letterList, letters, dims) {
 #' @param graph first skeletonized graph
 #' @param graph0 second skeletonized graph
 #' @return a list of all non loop paths
+#' @noRd
 AllUniquePaths <- function(adj, graph, graph0) {
   # Gets all paths that are not loops
   # paths = apply(adj, 1, LooplessPaths, graph = graph, graph0 = graph0)
@@ -448,6 +475,7 @@ AllUniquePaths <- function(adj, graph, graph0) {
 #' @param dims graph dimensions
 #'
 #' @return a graph without breakpoints and separated letters
+#' @noRd
 checkBreakPoints <- function(candidateNodes, allPaths, nodeGraph, terminalNodes, dims) {
   # Check rules for candidate breakpoints
   breakFlag <- rep(TRUE, length(candidateNodes))
@@ -487,6 +515,7 @@ checkBreakPoints <- function(candidateNodes, allPaths, nodeGraph, terminalNodes,
 #' @param hasTrough whether or not break has a trough
 #' @param dims graph dimensions
 #' @return removes breakpoints on simple graphs
+#' @noRd
 checkSimplicityBreaks <- function(candidateBreaks, pathList, loopList, letters, nodeGraph0, nodeList, terminalNodes, hasTrough, dims) {
   tooSimpleFlag <- rep(FALSE, length(candidateBreaks))
   for (i in 1:length(pathList))
@@ -532,6 +561,7 @@ checkSimplicityBreaks <- function(candidateBreaks, pathList, loopList, letters, 
 #' @param nodeGraph0 skeletonized graph
 #' @param dims graph dimensions
 #' @return stackPtFlag
+#' @noRd
 checkStacking <- function(candidateBreaks, allPaths, letters, nodeGraph0, dims) {
   stackPtFlag <- rep(FALSE, length(candidateBreaks))
 
@@ -683,6 +713,7 @@ create_letter_lists <- function(allPaths, letters, nodeList, nodeConnections, te
 #' @param coords \(row, column\) coordinates of a single point to consider
 #' @param img The non-thinned image as binary bit map. Double-check: processHandwriting might call countChanges on thinned image
 #' @return The number of edges connected to coords
+#' @noRd
 countChanges <- function(coords, img) {
   rr <- coords[1]
   cc <- coords[2]
@@ -730,6 +761,7 @@ countChanges <- function(coords, img) {
 #' @param letterList list containing letter characters
 #' @param nodes list of nodes
 #' @return number of nodes in letterList
+#' @noRd
 countNodes <- function(letterList, nodes) {
   unlist(lapply(letterList, function(x) {
     sum(x %in% nodes)
@@ -743,6 +775,7 @@ countNodes <- function(letterList, nodes) {
 #' @param skel_graph the skeltonized graph
 #' @param mergeMat sets of the nodes to merge into a single nodes
 #' @return The merged node
+#' @noRd
 findMergeNodes <- function(skel_graph, mergeMat) {
   newNodes <- rep(NA, dim(mergeMat)[1])
   for (i in 1:dim(mergeMat)[1])
@@ -769,6 +802,7 @@ findMergeNodes <- function(skel_graph, mergeMat) {
 #' @return A list of all loops found
 #'
 #' @importFrom utils combn
+#' @noRd
 getLoops <- function(nodeList, graph, graph0, pathList, dims) {
   vertexNames <- names(V(graph0))
 
@@ -906,8 +940,7 @@ getLoops <- function(nodeList, graph, graph0, pathList, dims) {
 #' the thinned image created by thinImage
 #' @param dims dimensions of the image
 #' @return Returns image matrix. 1 is blank, 0 is a node.
-#'
-#' @keywords vertex Zhang
+#' @noRd
 getNodes <- function(indices, dims) {
   ## First, we find endpoints and intersections of skeleton.
   
@@ -970,6 +1003,7 @@ getNodes <- function(indices, dims) {
 #' @param allPaths list of paths
 #' @param nodeList list of nodes
 #' @return a graph of nodes
+#' @noRd
 getNodeGraph <- function(allPaths, nodeList) {
   nodeGraph <- make_empty_graph(directed = FALSE)
   nodeGraph <- add_vertices(nodeGraph, length(nodeList), name = format(nodeList, scientific = FALSE, trim = TRUE))
@@ -989,6 +1023,7 @@ getNodeGraph <- function(allPaths, nodeList) {
 #' @param nodeConnectivity how nodes are connected to each other
 #' @param dims graph dimensions
 #' @return order of the nodes
+#' @noRd
 getNodeOrder <- function(letter, nodesInGraph, nodeConnectivity, dims) {
   toRC <- function(nodes, dims) {
     cs <- (nodes - 1) %/% dims[1] + 1
@@ -1050,6 +1085,7 @@ getNodeOrder <- function(letter, nodesInGraph, nodeConnectivity, dims) {
 #' @param nodeGraph0 graph of all nodes
 #' @param breakPoints breakpoint list
 #' @return assigned letters to nodes in graph
+#' @noRd
 letterPaths <- function(allPaths, nodeGraph0, breakPoints) {
   oldVerts <- V(nodeGraph0)$name
   if (any(as.character(format(breakPoints, scientific = FALSE, trim = TRUE)) %in% names(V(nodeGraph0)))) {
@@ -1101,7 +1137,7 @@ organize_letters <- function(skel_graph0) {
 #' @param allPaths list of paths
 #' @param letter individual character
 #' @return associated path to each letter
-#'
+#' @noRd
 pathLetterAssociate <- function(allPaths, letter) {
   associatedPaths <- list()
   for (i in 1:length(allPaths)) {
@@ -1119,6 +1155,7 @@ pathLetterAssociate <- function(allPaths, letter) {
 #' @param coords coordinates to consider
 #' @param img The image as a bitmap
 #' @return Return a matrix of which neighbors are a black pixel
+#' @noRd
 whichNeighbors <- function(coords, img) {
   rr <- coords[1]
   cc <- coords[2]
@@ -1141,6 +1178,7 @@ whichNeighbors <- function(coords, img) {
 #' @param img The image as a bitmap
 #' @return Return a list of which neighbors are a black pixel excluding diagonals to the
 #' middle point when a non-diagonal between those two vertices exists.
+#' @noRd
 whichNeighbors0 <- function(coords, img) {
   # get matrix of which neighboring pixels are black. 1=pixel is black, 0=pixel is white.
   res <- whichNeighbors(coords, img)

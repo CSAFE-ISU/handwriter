@@ -30,23 +30,6 @@ test_that("calculate accuracy works on a single chain", {
   expect_equal(accuracy, 0.86)
 })
 
-test_that("get top writer works on a single chain", {
-  expect_equal(get_top_writer(example_analysis_1chain, "w0009_s03_pWOZ_r01.png"), "known_writer_9")
-  expect_equal(get_top_writer(example_analysis_1chain, "w0030_s03_pWOZ_r01.png"), "known_writer_30")
-  expect_equal(get_top_writer(example_analysis_1chain, "w0238_s03_pWOZ_r01.png"), "known_writer_238")
-  expect_equal(get_top_writer(example_analysis_1chain, "w0400_s03_pWOZ_r01.png"), "known_writer_400")
-  # method misidentifies top writer for w0203_s03_pWOZ_r01.png
-  expect_equal(get_top_writer(example_analysis_1chain, "w0203_s03_pWOZ_r01.png"), "known_writer_238")
-})
-
-test_that("count csafe top writer works on a single chain", {
-  results <- count_csafe_correct_top_writer(example_analysis_1chain)
-  
-  expect_named(results, c("correct", "total"))
-  expect_equal(results$correct, 4)
-  expect_equal(results$total, 5)
-})
-
 
 # Multiple Chains ---------------------------------------------------------
 # test_that("analyze questioned documents works with multiple chains", {
@@ -78,21 +61,4 @@ test_that("calculate accuracy works on mulitple chains", {
   accuracy <- calculate_accuracy(example_analysis_2chains)
   
   expect_equal(accuracy, 0.8605)
-})
-
-test_that("get top writer works on multiple chains", {
-  expect_equal(get_top_writer(example_analysis_2chains, "w0009_s03_pWOZ_r01.png"), "known_writer_9")
-  expect_equal(get_top_writer(example_analysis_2chains, "w0030_s03_pWOZ_r01.png"), "known_writer_30")
-  expect_equal(get_top_writer(example_analysis_2chains, "w0238_s03_pWOZ_r01.png"), "known_writer_238")
-  expect_equal(get_top_writer(example_analysis_2chains, "w0400_s03_pWOZ_r01.png"), "known_writer_400")
-  # method misidentifies top writer for w0203_s03_pWOZ_r01.png
-  expect_equal(get_top_writer(example_analysis_2chains, "w0203_s03_pWOZ_r01.png"), "known_writer_238")
-})
-
-test_that("count csafe top writer works on multiple chains", {
-  results <- count_csafe_correct_top_writer(example_analysis_2chains)
-  
-  expect_named(results, c("correct", "total"))
-  expect_equal(results$correct, 4)
-  expect_equal(results$total, 5)
 })

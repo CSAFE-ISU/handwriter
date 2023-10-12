@@ -1,3 +1,23 @@
+# The handwriter R package performs writership analysis of handwritten documents. 
+# Copyright (C) 2021 Iowa State University of Science and Technology on behalf of its Center for Statistics and Applications in Forensic Evidence
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+
+# Internal Functions ------------------------------------------------------
+
+
 #' extract_character_features
 #'
 #' Primary driver of feature extraction. Parses all characters from a processed image.
@@ -7,7 +27,7 @@
 #' @param dims Dimensions of binary image
 #' @return nested lists associating features to respective characters.
 #' 
-#' @keywords centroid skew slant lean character
+#' @noRd
 extract_character_features = function(img, character_lists,dims){
   
   character_features = list()
@@ -35,7 +55,7 @@ extract_character_features = function(img, character_lists,dims){
 #' @param uniqueid Unique numerical reference to character
 #' @return List containing features of character
 #' 
-#' @keywords character features
+#' @noRd
 char_to_feature = function(character, dims, uniqueid){
   aspect_info = get_aspect_info(character$path,dims)
   centroid_info = get_centroid_info(character$path,dims)
@@ -56,6 +76,8 @@ char_to_feature = function(character, dims, uniqueid){
 #' @param nodeSize size of node; default set to 3
 #' @param nodeColor color of node; default set to red
 #' @return a line in between the two nodes
+#' 
+#' @noRd
 plotNodesLine = function(doc, nodeSize = 3, nodeColor = "red")
 {
   X <- Y <- NULL
@@ -95,7 +117,7 @@ plotNodesLine1 = function(doc, nodeSize = 3, nodeColor = "red")
 #' @param dims Dimensions of binary image
 #' @return List containing aspect_ratio, 
 #' 
-#' @keywords aspect ratio character
+#' @noRd
 get_aspect_info = function(character, dims)
 {
   rowcol = i_to_rci(character,dims)
@@ -124,7 +146,7 @@ get_aspect_info = function(character, dims)
 #' @param dims Dimensions of binary image
 #' @return List containing centroid, pixel density,letter 'lean', and all supporting information
 #' 
-#' @keywords centroid skew slant lean character
+#' @noRd
 get_centroid_info = function(character, dims)
 {
   rowcol = i_to_rci(character,dims)
@@ -173,7 +195,7 @@ get_centroid_info = function(character, dims)
 #' @param dims Dimensions of binary image
 #' @return nested lists associating features to respective characters.
 #' 
-#' @keywords centroid skew slant lean character
+#' @noRd
 add_covariance_matrix = function(character_lists, character_features, dims){
   for(i in 1:length(character_lists)){
     matrix = i_to_rc(character_lists[[i]]$path, dims)
@@ -202,7 +224,7 @@ add_covariance_matrix = function(character_lists, character_features, dims){
 #' @param dims Dimensions of binary image
 #' @return Appends line information to character features
 #' 
-#' @keywords character features line number
+#' @noRd
 add_line_info = function(character_features,dims){
   line_info = line_number_extract(all_down_dists(character_features), all_centroids(character_features), dims)
   line_order = lapply(line_info, sort)
@@ -265,7 +287,7 @@ add_updown_neighboring_char_dist = function(character_features, character_lists,
 #' @param dims Dimensions of binary image
 #' @return Loop information to respective character
 #' 
-#' @keywords character loop associate
+#' @noRd
 get_loop_info = function(character,dims){
   
   #loops = loop_extract(character$allPaths)
@@ -323,9 +345,10 @@ character_features_by_line = function(character_features){
 #' Picks out loops for later character association.
 #' 
 #' @param allPaths All character (formerly letter) paths from processHandwriting()
-#' @keywords character loops line
 #' 
 #' @return List of all loops 
+#' 
+#' @noRd
 loop_extract = function(allPaths){
   loops = list()
   for(i in 1:length(allPaths)){
@@ -347,7 +370,7 @@ loop_extract = function(allPaths){
 #' @param character_features Features extracted from any given document
 #' @return All centroids concatenated with one another (unlisted)
 #' 
-#' @keywords character loops line
+#' @noRd
 all_centroids = function(character_features){
   centroids = list()
   for(i in 1:length(character_features)){
@@ -364,7 +387,7 @@ all_centroids = function(character_features){
 #' @param character_features Features extracted from any given document
 #' @return All downdistance concatenated with one another (unlisted)
 #' 
-#' @keywords character neighbor line
+#' @noRd
 all_down_dists = function(character_features){
   down_dists = list()
   for(i in 1:length(character_features)){
@@ -382,10 +405,10 @@ all_down_dists = function(character_features){
 #' @param dims Dimensions of binary image
 #' @return List associating line numbers to characters
 #' 
-#' @keywords character features line number
-#' 
 #' @importFrom stats median
 #' @importFrom utils head
+#' 
+#' @noRd
 line_number_extract = function(down_dists, all_centroids, dims){
   centroid_rci = matrix(i_to_rci(all_centroids,dims), ncol = 3)
   #sorting list based on y
@@ -434,85 +457,3 @@ line_number_extract = function(down_dists, all_centroids, dims){
   }
   return(lines)
 }
-
-#####################################################################
-###---### CURRENTLY UNUSED FUNCTIONS -- FUTURE USE UNKNOWN ####---###
-#####################################################################
-# 
-# loop_info = function(loop_list, dims){
-#   major = loop_major(loop_list, dims)
-#   slope = find_i_slope(major$major_p1,major$major_p2,dims)
-#   print(slope)
-#   minor = loop_minor(loop_list,slope,dims)
-#   return(list(major = major,minor = minor))
-# }
-# loop_major = function(loop_list,dims){
-#   rowcol = i_to_rci(loop_list,dims)
-#   rows_y = rowcol[,'y'] 
-#   cols_x = rowcol[,'x']
-#   major_dist = -Inf
-#   y1 = rowcol[[1]]
-#   x1 = rowcol[[1]]
-#   furthest_index = NULL
-#   for(i in 1:length(loop_list)){
-#     cur_dist = sqrt((cols_x[[i]]-x1)^2+(rows_y[[i]]-y1)^2)
-#     if(cur_dist > major_dist ){
-#       major_dist = cur_dist
-#       furthest_index = loop_list[[i]]
-#     }
-#   }
-#   return(list(major_p1 = loop_list[[1]], major_p2 = furthest_index, major_dist = major_dist))
-# }
-# vector_to_mid = function(targ)
-# 
-# loop_minor = function(loop_list, slope, dims){
-#     i1 = NULL
-#     i2 = NULL
-#     neg_recip = -1/(slope)
-#     cat("neg recip: ",neg_recip,"\n")
-#     min_dif = Inf
-#     for(i in 1:length(loop_list)/2){
-#       for(j in length(loop_list)/2:1){
-#         if(i == j) next 
-#         else {
-#           new_slope = find_i_slope(loop_list[[i]],loop_list[[j]],dims)
-#           slope_dif = abs(new_slope-neg_recip)
-#           if(!is.nan(new_slope) & new_slope< -.8 & new_slope > -1){
-#           }
-#         }
-#         if(!is.nan(slope_dif) & slope_dif < min_dif){
-#           cat(loop_list[[i]],loop_list[[j]],"new slope: ",new_slope, "\n")
-#           i1 = loop_list[[i]]
-#           i2 = loop_list[[j]]
-#           min_dif = slope_dif
-#         }
-#       }
-#     }
-#     return(list(minor_p1 = i1, minor_p2 = i2))
-#   }
-# 
-# find_i_slope = function(starti, endi, dims, dbug = FALSE)
-# {
-#   rci = i_to_rci(c(starti,endi),dims)
-#   #print(rci)
-#   #standard for actual coordinate eq's
-#   rows_y = dims[[1]] - rci[,'y'] + 1
-#   cols_x = rci[,'x']
-#   x1 = cols_x[[1]]
-#   y1 = rows_y[[1]]
-#   x2 = cols_x[[2]]
-#   y2 = rows_y[[2]]
-#   if(dbug){
-#     cat("x1: ",x1[[1]]," y1: ", y1[[1]] ,"\n")
-#     cat("x2: ",x2[[1]]," y2: ", y2[[1]], "\n")
-#   }
-#   slope = (y2-y1)/(x2-x1)
-#   return(slope)
-# }
-# 
-# #driver for minor axis, rq'd feature by amy
-# perp_bisector = function(x1,x2,y1,y2,slope,dims,dbug = FALSE){
-#   midx = (x1+x2)/2
-#   midy = (y1+y2)/2
-#   neg_recip = -1/(slope)
-# }

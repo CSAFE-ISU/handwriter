@@ -1,9 +1,29 @@
+# The handwriter R package performs writership analysis of handwritten documents. 
+# Copyright (C) 2021 Iowa State University of Science and Technology on behalf of its Center for Statistics and Applications in Forensic Evidence
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+
+# EXPORTED ----------------------------------------------------------------
+
+
 #' Plot Cluster Fill Counts
 #'
 #' Plot the cluster fill counts for each document in `formatted_data`.
 #'
-#' @param formatted_data Data created by [`format_template_data`],
-#'   [`fit_model`], or [`analyze_questioned_documents`]
+#' @param formatted_data Data created by [`format_template_data()`],
+#'   [`fit_model()`], or [`analyze_questioned_documents()`]
 #' @param facet `TRUE` uses `facet_wrap` to create a subplot for each writer.
 #'   `FALSE` plots the data on a single plot.
 #' @return ggplot plot of cluster fill counts
@@ -69,8 +89,8 @@ plot_cluster_fill_counts <- function(formatted_data, facet = FALSE) {
 #'
 #' Plot the cluster fill rates for each document in `formatted_data`.
 #'
-#' @param formatted_data Data created by [`format_template_data`],
-#'   [`fit_model`], or [`analyze_questioned_documents`]
+#' @param formatted_data Data created by [`format_template_data()`],
+#'   [`fit_model()`], or [`analyze_questioned_documents()`]
 #' @param facet `TRUE` uses `facet_wrap` to create a subplot for each writer.
 #'   `FALSE` plots the data on a single plot.
 #' @return ggplot plot of cluster fill rates
@@ -140,11 +160,11 @@ plot_cluster_fill_rates <- function(formatted_data, facet = FALSE) {
 #' Plot Trace
 #'
 #' Create a trace plot for all chains for a single variable of a fitted model
-#' created by [`fit_model`]. If the model contains more than one chain, the
+#' created by [`fit_model()`]. If the model contains more than one chain, the
 #' chains will be combined by pasting them together.
 #'
 #' @param variable The name of a variable in the model
-#' @param model A model created by [`fit_model`]
+#' @param model A model created by [`fit_model()`]
 #' @return A trace plot
 #'
 #' @examples
@@ -195,7 +215,7 @@ plot_trace <- function(variable, model) {
 #' Plot credible intervals for the model's pi parameters that estimate the true writer
 #' cluster fill counts.
 #'
-#' @param model A model created by [`fit_model`]
+#' @param model A model created by [`fit_model()`]
 #' @param interval_min The lower bound of the credible interval. It must be greater than zero and less than 1.
 #' @param interval_max The upper bound of the credible interval. It must be greater than the interval minimum and less than 1.
 #' @param facet `TRUE` uses `facet_wrap` to create a subplot for each writer.

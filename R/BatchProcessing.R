@@ -1,17 +1,50 @@
-#' process_batch_list
-#'
-#' @param image_list A list of image file paths
+# The handwriter R package performs writership analysis of handwritten documents. 
+# Copyright (C) 2021 Iowa State University of Science and Technology on behalf of its Center for Statistics and Applications in Forensic Evidence
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+
+# EXPORTED ----------------------------------------------------------------
+
+
+#' Process Batch List
+#' 
+#' Process a list of handwriting samples saved as PNG images: 
+#'     (1) Load the image and convert it to black and white with [`readPNGBinary()`]
+#'     (2) Thin the handwriting to one pixel in width with [`thinImage()`]
+#'     (3) Run [`processHandwriting()`] to split the handwriting into parts called *edges* and place *nodes* at the ends of 
+#'     edges. Then combine edges into component shapes called *graphs*.
+#'     (4) Save the processed document in an RDS file.
+#'     (5) Optional. Return a list of the processed documents.
+#' 
+#' @param images A vector of image file paths
 #' @param output_dir A directory to save the processed images
 #' @param return_result TRUE/FALSE whether to return the result. If TRUE, the
 #'   processed documents with be saved and a list of the processed documents
 #'   will be returned. If FALSE, the processed documents will be saved, but
 #'   nothing will be returned.
-#' @param transform_output The type of transformation to perform on the output
-#' @return A list of processed documents. The list is also saved to output_dir.
+#' @return A list of processed documents
 #'
-#' @keywords ?
+#' @examples
+#' \dontrun{
+#' images <- c('path/to/image1.png', 'path/to/image2.png', 'path/to/image3.png')
+#' process_batch_list(images, "path/to/output_dir", FALSE)
+#' docs <- process_batch_list(images, "path/to/output_dir", TRUE)
+#' }
+#'
 #' @export
-process_batch_list <- function(image_list, output_dir, return_result = TRUE, transform_output = "document") {
+process_batch_list <- function(images, output_dir, return_result = TRUE) {
   if (!dir.exists(output_dir)) {
     message("Creating output directory...")
     dir.create(output_dir, recursive = TRUE)
@@ -21,13 +54,13 @@ process_batch_list <- function(image_list, output_dir, return_result = TRUE, tra
   # Skip if a processed file with that name already exists in output_dir
   document_list <- list()
   counter <- 1
-  for (i in 1:length(image_list)) {
+  for (i in 1:length(images)) {
     # format path and file name for output
-    outfile <- file.path(output_dir, paste0(tools::file_path_sans_ext(basename(image_list[[i]])), "_proclist.rds"))
+    outfile <- file.path(output_dir, paste0(tools::file_path_sans_ext(basename(images[[i]])), "_proclist.rds"))
     # if output file doesn't already exist, process the input file
     if (!file.exists(outfile)) {
       message(sprintf("Processing document %d...", i))
-      doc <- read_and_process(image_list[[i]], transform_output)
+      doc <- processDocument(images[[i]])
       message(sprintf("Saving processed document %d...", i))
       saveRDS(doc, file = outfile)
       document_list[[counter]] <- doc
@@ -49,7 +82,15 @@ process_batch_list <- function(image_list, output_dir, return_result = TRUE, tra
   }
 }
 
-#' process_batch_dir
+#' Process Batch Directory
+#' 
+#' Process a list of handwriting samples saved as PNG images in a directory: 
+#'     (1) Load the image and convert it to black and white with [`readPNGBinary()`]
+#'     (2) Thin the handwriting to one pixel in width with [`thinImage()`]
+#'     (3) Run [`processHandwriting()`] to split the handwriting into parts called *edges* and place *nodes* at the ends of 
+#'     edges. Then combine edges into component shapes called *graphs*.
+#'     (4) Save the processed document in an RDS file.
+#'     (5) Optional. Return a list of the processed documents.
 #'
 #' @param input_dir Input directory that contains images
 #' @param output_dir A directory to save the processed images
@@ -57,31 +98,46 @@ process_batch_list <- function(image_list, output_dir, return_result = TRUE, tra
 #'   processed documents with be saved and a list of the processed documents
 #'   will be returned. If FALSE, the processed documents will be saved, but
 #'   nothing will be returned.
-#' @param transform_output The type of transformation to perform on the output
-#' @return A list of processed documents. The list is also saved to output_dir.
+#' 
+#' @return A list of processed documents
+#' 
+#' @examples
+#' \dontrun{
+#' process_batch_list("path/to/input_dir", "path/to/output_dir", FALSE)
+#' docs <- process_batch_list("path/to/input_dir", "path/to/output_dir", TRUE)
+#' }
 #'
-#' @keywords ?
 #' @export
-process_batch_dir <- function(input_dir, output_dir = ".", return_result = TRUE, transform_output = "document") {
+process_batch_dir <- function(input_dir, output_dir = ".", return_result = TRUE) {
   message("Listing documents to be processed...")
   file_list <- list.files(input_dir, full.names = TRUE)
 
-  document_list <- process_batch_list(image_list=file_list, 
+  document_list <- process_batch_list(images=file_list, 
                                       output_dir=output_dir, 
-                                      return_result = return_result, 
-                                      transform_output = transform_output)
+                                      return_result = return_result)
   return(document_list)
 }
 
 
-#' read_and_process
+#' Read and Process
+#' 
+#' @description
+#' `r lifecycle::badge("superseded")`
+#' 
+#' Development on `read_and_process()` is complete. We recommend using [`processDocument()`].
+#' `read_and_process(image_name, "document")` is equivalent to `processDocument(image_name)`.
 #'
 #' @param image_name The file path to an image
 #' @param transform_output The type of transformation to perform on the output
 #' @return A list of the processed image components
-#'
-#' @keywords ?
+#' 
+#' @examples
+#' # use handwriting example from handwriter package
+#' image_path <- system.file("extdata", "phrase_example.png", package = "handwriter")
+#' doc <- read_and_process(image_path, "document")
+#' 
 #' @export
+#' @md
 read_and_process <- function(image_name, transform_output) {
   document <- list()
 

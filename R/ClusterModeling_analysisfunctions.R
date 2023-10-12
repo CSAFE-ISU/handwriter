@@ -1,14 +1,31 @@
+# The handwriter R package performs writership analysis of handwritten documents. 
+# Copyright (C) 2021 Iowa State University of Science and Technology on behalf of its Center for Statistics and Applications in Forensic Evidence
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+
 # EXPORTED ----------------------------------------------------------------
 
-#' analyze_questioned_documents
+#' Analyze Questioned Documents
 #'
 #' `analyze_questioned_documents()` estimates the posterior probability of
-#' writership for the questioned documents using MCMC draws from a hierarchical
-#' model created with `fit_model()`.
+#' writership for the questioned documents using Markov Chain Monte Carlo (MCMC) draws from a hierarchical
+#' model created with [`fit_model()`].
 #'
-#' @param template_dir A directory that contains a cluster template created by [`make_clustering_templates`]
+#' @param template_dir A directory that contains a cluster template created by [`make_clustering_templates()`]
 #' @param questioned_images_dir A directory containing questioned documents
-#' @param model A fitted model created by [`fit_model`]
+#' @param model A fitted model created by [`fit_model()`]
 #' @param num_cores An integer number of cores to use for parallel processing
 #'   with the `doParallel` package.
 #' @param num_graphs "All" or integer number of graphs to randomly select from each questioned document.
@@ -19,9 +36,9 @@
 #'
 #' @examples
 #' \dontrun{
-#' template_dir <- "/path/to/template"
+#' template_dir <- "/path/to/template_dir"
 #' questioned_images_dir <- "/path/to/questioned_images"
-#' analysis <- analyze_questioned_documents2(
+#' analysis <- analyze_questioned_documents(
 #'   template_dir = template_dir,
 #'   questioned_images_dir = questioned_images_dir,
 #'   model = model,
@@ -33,8 +50,6 @@
 #' analysis$posterior_probabilities
 #' }
 #'
-#' @keywords model
-#'
 #' @export
 #' @md
 analyze_questioned_documents <- function(template_dir, questioned_images_dir, model, num_cores, num_graphs = "All", writer_indices, doc_indices) {
@@ -45,8 +60,7 @@ analyze_questioned_documents <- function(template_dir, questioned_images_dir, mo
   message("Processing questioned documents...")
   questioned_proc_list <- process_batch_dir(
     input_dir = questioned_images_dir,
-    output_dir = file.path(template_dir, "data", "questioned_graphs"),
-    transform_output = "document"
+    output_dir = file.path(template_dir, "data", "questioned_graphs")
   )
 
   # load template
@@ -173,17 +187,40 @@ analyze_questioned_documents <- function(template_dir, questioned_images_dir, mo
 }
 
 
-#' calculate_accuracy
+#' Calculate Accuracy
 #'
-#' `calculate_accuracy` measures the accuracy of fitted model on a test set of
-#' documents by calculating the average posterior probability assigned to the
-#' true writer. Fit a model with [`fit_model`] and calculate posterior
-#' probabilities of writership with [`analyze_questioned_documents`].
+#' Fit a model with [`fit_model()`] and calculate posterior probabilities of
+#' writership with [`analyze_questioned_documents()`] of a set of test documents
+#' where the ground truth is known. Then use `calculate_accuracy()` to measure
+#' the accuracy of the fitted model on the test documents. Accuracy is calculated as
+#' the average posterior probability assigned to the true writer.
 #'
 #' @param analysis Writership analysis output by
 #'   [`analyze_questioned_documents`]
-#' @return The model's accuracy on the test set
+#' @return The model's accuracy on the test set as a number
+#' 
+#' @examples
+#' # calculate the accuracy for example analysis performed on test documents and a model with 1 chain
+#' calculate_accuracy(example_analysis_1chain)
+#' 
+#' # calculate the accuracy for example analysis performed on test documents and a model with 2 chains
+#' calculate_accuracy(example_analysis_2chains)
 #'
+#' \dontrun{
+#' template_dir <- "/path/to/template_dir"
+#' test_images_dir <- "/path/to/test_images"
+#' analysis <- analyze_questioned_documents(
+#'   template_dir = template_dir,
+#'   questioned_images_dir = test_images_dir,
+#'   model = model,
+#'   num_cores = 2,
+#'   num_graphs = "All",
+#'   writer_indices = c(2, 5),
+#'   doc_indices = c(7, 18)
+#' )
+#' calculate_accuracy(analysis)
+#' }
+#' 
 #' @export
 #' @md
 calculate_accuracy <- function(analysis) {
@@ -193,17 +230,17 @@ calculate_accuracy <- function(analysis) {
 }
 
 
-#' get_posterior_probabilities
+#' Get Posterior Probabilities
 #'
-#' Get the posterior probabilities for a questioned document.
+#' Get the posterior probabilities for questioned document analyzed with [`analyze_questioned_documents()`].
 #'
-#' @param analysis The output of [`analyze_questioned_documents`]. If more than
+#' @param analysis The output of [`analyze_questioned_documents()`]. If more than
 #'   one questioned document was analyzed with this function, then the data frame
 #'   analysis$posterior_probabilities lists the posterior probabilities for all
-#'   questioned documents. `get_posterior_probabilities` creates a data frame of the
+#'   questioned documents. [`get_posterior_probabilities()`] creates a data frame of the
 #'   posterior probabilities for a single questioned document and sorts the known writers
 #'   from the most likely to least likely to have written the questioned document.
-#' @param questioned_doc The name of a questioned document
+#' @param questioned_doc The filename of the questioned document
 #'
 #' @return A data frame of posterior probabilities for the questioned document
 #' @export
@@ -222,83 +259,4 @@ calculate_accuracy <- function(analysis) {
 get_posterior_probabilities <- function(analysis, questioned_doc) {
   pp <- analysis$posterior_probabilities[, c("known_writer", questioned_doc)]
   pp[order(pp[, 2], decreasing = TRUE), ]
-}
-
-#' count_csafe_correct_top_writer
-#'
-#' If a model was created with [`fit_model`] on a closed-set of CSAFE writers
-#' and test documents from those writers are analyzed with
-#' [`analyze_questioned_documents`], `count_csafe_correct_top_writer` will count
-#' the number of test documents for which the highest posterior probability is
-#' correctly assigned to the true writer.
-#'
-#' @param analysis The output of [`analyze_questioned_documents`]. If more than
-#'   one questioned document was analyzed with this function, then the data
-#'   frame analysis$posterior_probabilities lists the posterior probabilities
-#'   for all questioned documents. `show_posterior_probabilities` creates a data
-#'   frame of the posterior probabilities for a single questioned document and
-#'   sorts the known writers from the most likely to least likely to have written
-#'   the questioned document.
-#'
-#' @return A list of the number of correct top writers and the total number of
-#'   questioned documents
-#'
-#' @export
-#'
-#' @examples
-#' count_csafe_correct_top_writer(analysis = example_analysis_1chain)
-#' count_csafe_correct_top_writer(analysis = example_analysis_2chains)
-#'
-#' @md
-count_csafe_correct_top_writer <- function(analysis) {
-  qdocs <- colnames(analysis$posterior_probabilities)[-1]
-
-  # get writer with highest posterior probability for each questioned document
-  top_writer <- sapply(qdocs, function(x) get_top_writer(analysis, x))
-  df <- as.data.frame(top_writer)
-
-  # change rownames to a column
-  questioned_doc <- rownames(df)
-  rownames(df) <- NULL
-  df <- cbind(questioned_doc, df)
-
-  # extract writer IDs
-  df <- df %>%
-    dplyr::mutate(
-      questioned_writer = as.integer(gsub("w([0-9]+).*$", "\\1", questioned_doc)),
-      top_writer = as.integer(gsub(".*_([0-9]+)$", "\\1", top_writer))
-    )
-
-  # count correct
-  correct <- sum(df$top_writer == df$questioned_writer)
-
-  # count total questioned documents
-  total <- nrow(df)
-
-  list("correct" = correct, "total" = total)
-}
-
-
-# NOT EXPORTED ------------------------------------------------------------
-
-
-#' get_top_writer
-#'
-#' Get the name of the known writer with the highest posterior probability for
-#' a questioned document.
-#'
-#' @param analysis The output of [`analyze_questioned_documents`]. If more than
-#'   one questioned document was analyzed with this function, then the data frame
-#'   analysis$posterior_probabilities lists the posterior probabilities for all
-#'   questioned documents. `show_posterior_probabilities` creates a data frame of the
-#'   posterior probabilities for a single questioned document and sorts the known writers
-#'   from the most likely to least likely to have written the questioned document.
-#' @param questioned_doc The name of a questioned document
-#'
-#' @return A string
-#'
-#' @noRd
-get_top_writer <- function(analysis, questioned_doc) {
-  pp <- get_posterior_probabilities(analysis = analysis, questioned_doc = questioned_doc)
-  pp[1, 1]
 }

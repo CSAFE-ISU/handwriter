@@ -2,24 +2,21 @@
 % Please edit documentation in R/ClusterModeling_datafunctions.R
 \name{format_template_data}
 \alias{format_template_data}
-\title{format_template_data}
+\title{Format Template Data}
 \usage{
 format_template_data(template)
 }
 \arguments{
 \item{template}{A single cluster template created by
-\code{make_clustering_templates()}}
+\code{\link[=make_clustering_templates]{make_clustering_templates()}}}
 }
 \value{
 List that contains the cluster fill counts
 }
 \description{
 \code{format_template_data()} formats the template data for use with
-\code{plot_cluster_fill_counts()}. The output is a list that contains a data frame
-called \code{cluster_fill_counts}. This structure mimics the structure of the
-output of  \code{format_questioned_data()} which has an additional data
-frame called \code{graph_measurements}. Graph measurements are not needed for the
-template training data.
+\code{\link[=plot_cluster_fill_counts]{plot_cluster_fill_counts()}}. The output is a list that contains a data frame
+called \code{cluster_fill_counts}.
 }
 \examples{
 template_data <- format_template_data(template = example_cluster_template)

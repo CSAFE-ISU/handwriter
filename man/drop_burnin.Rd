@@ -2,7 +2,7 @@
 % Please edit documentation in R/ClusterModeling_modelfunctions.R
 \name{drop_burnin}
 \alias{drop_burnin}
-\title{drop_burnin}
+\title{Drop Burn-In}
 \usage{
 drop_burnin(model, burn_in)
 }
@@ -15,7 +15,7 @@ drop_burnin(model, burn_in)
 A list of data frames of MCMC draws with burn-in dropped.
 }
 \description{
-\code{drop_burnin()} removes the burn-in from the MCMC draws.
+\code{drop_burnin()} removes the burn-in from the Markov Chain Monte Carlo (MCMC) draws.
 }
 \examples{
 model <- drop_burnin(model = example_model_1chain, burn_in = 25)
@@ -25,4 +25,3 @@ model <- drop_burnin(model = example_model_2chains, burn_in = 25)
 plot_trace(variable = "mu[1,2]", model = example_model_2chains)
 
 }
-\keyword{model}

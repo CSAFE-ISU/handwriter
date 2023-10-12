@@ -1,4 +1,4 @@
-# handwriter 2.0.0
+# handwriter 2.0.1
 
 ## New features
 
@@ -13,3 +13,7 @@
 * `plotImage()`, `plotImageThinned()`, and `plotNodes` now only need one input, a document processed with `processDocument()`
 
 * `processHandwriting()` no longer crashes when the input writing is a single letter or word
+
+* `read_and_process()` superseded in favor of `processDocument()`
+
+* `extractGraphs()` superseded in favor of `process_batch_dir()`

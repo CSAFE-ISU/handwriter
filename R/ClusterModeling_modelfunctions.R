@@ -1,13 +1,31 @@
+# The handwriter R package performs writership analysis of handwritten documents. 
+# Copyright (C) 2021 Iowa State University of Science and Technology on behalf of its Center for Statistics and Applications in Forensic Evidence
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+
 # EXPORTED ----------------------------------------------------------------
 
 
-#' fit_model
+#' Fit Model
 #'
-#' `fit_model()` fits a Bayesian hierarchical model to `model_training_data` and
-#' draws samples from the model with MCMC.
+#' `fit_model()` fits a Bayesian hierarchical model to the model training data
+#' in `model_images_dir` and draws samples from the model as Markov Chain Monte
+#' Carlo (MCMC) estimates.
 #'
 #' @param template_dir A directory that contains a cluster template created by
-#'   [`make_clustering_templates`]
+#'   [`make_clustering_templates()`]
 #' @param model_images_dir A directory containing model training documents
 #' @param num_iters An integer number of iterations of MCMC.
 #' @param num_chains An integer number of chains to use.
@@ -65,8 +83,6 @@
 #' analysis$posterior_probabilities
 #' }
 #'
-#' @keywords model
-#'
 #' @export
 #' @md
 fit_model <- function(template_dir,
@@ -86,8 +102,7 @@ fit_model <- function(template_dir,
   process_batch_dir(
     input_dir = model_images_dir,
     output_dir = file.path(template_dir, "data", "model_graphs"),
-    return_result = FALSE,
-    transform_output = "document"
+    return_result = FALSE
   )
 
   # get cluster assignments
@@ -179,9 +194,9 @@ fit_model <- function(template_dir,
 }
 
 
-#' drop_burnin
+#' Drop Burn-In
 #'
-#' `drop_burnin()` removes the burn-in from the MCMC draws.
+#' `drop_burnin()` removes the burn-in from the Markov Chain Monte Carlo (MCMC) draws.
 #'
 #' @param model A list of MCMC draws from a model fit with [`fit_model()`].
 #' @param burn_in An integer number of starting iterations to drop from each MCMC chain.
@@ -194,8 +209,6 @@ fit_model <- function(template_dir,
 #' model <- drop_burnin(model = example_model_2chains, burn_in = 25)
 #' plot_trace(variable = "mu[1,2]", model = example_model_2chains)
 #'
-#' @keywords model
-#'
 #' @export
 #' @md
 drop_burnin <- function(model, burn_in) {
@@ -207,12 +220,12 @@ drop_burnin <- function(model, burn_in) {
 }
 
 
-#' about_variable
+#' About Varialbe
 #'
 #' `about_variable()` returns information about the model variable.
 #'
-#' @param variable A variable in the fitted model output by [`fit_model`]
-#' @param model A fitted model created by [`fit_model`]
+#' @param variable A variable in the fitted model output by [`fit_model()`]
+#' @param model A fitted model created by [`fit_model()`]
 #' @return Text that explains the variable
 #'
 #' @examples
@@ -224,8 +237,6 @@ drop_burnin <- function(model, burn_in) {
 #'   variable = "gamma[5]",
 #'   model = example_model_2chains
 #' )
-#'
-#' @keywords model
 #'
 #' @export
 #' @md
@@ -274,14 +285,14 @@ about_variable <- function(variable, model) {
   return(about)
 }
 
-#' get_credible_intervals
+#' Get Credible Intervals
 #'
-#' In a model created with [`fit_model`] the pi parameters are the estimate of
+#' In a model created with [`fit_model()`] the pi parameters are the estimate of
 #' the true cluster fill count for a particular writer and cluster. The function
-#' `get_credible_intervals` calculates the credible intervals of the pi
+#' `get_credible_intervals()` calculates the credible intervals of the pi
 #' parameters for each writer in the model.
 #'
-#' @param model A model output by [`fit_model`]
+#' @param model A model output by [`fit_model()`]
 #' @param interval_min The lower bound for the credible interval. The number
 #'   must be between 0 and 1.
 #' @param interval_max The upper bound for the credible interval. The number
@@ -292,8 +303,6 @@ about_variable <- function(variable, model) {
 #' get_credible_intervals(model=example_model_1chain)
 #' get_credible_intervals(model=example_model_1chain, interval_min=0.05, interval_max=0.95)
 #'
-#' @keywords model
-#'
 #' @export
 #' @md
 get_credible_intervals <- function(model, interval_min=0.025, interval_max=0.975){
@@ -303,8 +312,8 @@ get_credible_intervals <- function(model, interval_min=0.025, interval_max=0.975
   return(ci)
 }
 
+# Internal Functions ------------------------------------------------------
 
-# NOT EXPORTED ------------------------------------------------------------
 
 #' format_draws
 #'
@@ -422,4 +431,3 @@ get_credible_intervals_for_writer <- function(writer, writer_pis, interval_min=0
   rownames(df) <- NULL
   return(df)
 }
-

@@ -7,8 +7,8 @@
 plot_cluster_fill_rates(formatted_data, facet = FALSE)
 }
 \arguments{
-\item{formatted_data}{Data created by \code{\link{format_template_data}},
-\code{\link{fit_model}}, or \code{\link{analyze_questioned_documents}}}
+\item{formatted_data}{Data created by \code{\link[=format_template_data]{format_template_data()}},
+\code{\link[=fit_model]{fit_model()}}, or \code{\link[=analyze_questioned_documents]{analyze_questioned_documents()}}}
 
 \item{facet}{\code{TRUE} uses \code{facet_wrap} to create a subplot for each writer.
 \code{FALSE} plots the data on a single plot.}

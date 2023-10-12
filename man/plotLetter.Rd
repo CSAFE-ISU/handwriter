@@ -2,7 +2,7 @@
 % Please edit documentation in R/PlotFunctions.R
 \name{plotLetter}
 \alias{plotLetter}
-\title{plotLetter}
+\title{Plot Letter}
 \usage{
 plotLetter(
   doc,
@@ -14,11 +14,13 @@ plotLetter(
 )
 }
 \arguments{
-\item{doc}{A document processed with [handwriter::processDocument()]}
+\item{doc}{A document processed with \code{\link[=processHandwriting]{processHandwriting()}} or \code{\link[=processDocument]{processDocument()}}}
 
-\item{whichLetter}{Single value in 1:length(letterList) denoting which letter to plot.}
+\item{whichLetter}{Single value in 1:length(letterList) denoting which letter
+to plot.}
 
-\item{showPaths}{Whether the calculated paths on the letter should be shown with numbers.}
+\item{showPaths}{Whether the calculated paths on the letter should be shown
+with numbers.}
 
 \item{showCentroid}{Whether the centroid should be shown}
 
@@ -30,9 +32,10 @@ plotLetter(
 Plot of single letter.
 }
 \description{
-This function returns a plot of a single letter extracted from a document. 
-It uses the letterList parameter from the processHandwriting function and accepts a single value as whichLetter. 
-Dims requires the dimensions of the entire document, since this isn't contained in processHandwriting.
+This function returns a plot of a single graph extracted from a document. It
+uses the letterList parameter from the \code{\link[=processHandwriting]{processHandwriting()}} or \code{\link[=processDocument]{processDocument()}} function and
+accepts a single value as \code{whichLetter}. Dims requires the dimensions of the
+entire document, since this isn't contained in \code{\link[=processHandwriting]{processHandwriting()}} or \code{\link[=processDocument]{processDocument()}}.
 }
 \examples{
 twoSent_document = list()

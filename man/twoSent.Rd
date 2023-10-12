@@ -14,6 +14,10 @@ twoSent
 Two sentence printed example handwriting
 }
 \examples{
+twoSent_document <- list()
+twoSent_document$image <- twoSent
+plotImage(twoSent_document)
+
 \dontrun{
 twoSent_document <- list()
 twoSent_document$image <- twoSent

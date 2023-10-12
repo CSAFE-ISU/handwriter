@@ -5,7 +5,7 @@
 \alias{example_analysis_1chain}
 \title{Example of writership analysis}
 \format{
-The results of \code{\link{analyze_questioned_documents}} stored in a named list with 5 items:
+The results of \code{\link[=analyze_questioned_documents]{analyze_questioned_documents()}} stored in a named list with 5 items:
 \describe{
 \item{graph_measurements}{A data frame of that shows the writer, document name, cluster assignment,
 slope, principle component rotation angle, and wrapped principle component rotation angle for each training graph in each

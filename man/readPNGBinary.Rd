@@ -2,7 +2,7 @@
 % Please edit documentation in R/ThinText.R
 \name{readPNGBinary}
 \alias{readPNGBinary}
-\title{readPNGBinary}
+\title{Read PNG Binary}
 \usage{
 readPNGBinary(
   path,
@@ -27,15 +27,12 @@ readPNGBinary(
 Returns image from path. 0 represents black, and 1 represents white by default.
 }
 \description{
-This function reads in and binarizes PNG images from the specified file path.
+This function reads in and binarizes a PNG image.
 }
 \examples{
-\dontrun{
-csafe_document = list()
-csafe_document$image = readPNGBinary("examples/Writing_csafe_single.png")
-csafe_document$thin = thinImage(csafe_document$image)
-csafe_processList = processHandwriting(csafe_document$thin, dim(csafe_document$image))
-}
+image_path <- system.file("extdata", "phrase_example.png", package = "handwriter")
+csafe_document <- list()
+csafe_document$image = readPNGBinary(image_path)
+plotImage(csafe_document)
 
 }
-\keyword{binary}

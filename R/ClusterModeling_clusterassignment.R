@@ -1,3 +1,23 @@
+# The handwriter R package performs writership analysis of handwritten documents. 
+# Copyright (C) 2021 Iowa State University of Science and Technology on behalf of its Center for Statistics and Applications in Forensic Evidence
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+
+# Internal Functions ------------------------------------------------------
+
+
 makeassignment = function(imageListElement, templateCenterList, outliercut){
   dist = min(unlist(lapply(templateCenterList, function(x){getGraphDistance(imageList1 = imageListElement, imageList2 = x, isProto2 = TRUE)$matching_weight})))
   cluster = which.min(unlist(lapply(templateCenterList, function(x){getGraphDistance(imageList1 = imageListElement, imageList2 = x, isProto2 = TRUE)$matching_weight})))
@@ -17,10 +37,8 @@ makeassignment = function(imageListElement, templateCenterList, outliercut){
 #' @param num_cores Integer number of cores to use for parallel processing
 #'
 #' @return list of processed handwriting with cluster assignments for each graph
-#' 
-#' @export
 #'
-#' @md
+#' @noRd
 get_clusterassignment = function(template_dir, input_type, num_graphs = "All", writer_indices, doc_indices, num_cores){
   # bind global variables to fix check() note
   i <- outliercut <- docname <- NULL

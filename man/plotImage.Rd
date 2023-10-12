@@ -2,15 +2,15 @@
 % Please edit documentation in R/PlotFunctions.R
 \name{plotImage}
 \alias{plotImage}
-\title{plotImage}
+\title{Plot Image}
 \usage{
 plotImage(doc)
 }
 \arguments{
-\item{doc}{A document processed with [handwriter::processDocument()] or a binary matrix (all entries are 0 or 1)}
+\item{doc}{A document processed with \code{\link[=processDocument]{processDocument()}} or a binary matrix (all entries are 0 or 1)}
 }
 \value{
-Returns plot of doc$image.
+ggplot plot
 }
 \description{
 This function plots a basic black and white image.
@@ -21,9 +21,8 @@ csafe_document$image <- csafe
 plotImage(csafe_document)
 
 \dontrun{
-document = processDocument('path/to/image.png')
+document <- processDocument('path/to/image.png')
 plotImage(document)
 }
 
 }
-\keyword{plot}

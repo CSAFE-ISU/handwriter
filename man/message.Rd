@@ -14,6 +14,10 @@ message
 Full page image of the handwritten London letter.
 }
 \examples{
+message_document <- list()
+message_document$image <- message
+plotImage(message_document)
+
 \dontrun{
 message_document <- list()
 message_document$image <- message

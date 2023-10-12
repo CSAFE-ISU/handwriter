@@ -2,12 +2,12 @@
 % Please edit documentation in R/ClusterModeling_modelfunctions.R
 \name{get_credible_intervals}
 \alias{get_credible_intervals}
-\title{get_credible_intervals}
+\title{Get Credible Intervals}
 \usage{
 get_credible_intervals(model, interval_min = 0.025, interval_max = 0.975)
 }
 \arguments{
-\item{model}{A model output by \code{\link{fit_model}}}
+\item{model}{A model output by \code{\link[=fit_model]{fit_model()}}}
 
 \item{interval_min}{The lower bound for the credible interval. The number
 must be between 0 and 1.}
@@ -19,9 +19,9 @@ must be greater than \code{interval_min} and must be less than 1.}
 A list of data frames. Each data frame lists the credible intervals for a single writer.
 }
 \description{
-In a model created with \code{\link{fit_model}} the pi parameters are the estimate of
+In a model created with \code{\link[=fit_model]{fit_model()}} the pi parameters are the estimate of
 the true cluster fill count for a particular writer and cluster. The function
-\code{get_credible_intervals} calculates the credible intervals of the pi
+\code{get_credible_intervals()} calculates the credible intervals of the pi
 parameters for each writer in the model.
 }
 \examples{
@@ -29,4 +29,3 @@ get_credible_intervals(model=example_model_1chain)
 get_credible_intervals(model=example_model_1chain, interval_min=0.05, interval_max=0.95)
 
 }
-\keyword{model}

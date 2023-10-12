@@ -1,14 +1,31 @@
-#' format_template_data
+# The handwriter R package performs writership analysis of handwritten documents. 
+# Copyright (C) 2021 Iowa State University of Science and Technology on behalf of its Center for Statistics and Applications in Forensic Evidence
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+
+# EXPORTED ----------------------------------------------------------------
+
+
+#' Format Template Data
 #'
 #' `format_template_data()` formats the template data for use with
-#' `plot_cluster_fill_counts()`. The output is a list that contains a data frame
-#' called `cluster_fill_counts`. This structure mimics the structure of the
-#' output of  `format_questioned_data()` which has an additional data
-#' frame called `graph_measurements`. Graph measurements are not needed for the
-#' template training data.
+#' [`plot_cluster_fill_counts()`]. The output is a list that contains a data frame
+#' called `cluster_fill_counts`.
 #'
 #' @param template A single cluster template created by
-#'   `make_clustering_templates()`
+#'   [`make_clustering_templates()`]
 #' @return List that contains the cluster fill counts
 #'
 #' @examples
@@ -52,7 +69,10 @@ format_template_data <- function(template) {
 }
 
 
-#' format_model_data
+# Internal Functions ------------------------------------------------------
+
+
+#' Format Model Data
 #'
 #' `format_model_data()` formats the data need for the rjags model.
 #'
@@ -116,7 +136,7 @@ format_model_data <- function(model_clusters, writer_indices, doc_indices, a = 2
 }
 
 
-#' format_questioned_data
+#' Format Questioned Data
 #'
 #' `format_questioned_data()` formats the questioned data for analysis with the
 #' hierarchical model.

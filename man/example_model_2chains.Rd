@@ -5,7 +5,7 @@
 \alias{example_model_2chains}
 \title{Example of a hierarchical model}
 \format{
-A hierarchical model created by \code{\link{fit_model}} with two chains of 100 MCMC iterations. It is a named
+A hierarchical model created by \code{\link[=fit_model]{fit_model()}} with two chains of 100 MCMC iterations. It is a named
 list of 4 objects:
 \describe{
 \item{graph_measurements}{A data frame of model training data that shows the writer, document name, cluster assignment,
