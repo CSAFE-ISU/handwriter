@@ -2,7 +2,7 @@
 % Please edit documentation in R/ClusterModeling_analysisfunctions.R
 \name{analyze_questioned_documents}
 \alias{analyze_questioned_documents}
-\title{analyze_questioned_documents}
+\title{Analyze Questioned Documents}
 \usage{
 analyze_questioned_documents(
   template_dir,
@@ -15,11 +15,11 @@ analyze_questioned_documents(
 )
 }
 \arguments{
-\item{template_dir}{A directory that contains a cluster template created by \code{\link{make_clustering_templates}}}
+\item{template_dir}{A directory that contains a cluster template created by \code{\link[=make_clustering_templates]{make_clustering_templates()}}}
 
 \item{questioned_images_dir}{A directory containing questioned documents}
 
-\item{model}{A fitted model created by \code{\link{fit_model}}}
+\item{model}{A fitted model created by \code{\link[=fit_model]{fit_model()}}}
 
 \item{num_cores}{An integer number of cores to use for parallel processing
 with the \code{doParallel} package.}
@@ -36,14 +36,14 @@ writership for each questioned document.
 }
 \description{
 \code{analyze_questioned_documents()} estimates the posterior probability of
-writership for the questioned documents using MCMC draws from a hierarchical
-model created with \code{fit_model()}.
+writership for the questioned documents using Markov Chain Monte Carlo (MCMC) draws from a hierarchical
+model created with \code{\link[=fit_model]{fit_model()}}.
 }
 \examples{
 \dontrun{
-template_dir <- "/path/to/template"
+template_dir <- "/path/to/template_dir"
 questioned_images_dir <- "/path/to/questioned_images"
-analysis <- analyze_questioned_documents2(
+analysis <- analyze_questioned_documents(
   template_dir = template_dir,
   questioned_images_dir = questioned_images_dir,
   model = model,

@@ -2,7 +2,7 @@
 % Please edit documentation in R/ClusterModeling_analysisfunctions.R
 \name{calculate_accuracy}
 \alias{calculate_accuracy}
-\title{calculate_accuracy}
+\title{Calculate Accuracy}
 \usage{
 calculate_accuracy(analysis)
 }
@@ -11,11 +11,35 @@ calculate_accuracy(analysis)
 \code{\link{analyze_questioned_documents}}}
 }
 \value{
-The model's accuracy on the test set
+The model's accuracy on the test set as a number
 }
 \description{
-\code{calculate_accuracy} measures the accuracy of fitted model on a test set of
-documents by calculating the average posterior probability assigned to the
-true writer. Fit a model with \code{\link{fit_model}} and calculate posterior
-probabilities of writership with \code{\link{analyze_questioned_documents}}.
+Fit a model with \code{\link[=fit_model]{fit_model()}} and calculate posterior probabilities of
+writership with \code{\link[=analyze_questioned_documents]{analyze_questioned_documents()}} of a set of test documents
+where the ground truth is known. Then use \code{calculate_accuracy()} to measure
+the accuracy of the fitted model on the test documents. Accuracy is calculated as
+the average posterior probability assigned to the true writer.
+}
+\examples{
+# calculate the accuracy for example analysis performed on test documents and a model with 1 chain
+calculate_accuracy(example_analysis_1chain)
+
+# calculate the accuracy for example analysis performed on test documents and a model with 2 chains
+calculate_accuracy(example_analysis_2chains)
+
+\dontrun{
+template_dir <- "/path/to/template_dir"
+test_images_dir <- "/path/to/test_images"
+analysis <- analyze_questioned_documents(
+  template_dir = template_dir,
+  questioned_images_dir = test_images_dir,
+  model = model,
+  num_cores = 2,
+  num_graphs = "All",
+  writer_indices = c(2, 5),
+  doc_indices = c(7, 18)
+)
+calculate_accuracy(analysis)
+}
+
 }

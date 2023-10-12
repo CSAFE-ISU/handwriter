@@ -2,25 +2,25 @@
 % Please edit documentation in R/ClusterModeling_analysisfunctions.R
 \name{get_posterior_probabilities}
 \alias{get_posterior_probabilities}
-\title{get_posterior_probabilities}
+\title{Get Posterior Probabilities}
 \usage{
 get_posterior_probabilities(analysis, questioned_doc)
 }
 \arguments{
-\item{analysis}{The output of \code{\link{analyze_questioned_documents}}. If more than
+\item{analysis}{The output of \code{\link[=analyze_questioned_documents]{analyze_questioned_documents()}}. If more than
 one questioned document was analyzed with this function, then the data frame
 analysis$posterior_probabilities lists the posterior probabilities for all
-questioned documents. \code{get_posterior_probabilities} creates a data frame of the
+questioned documents. \code{\link[=get_posterior_probabilities]{get_posterior_probabilities()}} creates a data frame of the
 posterior probabilities for a single questioned document and sorts the known writers
 from the most likely to least likely to have written the questioned document.}
 
-\item{questioned_doc}{The name of a questioned document}
+\item{questioned_doc}{The filename of the questioned document}
 }
 \value{
 A data frame of posterior probabilities for the questioned document
 }
 \description{
-Get the posterior probabilities for a questioned document.
+Get the posterior probabilities for questioned document analyzed with \code{\link[=analyze_questioned_documents]{analyze_questioned_documents()}}.
 }
 \examples{
 get_posterior_probabilities(
