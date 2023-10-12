@@ -26,7 +26,7 @@ process_batch_list <- function(image_list, output_dir, return_result = TRUE, tra
     # if output file doesn't already exist, process the input file
     if (!file.exists(outfile)) {
       message(sprintf("Processing document %d...", i))
-      doc <- read_and_process(image_list[[i]], transform_output)
+      doc <- processDocument(image_list[[i]])
       message(sprintf("Saving processed document %d...", i))
       saveRDS(doc, file = outfile)
       document_list[[counter]] <- doc
@@ -72,13 +72,25 @@ process_batch_dir <- function(input_dir, output_dir = ".", return_result = TRUE,
 }
 
 
-#' read_and_process
+#' Read and Process
+#' 
+#' @description
+#' `r lifecycle::badge("superseded")`
+#' 
+#' Development on `read_and_process()` is complete. We recommend using [`processDocument()`].
+#' `read_and_process(image_name, "document")` is equivalent to `processDocument(image_name)`.
 #'
 #' @param image_name The file path to an image
 #' @param transform_output The type of transformation to perform on the output
 #' @return A list of the processed image components
-#'
+#' 
+#' @examples
+#' # use handwriting example from handwriter package
+#' image_path <- system.file("extdata", "phrase_example.png", package = "handwriter")
+#' doc <- read_and_process(image_path, "document")
+#' 
 #' @export
+#' @md
 read_and_process <- function(image_name, transform_output) {
   document <- list()
 

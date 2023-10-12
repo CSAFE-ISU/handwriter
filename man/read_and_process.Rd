@@ -2,7 +2,7 @@
 % Please edit documentation in R/BatchProcessing.R
 \name{read_and_process}
 \alias{read_and_process}
-\title{read_and_process}
+\title{Read and Process}
 \usage{
 read_and_process(image_name, transform_output)
 }
@@ -15,5 +15,14 @@ read_and_process(image_name, transform_output)
 A list of the processed image components
 }
 \description{
-read_and_process
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#superseded}{\figure{lifecycle-superseded.svg}{options: alt='[Superseded]'}}}{\strong{[Superseded]}}
+
+Development on \code{read_and_process()} is complete. We recommend using \code{\link[=processDocument]{processDocument()}}.
+\code{read_and_process(image_name, "document")} is equivalent to \code{processDocument(image_name)}.
+}
+\examples{
+# use handwriting example from handwriter package
+image_path <- system.file("extdata", "phrase_example.png", package = "handwriter")
+doc <- read_and_process(image_path, "document")
+
 }
