@@ -12,7 +12,7 @@ plot_credible_intervals(
 )
 }
 \arguments{
-\item{model}{A model created by \code{\link{fit_model}}}
+\item{model}{A model created by \code{\link[=fit_model]{fit_model()}}}
 
 \item{interval_min}{The lower bound of the credible interval. It must be greater than zero and less than 1.}
 

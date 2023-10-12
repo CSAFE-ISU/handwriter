@@ -28,6 +28,10 @@
 #'
 #' @format Binary image matrix. 1262 rows and 1162 columns.
 #' @examples
+#' message_document <- list()
+#' message_document$image <- message
+#' plotImage(message_document)
+#' 
 #' \dontrun{
 #' message_document <- list()
 #' message_document$image <- message
@@ -42,6 +46,10 @@
 #'
 #' @format Binary image matrix. 811 rows and 1590 columns.
 #' @examples
+#' nature1_document <- list()
+#' nature1_document$image <- nature1
+#' plotImage(nature1_document)
+#' 
 #' \dontrun{
 #' nature1_document <- list()
 #' nature1_document$image <- nature1
@@ -56,6 +64,10 @@
 #'
 #' @format Binary image matrix. 396 rows and 1947 columns
 #' @examples
+#' twoSent_document <- list()
+#' twoSent_document$image <- twoSent
+#' plotImage(twoSent_document)
+#' 
 #' \dontrun{
 #' twoSent_document <- list()
 #' twoSent_document$image <- twoSent
@@ -159,7 +171,7 @@
 
 #' Example of a hierarchical model
 #'
-#' @format A hierarchical model created by [`fit_model`] with two chains of 100 MCMC iterations. It is a named 
+#' @format A hierarchical model created by [`fit_model()`] with two chains of 100 MCMC iterations. It is a named 
 #' list of 4 objects: 
 #' \describe{
 #'   \item{graph_measurements}{A data frame of model training data that shows the writer, document name, cluster assignment, 
@@ -198,7 +210,7 @@
 
 #' Example of writership analysis
 #'
-#' @format The results of [`analyze_questioned_documents`] stored in a named list with 5 items:
+#' @format The results of [`analyze_questioned_documents()`] stored in a named list with 5 items:
 #'   \describe{
 #'   \item{graph_measurements}{A data frame of that shows the writer, document name, cluster assignment, 
 #'   slope, principle component rotation angle, and wrapped principle component rotation angle for each training graph in each 
@@ -221,7 +233,7 @@
 
 #' Example of writership analysis
 #'
-#' @format The results of [`analyze_questioned_documents`] stored in a named list with 5 items:
+#' @format The results of [`analyze_questioned_documents()`] stored in a named list with 5 items:
 #'   \describe{
 #'   \item{graph_measurements}{A data frame of that shows the writer, document name, cluster assignment, 
 #'   slope, principle component rotation angle, and wrapped principle component rotation angle for each training graph in each 
@@ -244,7 +256,7 @@
 
 #' Wrapped-Cauchy RJAGS Model
 #'
-#' The hierarchical model used in [`fit_model`] and described in Crawford, Amy
+#' The hierarchical model used in [`fit_model()`] and described in Crawford, Amy
 #' M., Danica M. Ommen, and Alicia L. Carriquiry. "A rotation-based feature and
 #' Bayesian hierarchical model for the forensic evaluation of handwriting
 #' evidence in a closed set." The Annals of Applied Statistics 17, no. 2 (2023):
@@ -257,17 +269,3 @@
 #'
 #' @md
 "model_wrapped_cauchy"
-
-#' CSAFE Documents
-#'
-#' @format A data frame of handwriting documents available in the CSAFE handwriting database version 4:
-#'   \describe{
-#'   \item{doc}{The document file name. E.g., w0001_s01_pLND_r01.png}
-#'   \item{writer}{The writer id. E.g., w0001}
-#'   \item{session}{The session number: s01, s02, or s03}
-#'   \item{prompt}{The prompt code: pLND for the London letter, pPHR for the common phrase, or pWOZ for the Wizard of Oz}
-#'   \item{repetition}{The repetition number: r01, r02, or r03}
-#'   }
-#'
-#' @md
-"csafe_docs"
