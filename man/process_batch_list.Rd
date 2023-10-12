@@ -2,17 +2,12 @@
 % Please edit documentation in R/BatchProcessing.R
 \name{process_batch_list}
 \alias{process_batch_list}
-\title{process_batch_list}
+\title{Process Batch List}
 \usage{
-process_batch_list(
-  image_list,
-  output_dir,
-  return_result = TRUE,
-  transform_output = "document"
-)
+process_batch_list(images, output_dir, return_result = TRUE)
 }
 \arguments{
-\item{image_list}{A list of image file paths}
+\item{images}{A vector of image file paths}
 
 \item{output_dir}{A directory to save the processed images}
 
@@ -20,12 +15,24 @@ process_batch_list(
 processed documents with be saved and a list of the processed documents
 will be returned. If FALSE, the processed documents will be saved, but
 nothing will be returned.}
-
-\item{transform_output}{The type of transformation to perform on the output}
 }
 \value{
-A list of processed documents. The list is also saved to output_dir.
+A list of processed documents
 }
 \description{
-process_batch_list
+Process a list of handwriting samples saved as PNG images: 
+    (1) Load the image and convert it to black and white with [`readPNGBinary()`]
+    (2) Thin the handwriting to one pixel in width with [`thinImage()`]
+    (3) Run [`processHandwriting()`] to split the handwriting into parts called *edges* and place *nodes* at the ends of 
+    edges. Then combine edges into component shapes called *graphs*.
+    (4) Save the processed document in an RDS file.
+    (5) Optional. Return a list of the processed documents.
+}
+\examples{
+\dontrun{
+images <- c('path/to/image1.png', 'path/to/image2.png', 'path/to/image3.png')
+process_batch_list(images, "path/to/output_dir", FALSE)
+docs <- process_batch_list(images, "path/to/output_dir", TRUE)
+}
+
 }

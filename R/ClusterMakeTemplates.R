@@ -77,8 +77,7 @@ make_clustering_templates <- function(template_dir,
   process_batch_dir(
     input_dir = template_images_dir,
     output_dir = file.path(template_dir, "data", "template_graphs"),
-    return_result = FALSE,
-    transform_output = "document"
+    return_result = FALSE
   )
 
   # Make proclist ----

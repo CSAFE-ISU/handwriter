@@ -84,8 +84,7 @@ fit_model <- function(template_dir,
   process_batch_dir(
     input_dir = model_images_dir,
     output_dir = file.path(template_dir, "data", "model_graphs"),
-    return_result = FALSE,
-    transform_output = "document"
+    return_result = FALSE
   )
 
   # get cluster assignments

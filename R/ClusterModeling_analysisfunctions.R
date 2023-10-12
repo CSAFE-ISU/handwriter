@@ -43,8 +43,7 @@ analyze_questioned_documents <- function(template_dir, questioned_images_dir, mo
   message("Processing questioned documents...")
   questioned_proc_list <- process_batch_dir(
     input_dir = questioned_images_dir,
-    output_dir = file.path(template_dir, "data", "questioned_graphs"),
-    transform_output = "document"
+    output_dir = file.path(template_dir, "data", "questioned_graphs")
   )
 
   # load template
