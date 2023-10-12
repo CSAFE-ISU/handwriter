@@ -784,7 +784,7 @@ meanGraphSet_slowchange <- function(template_images_list, num_path_cuts = 4,num_
   # }
   doParallel::registerDoParallel(num_dist_cores)
   dists <- foreach::foreach(i = 1:length(template_images_list), .export = c("getGraphDistance"), .packages = c("lpSolve"),.combine='c') %dopar% {
-    return(handwriter::getGraphDistance(meanGraph1, template_images_list[[i]], isProto1 = TRUE, numPathCuts = num_path_cuts)$matching_weight)
+    return(getGraphDistance(meanGraph1, template_images_list[[i]], isProto1 = TRUE, numPathCuts = num_path_cuts)$matching_weight)
   }
 
   # find the index of the graph that is closest to the mean graph
