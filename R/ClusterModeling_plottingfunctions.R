@@ -1,9 +1,13 @@
+
+# EXPORTED ----------------------------------------------------------------
+
+
 #' Plot Cluster Fill Counts
 #'
 #' Plot the cluster fill counts for each document in `formatted_data`.
 #'
-#' @param formatted_data Data created by [`format_template_data`],
-#'   [`fit_model`], or [`analyze_questioned_documents`]
+#' @param formatted_data Data created by [`format_template_data()`],
+#'   [`fit_model()`], or [`analyze_questioned_documents()`]
 #' @param facet `TRUE` uses `facet_wrap` to create a subplot for each writer.
 #'   `FALSE` plots the data on a single plot.
 #' @return ggplot plot of cluster fill counts
@@ -69,8 +73,8 @@ plot_cluster_fill_counts <- function(formatted_data, facet = FALSE) {
 #'
 #' Plot the cluster fill rates for each document in `formatted_data`.
 #'
-#' @param formatted_data Data created by [`format_template_data`],
-#'   [`fit_model`], or [`analyze_questioned_documents`]
+#' @param formatted_data Data created by [`format_template_data()`],
+#'   [`fit_model()`], or [`analyze_questioned_documents()`]
 #' @param facet `TRUE` uses `facet_wrap` to create a subplot for each writer.
 #'   `FALSE` plots the data on a single plot.
 #' @return ggplot plot of cluster fill rates
@@ -140,11 +144,11 @@ plot_cluster_fill_rates <- function(formatted_data, facet = FALSE) {
 #' Plot Trace
 #'
 #' Create a trace plot for all chains for a single variable of a fitted model
-#' created by [`fit_model`]. If the model contains more than one chain, the
+#' created by [`fit_model()`]. If the model contains more than one chain, the
 #' chains will be combined by pasting them together.
 #'
 #' @param variable The name of a variable in the model
-#' @param model A model created by [`fit_model`]
+#' @param model A model created by [`fit_model()`]
 #' @return A trace plot
 #'
 #' @examples
@@ -195,7 +199,7 @@ plot_trace <- function(variable, model) {
 #' Plot credible intervals for the model's pi parameters that estimate the true writer
 #' cluster fill counts.
 #'
-#' @param model A model created by [`fit_model`]
+#' @param model A model created by [`fit_model()`]
 #' @param interval_min The lower bound of the credible interval. It must be greater than zero and less than 1.
 #' @param interval_max The upper bound of the credible interval. It must be greater than the interval minimum and less than 1.
 #' @param facet `TRUE` uses `facet_wrap` to create a subplot for each writer.
