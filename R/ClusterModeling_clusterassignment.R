@@ -1,3 +1,7 @@
+
+# Internal Functions ------------------------------------------------------
+
+
 makeassignment = function(imageListElement, templateCenterList, outliercut){
   dist = min(unlist(lapply(templateCenterList, function(x){getGraphDistance(imageList1 = imageListElement, imageList2 = x, isProto2 = TRUE)$matching_weight})))
   cluster = which.min(unlist(lapply(templateCenterList, function(x){getGraphDistance(imageList1 = imageListElement, imageList2 = x, isProto2 = TRUE)$matching_weight})))
@@ -17,10 +21,8 @@ makeassignment = function(imageListElement, templateCenterList, outliercut){
 #' @param num_cores Integer number of cores to use for parallel processing
 #'
 #' @return list of processed handwriting with cluster assignments for each graph
-#' 
-#' @export
 #'
-#' @md
+#' @noRd
 get_clusterassignment = function(template_dir, input_type, num_graphs = "All", writer_indices, doc_indices, num_cores){
   # bind global variables to fix check() note
   i <- outliercut <- docname <- NULL
