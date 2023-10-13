@@ -1,4 +1,4 @@
-# handwriter 2.0.1
+# handwriter 2.0.2
 
 ## New features
 
