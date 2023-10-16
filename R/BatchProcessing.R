@@ -44,6 +44,7 @@
 #' }
 #'
 #' @export
+#' @md
 process_batch_list <- function(images, output_dir, return_result = TRUE) {
   if (!dir.exists(output_dir)) {
     message("Creating output directory...")
@@ -108,6 +109,7 @@ process_batch_list <- function(images, output_dir, return_result = TRUE) {
 #' }
 #'
 #' @export
+#' @md
 process_batch_dir <- function(input_dir, output_dir = ".", return_result = TRUE) {
   message("Listing documents to be processed...")
   file_list <- list.files(input_dir, full.names = TRUE)

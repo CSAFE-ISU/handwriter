@@ -20,13 +20,13 @@ nothing will be returned.}
 A list of processed documents
 }
 \description{
-Process a list of handwriting samples saved as PNG images: 
-    (1) Load the image and convert it to black and white with [`readPNGBinary()`]
-    (2) Thin the handwriting to one pixel in width with [`thinImage()`]
-    (3) Run [`processHandwriting()`] to split the handwriting into parts called *edges* and place *nodes* at the ends of 
-    edges. Then combine edges into component shapes called *graphs*.
-    (4) Save the processed document in an RDS file.
-    (5) Optional. Return a list of the processed documents.
+Process a list of handwriting samples saved as PNG images:
+(1) Load the image and convert it to black and white with \code{\link[=readPNGBinary]{readPNGBinary()}}
+(2) Thin the handwriting to one pixel in width with \code{\link[=thinImage]{thinImage()}}
+(3) Run \code{\link[=processHandwriting]{processHandwriting()}} to split the handwriting into parts called \emph{edges} and place \emph{nodes} at the ends of
+edges. Then combine edges into component shapes called \emph{graphs}.
+(4) Save the processed document in an RDS file.
+(5) Optional. Return a list of the processed documents.
 }
 \examples{
 \dontrun{
