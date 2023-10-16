@@ -1,3 +1,5 @@
+# handwriter (development version)
+
 # handwriter 2.0.2
 
 ## New features
