@@ -14,22 +14,16 @@
 
 # helper functions ----
 make_example_template <- function(main_dir, centers_seed, graphs_seed) {
-  # create folder if it doesn't already exist
-  if (!dir.exists(main_dir)){dir.create(main_dir)}
-  
-  template_docs <- system.file("extdata/example_images/template_docs", 
-                                     package = "handwriter")
-  
   example_cluster_template <- make_clustering_templates(template_dir = main_dir,
-                                                        template_images_dir = template_docs,
+                                                        template_images_dir = file.path(main_dir, 'data', 'template_docs'),
                                                         writer_indices = c(2,5),
                                                         max_edges = 30,
+                                                        centers_seed = 100,
+                                                        graphs_seed = 104,
                                                         K = 10,
                                                         num_dist_cores = 2,
                                                         max_iters = 3,
-                                                        num_graphs = 1000,
-                                                        centers_seed = centers_seed,
-                                                        graphs_seed = graphs_seed)
+                                                        num_graphs = 1000)
   
   # save to data folder
   usethis::use_data(example_cluster_template, overwrite = TRUE)
@@ -87,7 +81,7 @@ model {
 
 make_example_models <- function(main_dir){
   model_docs <- system.file("extdata/example_images/model_docs", 
-                                  package = "handwriter")
+                            package = "handwriter")
   example_model_1chain <- fit_model(template_dir = main_dir, 
                                     model_images_dir = model_docs,
                                     num_iters = 200, 
@@ -112,7 +106,7 @@ make_example_models <- function(main_dir){
 
 make_example_analyses <- function(main_dir, num_cores = 5) {
   questioned_docs <- system.file("extdata/example_images/questioned_docs", 
-                                       package = "handwriter")
+                                 package = "handwriter")
   
   example_analysis_1chain <- analyze_questioned_documents(template_dir = main_dir, 
                                                           questioned_images_dir = questioned_docs, 
@@ -145,6 +139,7 @@ centers_seed <- 100
 graphs_seed <- 104
 
 # make example template
+main_dir <- '/Users/stephanie/Documents/version_control/handwriter/examples/template_dir'
 make_example_template(main_dir, centers_seed, graphs_seed)
 make_model_wrapped_cauchy()
 

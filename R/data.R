@@ -107,36 +107,42 @@
 #'   clusters with a K-means algorithm. The cluster template is a named list
 #'   with 16 items:
 #' \describe{
-#' \item{seed}{An integer for the random number generator.}
-#' \item{cluster}{A vector of cluster assignments
-#'   for each graph used to create the cluster template.}
 #' \item{centers}{A list
 #'   of graphs used as the starting cluster centers for the K-means algorithm.}
+#' \item{centers_graph_ids}{The id number of the cluster center exemplar}   
+#' \item{centers_seed}{An integer seed for the random number generator used to select the starting
+#' cluster centers.}
+#' \item{changes}{A vector of the number of graphs that
+#'   changed clusters on each iteration of the K-means algorithm.}
+#' \item{cluster}{A vector of cluster assignments
+#'   for each graph used to create the cluster template.}
+#' \item{DaviesBouldinIndex}{The Davies-Bouldin index on
+#'   each iteration of the K-means algorithm.}
+#' \item{docnames}{A vector that lists the training document from which each graph originated.}
+#' \item{graphs_seed}{An integer seed for the random number generator used to select training graphs unless
+#' [`make_clustering_templates()`] is called with `num_graphs = "All"`.}
+#' \item{iters}{The maximum number of iterations for the K-means
+#'   algorithm (3).}
 #' \item{K}{The number of clusters to build (10) with the K-means algorithm.}
 #' \item{n}{The number of training graphs to use (1000) in the K-means
 #'   algorithm.}
-#' \item{docnames}{A vector that lists the training document from which each graph originated.}
-#' \item{writers}{A vector that lists the writer of each graph.}
-#' \item{iters}{The maximum number of iterations for the K-means
-#'   algorithm (3).}
-#' \item{changes}{A vector of the number of graphs that
-#'   changed clusters on each iteration of the K-means algorithm.}
 #' \item{outlierCutoff}{A vector of the outlier cutoff values calculated on
 #'   each iteration of the K-means algorithm.}
+#' \item{rmse}{A vector of the root-mean square error on each iteration of the
+#'   K-means algorithm.}
 #' \item{stop_reason}{The reason the
 #'   K-means algorithm terminated.}
+#' \item{template_graphs}{A list of the }   
+#' \item{VarianceRatioCriterion}{The
+#'   variance-ratio criterion on each iteration of the K-means algorithm.}
 #' \item{wcd}{A matrix of the within cluster
 #'   distances on each iteration of the K-means algorithm. More specifically,
 #'   the distance between each graph and the center of the cluster to which it
 #'   was assigned  on each iteration.}
 #' \item{wcss}{A vector of the
 #'   within-cluster sum of squares on each iteration of the K-means algorithm.}
-#' \item{rmse}{A vector of the root-mean square error on each iteration of the
-#'   K-means algorithm.}
-#' \item{DaviesBouldinIndex}{The Davies-Bouldin index on
-#'   each iteration of the K-means algorithm.}
-#' \item{VarianceRatioCriterion}{The
-#'   variance-ratio criterion on each iteration of the K-means algorithm.} }
+#' \item{writers}{A vector that lists the writer of each graph.}
+#' }
 #' @examples
 #' # view cluster fill counts for template training documents
 #' template_data <- format_template_data(example_cluster_template)

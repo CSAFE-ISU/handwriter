@@ -581,7 +581,7 @@ letterKmeansWithOutlier_parallel <- function(template_proc_list, template_images
   wcd <- matrix(NA, nrow = max_iters, ncol = n) # within-cluster distances
   centerMoved <- rep(TRUE, K) # whether each cluster lost or grained graphs during current iteration
   centerMovedOld <- rep(TRUE, K) # whether each cluster lost or grained graphs on last iteration
-  oldCenters <- centers
+  centers_graph_ids <- c() # id number of graph closest to each cluster center
   changes <- c() # number of graphs that changed clusters on each iteration
   db <- c() # Davies-Bouldin Index
   vrc <- c() # Variance ratio criterion
@@ -593,6 +593,11 @@ letterKmeansWithOutlier_parallel <- function(template_proc_list, template_images
   outlierCutoff <- c() # save outlier cutoff on each iteration
   outliers <- NULL
   potentialOutliers <- NULL
+  
+  # Add id to each graph so that we can track which graph (and corresponding graph image) is selected as the cluster center
+  for (i in 1:length(template_images_list)){
+    template_images_list[[i]]$id <- i
+  }
 
   ## ADDING PARALLEL
   doParallel::registerDoParallel(num_dist_cores)
@@ -733,7 +738,8 @@ letterKmeansWithOutlier_parallel <- function(template_proc_list, template_images
     for (i in 1:K)
     {
       if (centerMoved[i]) { # call the mean graph function with the graphs in cluster i sorted by distance, from closest to furthest) to cluster i's center
-        centers[[i]] <- meanGraphSet_slowchange(template_images_list[cluster == i][order(current_wcd[cluster == i])], num_path_cuts = num_path_cuts,num_dist_cores=num_dist_cores) # meanGraphSet_Kmeans(template_images_list[cluster == i], num_path_cuts=num_path_cuts)
+        centers_graph_ids[i] <- meanGraphSet_slowchange(template_images_list[cluster == i][order(current_wcd[cluster == i])], num_path_cuts = num_path_cuts,num_dist_cores=num_dist_cores)
+        centers[[i]] <- letterToPrototype(template_images_list[[centers_graph_ids[i]]], numPathCuts = num_path_cuts)
       }
     }
 
@@ -745,24 +751,25 @@ letterKmeansWithOutlier_parallel <- function(template_proc_list, template_images
   writers <- sapply(template_images_list, function(x) x$writer)
 
   return(list(
+    centers = centers,
+    centers_graph_ids = centers_graph_ids,
     centers_seed = centers_seed,
-    graphs_seed = graphs_seed,
-    template_graphs = template_images_list,
-    cluster = cluster, 
-    centers = centers, 
-    K = K, 
-    n = n, 
+    changes = changes,
+    cluster = cluster,
+    DaviesBouldinIndex = db,
     docnames = docnames, 
-    writers = writers, 
+    graphs_seed = graphs_seed,
     iters = iters, 
-    changes = changes, 
+    K = K,
+    n = n, 
     outlierCutoff = outlierCutoff,
-    stop_reason = stop_reason, 
+    rmse = rmse,
+    stop_reason = stop_reason,
+    template_graphs = template_images_list,
+    VarianceRatioCriterion = vrc,
     wcd = wcd, 
-    wcss = wcss, 
-    rmse = rmse, 
-    DaviesBouldinIndex = db, 
-    VarianceRatioCriterion = vrc
+    wcss = wcss,
+    writers = writers 
   ))
 }
 
@@ -813,9 +820,12 @@ meanGraphSet_slowchange <- function(template_images_list, num_path_cuts = 4,num_
   } else {
     retindex <- 1
   }
+  
+  # return the id of the graph closest to the mean graph
+  return(template_images_list[[retindex]]$id)
 
   # return the graph closest to the mean graph as a protoype
-  return(letterToPrototype(template_images_list[[retindex]], numPathCuts = num_path_cuts))
+  # return(letterToPrototype(template_images_list[[retindex]], numPathCuts = num_path_cuts))
 }
 
 
