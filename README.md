@@ -56,7 +56,7 @@ Use `processDocument()` to
 library(handwriter)
 phrase <- system.file("extdata", "phrase_example.png", package = "handwriter")
 doc <- processDocument(phrase)
-#> path in readPNGBinary: /private/var/folders/1z/jk9bqhdd06j1fxx0_xm2jj980000gn/T/RtmpsWgyNd/temp_libpathfabce223e01/handwriter/extdata/phrase_example.png
+#> path in readPNGBinary: /private/var/folders/1z/jk9bqhdd06j1fxx0_xm2jj980000gn/T/RtmpvsOkkC/temp_libpathe642aa87b6b/handwriter/extdata/phrase_example.png
 #> Starting Processing...
 #> Getting Nodes...and merging them...
 #> Finding direct paths...and loops...
@@ -237,6 +237,7 @@ model <- fit_model(template_dir = "path/to/main_dir",
                    model_images_dir = "path/to/main_dir/data/model_docs",
                    num_iters = 4000, 
                    num_chains = 1, 
+                   num_cores = 2,
                    writer_indices = c(7, 10), 
                    doc_indices = c(11, 14))
 ```

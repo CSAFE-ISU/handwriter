@@ -141,6 +141,7 @@ model <- fit_model(template_dir = "path/to/main_dir",
                    model_images_dir = "path/to/main_dir/data/model_docs",
                    num_iters = 4000, 
                    num_chains = 1, 
+                   num_cores = 2,
                    writer_indices = c(7, 10), 
                    doc_indices = c(11, 14))
 ```
