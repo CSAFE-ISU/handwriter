@@ -203,7 +203,7 @@ void count246(const arma::mat &img, uvec checkList, vec &toWhite)
   for(int i = 0; i < checkList.n_elem; i++)
   {
     cell = checkList[i];
-    neighbors << img[cell - 1] << img[cell + n] << img[cell + 1];
+    neighbors = { img[cell - 1], img[cell + n], img[cell + 1] };
     if(any(neighbors == 1))
       toWhite[i] = 1;
   }
