@@ -48,7 +48,7 @@ get_clusters_batch <- function(template, input_dir, output_dir, writer_indices, 
   message("Starting cluster assginment...")
   # make output directory
   if (!dir.exists(output_dir)) {
-    dir.create(output_dir)
+    dir.create(output_dir, recursive = TRUE)
   }
 
   # list files in input dir
