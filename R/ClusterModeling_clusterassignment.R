@@ -35,7 +35,7 @@ get_clusters_batch <- function(template, input_dir, output_dir, writer_indices, 
   i <- outliercut <- docname <- NULL
 
   # check num_cores
-  if (len(num_cores) > 1){
+  if (length(num_cores) > 1){
     stop("num_cores is longer than 1")
   } else if (!is.numeric(num_cores)){ 
     stop("num_cores is not numeric")
