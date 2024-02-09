@@ -1,14 +1,13 @@
 # handwriter (development version)
 
-<<<<<<< Updated upstream
-=======
-* Make `get_clusterassignment()` available to users.
+* New function `get_clusters_batch()` calculates cluster assignments of all files in a directory.
+
 
 # handwriter 2.0.3
 
 * Fix initializer warning with arma::vec. Apparently different versions of gcc were raising warnings with the assignment of values in neighbors. The recommended fix was to use an initializer list.
 
->>>>>>> Stashed changes
+
 # handwriter 2.0.2
 
 ## New features
