@@ -39,7 +39,7 @@ get_clusters_batch <- function(template, input_dir, output_dir, writer_indices, 
     stop("num_cores is longer than 1")
   } else if (!is.numeric(num_cores)){ 
     stop("num_cores is not numeric")
-  } else if (x %% 1 != 0) {
+  } else if (num_cores %% 1 != 0) {
     stop("num_cores is not an integer")
   } else if (num_cores < 1) {
     stop("num_cores is not greater than or equal to 1")
