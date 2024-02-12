@@ -10,7 +10,7 @@ get_clusters_batch(
   output_dir,
   writer_indices,
   doc_indices,
-  num_cores
+  num_cores = 1
 )
 }
 \arguments{
@@ -33,4 +33,15 @@ A list of cluster assignments
 }
 \description{
 get_clusters_batch
+}
+\examples{
+\dontrun{
+template <- readRDS('path/to/template.rds')
+get_clusters_batch(template=template, input_dir='path/to/dir', output_dir='path/to/dir',
+writer_indices=c(2,5), doc_indices=c(7,18), num_cores=1)
+
+get_clusters_batch(template=template, input_dir='path/to/dir', output_dir='path/to/dir',
+writer_indices=c(1,4), doc_indices=c(5,10), num_cores=5)
+}
+
 }

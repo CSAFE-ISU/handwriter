@@ -27,7 +27,17 @@
 #' @param num_cores Integer number of cores to use for parallel processing
 #'
 #' @return A list of cluster assignments
-#'
+#' 
+#' @examples
+#' \dontrun{
+#' template <- readRDS('path/to/template.rds')
+#' get_clusters_batch(template=template, input_dir='path/to/dir', output_dir='path/to/dir',
+#' writer_indices=c(2,5), doc_indices=c(7,18), num_cores=1)
+#' 
+#' get_clusters_batch(template=template, input_dir='path/to/dir', output_dir='path/to/dir',
+#' writer_indices=c(1,4), doc_indices=c(5,10), num_cores=5)
+#' }
+#' 
 #' @export
 #' @md
 get_clusters_batch <- function(template, input_dir, output_dir, writer_indices, doc_indices, num_cores = 1) {
