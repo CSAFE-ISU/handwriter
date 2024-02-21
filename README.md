@@ -31,6 +31,9 @@ install.packages("handwriter")
 You can install the development version of handwriter from
 [GitHub](https://github.com/) with:
 
+First install "libgit2",
+then in R
+
 ``` r
 # install.packages("devtools")
 devtools::install_github("CSAFE-ISU/handwriter")
