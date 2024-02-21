@@ -31,7 +31,7 @@ install.packages("handwriter")
 You can install the development version of handwriter from
 [GitHub](https://github.com/) with:
 
-First install "libgit2",
+First install "libgit2" and "glpk",
 then in R
 
 ``` r
