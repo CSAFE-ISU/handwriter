@@ -44,8 +44,10 @@
 #' @md
 processDocument <- function(path) {
   doc <- list()
-  doc$image <- readPNGBinary(path)
-  doc$thin <- thinImage(doc$image)
+  # load image as matrix
+  doc$image <- readPNGBinary(path) 
+  # load writing as 1-column matrix of index locations of black pixels
+  doc$thin <- thinImage(doc$image)  
   doc$process <- processHandwriting(doc$thin, dim(doc$image))
   doc$docname <- basename(path)
   doc$docname <- stringr::str_replace(doc$docname, ".png", "")
@@ -134,7 +136,9 @@ processHandwriting <- function(img, dims) {
   graphdf$from <- indices[graphdf$Var1]
   # get the index in thinned image of the neighbor pixel for each pixel
   graphdf$to <- graphdf$from + c(-1, dims[1] - 1, dims[1], dims[1] + 1, 1, 1 - dims[1], -dims[1], -1 - dims[1])[graphdf$Var2]
-  # Manhattan distance between each pixel and its neighbor
+  # Manhattan distance between each pixel and its neighbor. neighbors to the
+  # top, right, bottom, and left are 1 in distance and neighbors on the
+  # diagonals are 2 in distance.
   graphdf$man_dist <- rep(c(1, 2), 4)[graphdf$Var2]
   # Euclidean distance between each pixel and its neighbor
   graphdf$euc_dist <- c(1, sqrt(2), 1, sqrt(2), 1, sqrt(2), 1, sqrt(2))[graphdf$Var2]
@@ -172,7 +176,10 @@ processHandwriting <- function(img, dims) {
   graphdf$to <- as.character(format(graphdf$to, scientific = FALSE, trim = TRUE))
   # drop Var1, Var2, and value columns
   graphdf <- subset(graphdf, select = c(from, to, man_dist, euc_dist, pen_dist))
-
+  
+  # TODO: Is this a good place to split thinned writing into sets of indices (vertices) that
+  # do not have edges that connect to any other sets of vertices?
+  
   # build undirected graph with vertices=indices of the thinned writing and edges listed in graphdf
   skel_graph <- igraph::graph_from_data_frame(d = graphdf, vertices = as.character(format(indices, scientific = FALSE, trim = TRUE)), directed = FALSE)
   # build undirected graph with vertices=indices of the thinned writing and edges listed in graphdf0
@@ -205,6 +212,7 @@ processHandwriting <- function(img, dims) {
                            v = as.character(format(nodeList, scientific = FALSE, trim = TRUE)), 
                            to = as.character(format(nodeList, scientific = FALSE, trim = TRUE)), 
                            weights = NA)
+    # set all values on the diagonal and below the diagonal to 0
     distsFull[!upper.tri(distsFull)] <- 0
     # flag nodes that are only 1 or 2 edges apart
     nodesToMerge <- which(distsFull <= 2 & distsFull > 0)
@@ -220,13 +228,14 @@ processHandwriting <- function(img, dims) {
     
     # end while loop if no nodes need to be merged
     if (dim(mergeSets)[1] == 0) break
-
-    if (anyDuplicated(c(mergeSets)) > 0) {
-      duplicates <- which(mergeSets %in% mergeSets[apply(matrix(duplicated(c(mergeSets)), ncol = 2), 1, any)])
-      rduplicates <- ((duplicates - 1) %% dim(mergeSets)[1]) + 1
-      duplicateDists <- distsFull[matrix(as.character(format(mergeSets[rduplicates, ], scientific = FALSE, trim = TRUE)), ncol = 2)]
-    }
+  
+    # if (anyDuplicated(c(mergeSets)) > 0) {
+    #   duplicates <- which(mergeSets %in% mergeSets[apply(matrix(duplicated(c(mergeSets)), ncol = 2), 1, any)])
+    #   rduplicates <- ((duplicates - 1) %% dim(mergeSets)[1]) + 1
+    #   duplicateDists <- distsFull[matrix(as.character(format(mergeSets[rduplicates, ], scientific = FALSE, trim = TRUE)), ncol = 2)]
+    # }
     newNodes <- findMergeNodes(skel_graph, mergeSets)
+    # combine nodes that were not in the mergeSets and the list of new nodes
     nodeList <- unique(c(nodeList[!(nodeList %in% c(mergeSets[, c(1, 2)]))], newNodes))
 
     # At this point have the updated nodeList, if we wanted to break it letter by letter we would do that here
@@ -258,7 +267,8 @@ processHandwriting <- function(img, dims) {
       break()
     }
   }
-
+  
+  # update graphdf0 with nodeOnlyDist=1 if one or more of the edge's vertices is a node and 0.00001 otherwise
   graphdf0 <- as_data_frame(skel_graph0)
   graphdf0$nodeOnlyDist <- ifelse(graphdf0$from %in% nodeList | graphdf0$to %in% nodeList, 1, 0.00001)
   skel_graph0 <- graph_from_data_frame(graphdf0, directed = FALSE)
