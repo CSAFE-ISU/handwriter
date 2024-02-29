@@ -1131,11 +1131,16 @@ getNodeOrder <- function(letter, nodesInGraph, nodeConnectivity, dims) {
 #' @noRd
 letterPaths <- function(allPaths, nodeGraph0, breakPoints) {
   oldVerts <- V(nodeGraph0)$name
+  # delete break points from the graph
   if (any(as.character(format(breakPoints, scientific = FALSE, trim = TRUE)) %in% names(V(nodeGraph0)))) {
     nodeGraph0 <- delete_vertices(nodeGraph0, v = as.character(format(breakPoints, scientific = FALSE, trim = TRUE)))
   }
 
   grIDs <- rep(NA, length(V(nodeGraph0)))
+  # calculate the shortest distance in the graph between every pair of nodes
+  # using the node distance as the weights. dists is a matrix with each row
+  # shows the distance between a vertex and every vertex in the list, including
+  # itself.
   tryCatch(
     expr = {
       dists <- distances(nodeGraph0, v = names(V(nodeGraph0)), to = names(V(nodeGraph0)), weights = E(nodeGraph0)$nodeOnlyDist)
@@ -1143,20 +1148,26 @@ letterPaths <- function(allPaths, nodeGraph0, breakPoints) {
       message("Unusual amounts of interconnected paths being detected. Do you have crossed out writing in your document?")
     }
   )
-
+  
+  # list vertices in the updated graph
   vertList <- V(nodeGraph0)$name
 
   grPaths <- list()
   i <- 1
   while (length(vertList) > 0) {
+    # for the current vertex, list the indices of vertices to which the distance isn't Inf
     tempIDs <- which(dists[which(V(nodeGraph0)$name == vertList[1]), ] < Inf)
+    # add the names of the vertices from the previous line to the list
     grPaths <- c(grPaths, list(as.numeric(V(nodeGraph0)$name[tempIDs])))
     #  grIDs[V(nodeGraph0)$name %in% as.character(grPaths[[i]])] = i
+    # store the ID - all vertices with this ID are connected
     grIDs[tempIDs] <- i
-    vertList <- vertList[vertList %in% setdiff(vertList, format(grPaths[[i]], scientific = FALSE, trim = TRUE))]
+    # drop vertices with ID i from the vertices list
+    vertList <- setdiff(vertList, format(grPaths[[i]], scientific = FALSE, trim = TRUE))
     i <- i + 1
   }
   grIDs2 <- rep(NA, length(oldVerts))
+  # assign the ID to the original vertices that are not break points
   grIDs2[which(!(oldVerts %in% format(breakPoints, scientific = FALSE, trim = TRUE)))] <- grIDs
 
   return(list(grPaths, grIDs2))
