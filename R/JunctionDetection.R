@@ -89,7 +89,7 @@ processHandwriting <- function(img, dims) {
   # Next, we have to follow certain rules to find non intersection breakpoints.
   
   message("Starting Processing...")
-  # convert thinned image from list of pixel indices to binary matrix: 0 for
+  # convert thinned handwriting from list of pixel indices to binary matrix: 0 for
   # handwriting and 1 elsewhere
   indices <- img  # thinned image as list of pixel indices
   img <- matrix(1, nrow = dims[1], ncol = dims[2])
@@ -201,6 +201,7 @@ processHandwriting <- function(img, dims) {
                       v = as.character(format(nodeList, scientific = FALSE, trim = TRUE)), 
                       to = as.character(format(nodeList, scientific = FALSE, trim = TRUE)), 
                       weights = E(skel_graph0)$nodeOnlyDist)
+  # Create adjacency matrix with 1 if the distance is 1 or 2 and 0 otherwise
   adj0 <- ifelse(dists0 == 1 | dists0 == 2, 1, 0)
 
   message("and merging them...")
@@ -219,10 +220,11 @@ processHandwriting <- function(img, dims) {
     rNodes <- ((nodesToMerge - 1) %% length(nodeList)) + 1
     cNodes <- ((nodesToMerge - 1) %/% length(nodeList)) + 1
     mergeSets <- cbind(nodeList[rNodes], nodeList[cNodes])
-    # add column: 0=one or both nodes is terminal, 1=neigther is terminal
+    # add column: 1=neither node is terminal, 0 otherwise
     mergeSets <- cbind(mergeSets, apply(mergeSets, 1, function(x) {
       all(!(x %in% terminalNodes))
     }))
+    # keep rows of nodes where neither node is terminal
     mergeSets <- mergeSets[mergeSets[, 3] == 1, c(1, 2)]
     mergeSets <- matrix(mergeSets, ncol = 2)
     
@@ -272,7 +274,8 @@ processHandwriting <- function(img, dims) {
   graphdf0 <- as_data_frame(skel_graph0)
   graphdf0$nodeOnlyDist <- ifelse(graphdf0$from %in% nodeList | graphdf0$to %in% nodeList, 1, 0.00001)
   skel_graph0 <- graph_from_data_frame(graphdf0, directed = FALSE)
-
+  
+  # Set the diagonal and below of the adjacency matrix to 0
   adj0[lower.tri(adj0)] <- 0
   adj.m <- melt(adj0)
   adj.m <- subset(adj.m, value == 1)
@@ -300,12 +303,21 @@ processHandwriting <- function(img, dims) {
     # Look for troughs in edges.
     tempPath <- pathList[[i]]
     if (length(tempPath) > 10) {
+      # get the row number of each vertex in the path
       rows <- ((tempPath - 1) %% dims[1]) + 1
       for (j in 5:(length(rows) - 4))
-      {
+      { # if there is at least one vertex before j and at least on after j that are higher than j
         if (any(rows[1:(j - 1)] < rows[j] - 1) & any(rows[(j + 1):length(rows)] < rows[j] - 1)) {
+          # of all the vertices that are 2 or more rows higher than j (in the image) and to the left of 
+          # j (in the rows vector) find the index of the vertex (in rows[1:(j-1)]) that is closest to j from
+          # the left
           lowerEnd <- max(which(rows[1:(j - 1)] < rows[j] - 1))
+          # of all the vertices that are 2 or more rows higher than j (in the image) and to the right of 
+          # j (in the rows vector) find the index of the vertex (in rows[(j+1):length(rows)]) that is closest to j from
+          # the right
           upperEnd <- min(which(rows[(j + 1):length(rows)] < rows[j] - 1))
+          # if none of the vertices between the lowerEnd and upperEnd are lower than vertex j, assign j
+          # as a trough node
           if (!any(rows[lowerEnd:(j + upperEnd)] > rows[j])) {
             troughNodes <- c(troughNodes, tempPath[j])
             hasTrough[i] <- TRUE
@@ -314,31 +326,47 @@ processHandwriting <- function(img, dims) {
       }
     }
     if (hasTrough[i] == FALSE) {
+      # add the middle node to the candidate list
       candidateNodes <- c(candidateNodes, tempPath[ceiling(length(tempPath) / 2)])
     }
   }
-  breaks <- which((((troughNodes[-1] - 1) %% dims[1]) + 1) != (((troughNodes[-length(troughNodes)] - 1) %% dims[1]) + 1) |
-    ((((troughNodes[-1] - 1) %/% dims[1]) + 1) != (((troughNodes[-length(troughNodes)] - 1) %/% dims[1])) &
-      (((troughNodes[-1] - 1) %/% dims[1])) != (((troughNodes[-length(troughNodes)] - 1) %/% dims[1]) + 1)))
+  # find the trough nodes where: (1) the row of the trough node is not equal to
+  # the row of the next trough node, or (2) the column of the trough node is
+  # different than the column of the next trough node minus 1, and (3) the column of the 
+  # trough node minus 1 is not equal to the column of the text trough node.
+  breaks <- which(i_to_r(troughNodes[-1], dims[1]) != i_to_r(troughNodes[-length(troughNodes)], dims[1]) |
+                  i_to_c(troughNodes[-1], dims[1]) != i_to_c(troughNodes[-length(troughNodes)], dims[1]) - 1 &
+                  i_to_c(troughNodes[-1], dims[1]) - 1 != i_to_c(troughNodes[-length(troughNodes)], dims[1]))
   breaks <- c(1, breaks, length(troughNodes))
   candidateNodes <- c(candidateNodes, troughNodes[ceiling((breaks[-1] + breaks[-length(breaks)]) / 2)])
 
   message("and discarding bad ones...")
-
-  goodBreaks <- checkBreakPoints(candidateNodes = candidateNodes, allPaths = pathList, nodeGraph = getNodeGraph(pathList, nodeList), terminalNodes = terminalNodes, dims)
+  
+  # create a graph with vertices for each node and edges between the first and last pixel / vertex in each path
+  nodeGraph <- getNodeGraph(pathList, nodeList)
+  # flag candidates as good if none of the following are true: (1) there is more
+  # than one route between the first and last nodes in the path containing the candidate (2) the path
+  # contains a terminal node (3) the candidate break point is within 4 of the
+  # first or last node in the path (4) the path contains 10 or fewer
+  # vertices.
+  goodBreaks <- checkBreakPoints(candidateNodes = candidateNodes, allPaths = pathList, nodeGraph = nodeGraph, terminalNodes = terminalNodes, dims)
   preStackBreaks <- candidateNodes[goodBreaks]
-
+  # list the break(s) in each path or 'integer(0)' if the path does not contain a break
   pathsWithBreaks <- lapply(allPaths, function(x) {
     which(x %in% preStackBreaks)
   })
+  # number of breaks per path
   breaksPerPath <- unlist(lapply(pathsWithBreaks, length))
+  # update the list of breaks: if a path has more than one break, take the average of the breaks (rounding up) and
+  # remove the original breaks so that each path has either 0 or 1 break.
   for (i in which(breaksPerPath > 1))
-  {
+  { # if current path has more than one break, average the breaks and round up
     newBreak <- floor(mean(which(allPaths[[i]] %in% preStackBreaks)))
+    # drop pre stack breaks in current path from the pre stack breaks list
     preStackBreaks <- preStackBreaks[which(!(preStackBreaks %in% allPaths[[i]]))]
+    # add "new break" for current path to list
     preStackBreaks <- c(preStackBreaks, allPaths[[i]][newBreak])
   }
-
 
   message("Isolating letter paths...")
 
@@ -476,7 +504,8 @@ AllUniquePaths <- function(adj, graph, graph0) {
 
 #' checkBreakPoints
 #'
-#' Internal function called by processHandwriting that eliminates breakpoints based on rules to try to coherently separate letters.
+#' Internal function called by processHandwriting that eliminates breakpoints
+#' based on rules to try to coherently separate letters.
 #'
 #' @param candidateNodes possible breakpoints
 #' @param allPaths list of paths
@@ -491,13 +520,15 @@ checkBreakPoints <- function(candidateNodes, allPaths, nodeGraph, terminalNodes,
   breakFlag <- rep(TRUE, length(candidateNodes))
 
   for (i in 1:length(allPaths))
-  {
+  { # create character vector of each vertex in path i
     tempPath <- format(allPaths[[i]], scientific = FALSE, trim = TRUE)
+    # check if path i contains candidate nodes
     nodeChecks <- which(candidateNodes %in% tempPath)
+    # create a new graph that is nodeGraph without the edge between the first and last node of path i
     tempNodeGraph <- delete.edges(nodeGraph, paste0(tempPath[1], "|", tempPath[length(tempPath)]))
-
+    
     if (distances(tempNodeGraph, v = tempPath[1], to = tempPath[length(tempPath)]) < Inf) {
-      # No breaking on multiple paths between nodes.
+      # No breaking on multiple paths between nodes. 
       breakFlag[nodeChecks] <- FALSE
     } else if (any(tempPath %in% terminalNodes)) {
       # No break if path has an endpoint
@@ -1008,7 +1039,9 @@ getNodes <- function(indices, dims) {
 
 #' getNodeGraph
 #'
-#' Internal function for creating a graph from a path list and node list.
+#' Internal function for creating a graph from a path list and node list. More specifically,
+#' create a graph with a vertex for each node in nodeList. Then add an edge between the first and last
+#' node (pixel / vertex) in each path in allPaths.
 #'
 #' @param allPaths list of paths
 #' @param nodeList list of nodes
