@@ -88,6 +88,7 @@ processHandwriting <- function(img, dims) {
   
   # Next, we have to follow certain rules to find non intersection breakpoints.
   
+  # Starting Processing ----
   message("Starting Processing...")
   # convert thinned handwriting from list of pixel indices to binary matrix: 0 for
   # handwriting and 1 elsewhere
@@ -95,6 +96,7 @@ processHandwriting <- function(img, dims) {
   img <- matrix(1, nrow = dims[1], ncol = dims[2])
   img[indices] <- 0
   
+  # Getting Nodes ----
   message("Getting Nodes...", appendLF = FALSE)
   # output: nodeList[[1]] = all nodes
   # output: nodeList[[2]] = indices of nodes with 3 or more connected edges and indices of 2x2 nodes 
@@ -177,9 +179,6 @@ processHandwriting <- function(img, dims) {
   # drop Var1, Var2, and value columns
   graphdf <- subset(graphdf, select = c(from, to, man_dist, euc_dist, pen_dist))
   
-  # TODO: Is this a good place to split thinned writing into sets of indices (vertices) that
-  # do not have edges that connect to any other sets of vertices?
-  
   # build undirected graph with vertices=indices of the thinned writing and edges listed in graphdf
   skel_graph <- igraph::graph_from_data_frame(d = graphdf, vertices = as.character(format(indices, scientific = FALSE, trim = TRUE)), directed = FALSE)
   # build undirected graph with vertices=indices of the thinned writing and edges listed in graphdf0
@@ -204,6 +203,7 @@ processHandwriting <- function(img, dims) {
   # Create adjacency matrix with 1 if the distance is 1 or 2 and 0 otherwise
   adj0 <- ifelse(dists0 == 1 | dists0 == 2, 1, 0)
   
+  # And merging them ----
   message("and merging them...")
   emergencyBreak <- 100
   while (TRUE) {
@@ -281,9 +281,11 @@ processHandwriting <- function(img, dims) {
   adj.m <- subset(adj.m, value == 1)
   names(adj.m) <- c("from", "to", "value")
   
+  # Finding direct paths ----
   message("Finding direct paths...", appendLF = FALSE)
-  pathList <- AllUniquePaths(adj.m, skel_graph, skel_graph0)
+  pathList <- AllUniquePaths(adj.m, skel_graph0)
   
+  # And loops ----
   message("and loops...")
   loopList <- getLoops(nodeList, skel_graph, skel_graph0, pathList, dim(img))
   
@@ -293,6 +295,7 @@ processHandwriting <- function(img, dims) {
   graphdf0$nodeOnlyDist <- ifelse(graphdf0$from %in% nodeList | graphdf0$to %in% nodeList, 1, 0)
   skel_graph0 <- graph_from_data_frame(graphdf0, directed = FALSE)
   
+  # Looking for graph break points ----
   # Nominate and check candidate breakpoints
   message("Looking for graph break points...", appendLF = FALSE)
   hasTrough <- rep(FALSE, length(pathList))
@@ -340,6 +343,7 @@ processHandwriting <- function(img, dims) {
   breaks <- c(1, breaks, length(troughNodes))
   candidateNodes <- c(candidateNodes, troughNodes[ceiling((breaks[-1] + breaks[-length(breaks)]) / 2)])
   
+  # And discarding bad ones ----
   message("and discarding bad ones...")
   
   # create a graph with vertices for each node and edges between the first and last pixel / vertex in each path
@@ -368,6 +372,7 @@ processHandwriting <- function(img, dims) {
     preStackBreaks <- c(preStackBreaks, allPaths[[i]][newBreak])
   }
   
+  # Isolating graph paths ----
   message("Isolating graph paths...")
   
   ## Break on breakpoints and group points by which letter they fall into. Adjust graph accordingly.
@@ -419,15 +424,19 @@ processHandwriting <- function(img, dims) {
   
   allPaths <- lapply(rapply(allPaths, enquote, how = "unlist"), eval)
   
+  # Organizing letters ----
   message("Organizing letters...")
   letters <- organize_letters(skel_graph0)
   
+  # Creating letter lists ----
   message("Creating letter lists...")
   letterList <- create_letter_lists(allPaths, letters, nodeList, nodeConnections, terminalNodes, dims)
   
+  # Adding character features ----
   message("Adding character features...")
   letterList <- add_character_features(img, letterList, letters, dims)
   
+  # Document processing complete ----
   message("Document processing complete.\n")
   
   return(list(nodes = nodeList, connectingNodes = nodeConnections, terminalNodes = terminalNodes, breakPoints = sort(finalBreaks), letterList = letterList))
@@ -466,36 +475,45 @@ add_character_features <- function(img, letterList, letters, dims) {
 #'
 #' Internal function for getting a list of all non loop paths in a writing sample.
 #'
-#' @param adj adjacent matrix
-#' @param graph first skeletonized graph
-#' @param graph0 second skeletonized graph
+#' @param adj adjacent matrix of nodes
+#' @param graph0 skeletonized graph
 #' @return a list of all non loop paths
 #' @noRd
-AllUniquePaths <- function(adj, graph, graph0) {
-  # Gets all paths that are not loops
-  # paths = apply(adj, 1, LooplessPaths, graph = graph, graph0 = graph0)
+AllUniquePaths <- function(adj, graph0) {
   paths <- list()
   if (dim(adj)[1] == 0) {
     return(NULL)
   }
-  #
+  
   for (i in 1:dim(adj)[1])
   {
     fromNode <- as.character(format(adj[i, 1], scientific = FALSE, trim = TRUE))
     toNode <- as.character(format(adj[i, 2], scientific = FALSE, trim = TRUE))
     
-    while (shortest.paths(graph0, v = fromNode, to = toNode, weights = E(graph0)$nodeOnlyDist) < 3 & shortest.paths(graph0, v = fromNode, to = toNode, weights = E(graph0)$nodeOnlyDist) >= 1) {
+    # calculate distances of shortest path between fromNode and toNode
+    dists <- distances(graph0, v = fromNode, to = toNode, weights = E(graph0)$nodeOnlyDist)
+    # for paths from node to node that don't go through another node?
+    while (dists < 3 & dists >= 1) {
+      # CALCULATE STEP:
+      # get shortest path between fromNode and toNode
       shortest <- shortest_paths(graph0, from = fromNode, to = toNode, weights = E(graph0)$nodeOnlyDist)
+      # count vertices in shortest path, including fromNode and toNode
       len <- length(unlist(shortest[[1]]))
+      # add the shortest path to the list
       paths <- c(paths, list(as.numeric(names(shortest$vpath[[1]]))))
+      
+      # UPDATE STEP: if there are more than two vertices in the path
       if (len > 2) {
-        graph <- delete.edges(graph, paste0(names(shortest$vpath[[1]])[len %/% 2], "|", names(shortest$vpath[[1]])[len %/% 2 + 1]))
+        # delete the middle edge
         graph0 <- delete.edges(graph0, paste0(names(shortest$vpath[[1]])[len %/% 2], "|", names(shortest$vpath[[1]])[len %/% 2 + 1]))
       } else if (len == 2) {
+        # if the two nodes are connected by an edge, delete the edge from the graph
         graph0 <- delete.edges(graph0, paste0(names(shortest$vpath[[1]])[1], "|", names(shortest$vpath[[1]])[2]))
       } else {
         stop("There must be some mistake. Single node should have nodeOnlyDist path length of 0.")
       }
+      # recalculate shortest path distance on updated graph
+      dists <- distances(graph0, v = fromNode, to = toNode, weights = E(graph0)$nodeOnlyDist)
     }
   }
   
