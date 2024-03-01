@@ -282,7 +282,7 @@ processHandwriting <- function(img, dims) {
   names(adj.m) <- c("from", "to", "value")
   
   message("Finding direct paths...", appendLF = FALSE)
-  pathList <- AllUniquePaths(adj.m, skel_graph, skel_graph0)
+  pathList <- AllUniquePaths(adj.m, skel_graph0)
   
   message("and loops...")
   loopList <- getLoops(nodeList, skel_graph, skel_graph0, pathList, dim(img))
@@ -466,36 +466,45 @@ add_character_features <- function(img, letterList, letters, dims) {
 #'
 #' Internal function for getting a list of all non loop paths in a writing sample.
 #'
-#' @param adj adjacent matrix
-#' @param graph first skeletonized graph
-#' @param graph0 second skeletonized graph
+#' @param adj adjacent matrix of nodes
+#' @param graph0 skeletonized graph
 #' @return a list of all non loop paths
 #' @noRd
-AllUniquePaths <- function(adj, graph, graph0) {
-  # Gets all paths that are not loops
-  # paths = apply(adj, 1, LooplessPaths, graph = graph, graph0 = graph0)
+AllUniquePaths <- function(adj, graph0) {
   paths <- list()
   if (dim(adj)[1] == 0) {
     return(NULL)
   }
-  #
+  
   for (i in 1:dim(adj)[1])
   {
     fromNode <- as.character(format(adj[i, 1], scientific = FALSE, trim = TRUE))
     toNode <- as.character(format(adj[i, 2], scientific = FALSE, trim = TRUE))
     
-    while (shortest.paths(graph0, v = fromNode, to = toNode, weights = E(graph0)$nodeOnlyDist) < 3 & shortest.paths(graph0, v = fromNode, to = toNode, weights = E(graph0)$nodeOnlyDist) >= 1) {
+    # calculate distances of shortest path between fromNode and toNode
+    dists <- distances(graph0, v = fromNode, to = toNode, weights = E(graph0)$nodeOnlyDist)
+    # for paths from node to node that don't go through another node?
+    while (dists < 3 & dists >= 1) {
+      # CALCULATE STEP:
+      # get shortest path between fromNode and toNode
       shortest <- shortest_paths(graph0, from = fromNode, to = toNode, weights = E(graph0)$nodeOnlyDist)
+      # count vertices in shortest path, including fromNode and toNode
       len <- length(unlist(shortest[[1]]))
+      # add the shortest path to the list
       paths <- c(paths, list(as.numeric(names(shortest$vpath[[1]]))))
+      
+      # UPDATE STEP: if there are more than two vertices in the path
       if (len > 2) {
-        graph <- delete.edges(graph, paste0(names(shortest$vpath[[1]])[len %/% 2], "|", names(shortest$vpath[[1]])[len %/% 2 + 1]))
+        # delete the middle edge
         graph0 <- delete.edges(graph0, paste0(names(shortest$vpath[[1]])[len %/% 2], "|", names(shortest$vpath[[1]])[len %/% 2 + 1]))
       } else if (len == 2) {
+        # if the two nodes are connected by an edge, delete the edge from the graph
         graph0 <- delete.edges(graph0, paste0(names(shortest$vpath[[1]])[1], "|", names(shortest$vpath[[1]])[2]))
       } else {
         stop("There must be some mistake. Single node should have nodeOnlyDist path length of 0.")
       }
+      # recalculate shortest path distance on updated graph
+      dists <- distances(graph0, v = fromNode, to = toNode, weights = E(graph0)$nodeOnlyDist)
     }
   }
   
