@@ -28,7 +28,8 @@ You can install handwriter from CRAN with:
 install.packages("handwriter")
 ```
 
-You can install the development version of handwriter from
+First install packages "libgit2" and "glpk" from the shell,
+then you can install the development version of handwriter from
 [GitHub](https://github.com/) with:
 
 ``` r
