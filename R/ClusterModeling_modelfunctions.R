@@ -398,7 +398,7 @@ get_pi_dataframes <- function(model) {
   # get a data frame of pis for a specific writer
   get_writer_pis <- function(flat_pi, writer){
     # select writer's columns in flat_pi
-    writer_cols <- colnames(flat_pi)[grepl(paste0("pi\\[", writer, ",*"), colnames(flat_pi))]
+    writer_cols <- colnames(flat_pi)[grepl(paste0("pi\\[", writer, ","), colnames(flat_pi))]
     writer_pis <- flat_pi[,c("iters", "writer", writer_cols)]
     # add writer to data frame
     writer_pis$writer <- writer
