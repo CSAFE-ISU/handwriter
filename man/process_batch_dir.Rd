@@ -4,17 +4,12 @@
 \alias{process_batch_dir}
 \title{Process Batch Directory}
 \usage{
-process_batch_dir(input_dir, output_dir = ".", return_result = TRUE)
+process_batch_dir(input_dir, output_dir = ".")
 }
 \arguments{
 \item{input_dir}{Input directory that contains images}
 
 \item{output_dir}{A directory to save the processed images}
-
-\item{return_result}{TRUE/FALSE whether to return the result. If TRUE, the
-processed documents with be saved and a list of the processed documents
-will be returned. If FALSE, the processed documents will be saved, but
-nothing will be returned.}
 }
 \value{
 A list of processed documents
@@ -30,8 +25,8 @@ edges. Then combine edges into component shapes called \emph{graphs}.
 }
 \examples{
 \dontrun{
-process_batch_list("path/to/input_dir", "path/to/output_dir", FALSE)
-docs <- process_batch_list("path/to/input_dir", "path/to/output_dir", TRUE)
+process_batch_list("path/to/input_dir", "path/to/output_dir")
+docs <- process_batch_list("path/to/input_dir", "path/to/output_dir")
 }
 
 }

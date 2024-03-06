@@ -93,8 +93,7 @@ make_clustering_templates <- function(template_dir,
   message("Processing template training documents...")
   process_batch_dir(
     input_dir = template_images_dir,
-    output_dir = file.path(template_dir, "data", "template_graphs"),
-    return_result = FALSE
+    output_dir = file.path(template_dir, "data", "template_graphs")
   )
 
   # Make proclist ----

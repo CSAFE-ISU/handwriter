@@ -1097,7 +1097,7 @@ letterPaths <- function(allPaths, nodeGraph0, breakPoints) {
     expr = {
       dists <- distances(nodeGraph0, v = names(V(nodeGraph0)), to = names(V(nodeGraph0)), weights = E(nodeGraph0)$nodeOnlyDist)
     }, error = function(e) {
-      message("Unusual amounts of interconnected paths being detected. Do you have crossed out writing in your document?")
+      message(paste(e, "Do you have crossed out writing in your document?"))
     }
   )
 

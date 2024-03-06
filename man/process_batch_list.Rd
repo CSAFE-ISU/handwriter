@@ -4,17 +4,12 @@
 \alias{process_batch_list}
 \title{Process Batch List}
 \usage{
-process_batch_list(images, output_dir, return_result = TRUE)
+process_batch_list(images, output_dir)
 }
 \arguments{
 \item{images}{A vector of image file paths}
 
 \item{output_dir}{A directory to save the processed images}
-
-\item{return_result}{TRUE/FALSE whether to return the result. If TRUE, the
-processed documents with be saved and a list of the processed documents
-will be returned. If FALSE, the processed documents will be saved, but
-nothing will be returned.}
 }
 \value{
 A list of processed documents
