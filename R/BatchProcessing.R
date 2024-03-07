@@ -19,21 +19,22 @@
 
 
 #' Process Batch List
-#' 
-#' Process a list of handwriting samples saved as PNG images: 
-#'     (1) Load the image and convert it to black and white with [`readPNGBinary()`]
-#'     (2) Thin the handwriting to one pixel in width with [`thinImage()`]
-#'     (3) Run [`processHandwriting()`] to split the handwriting into parts called *edges* and place *nodes* at the ends of 
-#'     edges. Then combine edges into component shapes called *graphs*.
-#'     (4) Save the processed document in an RDS file.
-#'     (5) Optional. Return a list of the processed documents.
-#' 
+#'
+#' Process a list of handwriting samples saved as PNG images: (1) Load the image
+#' and convert it to black and white with [`readPNGBinary()`] (2) Thin the
+#' handwriting to one pixel in width with [`thinImage()`] (3) Run
+#' [`processHandwriting()`] to split the handwriting into parts called *edges*
+#' and place *nodes* at the ends of edges. Then combine edges into component
+#' shapes called *graphs*. (4) Save the processed document in an RDS file. (5)
+#' Optional. Return a list of the processed documents.
+#'
 #' @param images A vector of image file paths
 #' @param output_dir A directory to save the processed images
-#' @param return_result TRUE/FALSE whether to return the result. If TRUE, the
-#'   processed documents with be saved and a list of the processed documents
-#'   will be returned. If FALSE, the processed documents will be saved, but
-#'   nothing will be returned.
+#' @param skip_docs_on_retry Logical whether to skip documents in the images arguement that
+#'   caused errors on a previous run. The errors and document names are stored
+#'   in output_dir > problems.txt. If this is the first run,
+#'   `process_batch_list` will attempt to process all documents in the images arguement.
+#'
 #' @return A list of processed documents
 #'
 #' @examples
@@ -45,42 +46,76 @@
 #'
 #' @export
 #' @md
-process_batch_list <- function(images, output_dir, return_result = TRUE) {
+process_batch_list <- function(images, output_dir, skip_docs_on_retry=TRUE) {
+  # output directory
   if (!dir.exists(output_dir)) {
     message("Creating output directory...")
     dir.create(output_dir, recursive = TRUE)
   }
   
-  # Save as RDS while renaming with _proclist suffix
-  # Skip if a processed file with that name already exists in output_dir
-  document_list <- list()
-  counter <- 1
-  for (i in 1:length(images)) {
-    # format path and file name for output
-    outfile <- file.path(output_dir, paste0(tools::file_path_sans_ext(basename(images[[i]])), "_proclist.rds"))
-    # if output file doesn't already exist, process the input file
-    if (!file.exists(outfile)) {
-      message(sprintf("Processing document %d...", i))
-      doc <- processDocument(images[[i]])
-      message(sprintf("Saving processed document %d...", i))
-      saveRDS(doc, file = outfile)
-      document_list[[counter]] <- doc
-      counter <- counter + 1
-    } else {
-      message(sprintf("Document %d had already been processed...", i))
+  # skip docs that have already been processed
+  outfiles <- sapply(images, function(img) file.path(output_dir, paste0(tools::file_path_sans_ext(basename(img)), "_proclist.rds")), USE.NAMES = FALSE)
+  outfiles <- sapply(outfiles, function(f) file.exists(f), USE.NAMES = FALSE)
+  images <- images[!outfiles]
+  # exit if all images have been processed
+  if (length(images) == 0) {
+    message('All documents have been processed.')
+    return()
+  }
+  
+  # list problem docs
+  prob_log_file <- file.path(output_dir, 'problems.txt')
+  if (file.exists(prob_log_file)){
+    problem_docs <- get_prob_docs_from_log(prob_log_file)
+  } else {
+    problem_docs <- c()
+  }
+  
+  # skip problem docs (optional)
+  if (skip_docs_on_retry){
+    images <- remove_prob_docs_from_list(problem_docs, images)
+    # exit if all images have been processed
+    if (length(images) == 0) {
+      message('All documents have been processed or flagged as problem documents.')
+      return()
     }
   }
   
-  # Return list
-  if (return_result) {
-    output_list <- list.files(output_dir, full.names = TRUE)
-    # If document_list doesn't contain all docs in output folder, load all docs in folder
-    if (length(document_list) < length(output_list)) {
-      message("Loading processed documents...")
-      document_list <- lapply(output_list, readRDS)
-    }
-    return(document_list)
+  # start printing to log
+  if (file.exists(prob_log_file)){
+    sink(prob_log_file, append=TRUE)
+  } else {
+    sink(prob_log_file, append=FALSE)
   }
+  
+  # Save as RDS while renaming with _proclist suffix
+  for (i in 1:length(images)) {
+    possibleError <- tryCatch(
+      expr = { 
+        image <- images[[i]]
+        outfile <- file.path(output_dir, paste0(tools::file_path_sans_ext(basename(image)), "_proclist.rds"))
+        message(sprintf("Processing document %s...", basename(image)))
+        doc <- processDocument(image)
+        message(sprintf("Saving processed document %s...\n", basename(image)))
+        saveRDS(doc, file = outfile)
+      }, 
+      error = function(e) {
+        cat(paste0("error with document ", basename(images[[i]]), " ", e))
+      })
+  }
+  
+  # stop sinking to problem log file
+  unlist(prob_log_file)
+  
+  # show list of problem docs from log NOTE: Initially, I added problem doc names
+  # to a vector inside the error part of trycatch and returned the list of
+  # problem docs as the function output. But if batch_process_list is run
+  # multiple times on the same input / out dirs, then only errors from the most recent
+  # run would be returned.
+  problem_docs <- get_prob_docs_from_log(prob_log_file)
+  message("The following documents could not be processed: ", problem_docs)
+
+  return()
 }
 
 #' Process Batch Directory
@@ -95,28 +130,28 @@ process_batch_list <- function(images, output_dir, return_result = TRUE) {
 #'
 #' @param input_dir Input directory that contains images
 #' @param output_dir A directory to save the processed images
-#' @param return_result TRUE/FALSE whether to return the result. If TRUE, the
-#'   processed documents with be saved and a list of the processed documents
-#'   will be returned. If FALSE, the processed documents will be saved, but
-#'   nothing will be returned.
+#' @param skip_docs_on_retry Logical whether to skip documents in input_dir that
+#'   caused errors on a previous run. The errors and document names are stored
+#'   in output_dir > problems.txt. If this is the first run,
+#'   `process_batch_list` will attempt to process all documents in input_dir.
 #' 
 #' @return A list of processed documents
 #' 
 #' @examples
 #' \dontrun{
-#' process_batch_list("path/to/input_dir", "path/to/output_dir", FALSE)
-#' docs <- process_batch_list("path/to/input_dir", "path/to/output_dir", TRUE)
+#' process_batch_list("path/to/input_dir", "path/to/output_dir")
+#' docs <- process_batch_list("path/to/input_dir", "path/to/output_dir")
 #' }
 #'
 #' @export
 #' @md
-process_batch_dir <- function(input_dir, output_dir = ".", return_result = TRUE) {
+process_batch_dir <- function(input_dir, output_dir = ".", skip_docs_on_retry=TRUE) {
   message("Listing documents to be processed...")
   file_list <- list.files(input_dir, full.names = TRUE)
 
   document_list <- process_batch_list(images=file_list, 
-                                      output_dir=output_dir, 
-                                      return_result = return_result)
+                                      output_dir=output_dir,
+                                      skip_docs_on_retry=skip_docs_on_retry)
   return(document_list)
 }
 
@@ -156,3 +191,25 @@ read_and_process <- function(image_name, transform_output) {
   processList$docname <- basename(image_name)
   return(processList)
 }
+
+
+# INTERNAL ----------------------------------------------------------------
+
+get_docname_from_line <- function(line) {
+  docname <- stringr::str_extract_all(line, "document\\W+\\w+.[p|P][n|N][g|G]")[[1]]
+  docname <- strsplit(docname, " ")[[1]][2]
+  return(docname)
+}
+
+get_prob_docs_from_log <- function(log_file){
+  lines <- readLines(log_file)
+  problem_docs <- unlist(lapply(lines, get_docname_from_line))
+  return(problem_docs)
+}
+
+remove_prob_docs_from_list <- function(problem_docs, images){
+  images <- images[!(basename(images) %in% problem_docs)]
+  return(images)
+}
+  
+
