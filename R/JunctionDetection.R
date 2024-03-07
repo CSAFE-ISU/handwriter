@@ -504,7 +504,6 @@ AllUniquePaths <- function(adj, graph0) {
       
       # UPDATE STEP: if there are more than two vertices in the path
       if (len > 2) {
-        graph <- igraph::delete_edges(graph, paste0(names(shortest$vpath[[1]])[len %/% 2], "|", names(shortest$vpath[[1]])[len %/% 2 + 1]))
         graph0 <- igraph::delete_edges(graph0, paste0(names(shortest$vpath[[1]])[len %/% 2], "|", names(shortest$vpath[[1]])[len %/% 2 + 1]))
       } else if (len == 2) {
         graph0 <- igraph::delete_edges(graph0, paste0(names(shortest$vpath[[1]])[1], "|", names(shortest$vpath[[1]])[2]))
