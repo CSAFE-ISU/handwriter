@@ -4,12 +4,17 @@
 \alias{process_batch_dir}
 \title{Process Batch Directory}
 \usage{
-process_batch_dir(input_dir, output_dir = ".")
+process_batch_dir(input_dir, output_dir = ".", skip_docs_on_retry = TRUE)
 }
 \arguments{
 \item{input_dir}{Input directory that contains images}
 
 \item{output_dir}{A directory to save the processed images}
+
+\item{skip_docs_on_retry}{Logical whether to skip documents in input_dir that
+caused errors on a previous run. The errors and document names are stored
+in output_dir > problems.txt. If this is the first run,
+\code{process_batch_list} will attempt to process all documents in input_dir.}
 }
 \value{
 A list of processed documents
