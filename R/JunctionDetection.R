@@ -380,7 +380,7 @@ processHandwriting <- function(img, dims) {
   letters <- letterList[[1]][unlist(lapply(letterList[[1]], length)) > 5]
   
   V(skel_graph0)$letterID <- letterList[[2]]
-  skel_graph0 <- delete.vertices(skel_graph0, V(skel_graph0)[which(V(skel_graph0)$letterID %in% which(unlist(lapply(letterList[[1]], length)) <= 5))])
+  skel_graph0 <- igraph::delete_vertices(skel_graph0, V(skel_graph0)[which(V(skel_graph0)$letterID %in% which(unlist(lapply(letterList[[1]], length)) <= 5))])
   V(skel_graph0)$letterID[!is.na(V(skel_graph0)$letterID)] <- as.numeric(as.factor(na.omit(V(skel_graph0)$letterID)))
   
   # Remove breakpoints that shouldn't have broken.
@@ -489,7 +489,7 @@ AllUniquePaths <- function(adj, graph0) {
   {
     fromNode <- as.character(format(adj[i, 1], scientific = FALSE, trim = TRUE))
     toNode <- as.character(format(adj[i, 2], scientific = FALSE, trim = TRUE))
-    
+
     # calculate distances of shortest path between fromNode and toNode
     dists <- distances(graph0, v = fromNode, to = toNode, weights = E(graph0)$nodeOnlyDist)
     # for paths from node to node that don't go through another node?
@@ -504,11 +504,10 @@ AllUniquePaths <- function(adj, graph0) {
       
       # UPDATE STEP: if there are more than two vertices in the path
       if (len > 2) {
-        # delete the middle edge
-        graph0 <- delete.edges(graph0, paste0(names(shortest$vpath[[1]])[len %/% 2], "|", names(shortest$vpath[[1]])[len %/% 2 + 1]))
+        graph <- igraph::delete_edges(graph, paste0(names(shortest$vpath[[1]])[len %/% 2], "|", names(shortest$vpath[[1]])[len %/% 2 + 1]))
+        graph0 <- igraph::delete_edges(graph0, paste0(names(shortest$vpath[[1]])[len %/% 2], "|", names(shortest$vpath[[1]])[len %/% 2 + 1]))
       } else if (len == 2) {
-        # if the two nodes are connected by an edge, delete the edge from the graph
-        graph0 <- delete.edges(graph0, paste0(names(shortest$vpath[[1]])[1], "|", names(shortest$vpath[[1]])[2]))
+        graph0 <- igraph::delete_edges(graph0, paste0(names(shortest$vpath[[1]])[1], "|", names(shortest$vpath[[1]])[2]))
       } else {
         stop("There must be some mistake. Single node should have nodeOnlyDist path length of 0.")
       }
@@ -542,9 +541,8 @@ checkBreakPoints <- function(candidateNodes, allPaths, nodeGraph, terminalNodes,
     tempPath <- format(allPaths[[i]], scientific = FALSE, trim = TRUE)
     # check if path i contains candidate nodes
     nodeChecks <- which(candidateNodes %in% tempPath)
-    # create a new graph that is nodeGraph without the edge between the first and last node of path i
-    tempNodeGraph <- delete.edges(nodeGraph, paste0(tempPath[1], "|", tempPath[length(tempPath)]))
-    
+    tempNodeGraph <- igraph::delete_edges(nodeGraph, paste0(tempPath[1], "|", tempPath[length(tempPath)]))
+
     if (distances(tempNodeGraph, v = tempPath[1], to = tempPath[length(tempPath)]) < Inf) {
       # No breaking on multiple paths between nodes. 
       breakFlag[nodeChecks] <- FALSE
@@ -900,7 +898,7 @@ getLoops <- function(nodeList, graph, graph0, pathList, dims) {
       if (length(neighbors) > 0) {
         for (i in 1:length(neighbors)) {
           neigh <- as.numeric(names(neighbors[[i]]))
-          graph <- delete.edges(graph, paste0(neigh[1], "|", neigh[2]))
+          graph <- igraph::delete_edges(graph, paste0(neigh[1], "|", neigh[2]))
           if (distances(graph, v = as.character(neigh[1]), to = as.character(neigh[2])) < Inf) {
             newPath <- as.numeric(names(unlist(shortest_paths(graph, from = format(neigh[1], scientific = FALSE), to = format(neigh[2], scientific = FALSE), weights = E(graph)$pen_dist)$vpath)))
             loopList <- append(loopList, list(c(newPath, newPath[1])))
@@ -981,7 +979,7 @@ getLoops <- function(nodeList, graph, graph0, pathList, dims) {
   while (TRUE) {
     if (length(V(remaining0)) > 0) {
       perfectLoop <- names(na.omit(dfs(remaining0, V(remaining0)[1], unreachable = FALSE)$order))
-      remaining0 <- delete.vertices(remaining0, v = perfectLoop)
+      remaining0 <- igraph::delete_vertices(remaining0, v = perfectLoop)
       loopList <- append(loopList, list(as.numeric(c(perfectLoop, perfectLoop[1]))))
     } else {
       break
@@ -1070,7 +1068,7 @@ getNodeGraph <- function(allPaths, nodeList) {
   nodeGraph <- add_vertices(nodeGraph, length(nodeList), name = format(nodeList, scientific = FALSE, trim = TRUE))
   for (i in 1:length(allPaths))
   {
-    nodeGraph <- add.edges(nodeGraph, format(c(allPaths[[i]][1], allPaths[[i]][length(allPaths[[i]])]), scientific = FALSE, trim = TRUE))
+    nodeGraph <- igraph::add_edges(nodeGraph, format(c(allPaths[[i]][1], allPaths[[i]][length(allPaths[[i]])]), scientific = FALSE, trim = TRUE))
   }
   return(nodeGraph)
 }
@@ -1155,6 +1153,7 @@ letterPaths <- function(allPaths, nodeGraph0, breakPoints) {
     nodeGraph0 <- delete_vertices(nodeGraph0, v = as.character(format(breakPoints, scientific = FALSE, trim = TRUE)))
   }
   
+  # find connected components
   comps <- igraph::components(nodeGraph0)
   grIDs2 <- rep(NA, length(oldVerts))
   # assign the ID to the original vertices that are not break points

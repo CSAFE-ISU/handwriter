@@ -4,29 +4,29 @@
 \alias{process_batch_list}
 \title{Process Batch List}
 \usage{
-process_batch_list(images, output_dir, return_result = TRUE)
+process_batch_list(images, output_dir, skip_docs_on_retry = TRUE)
 }
 \arguments{
 \item{images}{A vector of image file paths}
 
 \item{output_dir}{A directory to save the processed images}
 
-\item{return_result}{TRUE/FALSE whether to return the result. If TRUE, the
-processed documents with be saved and a list of the processed documents
-will be returned. If FALSE, the processed documents will be saved, but
-nothing will be returned.}
+\item{skip_docs_on_retry}{Logical whether to skip documents in the images arguement that
+caused errors on a previous run. The errors and document names are stored
+in output_dir > problems.txt. If this is the first run,
+\code{process_batch_list} will attempt to process all documents in the images arguement.}
 }
 \value{
 A list of processed documents
 }
 \description{
-Process a list of handwriting samples saved as PNG images:
-(1) Load the image and convert it to black and white with \code{\link[=readPNGBinary]{readPNGBinary()}}
-(2) Thin the handwriting to one pixel in width with \code{\link[=thinImage]{thinImage()}}
-(3) Run \code{\link[=processHandwriting]{processHandwriting()}} to split the handwriting into parts called \emph{edges} and place \emph{nodes} at the ends of
-edges. Then combine edges into component shapes called \emph{graphs}.
-(4) Save the processed document in an RDS file.
-(5) Optional. Return a list of the processed documents.
+Process a list of handwriting samples saved as PNG images: (1) Load the image
+and convert it to black and white with \code{\link[=readPNGBinary]{readPNGBinary()}} (2) Thin the
+handwriting to one pixel in width with \code{\link[=thinImage]{thinImage()}} (3) Run
+\code{\link[=processHandwriting]{processHandwriting()}} to split the handwriting into parts called \emph{edges}
+and place \emph{nodes} at the ends of edges. Then combine edges into component
+shapes called \emph{graphs}. (4) Save the processed document in an RDS file. (5)
+Optional. Return a list of the processed documents.
 }
 \examples{
 \dontrun{
