@@ -218,14 +218,15 @@ format_questioned_data <- function(model, questioned_clusters, writer_indices, d
     full_cluster_fill_counts <- as.data.frame(matrix(0, nrow = nrow(cluster_fill_counts), ncol = ncol(model$cluster_fill_counts)))
     # fill column names
     colnames(full_cluster_fill_counts) <- colnames(model$cluster_fill_counts)
-    # fill writers and docs
+    # fill writers and docs and docnames
     full_cluster_fill_counts$writer <- cluster_fill_counts$writer
     full_cluster_fill_counts$doc <- cluster_fill_counts$doc
+    full_cluster_fill_counts$docname <- cluster_fill_counts$docname
     # add missing columns
     full_cluster_fill_counts <- dplyr::left_join(cluster_fill_counts, full_cluster_fill_counts) %>% 
       dplyr::mutate(dplyr::across(dplyr::where(is.numeric), ~ tidyr::replace_na(.x, 0)))
     # sort columns
-    cols <- c(colnames(full_cluster_fill_counts[, c(1, 2)]), sort(as.numeric(colnames(full_cluster_fill_counts[, -c(1, 2)]))))
+    cols <- c(colnames(full_cluster_fill_counts[, c(1, 2, 3)]), sort(as.numeric(colnames(full_cluster_fill_counts[, -c(1, 2, 3)]))))
     full_cluster_fill_counts <- full_cluster_fill_counts[, cols]
     # rename
     cluster_fill_counts <- full_cluster_fill_counts
