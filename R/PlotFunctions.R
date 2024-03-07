@@ -72,6 +72,9 @@ plotImage = function(doc)
 plotImageThinned = function(doc)
 {
   Var2 <- Var1 <- value <- NULL
+  # melt converts matrix to dataframe with 3 columns. "Var1" column denotes
+  # a row number in the image. "Var2" is a column number in the image. "value"
+  # column gives the matrix value in the "Var1" row and "Var2" column.
   l.m = melt(doc$image)
   names(l.m) = c("Var1", "Var2", "value")
   l.m$value[doc$thin] = 2
