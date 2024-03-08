@@ -1,3 +1,5 @@
+# handwriter (development version)
+
 # handwriter 3.0.0
 
 * Major reductions made to the memory required by `process_batch_list()` so it can now process
