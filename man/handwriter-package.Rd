@@ -6,7 +6,7 @@
 \alias{handwriter-package}
 \title{handwriter: Handwriting Analysis in R}
 \description{
-Perform statistical writership analysis of scanned handwritten documents. Webpage provided at: \url{https://csafe-isu.github.io/handwriter/index.html}.
+Perform statistical writership analysis of scanned handwritten documents. Webpage provided at: \url{https://github.com/CSAFE-ISU/handwriter}.
 }
 \seealso{
 Useful links:

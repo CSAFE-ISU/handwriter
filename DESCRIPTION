@@ -1,6 +1,6 @@
 Package: handwriter
 Title: Handwriting Analysis in R
-Version: 2.0.3.9000
+Version: 3.0.0
 Authors@R: c(person("Iowa State University of Science and Technology on behalf of its Center for Statistics and Applications in Forensic Evidence", role = c("aut", "cph", "fnd")),
           person("Nick", "Berry", role = "aut"),
           person("Stephanie", "Reinders", role = c("aut", "cre"), email = "srein@iastate.edu"),
@@ -9,7 +9,7 @@ Authors@R: c(person("Iowa State University of Science and Technology on behalf o
           person("Jon", "González", role = "ctb"))
 Maintainer: Stephanie Reinders <srein@iastate.edu>
 Description: Perform statistical writership analysis of scanned handwritten documents.
-             Webpage provided at: <https://csafe-isu.github.io/handwriter/index.html>.
+             Webpage provided at: <https://github.com/CSAFE-ISU/handwriter>.
 Depends: R (>= 3.5.0)
 LinkingTo: Rcpp, RcppArmadillo
 License: GPL-3
@@ -20,7 +20,6 @@ Imports:
     doParallel,
     dplyr,
     foreach,
-    futile.logger,
     ggplot2,
     igraph,
     lpSolve,

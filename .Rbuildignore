@@ -5,6 +5,7 @@
 ^examples$
 ^data-raw$
 ^revdep$
+^\.git$
 ^\.github$
 ^LICENSE.txt
 ^cran-comments\.md$

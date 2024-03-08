@@ -3,13 +3,12 @@
 .RData
 .Ruserdata
 .DS_Store
-
 docs-local
 _bookdown_files/
-
 inst/.DS_Store
-
 *.pyc
-
 # reverse dependency checks folder
 revdep/
+inst/doc
+
+scratch*

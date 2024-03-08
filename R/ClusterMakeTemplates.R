@@ -439,11 +439,6 @@ do_setup <- function(template_dir) {
 
   # Create subfolder in template_dir if it doesn't already exist
   make_dir(file.path(template_dir, "data"))
-  make_dir(file.path(template_dir, "logs"))
-
-  # Start log file
-  futile.logger::flog.appender(futile.logger::appender.file(file.path(template_dir, "logs", "log.txt")))
-  message("Creating new clustering template...")
 }
 
 
