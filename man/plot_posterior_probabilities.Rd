@@ -19,6 +19,5 @@ questioned document and each known writer analyzed with
 }
 \examples{
 plot_posterior_probabilities(analysis = example_analysis_1chain)
-plot_posterior_probabilities(analysis = example_analysis_2chains)
 
 }

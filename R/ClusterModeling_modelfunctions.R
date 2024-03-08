@@ -205,9 +205,6 @@ fit_model <- function(template_dir,
 #' model <- drop_burnin(model = example_model_1chain, burn_in = 25)
 #' plot_trace(variable = "mu[1,2]", model = example_model_1chain)
 #'
-#' model <- drop_burnin(model = example_model_2chains, burn_in = 25)
-#' plot_trace(variable = "mu[1,2]", model = example_model_2chains)
-#'
 #' @export
 #' @md
 drop_burnin <- function(model, burn_in) {
@@ -231,10 +228,6 @@ drop_burnin <- function(model, burn_in) {
 #' about_variable(
 #'   variable = "mu[1,2]",
 #'   model = example_model_1chain
-#' )
-#' about_variable(
-#'   variable = "gamma[5]",
-#'   model = example_model_2chains
 #' )
 #'
 #' @export

@@ -202,9 +202,6 @@ analyze_questioned_documents <- function(template_dir, questioned_images_dir, mo
 #' @examples
 #' # calculate the accuracy for example analysis performed on test documents and a model with 1 chain
 #' calculate_accuracy(example_analysis_1chain)
-#' 
-#' # calculate the accuracy for example analysis performed on test documents and a model with 2 chains
-#' calculate_accuracy(example_analysis_2chains)
 #'
 #' \dontrun{
 #' template_dir <- "/path/to/template_dir"

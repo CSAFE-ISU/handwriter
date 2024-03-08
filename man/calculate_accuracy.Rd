@@ -24,9 +24,6 @@ the average posterior probability assigned to the true writer.
 # calculate the accuracy for example analysis performed on test documents and a model with 1 chain
 calculate_accuracy(example_analysis_1chain)
 
-# calculate the accuracy for example analysis performed on test documents and a model with 2 chains
-calculate_accuracy(example_analysis_2chains)
-
 \dontrun{
 template_dir <- "/path/to/template_dir"
 test_images_dir <- "/path/to/test_images"

@@ -21,7 +21,4 @@ A list of data frames of MCMC draws with burn-in dropped.
 model <- drop_burnin(model = example_model_1chain, burn_in = 25)
 plot_trace(variable = "mu[1,2]", model = example_model_1chain)
 
-model <- drop_burnin(model = example_model_2chains, burn_in = 25)
-plot_trace(variable = "mu[1,2]", model = example_model_2chains)
-
 }

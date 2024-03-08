@@ -184,45 +184,6 @@
 #' @md
 "example_model_1chain"
 
-#' Example of a hierarchical model
-#'
-#' @format A hierarchical model created by [`fit_model()`] with two chains of 100 MCMC iterations. It is a named 
-#' list of 4 objects: 
-#' \describe{
-#'   \item{graph_measurements}{A data frame of model training data that shows the writer, document name, cluster assignment, 
-#'   slope, principle component rotation angle, and wrapped principle component rotation angle for each training graph.}
-#'   \item{cluster_fill_counts}{A data frame of the cluster fill counts for each model training document.}
-#'   \item{rjags_data}{The model training information from `graph_measurements` and `cluster_fill_counts` formatted for RJAGS.}
-#'   \item{fitted_model}{A model fit using the `rjags_data` and the RJAGS and coda packages. It is an MCMC list that contains an MCMC object for
-#'   each chain.}
-#' }
-#' @examples
-#' # convert to a data frame and view all variable names
-#' df <- as.data.frame(coda::as.mcmc(example_model_1chain$fitted_model))
-#' colnames(df)
-#' 
-#' # view a trace plot
-#' plot_trace(variable = "mu[1,1]", model = example_model_2chains)
-#' 
-#' # drop the first 25 MCMC iterations from each chain for burn-in
-#' model <- drop_burnin(model = example_model_2chains, burn_in = 25)
-#'
-#' \dontrun{
-#' # analyze questioned documents
-#' template_dir <- /path/to/cluster_template_directory
-#' questioned_images_dir <- /path/to/questioned_documents_directory
-#' analysis <- analyze_questioned_documents(
-#'    template_dir = template_dir,
-#'    questioned_images_dir = questioned_images_dir
-#'    model = example_model_2chains
-#'    num_cores = 2
-#' )
-#' analysis$posterior_probabilities
-#' }
-#' 
-#' @md
-"example_model_2chains"
-
 #' Example of writership analysis
 #'
 #' @format The results of [`analyze_questioned_documents()`] stored in a named list with 5 items:
@@ -245,26 +206,3 @@
 #'
 #' @md
 "example_analysis_1chain"
-
-#' Example of writership analysis
-#'
-#' @format The results of [`analyze_questioned_documents()`] stored in a named list with 5 items:
-#'   \describe{
-#'   \item{graph_measurements}{A data frame of that shows the writer, document name, cluster assignment, 
-#'   slope, principle component rotation angle, and wrapped principle component rotation angle for each training graph in each 
-#'   questioned documents.}
-#'   \item{cluster_fill_counts}{A data frame of the cluster fill counts for each questioned document.}
-#'   \item{likelihoods}{A list of data frames where each data frame
-#'   contains the likelihoods for a questioned document for each MCMC iteration.}
-#'   \item{votes}{A list of vote tallies for each questioned document.}
-#'   \item{posterior_probabilites}{A list of posterior probabilities of writership
-#'   for each questioned document and each known writer in the closed set used to train the
-#'   hierarchical model.}
-#'   }
-#'
-#' @examples
-#' plot_cluster_fill_counts(formatted_data = example_analysis_2chains)
-#' plot_posterior_probabilities(analysis = example_analysis_2chains)
-#'
-#' @md
-"example_analysis_2chains"

@@ -1,8 +1,7 @@
 ## code to prepare `example_data`
 
 # The functions in this script create `example_cluster_template`,
-# `example_model_1chain`, `example_model_2chains`,
-# `example_analysis_1chain`, and `example_analysis_2chains` and save them in the
+# `example_model_1chain`, and `example_analysis_1chain`, and save them in the
 # data folder as rda files.
 
 # Creating these data objects requires saving processed handwriting files, template helper files,
@@ -35,7 +34,7 @@ make_example_template <- function(main_dir, centers_seed, graphs_seed) {
   usethis::use_data(example_cluster_template, overwrite = TRUE)
 }
 
-make_example_models <- function(main_dir){
+make_example_model <- function(main_dir){
   model_docs <- system.file("extdata/example_images/model_docs", 
                                   package = "handwriter")
   example_model_1chain <- fit_model(template_dir = main_dir, 
@@ -47,16 +46,6 @@ make_example_models <- function(main_dir){
                                     doc_indices = c(7,18))
   # save to data folder
   usethis::use_data(example_model_1chain, overwrite = TRUE)
-  
-  example_model_2chains <- fit_model(template_dir = main_dir, 
-                                     model_images_dir = model_docs,
-                                     num_iters = 200, 
-                                     num_chains = 2, 
-                                     num_cores = 5,
-                                     writer_indices = c(2,5), 
-                                     doc_indices = c(7,18))
-  # save to data folder
-  usethis::use_data(example_model_2chains, overwrite = TRUE)
 }
 
 
@@ -72,15 +61,6 @@ make_example_analyses <- function(main_dir, num_cores = 5) {
                                                           doc_indices = c(7,18))
   
   usethis::use_data(example_analysis_1chain, overwrite = TRUE)
-  
-  example_analysis_2chains <- analyze_questioned_documents(template_dir = main_dir, 
-                                                           questioned_images_dir = questioned_docs, 
-                                                           model = example_model_2chains, 
-                                                           num_cores = num_cores,
-                                                           writer_indices = c(2,5), 
-                                                           doc_indices = c(7,18))
-  
-  usethis::use_data(example_analysis_2chains, overwrite = TRUE)
 }
 
 # create example data ----
@@ -88,9 +68,8 @@ make_example_analyses <- function(main_dir, num_cores = 5) {
 main_dir <- testthat::test_path("fixtures", "template")
 
 # choose starting seed and run number 
-# NOTE: I chose these seeds because they result in single and multiple chain
-# models that have high accuracy, 0.95 and 0.9535 respectively, on the test
-# documents
+# NOTE: I chose these seeds because they result in a single chain
+# model that has high accuracy, 0.95, on the test documents
 centers_seed <- 100
 graphs_seed <- 104
 
@@ -99,17 +78,17 @@ make_example_template(main_dir, centers_seed, graphs_seed)
 
 # make example models using the new example template
 devtools::load_all()
-make_example_models(main_dir)
+make_example_model(main_dir)
 
 # make example analyses using the new example models
 devtools::load_all()
 make_example_analyses(main_dir)
 
 # delete template and model files not needed for tests ----
-# analysis.rds is now saved as example_analysis_1chain or example_analysis_2chains
+# analysis.rds is now saved as example_analysis_1chain
 file.remove(testthat::test_path("fixtures", "template", "data", "analysis.rds"))  
 
-# model.rds is now saved as example_model_1chain or example_model_2chains
+# model.rds is now saved as example_model_1chain
 file.remove(testthat::test_path("fixtures", "template", "data", "model.rds"))  
 
 # only template.rds is used in the tests so other template files can be deleted

@@ -22,8 +22,5 @@ chains will be combined by pasting them together.
 \examples{
 plot_trace(model = example_model_1chain, variable = "pi[1,1]")
 plot_trace(model = example_model_1chain, variable = "mu[2,3]")
-plot_trace(model = example_model_2chains, variable = "gamma[1]")
-plot_trace(model = example_model_2chains, variable = "tau[2,3]")
-plot_trace(model = example_model_2chains, variable = "eta[2]")
 
 }

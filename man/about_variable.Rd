@@ -22,9 +22,5 @@ about_variable(
   variable = "mu[1,2]",
   model = example_model_1chain
 )
-about_variable(
-  variable = "gamma[5]",
-  model = example_model_2chains
-)
 
 }
