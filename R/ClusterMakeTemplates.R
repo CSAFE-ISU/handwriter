@@ -159,18 +159,10 @@ make_clustering_templates <- function(template_dir,
 #' instead of the handwriting document.
 #'
 #' @param template_dir Input directory
-#' @return List containing graphs prepared for template creation. template_proc_list.rds
-#'   is saved in template_dir > data.
+#' @return List containing graphs prepared for template creation.
 #'
 #' @noRd
 make_proc_list <- function(template_dir) {
-  
-  # Load proc list if it already exists
-  if (file.exists(file.path(template_dir, "data", "template_proc_list.rds"))){
-    message("Loading template proc list...")
-    template_proc_list <- readRDS(file.path(template_dir, "data", "template_proc_list.rds"))
-    return(template_proc_list)
-  }
   
   # List files in template directory > data > template_graphs
   df <- data.frame(graph_paths = list.files(file.path(template_dir, "data", "template_graphs"), pattern = ".rds", full.names = TRUE), stringsAsFactors = FALSE)
@@ -201,10 +193,6 @@ make_proc_list <- function(template_dir) {
     x$process$letterList <- MakeLetterListLetterSpecific(x$process$letterList, dim(x$image))
     return(x)
   }) # THIS MESSES UP PLOTTING!!
-
-  # Save to template directory
-  message("Saving template_dir > data > template_proc_list.rds...")
-  saveRDS(template_proc_list, file.path(template_dir, "data", "template_proc_list.rds"))
 
   return(template_proc_list)
 }
@@ -242,15 +230,6 @@ get_strata <- function(template_proc_list, template_dir) {
   stratum_table <- stratum_df %>%
     dplyr::group_by(stratum0_fac) %>%
     dplyr::summarize(n = dplyr::n())
-
-  # Save strata to csv file
-  message("Saving strata dataframe to template_dir > data > template_strata.rds...")
-  saveRDS(stratum_table, file.path(template_dir, "data", "template_strata.rds"))
-
-  # Calculate processing time
-  toc <- Sys.time()
-  elapsed <- paste0(round(as.numeric(difftime(time1 = toc, time2 = tic, units = "min")), 3), " minutes")
-  message(sprintf("Creating and saving strata dataframe: %s", elapsed))
 
   return(stratum_table)
 }
@@ -302,14 +281,7 @@ delete_crazy_graphs <- function(template_proc_list, max_edges, template_dir) {
     template_proc_list[[i]]$process$letterList <- template_proc_list[[i]]$process$letterList[keep_graphs]
   }
 
-  # Save to template directory
-  message("Saving updated graph list to template_dir > data > template_proc_list.rds")
-  saveRDS(template_proc_list, file.path(template_dir, "data", "template_proc_list.rds"))
-
-  # Calculate processing time
-  toc <- Sys.time() # stop timer
-  elapsed <- paste0(round(as.numeric(difftime(time1 = toc, time2 = tic, units = "min")), 3), " minutes")
-  message(sprintf("Deleted graphs with more than %d edges: %s", max_edges, elapsed))
+  message(sprintf("Deleted graphs with more than %d edges", max_edges))
 
   return(template_proc_list)
 }
@@ -323,7 +295,7 @@ delete_crazy_graphs <- function(template_proc_list, max_edges, template_dir) {
 #'
 #' @param template_proc_list List of graphs output by make_proc_list()
 #' @param template_dir Input directory
-#' @return List of graphs. The list is saved as template_dir > data > template_images_list.rds
+#' @return List of graphs.
 #'
 #' @noRd
 make_images_list <- function(template_proc_list, template_dir, writer_indices) {
@@ -365,14 +337,6 @@ make_images_list <- function(template_proc_list, template_dir, writer_indices) {
     return(x)
   })
 
-  message("Saving list of images to template_dir > data > template_images_list.rds")
-  saveRDS(template_images_list, file.path(template_dir, "data", "template_images_list.rds"))
-
-  # Calculate processing time
-  toc <- Sys.time() # stop timer
-  elapsed <- paste0(round(as.numeric(difftime(time1 = toc, time2 = tic, units = "min")), 3), " minutes")
-  message(sprintf("Saved images list to template_dir > data > template_images_list.rds: %s", elapsed))
-
   return(template_images_list)
 }
 
@@ -390,8 +354,7 @@ make_images_list <- function(template_proc_list, template_dir, writer_indices) {
 #'   `All` uses all available graphs. An integer uses a random sample of graphs.
 #' @param full_template_images_list A list of all available training graphs
 #'   created by `make_images_list`
-#' @return List of graphs. The list is saved as template_dir > data >
-#'   template_images_list.rds
+#' @return List of graphs.
 #'
 #' @noRd
 chooseGraphs <- function(seed, num_graphs, full_template_images_list) {
