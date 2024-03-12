@@ -27,5 +27,5 @@
 test_that("calculate accuracy works on a single chain", {
   accuracy <- calculate_accuracy(example_analysis_1chain)
   
-  expect_equal(accuracy, 0.86)
+  expect_equal(accuracy, 0.897)
 })

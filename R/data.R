@@ -130,13 +130,7 @@
 #'   the distance between each graph and the center of the cluster to which it
 #'   was assigned  on each iteration.}
 #' \item{wcss}{A vector of the
-#'   within-cluster sum of squares on each iteration of the K-means algorithm.}
-#' \item{rmse}{A vector of the root-mean square error on each iteration of the
-#'   K-means algorithm.}
-#' \item{DaviesBouldinIndex}{The Davies-Bouldin index on
-#'   each iteration of the K-means algorithm.}
-#' \item{VarianceRatioCriterion}{The
-#'   variance-ratio criterion on each iteration of the K-means algorithm.} }
+#'   within-cluster sum of squares on each iteration of the K-means algorithm.}}
 #' @examples
 #' # view cluster fill counts for template training documents
 #' template_data <- format_template_data(example_cluster_template)

@@ -577,10 +577,7 @@ letterKmeansWithOutlier_parallel <- function(template_proc_list, template_images
   centerMovedOld <- rep(TRUE, K) # whether each cluster lost or grained graphs on last iteration
   oldCenters <- centers
   changes <- c() # number of graphs that changed clusters on each iteration
-  db <- c() # Davies-Bouldin Index
-  vrc <- c() # Variance ratio criterion
   wcss <- c() # Within-cluster sum of squares
-  rmse <- c() # Root mean square error
 
   # Initial settings for outliers
   current_outlierCutoff <- Inf
@@ -673,21 +670,6 @@ letterKmeansWithOutlier_parallel <- function(template_proc_list, template_images
     wcss <- c(wcss, current_wcss)
     message(sprintf("The within-cluster sum of squares is %f.", current_wcss))
 
-    # Calculate the root mean square error
-    current_rmse <- root_mean_square_error(wcd = current_wcd, cluster = cluster)
-    rmse <- c(rmse, current_rmse)
-    message(sprintf("The root mean square error is %f.", current_rmse))
-
-    # Calculate the Davies-Bouldin Index
-    current_db <- davies_bouldin(wcd = current_wcd, cluster = cluster, centers = centers, K = K, num_path_cuts = num_path_cuts)
-    db <- c(db, current_db)
-    message(sprintf("The Davies-Bouldin Index is %f.", current_db))
-
-    # Calculate the variance ratio criterion
-    current_vrc <- variance_ratio_criterion(wcd = current_wcd, cluster = cluster, centers = centers, K = K, num_path_cuts = num_path_cuts)
-    vrc <- c(vrc, current_vrc)
-    message(sprintf("The variance ratio criterion is %f.", current_vrc))
-
     # Check Stopping Criteria ----
     # Stop if the percent of graphs that changed clusters is <= 3%, if the
     # number of graphs that changed clusters has been constant for 3 consecutive
@@ -753,10 +735,7 @@ letterKmeansWithOutlier_parallel <- function(template_proc_list, template_images
     outlierCutoff = outlierCutoff,
     stop_reason = stop_reason, 
     wcd = wcd, 
-    wcss = wcss, 
-    rmse = rmse, 
-    DaviesBouldinIndex = db, 
-    VarianceRatioCriterion = vrc
+    wcss = wcss
   ))
 }
 
@@ -858,107 +837,6 @@ overall_meanGraph <- function(centers, num_path_cuts = 8) {
   return(list("overall_center_dists" = dists, overall_center = centers[[retindex]]))
 }
 
-
-#' Davies Bouldin Index
-#'
-#' davies_bouldin() calculates the Davies-Bouldin Index for the current
-#' iteration of the K-means algorithm
-#'
-#' @param wcd Matrix of within-cluster distances: the distances between each
-#'   graph and each cluster center
-#' @param cluster Vector of the cluster assignment for each graph
-#' @param centers List of cluster centers
-#' @param K Integer number of clusters
-#' @param num_path_cuts Integer number of sections to cut each graph into for
-#'   shape comparison
-#' @return The Davies-Bouldin Index
-#'
-#' @noRd
-davies_bouldin <- function(wcd, cluster, centers, K, num_path_cuts) {
-  # For each cluster, calculate the average distance between the graphs in that cluster and the cluster center
-  s <- rep(0, K)
-  for (i in 1:K) {
-    s[i] <- mean(wcd[cluster == i])
-  }
-
-  # Calculate the distance between each pair of cluster centers. We don't need to calculate the distance between a center and itself, so skip those calculations.
-  d <- matrix(NA, nrow = K, ncol = K)
-  for (i in 1:K) {
-    for (j in 1:K) {
-      if (i != j) {
-        d[i, j] <- getGraphDistance(centers[[i]], centers[[j]], isProto1 = TRUE, isProto2 = TRUE, numPathCuts = num_path_cuts)$matching_weight
-      }
-    }
-  }
-
-  # Calculate R_ij for all i and j. Again, we don't need to measure the separation between a cluster and itself, so skip those calculations
-  R <- matrix(NA, nrow = K, ncol = K)
-  for (i in 1:K) {
-    for (j in 1:K) {
-      if (i != j) {
-        R[i, j] <- (s[i] + s[j]) / d[i, j]
-      }
-    }
-  }
-
-  # Make list of clusters that have at least 1 graph
-  filled_clusters <- unique(cluster[cluster != -1])
-
-  # Find the max value of R for each filled cluster i
-  maxR <- rep(NA, length(filled_clusters))
-  for (i in 1:length(filled_clusters)) {
-    maxR[i] <- max(R[filled_clusters[i], ], na.rm = TRUE)
-  }
-
-  # Calculate the index
-  db <- sum(maxR) / length(filled_clusters)
-
-  return(db)
-}
-
-
-#' Variance Ratio Criterion
-#'
-#' `variance_ratio_criterion()` calculates the varience-ratio criterion for the
-#' current iteration of the K-means algorithm
-#'
-#' @param wcd Matrix of within-cluster distances: the distances between each
-#'   graph and each cluster center
-#' @param cluster Vector of the cluster assignment for each graph
-#' @param centers List of cluster centers
-#' @param K Integer number of clusters
-#' @param num_path_cuts Integer number of sections to cut each graph into for
-#'   shape comparison
-#' @return The variance-ratio criterion
-#'
-#' @noRd
-variance_ratio_criterion <- function(wcd, cluster, centers, K, num_path_cuts) {
-  # Count the number of graphs in each non-outlier cluster
-  ni <- c()
-  for (i in 1:K) {
-    ni <- c(ni, sum(cluster == i))
-  }
-
-  # Get total number of non-outlier graphs
-  n <- sum(ni)
-
-  # Estimate the overall mean graph (the center of the centers) and measure distance from all centers to
-  # the overall center
-  overall <- overall_meanGraph(centers = centers, num_path_cuts = num_path_cuts)
-
-  # Calculate the between-cluster variance: SS_B = (k-1)^(-1) \sum_{i=1}^k n_i \cdot d(m_i, m)^2
-  SSb <- sum(ni * overall$overall_center_dists^2) / (K - 1)
-
-  # Calculate the within-cluster variance: SS_W = (n-k)^(-1)\sum_{i=1}^k \sum_{x \in C_i} d(x, m_i)^2
-  wcd <- wcd[cluster != -1] # remove graphs in the outlier cluster
-  SSw <- sum(wcd^2) / (n - K)
-
-  # Calculate variance-ratio-criterion
-  vrc <- SSb / SSw
-  return(vrc)
-}
-
-
 #' Within Cluster Sum of Squares
 #'
 #' `within_cluster_sum_of_squares()` calculates the the within-cluster sum of squares for the
@@ -978,32 +856,4 @@ within_cluster_sum_of_squares <- function(wcd, cluster) {
   wcss <- sum(wcd^2)
 
   return(wcss)
-}
-
-
-#' Root Mean Square Error
-#'
-#' `root_mean_square_error()` calculates the the root mean square error for the
-#' current iteration of the K-means algorithm
-#'
-#' @param wcd Matrix of within-cluster distances: the distances between each
-#'   graph and each cluster center
-#' @param cluster Vector of the cluster assignment for each graph
-#' @return The root mean square error
-#'
-#' @noRd
-root_mean_square_error <- function(wcd, cluster) {
-  # Get within cluster distances of non-outlier clusters
-  wcd <- wcd[cluster != -1]
-
-  # Get number of non-outlier graphs
-  n <- length(wcd)
-
-  # Calculate within-cluster sum of squares
-  wcss <- sum(wcd^2)
-
-  # Calculate the root means square error
-  rmse <- sqrt(wcss / n)
-
-  return(rmse)
 }

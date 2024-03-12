@@ -97,9 +97,6 @@ file.remove(testthat::test_path("fixtures", "template", "data", "template_images
 file.remove(testthat::test_path("fixtures", "template", "data", "template_proc_list.rds")) 
 file.remove(testthat::test_path("fixtures", "template", "data", "template_strata.rds")) 
 
-# log files aren't used in the tests
-unlink(testthat::test_path("fixtures", "template", "logs"), recursive = TRUE) 
-
 # delete model_clusters and questioned_clusters folders. These folders are
 # simply back-up for model_clusters.rds and questioned_clusters.rds.
 unlink(testthat::test_path("fixtures", "template", "data", "model_clusters"), recursive = TRUE) 
