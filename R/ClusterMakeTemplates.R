@@ -179,7 +179,7 @@ make_proc_list <- function(template_dir) {
   })
 
   # Get the number of loops and edges in each graph
-  message("Adding sampling strata for each graph")
+  message("Adding sampling strata for each graph...")
   template_proc_list <- lapply(template_proc_list, function(x) {
     x$process$letterList <- AddSamplingStrata(x$process$letterList)
     return(x)
@@ -281,7 +281,7 @@ delete_crazy_graphs <- function(template_proc_list, max_edges, template_dir) {
     template_proc_list[[i]]$process$letterList <- template_proc_list[[i]]$process$letterList[keep_graphs]
   }
 
-  message(sprintf("Deleted graphs with more than %d edges", max_edges))
+  message(sprintf("Deleted graphs with more than %d edges...", max_edges))
 
   return(template_proc_list)
 }
@@ -555,7 +555,7 @@ letterKmeansWithOutlier_parallel <- function(template_proc_list, template_images
   while (TRUE) {
     # Cluster Assignment Step ----
     iters <- iters + 1
-    message(sprintf("Starting iteration %d of the k-means algorithm...", iters))
+    message(sprintf("\nStarting iteration %d of the k-means algorithm...", iters))
 
     message("Calculating the distances between graphs and cluster centers...")
     # Calculate the distance between each graph and each cluster center. If the cluster center didn't change, the distances for that
@@ -624,14 +624,14 @@ letterKmeansWithOutlier_parallel <- function(template_proc_list, template_images
     current_changes <- sum(cluster != oldCluster)
     changes <- c(changes, current_changes)
     current_perc_changes <- 100 * current_changes / n
-    message(sprintf("%d graphs changed clusters.", current_changes))
-    message(sprintf("%f percent of total graphs changed clusters.", current_perc_changes))
+    message(sprintf("%d graphs changed clusters...", current_changes))
+    message(sprintf("%f percent of total graphs changed clusters...", current_perc_changes))
 
     # Performance Measures ----
     # Caclulate the Within-Cluster Sum of Squares
     current_wcss <- within_cluster_sum_of_squares(wcd = current_wcd, cluster = cluster)
     wcss <- c(wcss, current_wcss)
-    message(sprintf("The within-cluster sum of squares is %f.", current_wcss))
+    message(sprintf("The within-cluster sum of squares is %f...", current_wcss))
 
     # Check Stopping Criteria ----
     # Stop if the percent of graphs that changed clusters is <= 3%, if the
