@@ -32,12 +32,13 @@ Imports:
     Rfast,
     rjags,
     stringr,
-    tidyr
+    tidyr,
 Suggests: 
     knitr,
     rmarkdown,
     testthat (>= 3.0.0),
-    coda
+    coda,
+    withr
 Config/testthat/edition: 3
 VignetteBuilder: knitr
 URL: https://github.com/CSAFE-ISU/handwriter
