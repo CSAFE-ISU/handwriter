@@ -238,6 +238,9 @@ test_that("getGraphInfo returns the correct output with two prototype image list
   graph_info <- getGraphInfo(image_list1, image_list2, TRUE, TRUE, 5)
   expect_equal(graph_info$numPaths1, 2)
   expect_equal(graph_info$numPaths2, 3)
+  graph_info2 <- getGraphInfo_cpp(image_list1, image_list2, TRUE, TRUE, 5)
+  expect_equal(graph_info2$numPaths1, 2)
+  expect_equal(graph_info2$numPaths2, 3)
 })
 
 # Test 2: getGraphInfo with two non-prototype image lists
@@ -248,6 +251,9 @@ test_that("getGraphInfo returns the correct output with two non-prototype image 
   graph_info <- getGraphInfo(image_list1, image_list2, FALSE, FALSE, 5)
   expect_equal(graph_info$numPaths1, 2)
   expect_equal(graph_info$numPaths2, 3)
+  graph_info2 <- getGraphInfo_cpp(image_list1, image_list2, FALSE, FALSE, 5)
+  expect_equal(graph_info2$numPaths1, 2)
+  expect_equal(graph_info2$numPaths2, 3)
 })
 
 # Test 3: getGraphInfo with one prototype and one non-prototype image list
@@ -258,6 +264,9 @@ test_that("getGraphInfo returns the correct output with one prototype and one no
   graph_info <- getGraphInfo(image_list1, image_list2, TRUE, FALSE, 5)
   expect_equal(graph_info$numPaths1, 2)
   expect_equal(graph_info$numPaths2, 3)
+  graph_info2 <- getGraphInfo_cpp(image_list1, image_list2, TRUE, FALSE, 5)
+  expect_equal(graph_info2$numPaths1, 2)
+  expect_equal(graph_info2$numPaths2, 3)
 })
 
 ##########################

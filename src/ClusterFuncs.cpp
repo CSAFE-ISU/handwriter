@@ -5,20 +5,20 @@
 
 void graphInfo_subpart1(Rcpp::List imageList, bool isProto, int &numPaths,
                         int &letterSize) {
-    auto allPaths = Rcpp::as<Rcpp::List>(imageList["allPaths"]);
-    auto pathEnds = Rcpp::as<Rcpp::IntegerMatrix>(imageList["pathEnds"]);
-    numPaths = std::max<int>(
-        allPaths.size(), Rcpp::as<Rcpp::Dimension>(pathEnds.attr("dim"))[0]);
     // Find the sum of the lengths of paths in graph 1
     if (!isProto) {
+        auto allPaths = Rcpp::as<Rcpp::List>(imageList["allPaths"]);
+        numPaths = static_cast<int>(allPaths.size());
         // this should be equivalent to length(unlist(x))?
-        auto tmp = Rcpp::as<Rcpp::List>(imageList["allPaths"]);
-        int sz = tmp.size();
+        int sz = allPaths.size();
         for (int i = 0; i < sz; i++) {
-            letterSize +=
-                Rcpp::as<Rcpp::IntegerVector>(tmp[i]).size();  // typecast??
+            letterSize += Rcpp::as<Rcpp::IntegerVector>(allPaths[i])
+                              .size();  // typecast??
         }
     } else {
+        auto pathEnds = Rcpp::as<Rcpp::IntegerMatrix>(imageList["pathEnds"]);
+        numPaths = static_cast<int>(
+            Rcpp::as<Rcpp::Dimension>(pathEnds.attr("dim"))[0]);
         auto lengths = Rcpp::as<arma::Col<int>>(imageList["lengths"]);
         letterSize = arma::sum(lengths);
     }
@@ -53,23 +53,20 @@ void graphInfo_subpart2(Rcpp::List imageList, bool isProto, int numPaths,
             len[i] = lengths[i];
             pe.slice(i) = arma::reshape(pathEnds.row(i), 2, 2).t();
             cent.subcube(0, 0, i, 0, 1, i) = pathCenter.row(i);
-            pq.slice(i) =
-                arma::reshape(pathQuarters.submat(i, 0, i, 2 * numPathCuts - 3),
-                              2 * numPathCuts - 2, 2)
-                    .t();
+            pq.slice(i) = // transpose?
+                arma::reshape(pathQuarters.row(i), numPathCuts - 1, 2);
         }
     } else {
         auto centroid = Rcpp::as<arma::rowvec>(imageList["centroid"]);
         auto imagedim = Rcpp::as<Rcpp::Dimension>(
             Rcpp::as<Rcpp::IntegerMatrix>(imageList["image"]).attr("dim"));
-        auto pathEndsrc = Rcpp::as<Rcpp::List>(imageList["pathEndsrc"]);
+        auto pathEndsrc = Rcpp::as<arma::Cube<double>>(imageList["pathEndsrc"]);
         auto allPaths = Rcpp::as<Rcpp::List>(imageList["allPaths"]);
         for (int i = 0; i < numPaths; ++i) {
-            // is allPaths[i] an IntegerVector?
             auto pvec = Rcpp::as<arma::Col<int>>(allPaths[i]);
             int l = pvec.size();
             len[i] = l;
-            pe.slice(i) = Rcpp::as<arma::Mat<double>>(pathEndsrc[i]);
+            pe.slice(i) = pathEndsrc.slice(i);  // iffy
             auto pathRC = pathToRC(pvec, imagedim);
             cent.subcube(0, 0, i, 0, 1, i) =
                 arma::mean(1.0 * pathRC, 0) - centroid;
