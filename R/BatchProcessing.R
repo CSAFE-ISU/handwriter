@@ -112,8 +112,7 @@ process_batch_list <- function(images, output_dir, skip_docs_on_retry=TRUE) {
   # problem docs as the function output. But if batch_process_list is run
   # multiple times on the same input / out dirs, then only errors from the most recent
   # run would be returned.
-  problem_docs <- get_prob_docs_from_log(prob_log_file)
-  message("The following documents could not be processed: ", problem_docs)
+  show_problem_docs(prob_log_file)
 
   return()
 }
@@ -195,21 +194,57 @@ read_and_process <- function(image_name, transform_output) {
 
 # INTERNAL ----------------------------------------------------------------
 
+
+#' Get Document Name from Line
+#'
+#' This is an internal function to retrieve the document name from a line of
+#' text in the log file problems.txt created by `process_batch_list`. Problem
+#' documents are added to the log with a statement "error with document
+#' <docname>..." This function searches the line of text for the string "error
+#' with document" and returns the the first word after the string.
+#'
+#' @param line
+#'
+#' @return document name or NA
+#'
+#' @noRd
 get_docname_from_line <- function(line) {
-  docname <- stringr::str_extract_all(line, "document\\W+\\w+.[p|P][n|N][g|G]")[[1]]
-  docname <- strsplit(docname, " ")[[1]][2]
+  docname <- stringr::str_extract(line, "(?<=error with document )(\\w+.[p|P][n|N][g|G])")
   return(docname)
 }
 
+#' Get Problem Documents from Log File
+#' 
+#' Internal function to read the problem log file created by `process_batch_list`
+#' and return a vector of problem document names. Problem documents are added to 
+#' the log with a statement "error with document <docname>..." This function 
+#' searches for the string of text "error with document" and returns the the 
+#' first word after the string.
+#'
+#' @param log_file File path to log file
+#'
+#' @return Vector of problem documents
+#'
+#' @noRd
 get_prob_docs_from_log <- function(log_file){
   lines <- readLines(log_file)
   problem_docs <- unlist(lapply(lines, get_docname_from_line))
+  problem_docs <- problem_docs[!is.na(problem_docs)]
   return(problem_docs)
 }
 
 remove_prob_docs_from_list <- function(problem_docs, images){
   images <- images[!(basename(images) %in% problem_docs)]
   return(images)
+}
+
+show_problem_docs <- function(prob_log_file) {
+  problem_docs <- get_prob_docs_from_log(prob_log_file)
+  if (length(problem_docs) == 0){
+    message("All documents were successfully processed...\n")
+  } else{
+    message("The following documents could not be processed: ", paste0(problem_docs, collapse = ', '))
+  }
 }
   
 
