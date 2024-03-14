@@ -1,3 +1,6 @@
+// force return as a vector rather than single column matrix
+#define RCPP_ARMADILLO_RETURN_ANYVEC_AS_VECTOR
+// https://stackoverflow.com/a/73979115
 #include <RcppArmadillo.h>
 
 #include <algorithm>
@@ -53,8 +56,8 @@ void graphInfo_subpart2(Rcpp::List imageList, bool isProto, int numPaths,
             len[i] = lengths[i];
             pe.slice(i) = arma::reshape(pathEnds.row(i), 2, 2).t();
             cent.subcube(0, 0, i, 0, 1, i) = pathCenter.row(i);
-            pq.slice(i) = // transpose?
-                arma::reshape(pathQuarters.row(i), numPathCuts - 1, 2);
+            pq.slice(i) =
+                arma::reshape(pathQuarters.row(i), 2, numPathCuts - 1).t();
         }
     } else {
         auto centroid = Rcpp::as<arma::rowvec>(imageList["centroid"]);
@@ -67,14 +70,14 @@ void graphInfo_subpart2(Rcpp::List imageList, bool isProto, int numPaths,
             int l = pvec.size();
             len[i] = l;
             pe.slice(i) = pathEndsrc.slice(i);  // iffy
-            auto pathRC = pathToRC(pvec, imagedim);
+            auto pathRC = arma::conv_to<arma::Mat<double>>::from(pathToRC(pvec, imagedim));
             cent.subcube(0, 0, i, 0, 1, i) =
-                arma::mean(1.0 * pathRC, 0) - centroid;
+                arma::mean(pathRC, 0) - centroid;
             // the Rfast::eachrow
             for (int j = 0; j < numPathCuts - 1; j++) {
                 // ceil but 0-indexed -> floor
-                int ind = std::floor(l / ((1.0 * numPathCuts) / j + 1));
-                pq.subcube(ind, 0, i, ind, 1, i) = pathRC.row(ind) - centroid;
+                int ind = std::floor(l / ((1.0 * numPathCuts) / (j + 1)));
+                pq.subcube(j, 0, i, j, 1, i) = pathRC.row(ind) - centroid;
             }
         }
     }
@@ -106,25 +109,25 @@ Rcpp::List getGraphInfo_cpp(Rcpp::List imageList1, Rcpp::List imageList2,
 
     int pathCheckNum = std::max(numPaths1, numPaths2);
 
-    arma::Cube<double> pq1(numPathCuts - 1, 2, pathCheckNum);
-    arma::Cube<double> pe1(2, 2, pathCheckNum);
-    arma::Cube<double> cent1(1, 2, pathCheckNum);
+    arma::Cube<double> pq1(numPathCuts - 1, 2, pathCheckNum, arma::fill::value(NA_REAL));
+    arma::Cube<double> pe1(2, 2, pathCheckNum, arma::fill::value(NA_REAL));
+    arma::Cube<double> cent1(1, 2, pathCheckNum, arma::fill::value(NA_REAL));
     arma::Col<int> len1(pathCheckNum);
     graphInfo_subpart2(imageList1, isProto1, numPaths1, numPathCuts,  //
                        pathCheckNum, pq1, pe1, cent1, len1);
 
-    arma::Cube<double> pq2(numPathCuts - 1, 2, pathCheckNum);
-    arma::Cube<double> pe2(2, 2, pathCheckNum);
-    arma::Cube<double> cent2(1, 2, pathCheckNum);
+    arma::Cube<double> pq2(numPathCuts - 1, 2, pathCheckNum, arma::fill::value(NA_REAL));
+    arma::Cube<double> pe2(2, 2, pathCheckNum, arma::fill::value(NA_REAL));
+    arma::Cube<double> cent2(1, 2, pathCheckNum, arma::fill::value(NA_REAL));
     arma::Col<int> len2(pathCheckNum);
     graphInfo_subpart2(imageList2, isProto2, numPaths2, numPathCuts,  //
                        pathCheckNum, pq2, pe2, cent2, len2);
 
-    Rcpp::LogicalMatrix pathEndPointsMatch(pathCheckNum, pathCheckNum);
+    Rcpp::LogicalVector pathEndPointsMatch(pathCheckNum * pathCheckNum);
     pathEndPointsMatch.fill(true);
 
     Rcpp::NumericMatrix weights(pathCheckNum, pathCheckNum);
-    weights.fill(0.0);
+    weights.fill(NA_REAL);
 
     Rcpp::IntegerVector letterSize =
         Rcpp::IntegerVector::create(letterSize1, letterSize2);
