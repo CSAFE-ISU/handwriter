@@ -69,7 +69,7 @@ void graphInfo_subpart2(Rcpp::List imageList, bool isProto, int numPaths,
             auto pvec = Rcpp::as<arma::Col<int>>(allPaths[i]);
             int l = pvec.size();
             len[i] = l;
-            pe.slice(i) = pathEndsrc.slice(i);  // iffy
+            pe.slice(i).fill(pathEndsrc(i));  // iffy
             auto pathRC = arma::conv_to<arma::Mat<double>>::from(pathToRC(pvec, imagedim));
             cent.subcube(0, 0, i, 0, 1, i) =
                 arma::mean(pathRC, 0) - centroid;
