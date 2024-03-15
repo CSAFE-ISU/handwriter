@@ -23,13 +23,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // getGraphInfo_cpp
-Rcpp::List getGraphInfo_cpp(Rcpp::List imageList1, Rcpp::List imageList2, bool isProto1, bool isProto2, int numPathCuts);
+Rcpp::List getGraphInfo_cpp(const Rcpp::List& imageList1, const Rcpp::List& imageList2, bool isProto1, bool isProto2, int numPathCuts);
 RcppExport SEXP _handwriter_getGraphInfo_cpp(SEXP imageList1SEXP, SEXP imageList2SEXP, SEXP isProto1SEXP, SEXP isProto2SEXP, SEXP numPathCutsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::List >::type imageList1(imageList1SEXP);
-    Rcpp::traits::input_parameter< Rcpp::List >::type imageList2(imageList2SEXP);
+    Rcpp::traits::input_parameter< const Rcpp::List& >::type imageList1(imageList1SEXP);
+    Rcpp::traits::input_parameter< const Rcpp::List& >::type imageList2(imageList2SEXP);
     Rcpp::traits::input_parameter< bool >::type isProto1(isProto1SEXP);
     Rcpp::traits::input_parameter< bool >::type isProto2(isProto2SEXP);
     Rcpp::traits::input_parameter< int >::type numPathCuts(numPathCutsSEXP);

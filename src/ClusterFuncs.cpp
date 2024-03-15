@@ -6,20 +6,21 @@
 #include <algorithm>
 // [[Rcpp::depends(RcppArmadillo)]]
 
-void graphInfo_subpart1(Rcpp::List imageList, bool isProto, int &numPaths,
-                        int &letterSize) {
+void graphInfo_subpart1(const Rcpp::List &imageList, bool isProto,
+                        int &numPaths, int &letterSize) {
     // Find the sum of the lengths of paths in graph 1
     if (!isProto) {
-        auto allPaths = Rcpp::as<Rcpp::List>(imageList["allPaths"]);
+        auto allPaths = Rcpp::as<const Rcpp::List &>(imageList["allPaths"]);
         numPaths = static_cast<int>(allPaths.size());
         // this should be equivalent to length(unlist(x))?
         int sz = allPaths.size();
         for (int i = 0; i < sz; i++) {
-            letterSize += Rcpp::as<Rcpp::IntegerVector>(allPaths[i])
+            letterSize += Rcpp::as<const Rcpp::IntegerVector &>(allPaths[i])
                               .size();  // typecast??
         }
     } else {
-        auto pathEnds = Rcpp::as<Rcpp::IntegerMatrix>(imageList["pathEnds"]);
+        auto pathEnds =
+            Rcpp::as<const Rcpp::IntegerMatrix &>(imageList["pathEnds"]);
         numPaths = static_cast<int>(
             Rcpp::as<Rcpp::Dimension>(pathEnds.attr("dim"))[0]);
         auto lengths = Rcpp::as<arma::Col<int>>(imageList["lengths"]);
@@ -27,7 +28,8 @@ void graphInfo_subpart1(Rcpp::List imageList, bool isProto, int &numPaths,
     }
 }
 
-arma::Mat<int> pathToRC(arma::Col<int> &pvec, Rcpp::Dimension dims) {
+arma::Mat<int> pathToRC(const arma::Col<int> &pvec,
+                        const Rcpp::Dimension &dims) {
     arma::Mat<int> res(pvec.size(), 2);
     int d0 = static_cast<int>(dims[0]);
     res.col(0) = pvec - 1;
@@ -39,7 +41,7 @@ arma::Mat<int> pathToRC(arma::Col<int> &pvec, Rcpp::Dimension dims) {
     return res;
 }
 
-void graphInfo_subpart2(Rcpp::List imageList, bool isProto, int numPaths,
+void graphInfo_subpart2(const Rcpp::List &imageList, bool isProto, int numPaths,
                         int numPathCuts, int pathCheckNum,
                         arma::Cube<double> &pq, arma::Cube<double> &pe,
                         arma::Cube<double> &cent, arma::Col<int> &len) {
@@ -70,9 +72,9 @@ void graphInfo_subpart2(Rcpp::List imageList, bool isProto, int numPaths,
             int l = pvec.size();
             len[i] = l;
             pe.slice(i).fill(pathEndsrc(i));  // iffy
-            auto pathRC = arma::conv_to<arma::Mat<double>>::from(pathToRC(pvec, imagedim));
-            cent.subcube(0, 0, i, 0, 1, i) =
-                arma::mean(pathRC, 0) - centroid;
+            auto pathRC = arma::conv_to<arma::Mat<double>>::from(
+                pathToRC(pvec, imagedim));
+            cent.subcube(0, 0, i, 0, 1, i) = arma::mean(pathRC, 0) - centroid;
             // the Rfast::eachrow
             for (int j = 0; j < numPathCuts - 1; j++) {
                 // ceil but 0-indexed -> floor
@@ -97,8 +99,9 @@ void graphInfo_subpart2(Rcpp::List imageList, bool isProto, int numPaths,
 //'
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::List getGraphInfo_cpp(Rcpp::List imageList1, Rcpp::List imageList2,
-                            bool isProto1, bool isProto2, int numPathCuts) {
+Rcpp::List getGraphInfo_cpp(const Rcpp::List &imageList1,
+                            const Rcpp::List &imageList2, bool isProto1,
+                            bool isProto2, int numPathCuts) {
     int numPaths1 = 0;
     int letterSize1 = 0;
     graphInfo_subpart1(imageList1, isProto1, numPaths1, letterSize1);
@@ -109,14 +112,16 @@ Rcpp::List getGraphInfo_cpp(Rcpp::List imageList1, Rcpp::List imageList2,
 
     int pathCheckNum = std::max(numPaths1, numPaths2);
 
-    arma::Cube<double> pq1(numPathCuts - 1, 2, pathCheckNum, arma::fill::value(NA_REAL));
+    arma::Cube<double> pq1(numPathCuts - 1, 2, pathCheckNum,
+                           arma::fill::value(NA_REAL));
     arma::Cube<double> pe1(2, 2, pathCheckNum, arma::fill::value(NA_REAL));
     arma::Cube<double> cent1(1, 2, pathCheckNum, arma::fill::value(NA_REAL));
     arma::Col<int> len1(pathCheckNum);
     graphInfo_subpart2(imageList1, isProto1, numPaths1, numPathCuts,  //
                        pathCheckNum, pq1, pe1, cent1, len1);
 
-    arma::Cube<double> pq2(numPathCuts - 1, 2, pathCheckNum, arma::fill::value(NA_REAL));
+    arma::Cube<double> pq2(numPathCuts - 1, 2, pathCheckNum,
+                           arma::fill::value(NA_REAL));
     arma::Cube<double> pe2(2, 2, pathCheckNum, arma::fill::value(NA_REAL));
     arma::Cube<double> cent2(1, 2, pathCheckNum, arma::fill::value(NA_REAL));
     arma::Col<int> len2(pathCheckNum);
