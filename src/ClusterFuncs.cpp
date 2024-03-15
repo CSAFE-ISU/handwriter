@@ -65,13 +65,13 @@ void graphInfo_subpart2(const Rcpp::List &imageList, bool isProto, int numPaths,
         auto imagedim = Rcpp::as<Rcpp::Dimension>(
             Rcpp::as<Rcpp::IntegerMatrix>(imageList["image"])
                 .attr("dim"));
-        auto pathEndsrc = Rcpp::as<arma::Cube<double>>(imageList["pathEndsrc"]);
+        auto pathEndsrc = Rcpp::as<Rcpp::List>(imageList["pathEndsrc"]);
         auto allPaths = Rcpp::as<Rcpp::List>(imageList["allPaths"]);
         for (int i = 0; i < numPaths; ++i) {
             auto pvec = Rcpp::as<arma::Col<int>>(allPaths[i]);
             int l = pvec.size();
             len[i] = l;
-            pe.slice(i).fill(pathEndsrc(i));
+            pe.slice(i) = Rcpp::as<arma::Mat<double>>(pathEndsrc[i]);
             auto pathRC = pathToRC(pvec, imagedim);
             cent.subcube(0, 0, i, 0, 1, i) = arma::mean(pathRC, 0) - centroid;
             // the Rfast::eachrow
