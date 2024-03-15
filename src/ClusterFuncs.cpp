@@ -28,15 +28,14 @@ void graphInfo_subpart1(const Rcpp::List &imageList, bool isProto,
     }
 }
 
-arma::Mat<int> pathToRC(const arma::Col<int> &pvec,
-                        const Rcpp::Dimension &dims) {
-    arma::Mat<int> res(pvec.size(), 2);
+arma::Mat<double> pathToRC(const arma::Col<int> &pvec,
+                           const Rcpp::Dimension &dims) {
+    arma::Mat<double> res(pvec.size(), 2);
     int d0 = static_cast<int>(dims[0]);
-    res.col(0) = pvec - 1;
-    res.col(1) = pvec - 1;
     for (int i = 0; i < pvec.size(); ++i) {
-        res.at(i, 0) = 1 + (res.at(i, 0) / d0);
-        res.at(i, 1) = d0 - (res.at(i, 1) % d0);
+        int t = pvec[i] - 1;
+        res.at(i, 0) = static_cast<double>(1 + (t / d0));
+        res.at(i, 1) = static_cast<double>(d0 - (t % d0));
     }
     return res;
 }
@@ -64,16 +63,16 @@ void graphInfo_subpart2(const Rcpp::List &imageList, bool isProto, int numPaths,
     } else {
         auto centroid = Rcpp::as<arma::rowvec>(imageList["centroid"]);
         auto imagedim = Rcpp::as<Rcpp::Dimension>(
-            Rcpp::as<Rcpp::IntegerMatrix>(imageList["image"]).attr("dim"));
+            Rcpp::as<const Rcpp::IntegerMatrix &>(imageList["image"])
+                .attr("dim"));
         auto pathEndsrc = Rcpp::as<arma::Cube<double>>(imageList["pathEndsrc"]);
-        auto allPaths = Rcpp::as<Rcpp::List>(imageList["allPaths"]);
+        auto allPaths = Rcpp::as<const Rcpp::List &>(imageList["allPaths"]);
         for (int i = 0; i < numPaths; ++i) {
             auto pvec = Rcpp::as<arma::Col<int>>(allPaths[i]);
             int l = pvec.size();
             len[i] = l;
-            pe.slice(i).fill(pathEndsrc(i));  // iffy
-            auto pathRC = arma::conv_to<arma::Mat<double>>::from(
-                pathToRC(pvec, imagedim));
+            pe.slice(i).fill(pathEndsrc(i));
+            auto pathRC = pathToRC(pvec, imagedim);
             cent.subcube(0, 0, i, 0, 1, i) = arma::mean(pathRC, 0) - centroid;
             // the Rfast::eachrow
             for (int j = 0; j < numPathCuts - 1; j++) {
