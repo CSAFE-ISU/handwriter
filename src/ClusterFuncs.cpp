@@ -10,17 +10,17 @@ void graphInfo_subpart1(const Rcpp::List &imageList, bool isProto,
                         int &numPaths, int &letterSize) {
     // Find the sum of the lengths of paths in graph 1
     if (!isProto) {
-        auto allPaths = Rcpp::as<const Rcpp::List &>(imageList["allPaths"]);
+        auto allPaths = Rcpp::as<Rcpp::List>(imageList["allPaths"]);
         numPaths = static_cast<int>(allPaths.size());
         // this should be equivalent to length(unlist(x))?
         int sz = allPaths.size();
         for (int i = 0; i < sz; i++) {
-            letterSize += Rcpp::as<const Rcpp::IntegerVector &>(allPaths[i])
+            letterSize += Rcpp::as<Rcpp::IntegerVector>(allPaths[i])
                               .size();  // typecast??
         }
     } else {
         auto pathEnds =
-            Rcpp::as<const Rcpp::IntegerMatrix &>(imageList["pathEnds"]);
+            Rcpp::as<Rcpp::IntegerMatrix>(imageList["pathEnds"]);
         numPaths = static_cast<int>(
             Rcpp::as<Rcpp::Dimension>(pathEnds.attr("dim"))[0]);
         auto lengths = Rcpp::as<arma::Col<int>>(imageList["lengths"]);
@@ -63,10 +63,10 @@ void graphInfo_subpart2(const Rcpp::List &imageList, bool isProto, int numPaths,
     } else {
         auto centroid = Rcpp::as<arma::rowvec>(imageList["centroid"]);
         auto imagedim = Rcpp::as<Rcpp::Dimension>(
-            Rcpp::as<const Rcpp::IntegerMatrix &>(imageList["image"])
+            Rcpp::as<Rcpp::IntegerMatrix>(imageList["image"])
                 .attr("dim"));
         auto pathEndsrc = Rcpp::as<arma::Cube<double>>(imageList["pathEndsrc"]);
-        auto allPaths = Rcpp::as<const Rcpp::List &>(imageList["allPaths"]);
+        auto allPaths = Rcpp::as<Rcpp::List>(imageList["allPaths"]);
         for (int i = 0; i < numPaths; ++i) {
             auto pvec = Rcpp::as<arma::Col<int>>(allPaths[i]);
             int l = pvec.size();
