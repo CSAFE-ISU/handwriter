@@ -34,10 +34,10 @@
 #' plot_cluster_fill_counts(formatted_data = template_data, facet = TRUE)
 #'
 #' # Plot cluster fill counts for model training documents
-#' plot_cluster_fill_counts(formatted_data = example_model_1chain, facet = TRUE)
+#' plot_cluster_fill_counts(formatted_data = example_model, facet = TRUE)
 #'
 #' # Plot cluster fill counts for questioned documents
-#' plot_cluster_fill_counts(formatted_data = example_analysis_1chain, facet = FALSE)
+#' plot_cluster_fill_counts(formatted_data = example_analysis, facet = FALSE)
 #'
 #' @export
 #' @md
@@ -101,10 +101,10 @@ plot_cluster_fill_counts <- function(formatted_data, facet = FALSE) {
 #' plot_cluster_fill_rates(formatted_data = template_data, facet = TRUE)
 #'
 #' # Plot cluster fill rates for model training documents
-#' plot_cluster_fill_rates(formatted_data = example_model_1chain, facet = TRUE)
+#' plot_cluster_fill_rates(formatted_data = example_model, facet = TRUE)
 #'
 #' # Plot cluster fill rates for questioned documents
-#' plot_cluster_fill_rates(formatted_data = example_analysis_1chain, facet = FALSE)
+#' plot_cluster_fill_rates(formatted_data = example_analysis, facet = FALSE)
 #'
 #' @export
 #' @md
@@ -168,8 +168,8 @@ plot_cluster_fill_rates <- function(formatted_data, facet = FALSE) {
 #' @return A trace plot
 #'
 #' @examples
-#' plot_trace(model = example_model_1chain, variable = "pi[1,1]")
-#' plot_trace(model = example_model_1chain, variable = "mu[2,3]")
+#' plot_trace(model = example_model, variable = "pi[1,1]")
+#' plot_trace(model = example_model, variable = "mu[2,3]")
 #'
 #' @export
 #' @md
@@ -220,8 +220,8 @@ plot_trace <- function(variable, model) {
 #' @return ggplot plot credible intervals
 #'
 #' @examples
-#' plot_credible_intervals(model = example_model_1chain)
-#' plot_credible_intervals(model = example_model_1chain, facet = TRUE)
+#' plot_credible_intervals(model = example_model)
+#' plot_credible_intervals(model = example_model, facet = TRUE)
 #'
 #' @export
 #' @md
@@ -271,7 +271,7 @@ plot_credible_intervals <- function(model, interval_min = 0.025, interval_max = 
 #' @return A tile plot of posterior probabilities of writership.
 #'
 #' @examples
-#' plot_posterior_probabilities(analysis = example_analysis_1chain)
+#' plot_posterior_probabilities(analysis = example_analysis)
 #'
 #' @export
 #' @md

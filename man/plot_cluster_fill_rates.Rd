@@ -25,9 +25,9 @@ template_data <- format_template_data(example_cluster_template)
 plot_cluster_fill_rates(formatted_data = template_data, facet = TRUE)
 
 # Plot cluster fill rates for model training documents
-plot_cluster_fill_rates(formatted_data = example_model_1chain, facet = TRUE)
+plot_cluster_fill_rates(formatted_data = example_model, facet = TRUE)
 
 # Plot cluster fill rates for questioned documents
-plot_cluster_fill_rates(formatted_data = example_analysis_1chain, facet = FALSE)
+plot_cluster_fill_rates(formatted_data = example_analysis, facet = FALSE)
 
 }

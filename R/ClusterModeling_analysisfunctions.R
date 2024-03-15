@@ -201,7 +201,7 @@ analyze_questioned_documents <- function(template_dir, questioned_images_dir, mo
 #' 
 #' @examples
 #' # calculate the accuracy for example analysis performed on test documents and a model with 1 chain
-#' calculate_accuracy(example_analysis_1chain)
+#' calculate_accuracy(example_analysis)
 #'
 #' \dontrun{
 #' template_dir <- "/path/to/template_dir"
@@ -244,12 +244,12 @@ calculate_accuracy <- function(analysis) {
 #'
 #' @examples
 #' get_posterior_probabilities(
-#'   analysis = example_analysis_1chain,
-#'   questioned_doc = "w0009_s03_pWOZ_r01.png"
+#'   analysis = example_analysis,
+#'   questioned_doc = "w0009_s03_pWOZ_r01"
 #' )
 #' get_posterior_probabilities(
-#'   analysis = example_analysis_1chain,
-#'   questioned_doc = "w0030_s03_pWOZ_r01.png"
+#'   analysis = example_analysis,
+#'   questioned_doc = "w0030_s03_pWOZ_r01"
 #' )
 #'
 #' @md
