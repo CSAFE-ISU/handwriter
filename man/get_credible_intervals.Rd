@@ -25,7 +25,7 @@ the true cluster fill count for a particular writer and cluster. The function
 parameters for each writer in the model.
 }
 \examples{
-get_credible_intervals(model=example_model_1chain)
-get_credible_intervals(model=example_model_1chain, interval_min=0.05, interval_max=0.95)
+get_credible_intervals(model=example_model)
+get_credible_intervals(model=example_model, interval_min=0.05, interval_max=0.95)
 
 }
