@@ -1,11 +1,4 @@
-#install.packages("testthat")
-# install.packages("here")
 library(testthat)
-#library(here)
-
-
-
-# source("~/Desktop/Handwriter2023/hwriter/handwriter/R/ClusterDistanceFunctions.R")
 
 
 test_that("Testing the distXY function", {

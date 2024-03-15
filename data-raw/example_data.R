@@ -1,7 +1,7 @@
 ## code to prepare `example_data`
 
 # The functions in this script create `example_cluster_template`,
-# `example_model_1chain`, and `example_analysis_1chain`, and save them in the
+# `example_model`, and `example_analysis`, and save them in the
 # data folder as rda files.
 
 # Creating these data objects requires saving processed handwriting files, template helper files,
@@ -16,8 +16,7 @@ make_example_template <- function(main_dir, centers_seed, graphs_seed) {
   # create folder if it doesn't already exist
   if (!dir.exists(main_dir)){dir.create(main_dir)}
   
-  template_docs <- system.file("extdata/example_images/template_docs", 
-                                     package = "handwriter")
+  template_docs <- "examples/template/data/template_docs"
   
   example_cluster_template <- make_clustering_templates(template_dir = main_dir,
                                                         template_images_dir = template_docs,
@@ -63,9 +62,9 @@ make_example_analyses <- function(main_dir, num_cores = 5) {
   usethis::use_data(example_analysis_1chain, overwrite = TRUE)
 }
 
-# create example data ----
-# build template and model in tests folder so that it can be used for testing
-main_dir <- testthat::test_path("fixtures", "template")
+# create example data ---- build template and model in examples folder. The
+# examples folder is not included in package build but included in repo.
+main_dir <- "examples/template"
 
 # choose starting seed and run number 
 # NOTE: I chose these seeds because they result in a single chain
