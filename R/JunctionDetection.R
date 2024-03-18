@@ -55,7 +55,6 @@ processDocument <- function(path) {
   return(doc)
 }
 
-
 #' Process Handwriting
 #'
 #' The main driver of handwriting processing. Takes in an image of thinned handwriting created
@@ -86,8 +85,6 @@ processDocument <- function(path) {
 processHandwriting <- function(img, dims) {
   value <- from <- to <- nodeOnlyDist <- man_dist <- euc_dist <- pen_dist <- NULL
   
-  # Next, we have to follow certain rules to find non intersection breakpoints.
-  
   # Starting Processing ----
   message("Starting Processing...")
   # convert thinned handwriting from list of pixel indices to binary matrix: 0 for
@@ -98,199 +95,71 @@ processHandwriting <- function(img, dims) {
   
   # Getting Nodes ----
   message("Getting Nodes...", appendLF = FALSE)
-  # output: nodeList[[1]] = all nodes
-  # output: nodeList[[2]] = indices of nodes with 3 or more connected edges and indices of 2x2 nodes 
-  nodeList <- getNodes(indices, dims)  
-  nodeConnections <- nodeList[[2]]
-  nodeList <- nodeList[[1]]
-  # convert indices of pixels in thinned image to row and column
+  # create nodes. Nodes are placed in 3 locations: (1) at endpoints. These are
+  # called terminal nodes and only have one connected edge, (2) at intersections. 
+  # A node is placed at vertices with 3 or more connected edges, and (3) a node
+  # is placed at 2x2 blocks of pixels in the thinned writing
+  nodes <- getNodes(indices, dims)
+  nodeList <- nodes$nodeList  # all nodes
+  terminalNodes <- nodes$terminalNodes
+  nodeConnections <- nodes$nodeConnections
+  rm(nodes)
+  
+  # create skeleton graphs and dataframe. skel_graph is created first using the
+  # following rules: (1) Every pixel in the thinned writing is a vertex. (2) An
+  # edge is added between two vertices if the corresponding pixels are neighbors
+  # in the writing. (3) if a vertex is a node it is colored 1, otherwise it is
+  # colored 0. skel_graph0 is created next using the following rules (I think?):
+  # (1) Every pixel in the thinned writing is a vertex. (2) An edge is added
+  # between two vertices if the corresponding pixels are neighbors in the
+  # writing. (3) If a vertex has a neighboring vertex on the diagonal AND
+  # neighboring vertices on BOTH sides of the diagaonl, the edge between the
+  # vertex and the diagonal neighbor is removed (this needs to be
+  # double-checked) (4) if a vertex is a node it is colored 1, otherwise it is
+  # colored 0
   img.m <- i_to_rc(indices, dims)
+  # build graph from thinned writing. Each pixel in the thinned writing is a
+  # vertex, if two vertices are "neighbors" they are connected by an edge in
+  # graphdf.
+  graphdf <- getGraphDF(img.m=img.m, img=img, indices=indices, dims=dims)
+  # same as graphdf except neighbors on the diagonal are removed if there are neighbors on either
+  # side of the diagonal
+  graphdf0 <- getGraphDF0(img.m=img.m, img=img, indices=indices, dims=dims, nodeList=nodeList)
+  # create igraphs from graphdf and graphdf0. If two vertices are joined by more than one edge, merge
+  # the edges by averaging their attributes. Color the nodes 1 and all other vertices 0.
+  skel_graph <- getSkeletonGraph(graph=graphdf, indices=indices, nodeList=nodeList)
+  skel_graph0 <- getSkeletonGraph(graph=graphdf0, indices=indices, nodeList=nodeList)
+  rm(graphdf)  # not used again
   
-  # DEFINITION (neighborhood): for a given pixel in the thinned writing, its
-  # neighborhood is the set of 8 pixels surrounding it in the thinned image: 
-  # {top, top right, right, bottom right, bottom, bottom left, left, top left}.
-  #
-  # CONVENTION: by convention, the functions in this script list the pixels in the neighborhood
-  # starting with the top pixel and moving clockwise
-  #
-  # DEFINITION (neighbor): for a given pixel p in the thinned writing, another pixel in the thinned
-  # image is p's neighbor if it is in the neighborhood of p and it is also in the thinned writing. 
-  #
-  # NOTE: It need not be the case that every pixel in a neighborhood contains a neighbor. Think of a 
-  # house that is surround by 8 lots and some of the lots contain other houses but the other lots 
-  # are forest.
-  #
-  # make matrix of neighborhoods for each pixel in the thinned writing: 
-  #   each row corresponds to a pixel in the thinned writing
-  #   each column corresponds to a location in the pixel's neighborhood
-  #   1=the neighborhood location contains a neighbor, 0=neighborhood location does not contain a neighbor
-  neighborList <- t(apply(as.matrix(img.m, ncol = 2), 1, whichNeighbors, img = img))
-  # build graphdf = a dataframe of edges in the thinned writing. Each pixel in the thinned writing
-  # is a vertex, if two vertices are "neighbors" they are connected by an edge in graphdf.
-  # melt converts list to dataframe where 
-  #   Var1 = pixel number (1, 2,..., total num. pixels in thinned writing), 
-  #   Var2 = neighborhood location index (in 1, 2,...,8), 
-  #   1=the neighborhood location contains a neighbor, 0=neighborhood location does not contain a neighbor
-  graphdf <- melt(neighborList)
-  # filter for neighbors
-  graphdf <- subset(graphdf, value == 1)
-  # get index in thinned image of each pixel
-  graphdf$from <- indices[graphdf$Var1]
-  # get the index in thinned image of the neighbor pixel for each pixel
-  graphdf$to <- graphdf$from + c(-1, dims[1] - 1, dims[1], dims[1] + 1, 1, 1 - dims[1], -dims[1], -1 - dims[1])[graphdf$Var2]
-  # Manhattan distance between each pixel and its neighbor. neighbors to the
-  # top, right, bottom, and left are 1 in distance and neighbors on the
-  # diagonals are 2 in distance.
-  graphdf$man_dist <- rep(c(1, 2), 4)[graphdf$Var2]
-  # Euclidean distance between each pixel and its neighbor
-  graphdf$euc_dist <- c(1, sqrt(2), 1, sqrt(2), 1, sqrt(2), 1, sqrt(2))[graphdf$Var2]
-  graphdf$pen_dist <- c(1, 3, 1, 3, 1, 3, 1, 3)[graphdf$Var2]
+  # skel_graphs <- igraph::decompose(skel_graph)
+  # skel_graphs0 <- igraph::decompose(skel_graph0)
   
-  # Step 1: make matrix of neighborhoods for each pixel in the thinned writing: 
-  #   each row corresponds to a pixel in the thinned writing
-  #   each column corresponds to a location in the pixel's neighborhood
-  #   1=the neighborhood location contains a neighbor, 0=neighborhood location does not contain a neighbor
-  # Step 2: remove neighbors on the diagonal if there are neighbors in the neighborhood on either side of the diagonal.
-  # Example, if there is a neighbor in the top right pixel, and there are also neighbors in both the top and the right pixels.
-  # Remove the neighbor in the top right pixel.
-  neighborList0 <- t(apply(as.matrix(img.m, ncol = 2), 1, whichNeighbors0, img = img))
-  # converts to dataframe where 
-  #   Var1 = pixel number (1, 2,..., total num. pixels in thinned writing), 
-  #   Var2 = neighborhood location index (in 1, 2,...,8), 
-  #   1=the neighborhood location contains a neighbor, 0=neighborhood location does not contain a neighbor
-  graphdf0 <- melt(neighborList0)
-  # filter for neighbors
-  graphdf0 <- subset(graphdf0, value == 1)
-  # get the index in thinned image of each pixel
-  graphdf0$from <- indices[graphdf0$Var1]
-  # get the index in thinned image of the neighbor pixel for each pixel
-  graphdf0$to <- graphdf0$from + c(-1, dims[1] - 1, dims[1], dims[1] + 1, 1, 1 - dims[1], -dims[1], -1 - dims[1])[graphdf0$Var2]
-  # node only distance = 1 if pixel is a node or its neighbor is a node, 0 otherwise
-  graphdf0$nodeOnlyDist <- ifelse(graphdf0$from %in% nodeList | graphdf0$to %in% nodeList, 1, 0)
-  # format from and to columns as character
-  graphdf0$from <- as.character(format(graphdf0$from, scientific = FALSE, trim = TRUE))  # trim=TRUE suppresses leading blanks for justification of numbers
-  graphdf0$to <- as.character(format(graphdf0$to, scientific = FALSE, trim = TRUE))
-  # drop Var1, Var2, and value columns
-  graphdf0 <- subset(graphdf0, select = c(from, to, nodeOnlyDist))
-  
-  # format from and to columns as character in graphdf
-  graphdf$from <- as.character(format(graphdf$from, scientific = FALSE, trim = TRUE))
-  graphdf$to <- as.character(format(graphdf$to, scientific = FALSE, trim = TRUE))
-  # drop Var1, Var2, and value columns
-  graphdf <- subset(graphdf, select = c(from, to, man_dist, euc_dist, pen_dist))
-  
-  # build undirected graph with vertices=indices of the thinned writing and edges listed in graphdf
-  skel_graph <- igraph::graph_from_data_frame(d = graphdf, vertices = as.character(format(indices, scientific = FALSE, trim = TRUE)), directed = FALSE)
-  # build undirected graph with vertices=indices of the thinned writing and edges listed in graphdf0
-  skel_graph0 <- igraph::graph_from_data_frame(d = graphdf0, vertices = as.character(format(indices, scientific = FALSE, trim = TRUE)), directed = FALSE)
-  # if more than one edge connects the same two vertices, combine the edges into a single edge and combine their attributes using the mean
-  skel_graph <- igraph::simplify(skel_graph, remove.multiple = TRUE, edge.attr.comb = "mean")
-  skel_graph0 <- igraph::simplify(skel_graph0, remove.multiple = TRUE, edge.attr.comb = "mean")
-  
-  # color vertex as 1 if vertex is a node, otherwise color as 0
-  V(skel_graph)$color <- ifelse(V(skel_graph)$name %in% nodeList, 1, 0)
-  V(skel_graph0)$color <- ifelse(V(skel_graph0)$name %in% nodeList, 1, 0)
-  
-  # if a node isn't connected, assign it to the terminal nodes list
-  terminalNodes <- nodeList[!(nodeList %in% nodeConnections)]
-  
-  # Weight each edge in skel_graph0 with nodeOnlyDist (1=neighbor of node, 0 otherwise).
-  # Then find the shortest distance from each node to each other node.
-  dists0 <- distances(skel_graph0, 
-                      v = as.character(format(nodeList, scientific = FALSE, trim = TRUE)), 
-                      to = as.character(format(nodeList, scientific = FALSE, trim = TRUE)), 
-                      weights = E(skel_graph0)$nodeOnlyDist)
-  # Create adjacency matrix with 1 if the distance is 1 or 2 and 0 otherwise
-  adj0 <- ifelse(dists0 == 1 | dists0 == 2, 1, 0)
+  # get adjacency matrix: (1) weight each edge in skel_graph0 with 1 if either
+  # vertex is a node, this is the nodeOnlyDist (2) find the shortest distance
+  # between each pair of nodes (3) make an adjacency matrix for each pair of
+  # nodes where 1 means the the shortest path between them is nodeOnlyDist 1 or
+  # 2, where nodeOnlyDist 1 occurs when the nodes are joined by a single edge
+  # and 2 occurs when the nodes are joined by more than one edge but do not have
+  # another node on the path between them.
+  adj0 <- getNodeOnlyDistAdjMatrix(skel_graph0, nodeList) 
   
   # And merging them ----
   message("and merging them...")
-  emergencyBreak <- 100
-  while (TRUE) {
-    originalNodeList <- nodeList
-    # count smallest number of edges between each pair of vertices (each edge weighted as 1?)
-    distsFull <- distances(skel_graph0, 
-                           v = as.character(format(nodeList, scientific = FALSE, trim = TRUE)), 
-                           to = as.character(format(nodeList, scientific = FALSE, trim = TRUE)), 
-                           weights = NA)
-    # set all values on the diagonal and below the diagonal to 0
-    distsFull[!upper.tri(distsFull)] <- 0
-    # flag nodes that are only 1 or 2 edges apart
-    nodesToMerge <- which(distsFull <= 2 & distsFull > 0)
-    rNodes <- ((nodesToMerge - 1) %% length(nodeList)) + 1
-    cNodes <- ((nodesToMerge - 1) %/% length(nodeList)) + 1
-    mergeSets <- cbind(nodeList[rNodes], nodeList[cNodes])
-    # add column: 1=neither node is terminal, 0 otherwise
-    mergeSets <- cbind(mergeSets, apply(mergeSets, 1, function(x) {
-      all(!(x %in% terminalNodes))
-    }))
-    # keep rows of nodes where neither node is terminal
-    mergeSets <- mergeSets[mergeSets[, 3] == 1, c(1, 2)]
-    mergeSets <- matrix(mergeSets, ncol = 2)
-    
-    # end while loop if no nodes need to be merged
-    if (dim(mergeSets)[1] == 0) break
-    
-    # if (anyDuplicated(c(mergeSets)) > 0) {
-    #   duplicates <- which(mergeSets %in% mergeSets[apply(matrix(duplicated(c(mergeSets)), ncol = 2), 1, any)])
-    #   rduplicates <- ((duplicates - 1) %% dim(mergeSets)[1]) + 1
-    #   duplicateDists <- distsFull[matrix(as.character(format(mergeSets[rduplicates, ], scientific = FALSE, trim = TRUE)), ncol = 2)]
-    # }
-    newNodes <- findMergeNodes(skel_graph, mergeSets)
-    # combine nodes that were not in the mergeSets and the list of new nodes
-    nodeList <- unique(c(nodeList[!(nodeList %in% c(mergeSets[, c(1, 2)]))], newNodes))
-    
-    # At this point have the updated nodeList, if we wanted to break it letter by letter we would do that here
-    
-    ### Migrate connections from original nodes to new nodes
-    toDelete <- NULL
-    nRowCol <- dim(adj0)[1]
-    for (i in 1:dim(mergeSets)[1])
-    {
-      whichRowCol <- which(colnames(adj0) %in% format(mergeSets[i, c(1, 2)], scientific = FALSE, trim = TRUE))
-      newConnectivities <- apply(matrix(adj0[whichRowCol, ], nrow = length(whichRowCol)), 2, function(x) x[1] == 1 | x[2] == 1)
-      newConnectivities[is.na(newConnectivities)] <- 0
-      
-      toAdd <- dim(adj0)[1] + 1
-      toDelete <- c(toDelete, which(rownames(adj0) %in% format(mergeSets[i, c(1, 2)], scientific = FALSE, trim = TRUE)))
-      
-      adj0 <- rbind(cbind(adj0, 0), 0)
-      adj0[, toAdd] <- c(newConnectivities, 0)
-      adj0[toAdd, ] <- c(newConnectivities, 0)
-      colnames(adj0)[toAdd] <- format(newNodes[i], scientific = FALSE, trim = TRUE)
-      rownames(adj0)[toAdd] <- format(newNodes[i], scientific = FALSE, trim = TRUE)
-    }
-    if (length(toDelete) > 0) {
-      adj0 <- as.matrix(adj0[, -toDelete])[-toDelete, ]
-    }
-    
-    emergencyBreak <- emergencyBreak - 1
-    if (emergencyBreak == 0) {
-      break()
-    }
-  }
-  
-  # update graphdf0 with nodeOnlyDist=1 if one or more of the edge's vertices is a node and 0.00001 otherwise
-  graphdf0 <- as_data_frame(skel_graph0)
-  graphdf0$nodeOnlyDist <- ifelse(graphdf0$from %in% nodeList | graphdf0$to %in% nodeList, 1, 0.00001)
-  skel_graph0 <- graph_from_data_frame(graphdf0, directed = FALSE)
-  
-  # Set the diagonal and below of the adjacency matrix to 0
-  adj0[lower.tri(adj0)] <- 0
-  adj.m <- melt(adj0)
-  adj.m <- subset(adj.m, value == 1)
-  names(adj.m) <- c("from", "to", "value")
+  merged <- mergeNodes(nodeList = nodeList, skel_graph0 = skel_graph0, terminalNodes = terminalNodes, skel_graph = skel_graph, adj0 = adj0)
+  nodeList <- merged$nodeList
+  adj.m <- merged$adjm
+  rm(merged)
   
   # Finding direct paths ----
   message("Finding direct paths...", appendLF = FALSE)
-  pathList <- AllUniquePaths(adj.m, skel_graph0)
+  pathList <- AllUniquePaths(adj.m, skel_graph0, nodeList)
   
   # And loops ----
   message("and loops...")
   loopList <- getLoops(nodeList, skel_graph, skel_graph0, pathList, dim(img))
-  
   allPaths <- append(pathList, loopList)
   
+  # set nodeOnlyDist values: 1 = edge is connected to a node; 0 = edge is not connected to a node
   graphdf0 <- as_data_frame(skel_graph0)
   graphdf0$nodeOnlyDist <- ifelse(graphdf0$from %in% nodeList | graphdf0$to %in% nodeList, 1, 0)
   skel_graph0 <- graph_from_data_frame(graphdf0, directed = FALSE)
@@ -298,143 +167,38 @@ processHandwriting <- function(img, dims) {
   # Looking for graph break points ----
   # Nominate and check candidate breakpoints
   message("Looking for graph break points...", appendLF = FALSE)
-  hasTrough <- rep(FALSE, length(pathList))
-  troughNodes <- c()
-  candidateNodes <- c()
-  for (i in 1:length(pathList))
-  {
-    # Look for troughs in edges.
-    tempPath <- pathList[[i]]
-    if (length(tempPath) > 10) {
-      # get the row number of each vertex in the path
-      rows <- ((tempPath - 1) %% dims[1]) + 1
-      for (j in 5:(length(rows) - 4))
-      { # if there is at least one vertex before j and at least on after j that are higher than j
-        if (any(rows[1:(j - 1)] < rows[j] - 1) & any(rows[(j + 1):length(rows)] < rows[j] - 1)) {
-          # of all the vertices that are 2 or more rows higher than j (in the image) and to the left of 
-          # j (in the rows vector) find the index of the vertex (in rows[1:(j-1)]) that is closest to j from
-          # the left
-          lowerEnd <- max(which(rows[1:(j - 1)] < rows[j] - 1))
-          # of all the vertices that are 2 or more rows higher than j (in the image) and to the right of 
-          # j (in the rows vector) find the index of the vertex (in rows[(j+1):length(rows)]) that is closest to j from
-          # the right
-          upperEnd <- min(which(rows[(j + 1):length(rows)] < rows[j] - 1))
-          # if none of the vertices between the lowerEnd and upperEnd are lower than vertex j, assign j
-          # as a trough node
-          if (!any(rows[lowerEnd:(j + upperEnd)] > rows[j])) {
-            troughNodes <- c(troughNodes, tempPath[j])
-            hasTrough[i] <- TRUE
-          }
-        }
-      }
-    }
-    if (hasTrough[i] == FALSE) {
-      # add the middle node to the candidate list
-      candidateNodes <- c(candidateNodes, tempPath[ceiling(length(tempPath) / 2)])
-    }
-  }
-  # find the trough nodes where: (1) the row of the trough node is not equal to
-  # the row of the next trough node, or (2) the column of the trough node is
-  # different than the column of the next trough node minus 1, and (3) the column of the 
-  # trough node minus 1 is not equal to the column of the text trough node.
-  breaks <- which(i_to_r(troughNodes[-1], dims[1]) != i_to_r(troughNodes[-length(troughNodes)], dims[1]) |
-                    i_to_c(troughNodes[-1], dims[1]) != i_to_c(troughNodes[-length(troughNodes)], dims[1]) - 1 &
-                    i_to_c(troughNodes[-1], dims[1]) - 1 != i_to_c(troughNodes[-length(troughNodes)], dims[1]))
-  breaks <- c(1, breaks, length(troughNodes))
-  candidateNodes <- c(candidateNodes, troughNodes[ceiling((breaks[-1] + breaks[-length(breaks)]) / 2)])
+  candidates <- getCandidateNodes(pathList = pathList, dims = dims)
+  candidateNodes <- candidates$candidateNodes
+  hasTrough <- candidates$hasTrough
+  rm(candidates)
   
   # And discarding bad ones ----
   message("and discarding bad ones...")
-  
-  # create a graph with vertices for each node and edges between the first and last pixel / vertex in each path
-  nodeGraph <- getNodeGraph(pathList, nodeList)
-  # flag candidates as good if none of the following are true: (1) there is more
-  # than one route between the first and last nodes in the path containing the candidate (2) the path
-  # contains a terminal node (3) the candidate break point is within 4 of the
-  # first or last node in the path (4) the path contains 10 or fewer
-  # vertices.
-  goodBreaks <- checkBreakPoints(candidateNodes = candidateNodes, allPaths = pathList, nodeGraph = nodeGraph, terminalNodes = terminalNodes, dims)
-  preStackBreaks <- candidateNodes[goodBreaks]
-  # list the break(s) in each path or 'integer(0)' if the path does not contain a break
-  pathsWithBreaks <- lapply(allPaths, function(x) {
-    which(x %in% preStackBreaks)
-  })
-  # number of breaks per path
-  breaksPerPath <- unlist(lapply(pathsWithBreaks, length))
-  # update the list of breaks: if a path has more than one break, take the average of the breaks (rounding up) and
-  # remove the original breaks so that each path has either 0 or 1 break.
-  for (i in which(breaksPerPath > 1))
-  { # if current path has more than one break, average the breaks and round up
-    newBreak <- floor(mean(which(allPaths[[i]] %in% preStackBreaks)))
-    # drop pre stack breaks in current path from the pre stack breaks list
-    preStackBreaks <- preStackBreaks[which(!(preStackBreaks %in% allPaths[[i]]))]
-    # add "new break" for current path to list
-    preStackBreaks <- c(preStackBreaks, allPaths[[i]][newBreak])
-  }
-  
+  preStackBreaks <- getPreStackBreaks(pathList = pathList, nodeList = nodeList, candidateNodes = candidateNodes, 
+                                      terminalNodes = terminalNodes, dims = dims, allPaths = allPaths)
+
   # Isolating graph paths ----
   message("Isolating graph paths...")
-  
-  ## Break on breakpoints and group points by which letter they fall into. Adjust graph accordingly.
-  letterList <- letterPaths(allPaths, skel_graph0, preStackBreaks)
-  letters <- letterList[[1]][unlist(lapply(letterList[[1]], length)) > 5]
-  
-  V(skel_graph0)$letterID <- letterList[[2]]
-  skel_graph0 <- igraph::delete_vertices(skel_graph0, V(skel_graph0)[which(V(skel_graph0)$letterID %in% which(unlist(lapply(letterList[[1]], length)) <= 5))])
-  V(skel_graph0)$letterID[!is.na(V(skel_graph0)$letterID)] <- as.numeric(as.factor(na.omit(V(skel_graph0)$letterID)))
-  
-  # Remove breakpoints that shouldn't have broken.
-  finalBreaks <- preStackBreaks[!(checkStacking(preStackBreaks, allPaths, letters, skel_graph0, dims))]
-  finalBreaks <- finalBreaks[!(checkSimplicityBreaks(finalBreaks, pathList, loopList, letters, skel_graph0, nodeList, terminalNodes, hasTrough, dims))]
-  
-  pathsWithBreaks <- lapply(allPaths, function(x) {
-    which(x %in% preStackBreaks)
-  })
-  breaksPerPath <- unlist(lapply(pathsWithBreaks, length))
-  for (i in which(breaksPerPath > 0))
-  {
-    newNodes <- pathsWithBreaks[[i]]
-    if (allPaths[[i]][newNodes] %in% finalBreaks) {
-      tryCatch(
-        expr = {
-          E(skel_graph0, P = format(allPaths[[i]][c(newNodes - 2, newNodes - 1)], scientific = FALSE, trim = TRUE))$nodeOnlyDist <- 1
-          E(skel_graph0, P = format(allPaths[[i]][c(newNodes + 1, newNodes + 2)], scientific = FALSE, trim = TRUE))$nodeOnlyDist <- 1
-        }, error = function(e) {
-          
-        }
-      )
-      
-      newNodes <- c(newNodes - 1, newNodes + 1)
-      nodeList <- c(nodeList, allPaths[[i]][newNodes])
-      allPaths[[i]] <- list(allPaths[[i]][1:(newNodes[1])], allPaths[[i]][(newNodes[2]):length(allPaths[[i]])])
-    }
-    
-    # letterIDs = range(V(skel_graph0)$letterID[names(V(skel_graph0)) %in% format(allPaths[[i]], scientific = FALSE, trim = TRUE)], na.rm = TRUE)
-    # Had to break this above line into this to stop a range(numeric(0)) error from happening
-    skelInPaths <- V(skel_graph0)$letterID[names(V(skel_graph0)) %in% format(allPaths[[i]], scientific = FALSE, trim = TRUE)]
-    if (identical(skelInPaths, numeric(0))) {
-      letterIDs <- c(Inf, -Inf)
-    } else {
-      letterIDs <- range(skelInPaths, na.rm = TRUE)
-    }
-    
-    V(skel_graph0)$letterID[which(V(skel_graph0)$letterID == letterIDs[2])] <- letterIDs[1]
-    V(skel_graph0)$letterID[which(names(V(skel_graph0)) %in% format(allPaths[[i]][newNodes], scientific = FALSE, trim = TRUE))] <- letterIDs[1]
-  }
-  
-  allPaths <- lapply(rapply(allPaths, enquote, how = "unlist"), eval)
+  isolated <- isolateGraphPaths(allPaths = allPaths, skel_graph0 = skel_graph0, preStackBreaks = preStackBreaks, dims = dims, 
+                                pathList = pathList, loopList = loopList, nodeList = nodeList, terminalNodes = terminalNodes, 
+                                hasTrough = hasTrough)
+  allPaths <- isolated$allPaths
+  skel_graph0 <- isolated$skel_graph0
+  finalBreaks <- isolated$finalBreaks
+  nodeList <- isolated$nodeList
+  rm(isolated)
   
   # Organizing letters ----
   message("Organizing letters...")
-  letters <- organize_letters(skel_graph0)
+  letters <- organizeLetters(skel_graph0)
   
   # Creating letter lists ----
   message("Creating letter lists...")
-  letterList <- create_letter_lists(allPaths, letters, nodeList, nodeConnections, terminalNodes, dims)
+  letterList <- createLetterLists(allPaths, letters, nodeList, nodeConnections, terminalNodes, dims)
   
   # Adding character features ----
   message("Adding character features...")
-  letterList <- add_character_features(img, letterList, letters, dims)
+  letterList <- addCharacterFeatures(img, letterList, letters, dims)
   
   # Document processing complete ----
   message("Document processing complete.\n")
@@ -454,7 +218,7 @@ processHandwriting <- function(img, dims) {
 #' @param dims image graph dimensions
 #' @return a list of letters with features applied
 #' @noRd
-add_character_features <- function(img, letterList, letters, dims) {
+addCharacterFeatures <- function(img, letterList, letters, dims) {
   featureSets <- extract_character_features(img, letterList, dims)
   
   for (i in 1:length(letters))
@@ -479,17 +243,22 @@ add_character_features <- function(img, letterList, letters, dims) {
 #' @param graph0 skeletonized graph
 #' @return a list of all non loop paths
 #' @noRd
-AllUniquePaths <- function(adj, graph0) {
+AllUniquePaths <- function(adj, graph0, nodeList) {
   paths <- list()
   if (dim(adj)[1] == 0) {
     return(NULL)
   }
   
+  # update graphdf0 with nodeOnlyDist=1 if one or more of the edge's vertices is a node and 0.00001 otherwise
+  graphdf0 <- as_data_frame(graph0)
+  graphdf0$nodeOnlyDist <- ifelse(graphdf0$from %in% nodeList | graphdf0$to %in% nodeList, 1, 0.00001)
+  graph0 <- graph_from_data_frame(graphdf0, directed = FALSE)
+  
   for (i in 1:dim(adj)[1])
   {
     fromNode <- as.character(format(adj[i, 1], scientific = FALSE, trim = TRUE))
     toNode <- as.character(format(adj[i, 2], scientific = FALSE, trim = TRUE))
-
+    
     # calculate distances of shortest path between fromNode and toNode
     dists <- distances(graph0, v = fromNode, to = toNode, weights = E(graph0)$nodeOnlyDist)
     # for paths from node to node that don't go through another node?
@@ -502,7 +271,9 @@ AllUniquePaths <- function(adj, graph0) {
       # add the shortest path to the list
       paths <- c(paths, list(as.numeric(names(shortest$vpath[[1]]))))
       
-      # UPDATE STEP: if there are more than two vertices in the path
+      # UPDATE STEP: If there are more than two vertices in the path, delete the
+      # middle edge. If there are 2 vertices in the path, delete the single edge
+      # between the vertices. 
       if (len > 2) {
         graph0 <- igraph::delete_edges(graph0, paste0(names(shortest$vpath[[1]])[len %/% 2], "|", names(shortest$vpath[[1]])[len %/% 2 + 1]))
       } else if (len == 2) {
@@ -541,7 +312,7 @@ checkBreakPoints <- function(candidateNodes, allPaths, nodeGraph, terminalNodes,
     # check if path i contains candidate nodes
     nodeChecks <- which(candidateNodes %in% tempPath)
     tempNodeGraph <- igraph::delete_edges(nodeGraph, paste0(tempPath[1], "|", tempPath[length(tempPath)]))
-
+    
     if (distances(tempNodeGraph, v = tempPath[1], to = tempPath[length(tempPath)]) < Inf) {
       # No breaking on multiple paths between nodes. 
       breakFlag[nodeChecks] <- FALSE
@@ -663,7 +434,7 @@ checkStacking <- function(candidateBreaks, allPaths, letters, nodeGraph0, dims) 
 }
 
 
-create_letter_lists <- function(allPaths, letters, nodeList, nodeConnections, terminalNodes, dims) {
+createLetterLists <- function(allPaths, letters, nodeList, nodeConnections, terminalNodes, dims) {
   # Assign nodes to each letter
   nodesinGraph <- replicate(length(letters), list(NA))
   connectingNodesinGraph <- replicate(length(letters), list(NA))
@@ -843,6 +614,137 @@ findMergeNodes <- function(skel_graph, mergeMat) {
     newNodes[i] <- as.numeric(names(path[ceiling(len / 2)]))
   }
   return(newNodes)
+}
+
+getCandidateNodes <- function(pathList, dims) {
+  hasTrough <- rep(FALSE, length(pathList))
+  troughNodes <- c()
+  candidateNodes <- c()
+  for (i in 1:length(pathList))
+  {
+    # Look for troughs in edges
+    tempPath <- pathList[[i]]
+    if (length(tempPath) > 10) {
+      # get the row number of each vertex in the path
+      rows <- ((tempPath - 1) %% dims[1]) + 1
+      for (j in 5:(length(rows) - 4))
+      { # if there is at least one vertex before j and at least on after j that are higher than j
+        if (any(rows[1:(j - 1)] < rows[j] - 1) & any(rows[(j + 1):length(rows)] < rows[j] - 1)) {
+          # of all the vertices that are 2 or more rows higher than j (in the image) and to the left of 
+          # j (in the rows vector) find the index of the vertex (in rows[1:(j-1)]) that is closest to j from
+          # the left
+          lowerEnd <- max(which(rows[1:(j - 1)] < rows[j] - 1))
+          # of all the vertices that are 2 or more rows higher than j (in the image) and to the right of 
+          # j (in the rows vector) find the index of the vertex (in rows[(j+1):length(rows)]) that is closest to j from
+          # the right
+          upperEnd <- min(which(rows[(j + 1):length(rows)] < rows[j] - 1))
+          # if none of the vertices between the lowerEnd and upperEnd are lower than vertex j, assign j
+          # as a trough node
+          if (!any(rows[lowerEnd:(j + upperEnd)] > rows[j])) {
+            troughNodes <- c(troughNodes, tempPath[j])
+            hasTrough[i] <- TRUE
+          }
+        }
+      }
+    }
+    if (hasTrough[i] == FALSE) {
+      # add the middle node to the candidate list
+      candidateNodes <- c(candidateNodes, tempPath[ceiling(length(tempPath) / 2)])
+    }
+  }
+  # find the trough nodes where: (1) the row of the trough node is not equal to
+  # the row of the next trough node, or (2) the column of the trough node is
+  # different than the column of the next trough node minus 1, and (3) the column of the 
+  # trough node minus 1 is not equal to the column of the text trough node.
+  breaks <- which(i_to_r(troughNodes[-1], dims[1]) != i_to_r(troughNodes[-length(troughNodes)], dims[1]) |
+                    i_to_c(troughNodes[-1], dims[1]) != i_to_c(troughNodes[-length(troughNodes)], dims[1]) - 1 &
+                    i_to_c(troughNodes[-1], dims[1]) - 1 != i_to_c(troughNodes[-length(troughNodes)], dims[1]))
+  breaks <- c(1, breaks, length(troughNodes))
+  candidateNodes <- c(candidateNodes, troughNodes[ceiling((breaks[-1] + breaks[-length(breaks)]) / 2)])
+  
+  return(list('candidateNodes' = candidateNodes, 'hasTrough' = hasTrough))
+}
+
+getGraphDF <- function(img.m, img, indices, dims) {
+  # DEFINITION (neighborhood): for a given pixel in the thinned writing, its
+  # neighborhood is the set of 8 pixels surrounding it in the thinned image: 
+  # {top, top right, right, bottom right, bottom, bottom left, left, top left}.
+  #
+  # CONVENTION: by convention, the functions in this script list the pixels in the neighborhood
+  # starting with the top pixel and moving clockwise
+  #
+  # DEFINITION (neighbor): for a given pixel p in the thinned writing, another pixel in the thinned
+  # image is p's neighbor if it is in the neighborhood of p and it is also in the thinned writing. 
+  #
+  # NOTE: It need not be the case that every pixel in a neighborhood contains a neighbor. Think of a 
+  # house that is surround by 8 lots and some of the lots contain other houses but the other lots 
+  # are forest.
+  #
+  # make matrix of neighborhoods for each pixel in the thinned writing: 
+  #   each row corresponds to a pixel in the thinned writing
+  #   each column corresponds to a location in the pixel's neighborhood
+  #   1=the neighborhood location contains a neighbor, 0=neighborhood location does not contain a neighbor
+  neighborList <- t(apply(as.matrix(img.m, ncol = 2), 1, whichNeighbors, img = img))
+  # build graphdf = a dataframe of edges in the thinned writing. Each pixel in the thinned writing
+  # is a vertex, if two vertices are "neighbors" they are connected by an edge in graphdf.
+  # melt converts list to dataframe where 
+  #   Var1 = pixel number (1, 2,..., total num. pixels in thinned writing), 
+  #   Var2 = neighborhood location index (in 1, 2,...,8), 
+  #   1=the neighborhood location contains a neighbor, 0=neighborhood location does not contain a neighbor
+  graphdf <- melt(neighborList)
+  # filter for neighbors
+  graphdf <- subset(graphdf, value == 1)
+  # get index in thinned image of each pixel
+  graphdf$from <- indices[graphdf$Var1]
+  # get the index in thinned image of the neighbor pixel for each pixel
+  graphdf$to <- graphdf$from + c(-1, dims[1] - 1, dims[1], dims[1] + 1, 1, 1 - dims[1], -dims[1], -1 - dims[1])[graphdf$Var2]
+  # Manhattan distance between each pixel and its neighbor. neighbors to the
+  # top, right, bottom, and left are 1 in distance and neighbors on the
+  # diagonals are 2 in distance.
+  graphdf$man_dist <- rep(c(1, 2), 4)[graphdf$Var2]
+  # Euclidean distance between each pixel and its neighbor
+  graphdf$euc_dist <- c(1, sqrt(2), 1, sqrt(2), 1, sqrt(2), 1, sqrt(2))[graphdf$Var2]
+  graphdf$pen_dist <- c(1, 3, 1, 3, 1, 3, 1, 3)[graphdf$Var2]
+  
+  # format from and to columns as character in graphdf
+  graphdf$from <- as.character(format(graphdf$from, scientific = FALSE, trim = TRUE))
+  graphdf$to <- as.character(format(graphdf$to, scientific = FALSE, trim = TRUE))
+  # drop Var1, Var2, and value columns
+  graphdf <- subset(graphdf, select = c(from, to, man_dist, euc_dist, pen_dist))
+  
+  return(graphdf)
+}
+
+getGraphDF0 <- function(img.m, img, indices, dims, nodeList) {
+  # Step 1: make matrix of neighborhoods for each pixel in the thinned writing: 
+  #   each row corresponds to a pixel in the thinned writing
+  #   each column corresponds to a location in the pixel's neighborhood
+  #   1=the neighborhood location contains a neighbor, 0=neighborhood location does not contain a neighbor
+  # Step 2: remove neighbors on the diagonal if there are neighbors in the neighborhood on either side of the diagonal.
+  # Example, if there is a neighbor in the top right pixel, and there are also neighbors in both the top and the right pixels.
+  # Remove the neighbor in the top right pixel.
+  neighborList0 <- t(apply(as.matrix(img.m, ncol = 2), 1, whichNeighbors0, img = img))
+  # converts to dataframe where 
+  #   Var1 = pixel number (1, 2,..., total num. pixels in thinned writing), 
+  #   Var2 = neighborhood location index (in 1, 2,...,8), 
+  #   1=the neighborhood location contains a neighbor, 0=neighborhood location does not contain a neighbor
+  graphdf0 <- melt(neighborList0)
+  # filter for neighbors
+  graphdf0 <- subset(graphdf0, value == 1)
+  # get the index in thinned image of each pixel
+  graphdf0$from <- indices[graphdf0$Var1]
+  # get the index in thinned image of the neighbor pixel for each pixel
+  graphdf0$to <- graphdf0$from + c(-1, dims[1] - 1, dims[1], dims[1] + 1, 1, 1 - dims[1], -dims[1], -1 - dims[1])[graphdf0$Var2]
+  # node only distance = 1 if pixel is a node or its neighbor is a node, 0 otherwise
+  graphdf0$nodeOnlyDist <- ifelse(graphdf0$from %in% nodeList | graphdf0$to %in% nodeList, 1, 0)
+  
+  # format from and to columns as character
+  graphdf0$from <- as.character(format(graphdf0$from, scientific = FALSE, trim = TRUE))  # trim=TRUE suppresses leading blanks for justification of numbers
+  graphdf0$to <- as.character(format(graphdf0$to, scientific = FALSE, trim = TRUE))
+  # drop Var1, Var2, and value columns
+  graphdf0 <- subset(graphdf0, select = c(from, to, nodeOnlyDist))
+  
+  return(graphdf0)
 }
 
 
@@ -1047,9 +949,12 @@ getNodes <- function(indices, dims) {
   # add 2x2 nodes to nodes matrix as 0
   nodes[c(nodes2by2[apply(nodes2by2, 1, function(x) {all(!is.na(x))}), ])] <- 0
   
-  return(list(which(nodes == 0), 
-              c(indices[changeCount >= 3], c(nodes2by2[apply(nodes2by2, 1, function(x) {all(!is.na(x))}), ]))
-  ))
+  nodeConnections <- c(indices[changeCount >= 3], c(nodes2by2[apply(nodes2by2, 1, function(x) {all(!is.na(x))}), ]))
+  nodeList <- which(nodes == 0)
+  # if a node isn't connected, assign it to the terminal nodes list
+  terminalNodes <- nodeList[!(nodeList %in% nodeConnections)]
+  
+  return(list('nodeConnections' = nodeConnections, 'nodeList' = nodeList, 'terminalNodes' = terminalNodes))
 }
 
 #' getNodeGraph
@@ -1071,6 +976,20 @@ getNodeGraph <- function(allPaths, nodeList) {
   }
   return(nodeGraph)
 }
+
+# Weight each edge in skel_graph0 with nodeOnlyDist (1=neighbor of node, 0 otherwise).
+# Then find the shortest distance from each node to each other node.
+getNodeOnlyDistAdjMatrix <- function(skel_graph0, nodeList) {
+  dists0 <- distances(skel_graph0, 
+                      v = as.character(format(nodeList, scientific = FALSE, trim = TRUE)), 
+                      to = as.character(format(nodeList, scientific = FALSE, trim = TRUE)), 
+                      weights = E(skel_graph0)$nodeOnlyDist)
+  # Create adjacency matrix with 1 if the distance is 1 or 2 and 0 otherwise
+  adj0 <- ifelse(dists0 == 1 | dists0 == 2, 1, 0)
+  
+  return(adj0)
+}
+
 
 #' getNodeOrder
 #'
@@ -1135,6 +1054,97 @@ getNodeOrder <- function(letter, nodesInGraph, nodeConnectivity, dims) {
   }
 }
 
+getPreStackBreaks <- function(pathList, nodeList, candidateNodes, terminalNodes, dims, allPaths) {
+  # create a graph with vertices for each node and edges between the first and last pixel / vertex in each path
+  nodeGraph <- getNodeGraph(pathList, nodeList)
+  # flag candidates as good if none of the following are true: (1) there is more
+  # than one route between the first and last nodes in the path containing the
+  # candidate (2) the path contains a terminal node (3) the candidate break
+  # point is within 4 of the first or last node in the path (4) the path
+  # contains 10 or fewer vertices.
+  goodBreaks <- checkBreakPoints(candidateNodes = candidateNodes, allPaths = pathList, nodeGraph = nodeGraph, terminalNodes = terminalNodes, dims)
+  preStackBreaks <- candidateNodes[goodBreaks]
+  # list the break(s) in each path or 'integer(0)' if the path does not contain a break
+  pathsWithBreaks <- lapply(allPaths, function(x) {
+    which(x %in% preStackBreaks)
+  })
+  # number of breaks per path
+  breaksPerPath <- unlist(lapply(pathsWithBreaks, length))
+  # update the list of breaks: if a path has more than one break, take the average of the breaks (rounding up) and
+  # remove the original breaks so that each path has either 0 or 1 break.
+  for (i in which(breaksPerPath > 1))
+  { # if current path has more than one break, average the breaks and round up
+    newBreak <- floor(mean(which(allPaths[[i]] %in% preStackBreaks)))
+    # drop pre stack breaks in current path from the pre stack breaks list
+    preStackBreaks <- preStackBreaks[which(!(preStackBreaks %in% allPaths[[i]]))]
+    # add "new break" for current path to list
+    preStackBreaks <- c(preStackBreaks, allPaths[[i]][newBreak])
+  }
+  return(preStackBreaks)
+}
+
+getSkeletonGraph <- function(graph, indices, nodeList) {
+  # build undirected graph with vertices=indices of the thinned writing and edges listed in graph
+  skel_graph <- igraph::graph_from_data_frame(d = graph, vertices = as.character(format(indices, scientific = FALSE, trim = TRUE)), directed = FALSE)
+  # if more than one edge connects the same two vertices, combine the edges into a single edge and combine their attributes using the mean
+  skel_graph <- igraph::simplify(skel_graph, remove.multiple = TRUE, edge.attr.comb = "mean")
+  # color vertex as 1 if vertex is a node, otherwise color as 0
+  V(skel_graph)$color <- ifelse(V(skel_graph)$name %in% nodeList, 1, 0)
+  return(skel_graph)
+}
+
+isolateGraphPaths <- function(allPaths, skel_graph0, preStackBreaks, dims, pathList, loopList, nodeList, terminalNodes, hasTrough) {
+  ## Break on breakpoints and group points by which letter they fall into. Adjust graph accordingly.
+  letterList <- letterPaths(allPaths, skel_graph0, preStackBreaks)
+  letters <- letterList[[1]][unlist(lapply(letterList[[1]], length)) > 5]
+  
+  V(skel_graph0)$letterID <- letterList[[2]]
+  skel_graph0 <- igraph::delete_vertices(skel_graph0, V(skel_graph0)[which(V(skel_graph0)$letterID %in% which(unlist(lapply(letterList[[1]], length)) <= 5))])
+  V(skel_graph0)$letterID[!is.na(V(skel_graph0)$letterID)] <- as.numeric(as.factor(na.omit(V(skel_graph0)$letterID)))
+  
+  # Remove breakpoints that shouldn't have broken.
+  finalBreaks <- preStackBreaks[!(checkStacking(preStackBreaks, allPaths, letters, skel_graph0, dims))]
+  finalBreaks <- finalBreaks[!(checkSimplicityBreaks(finalBreaks, pathList, loopList, letters, skel_graph0, nodeList, terminalNodes, hasTrough, dims))]
+  
+  pathsWithBreaks <- lapply(allPaths, function(x) {
+    which(x %in% preStackBreaks)
+  })
+  breaksPerPath <- unlist(lapply(pathsWithBreaks, length))
+  for (i in which(breaksPerPath > 0))
+  {
+    newNodes <- pathsWithBreaks[[i]]
+    if (allPaths[[i]][newNodes] %in% finalBreaks) {
+      tryCatch(
+        expr = {
+          E(skel_graph0, P = format(allPaths[[i]][c(newNodes - 2, newNodes - 1)], scientific = FALSE, trim = TRUE))$nodeOnlyDist <- 1
+          E(skel_graph0, P = format(allPaths[[i]][c(newNodes + 1, newNodes + 2)], scientific = FALSE, trim = TRUE))$nodeOnlyDist <- 1
+        }, error = function(e) {
+          
+        }
+      )
+      
+      newNodes <- c(newNodes - 1, newNodes + 1)
+      nodeList <- c(nodeList, allPaths[[i]][newNodes])
+      allPaths[[i]] <- list(allPaths[[i]][1:(newNodes[1])], allPaths[[i]][(newNodes[2]):length(allPaths[[i]])])
+    }
+    
+    # letterIDs = range(V(skel_graph0)$letterID[names(V(skel_graph0)) %in% format(allPaths[[i]], scientific = FALSE, trim = TRUE)], na.rm = TRUE)
+    # Had to break this above line into this to stop a range(numeric(0)) error from happening
+    skelInPaths <- V(skel_graph0)$letterID[names(V(skel_graph0)) %in% format(allPaths[[i]], scientific = FALSE, trim = TRUE)]
+    if (identical(skelInPaths, numeric(0))) {
+      letterIDs <- c(Inf, -Inf)
+    } else {
+      letterIDs <- range(skelInPaths, na.rm = TRUE)
+    }
+    
+    V(skel_graph0)$letterID[which(V(skel_graph0)$letterID == letterIDs[2])] <- letterIDs[1]
+    V(skel_graph0)$letterID[which(names(V(skel_graph0)) %in% format(allPaths[[i]][newNodes], scientific = FALSE, trim = TRUE))] <- letterIDs[1]
+  }
+  
+  allPaths <- lapply(rapply(allPaths, enquote, how = "unlist"), eval)
+  
+  return(list('allPaths' = allPaths, 'skel_graph0' = skel_graph0, 'finalBreaks' = finalBreaks, 'nodeList' = nodeList))
+}
 
 #' letterPaths
 #'
@@ -1163,8 +1173,80 @@ letterPaths <- function(allPaths, nodeGraph0, breakPoints) {
   return(list(grPaths, grIDs2))
 }
 
+mergeNodes <- function(nodeList, skel_graph0, terminalNodes, skel_graph, adj0) {
+  emergencyBreak <- 100
+  while (TRUE) {
+    originalNodeList <- nodeList
+    # count smallest number of edges between each pair of nodes (each edge weighted as 1?)
+    distsFull <- distances(skel_graph0, 
+                           v = as.character(format(nodeList, scientific = FALSE, trim = TRUE)), 
+                           to = as.character(format(nodeList, scientific = FALSE, trim = TRUE)), 
+                           weights = NA)
+    # set all values on and below the diagonal to 0
+    distsFull[!upper.tri(distsFull)] <- 0
+    # flag nodes that are only 1 or 2 edges apart
+    nodesToMerge <- which(distsFull <= 2 & distsFull > 0)
+    rNodes <- ((nodesToMerge - 1) %% length(nodeList)) + 1
+    cNodes <- ((nodesToMerge - 1) %/% length(nodeList)) + 1
+    mergeSets <- cbind(nodeList[rNodes], nodeList[cNodes])
+    # add column: 1=neither node is terminal, 0 otherwise
+    mergeSets <- cbind(mergeSets, apply(mergeSets, 1, function(x) {
+      all(!(x %in% terminalNodes))
+    }))
+    # keep rows of nodes where neither node is terminal
+    mergeSets <- mergeSets[mergeSets[, 3] == 1, c(1, 2)]
+    mergeSets <- matrix(mergeSets, ncol = 2)
+    
+    # end while loop if no nodes need to be merged
+    if (dim(mergeSets)[1] == 0) break
+    
+    newNodes <- findMergeNodes(skel_graph, mergeSets)
+    # combine nodes that were not in the mergeSets and the list of new nodes
+    nodeList <- unique(c(nodeList[!(nodeList %in% c(mergeSets[, c(1, 2)]))], newNodes))
+    
+    # At this point have the updated nodeList, if we wanted to break it letter by letter we would do that here
+    
+    # Migrate connections from original nodes to new nodes
+    adj0 <- migrateConnections(adj0 = adj0, mergeSets = mergeSets, newNodes = newNodes)
+    
+    emergencyBreak <- emergencyBreak - 1
+    if (emergencyBreak == 0) {
+      break()
+    }
+  }
+  
+  # Set the diagonal and below of the adjacency matrix to 0
+  adj0[lower.tri(adj0)] <- 0
+  adj.m <- melt(adj0)
+  adj.m <- subset(adj.m, value == 1)
+  names(adj.m) <- c("from", "to", "value")
+  
+  return(list('nodeList'=nodeList, 'adjm'=adj.m))
+}
 
-organize_letters <- function(skel_graph0) {
+migrateConnections <- function(adj0, mergeSets, newNodes) {
+  toDelete <- NULL
+  for (i in 1:dim(mergeSets)[1]) {
+    whichRowCol <- which(colnames(adj0) %in% format(mergeSets[i, c(1, 2)], scientific = FALSE, trim = TRUE))
+    newConnectivities <- apply(matrix(adj0[whichRowCol, ], nrow = length(whichRowCol)), 2, function(x) x[1] == 1 | x[2] == 1)
+    newConnectivities[is.na(newConnectivities)] <- 0
+    
+    toAdd <- dim(adj0)[1] + 1
+    toDelete <- c(toDelete, which(rownames(adj0) %in% format(mergeSets[i, c(1, 2)], scientific = FALSE, trim = TRUE)))
+    
+    adj0 <- rbind(cbind(adj0, 0), 0)
+    adj0[, toAdd] <- c(newConnectivities, 0)
+    adj0[toAdd, ] <- c(newConnectivities, 0)
+    colnames(adj0)[toAdd] <- format(newNodes[i], scientific = FALSE, trim = TRUE)
+    rownames(adj0)[toAdd] <- format(newNodes[i], scientific = FALSE, trim = TRUE)
+  }
+  if (length(toDelete) > 0) {
+    adj0 <- as.matrix(adj0[, -toDelete])[-toDelete, ]
+  }
+  return(adj0)
+}
+
+organizeLetters <- function(skel_graph0) {
   letters <- replicate(n = length(na.omit(unique(V(skel_graph0)$letterID))), list())
   strs <- names(V(skel_graph0))
   for (i in 1:length(na.omit(unique(V(skel_graph0)$letterID))))
