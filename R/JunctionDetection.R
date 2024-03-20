@@ -122,47 +122,133 @@ processHandwriting <- function(img, dims) {
   # vertex, if two vertices are "neighbors" they are connected by an edge in
   # graphdf.
   graphdf <- getGraphDF(img.m=img.m, img=img, indices=indices, dims=dims)
-  # same as graphdf except neighbors on the diagonal are removed if there are neighbors on either
-  # side of the diagonal
-  graphdf0 <- getGraphDF0(img.m=img.m, img=img, indices=indices, dims=dims, nodeList=nodeList)
   # create igraphs from graphdf and graphdf0. If two vertices are joined by more than one edge, merge
   # the edges by averaging their attributes. Color the nodes 1 and all other vertices 0.
   skel_graph <- getSkeletonGraph(graph=graphdf, indices=indices, nodeList=nodeList)
+  rm(graphdf)
+  
+  # Split into componenets ----
+  message("Splitting document into components...")
+  comps <- list()
+  comps$skel_graphs <- igraph::decompose(skel_graph)
+  comps$indices <- lapply(comps$skel_graphs, function(x) as.numeric(V(x)$name))
+  comps$imgms <- lapply(comps$indices, function(x) i_to_rc(x, dims))
+  comps$node_lists <- lapply(comps$indices, function(x) intersect(x, nodeList))
+  comps$terminal_nodes <- lapply(comps$node_lists, function(x) intersect(x, terminalNodes))
+  comps$node_connections <- lapply(comps$node_lists, function(x) intersect(x, nodeConnections))
+  n <- length(comps$skel_graphs)
+  
+  # for each component ----
+  # same as graphdf except neighbors on the diagonal are removed if there are neighbors on either
+  # side of the diagonal
+  comps$graphdf0s <- list()
+  comps$skel_graph0s <- list()
+  comps$adj0s <- list()
+  for (i in 1:n){
+    comps$graphdf0s[[i]] <- getGraphDF0(img.m=comps$imgms[[i]], indices=comps$indices[[i]], nodeList=comps$node_lists[[i]], img=img, dims=dims)
+    comps$skel_graph0s[[i]] <- getSkeletonGraph(graph=comps$graphdf0s[[i]], indices=comps$indices[[i]], nodeList=comps$node_lists[[i]])
+    # get adjacency matrix: (1) weight each edge in skel_graph0 with 1 if either
+    # vertex is a node, this is the nodeOnlyDist (2) find the shortest distance
+    # between each pair of nodes (3) make an adjacency matrix for each pair of
+    # nodes where 1 means the the shortest path between them is nodeOnlyDist 1 or
+    # 2, where nodeOnlyDist 1 occurs when the nodes are joined by a single edge
+    # and 2 occurs when the nodes are joined by more than one edge but do not have
+    # another node on the path between them.
+    comps$adj0s[[i]] <- getNodeOnlyDistAdjMatrix(comps$skel_graph0s[[i]], comps$node_lists[[i]])
+  }
+  
+  # expected
+  graphdf0 <- getGraphDF0(img.m=img.m, img=img, indices=indices, dims=dims, nodeList=nodeList)
   skel_graph0 <- getSkeletonGraph(graph=graphdf0, indices=indices, nodeList=nodeList)
-  rm(graphdf)  # not used again
+  adj0 <- getNodeOnlyDistAdjMatrix(skel_graph0, nodeList)
   
-  # skel_graphs <- igraph::decompose(skel_graph)
-  # skel_graphs0 <- igraph::decompose(skel_graph0)
-  
-  # get adjacency matrix: (1) weight each edge in skel_graph0 with 1 if either
-  # vertex is a node, this is the nodeOnlyDist (2) find the shortest distance
-  # between each pair of nodes (3) make an adjacency matrix for each pair of
-  # nodes where 1 means the the shortest path between them is nodeOnlyDist 1 or
-  # 2, where nodeOnlyDist 1 occurs when the nodes are joined by a single edge
-  # and 2 occurs when the nodes are joined by more than one edge but do not have
-  # another node on the path between them.
-  adj0 <- getNodeOnlyDistAdjMatrix(skel_graph0, nodeList) 
+  # checks
+  check_graphdf(expected = graphdf0, actual = comps$graphdf0s)
+  check_skel_graph(expected = skel_graph0, actual = comps$skel_graph0s)
+  check_adj(expected = adj0, actual = comps$adj0s)
   
   # And merging them ----
   message("and merging them...")
+  comps$adjms <- list()
+  for (i in 1:n){
+    merged <- mergeNodes(nodeList = comps$node_lists[[i]], 
+                         skel_graph0 = comps$skel_graph0s[[i]], 
+                         terminalNodes = comps$terminal_nodes[[i]], 
+                         skel_graph = comps$skel_graphs[[i]], 
+                         adj0 = comps$adj0s[[i]])
+    comps$node_lists[[i]] <- merged$nodeList
+    comps$adjms[[i]] <- merged$adjm
+    rm(merged)
+  }
+  
+  # expected
   merged <- mergeNodes(nodeList = nodeList, skel_graph0 = skel_graph0, terminalNodes = terminalNodes, skel_graph = skel_graph, adj0 = adj0)
   nodeList <- merged$nodeList
   adj.m <- merged$adjm
   rm(merged)
   
+  # checks
+  check_graphdf(expected = adj.m, actual = comps$adjms)
+  check_nodeList(expected = nodeList, actual = comps$node_lists)
+  
   # Finding direct paths ----
   message("Finding direct paths...", appendLF = FALSE)
+  
+  comps$pathLists <- list()
+  for (i in 1:n){
+    paths <- AllUniquePaths(comps$adjms[[i]], comps$skel_graph0s[[i]], comps$node_lists[[i]])
+    if (is.null(paths)){
+      comps$pathLists[[i]] <- list()
+    } else {
+      comps$pathLists[[i]] <- paths
+    }
+  }
+  
+  # expected
   pathList <- AllUniquePaths(adj.m, skel_graph0, nodeList)
+  
+  # checks
+  check_pathList(expected = pathList, actual = comps$pathLists)
   
   # And loops ----
   message("and loops...")
+  
+  comps$loop_lists <- list()
+  comps$allPaths <- list()
+  for (i in 1:n){
+    comps$loop_lists[[i]] <- getLoops(nodeList = comps$node_lists[[i]],
+                                      graph = comps$skel_graphs[[i]],
+                                      graph0 = comps$skel_graph0s[[i]],
+                                      pathList = current_list <- comps$pathLists[[i]],
+                                      dims = dims)
+    comps$allPaths[[i]] <- append(current_list <- comps$pathLists[[i]], comps$loop_lists[[i]])
+  }
+  
+  # expected
   loopList <- getLoops(nodeList, skel_graph, skel_graph0, pathList, dim(img))
   allPaths <- append(pathList, loopList)
   
+  # check
+  check_pathList(expected=loopList, actual=comps$loop_lists)
+  check_pathList(expected=allPaths, actual=comps$allPaths)
+  
   # set nodeOnlyDist values: 1 = edge is connected to a node; 0 = edge is not connected to a node
-  graphdf0 <- as_data_frame(skel_graph0)
-  graphdf0$nodeOnlyDist <- ifelse(graphdf0$from %in% nodeList | graphdf0$to %in% nodeList, 1, 0)
-  skel_graph0 <- graph_from_data_frame(graphdf0, directed = FALSE)
+  for (i in 1:n){
+    updated <- update_skel_graph0(graphdf0 = comps$graphdf0s[[i]], 
+                                  skel_graph0 = comps$skel_graph0s[[i]], 
+                                  nodeList = comps$node_lists[[i]])
+    comps$graphdf0s[[i]] <- updated$graphdf0
+    comps$skel_graph0s[[i]] <- updated$skel_graph0
+  }
+  
+  # expected
+  updated <- update_skel_graph0(graphdf0 = graphdf0, skel_graph0 = skel_graph0, nodeList = nodeList)
+  graphdf0 <- updated$graphdf0
+  skel_graph0 <- updated$skel_graph0
+  
+  # check
+  check_skel_graph(expected = skel_graph0, actual = comps$skel_graph0s)
+  check_graphdf(expected = graphdf0, actual = comps$graphdf0s)
   
   # Looking for graph break points ----
   # Nominate and check candidate breakpoints
@@ -176,7 +262,7 @@ processHandwriting <- function(img, dims) {
   message("and discarding bad ones...")
   preStackBreaks <- getPreStackBreaks(pathList = pathList, nodeList = nodeList, candidateNodes = candidateNodes, 
                                       terminalNodes = terminalNodes, dims = dims, allPaths = allPaths)
-
+  
   # Isolating graph paths ----
   message("Isolating graph paths...")
   isolated <- isolateGraphPaths(allPaths = allPaths, skel_graph0 = skel_graph0, preStackBreaks = preStackBreaks, dims = dims, 
@@ -1275,6 +1361,13 @@ pathLetterAssociate <- function(allPaths, letter) {
   return(associatedPaths)
 }
 
+update_skel_graph0 <- function(graphdf0, skel_graph0, nodeList){
+  graphdf0 <- as_data_frame(skel_graph0)
+  graphdf0$nodeOnlyDist <- ifelse(graphdf0$from %in% nodeList | graphdf0$to %in% nodeList, 1, 0)
+  skel_graph0 <- graph_from_data_frame(graphdf0, directed = FALSE)
+  return(list('graphdf0'=graphdf0, 'skel_graph0'=skel_graph0))
+}
+
 #' whichNeighbors
 #'
 #' Internal function for identifying which neighbors are black.
@@ -1331,4 +1424,125 @@ whichNeighbors0 <- function(coords, img) {
     res[8] <- 0
   }
   return(res)
+}
+
+
+# Checks ------------------------------------------------------------------ 
+
+# I am in the process of rewriting processHandwriting to process a document by
+# processing each connected component individually instead of processing the
+# entire document at once, with the hope that this will speed up the code. The
+# functions in this section are used to check whether the result of processing
+# by component produces (actual) the same output as processing the entire
+# document (expected). 
+
+check_graphdf <- function(expected, actual){
+  actual <- do.call(rbind, actual)
+  actual <- actual %>% 
+    dplyr::mutate(from = as.numeric(from), to = as.numeric(to)) %>%
+    dplyr::arrange(from, to)
+  row.names(actual) <- NULL
+  
+  expected <- expected %>% 
+    dplyr::mutate(from = as.numeric(from), to = as.numeric(to)) %>%
+    dplyr::arrange(from, to)
+  row.names(expected) <- NULL
+  
+  if (!identical(actual, expected)){
+    stop('graphdfs are not identical')
+  } 
+}
+
+check_skel_graph <- function(expected, actual){
+  # compare vertices
+  actual_vertices <- lapply(actual, function(x) igraph::as_data_frame(x, 'vertices'))
+  actual_vertices <- do.call(rbind, actual_vertices)
+  actual_vertices <- actual_vertices %>% dplyr::mutate(name = as.numeric(name)) %>% dplyr::arrange(name)
+  row.names(actual_vertices) <- NULL
+  expected_vertices <- igraph::as_data_frame(expected, 'vertices')
+  expected_vertices <- expected_vertices %>% dplyr::mutate(name = as.numeric(name)) %>% dplyr::arrange(name)
+  row.names(expected_vertices) <- NULL
+  edgesTF <- identical(actual_vertices, expected_vertices)
+  
+  # compare edges
+  actual_edges <- lapply(actual, function(x) igraph::as_data_frame(x, 'edges'))
+  actual_edges <- do.call(rbind, actual_edges)
+  actual_edges <- actual_edges %>% dplyr::mutate(from = as.numeric(from), to = as.numeric(to)) %>% dplyr::arrange(from, to)
+  row.names(actual_edges) <- NULL
+  expected_edges <- igraph::as_data_frame(expected, 'edges')
+  expected_edges <- expected_edges %>% dplyr::mutate(from = as.numeric(from), to = as.numeric(to)) %>% dplyr::arrange(from, to)
+  row.names(expected_edges) <- NULL
+  verticesTF <- identical(actual_edges, expected_edges)
+  
+  if (!edgesTF | !verticesTF){
+    stop('skel_graphs are not identical')
+  } 
+}
+
+check_adj <- function(expected, actual){
+  actual_df <- do.call(rbind, lapply(actual, melt))
+  actual_df <- actual_df %>% tidyr::complete(Var1, Var2, fill = list(value = 0)) 
+  actual_df <- actual_df %>% 
+    dplyr::ungroup() %>%
+    dplyr::mutate(Var1 = as.numeric(Var1), Var2 = as.numeric(Var2), value = as.numeric(value)) %>% 
+    dplyr::arrange(Var1, Var2)
+  row.names(actual_df) <- NULL
+  
+  expected_df <- melt(expected)
+  expected_df <- expected_df %>% 
+    dplyr::mutate(Var1 = as.numeric(Var1), Var2 = as.numeric(Var2), value = as.numeric(value)) %>% 
+    dplyr::arrange(Var1, Var2)
+  row.names(expected_df) <- NULL
+  
+  var1TF <- identical(actual_df$Var1, expected_df$Var1)
+  var2TF <- identical(actual_df$Var2, expected_df$Var2)
+  valueTF <- identical(actual_df$value, expected_df$value)
+  
+  if (!var1TF | !var2TF | !valueTF){
+    stop('adjs are not identical')
+  } 
+}
+
+check_nodeList <- function(expected, actual){
+  actual <- unlist(actual)
+  if (!identical(sort(actual), sort(expected))){
+    stop('nodeLists are not identical')
+  } 
+}
+
+check_pathList <- function(expected, actual){
+  new <- list()
+  counter <- 1
+  # unnest
+  for (i in 1:length(actual)){
+    current_list <- actual[[i]]
+    if (length(current_list) >= 1){
+      for (j in 1:length(current_list)){
+        current_path <- current_list[[j]]
+        if (length(current_path) >= 1){
+          new[[counter]] <- current_path
+          counter = counter + 1
+        }
+      }
+    }
+  }
+  actual <- new
+  
+  for (i in 1:length(actual)){
+    for (j in 1:length(expected)){
+      if (identical(actual[[i]], expected[[j]])){
+        actual[[i]] <- "match"
+        expected[[j]] <- "match"
+      }
+    }
+  }
+  
+  actualTF <- all(unlist(actual) == "match")
+  expectedTF <- all(unlist(expected) == "match")
+  
+  if (!actualTF | !expectedTF){
+    stop("pathLists do not match")
+  } else {
+    message("pathLists are identical")
+  }
 }
