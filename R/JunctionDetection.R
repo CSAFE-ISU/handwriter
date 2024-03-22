@@ -164,8 +164,8 @@ processHandwriting <- function(img, dims) {
   
   # checks
   check_graphdf(expected = graphdf0, actual = comps$graphdf0s)
-  check_skel_graph(expected = skel_graph0, actual = comps$skel_graph0s)
-  check_adj(expected = adj0, actual = comps$adj0s)
+  check_igraph(expected = skel_graph0, actual = comps$skel_graph0s)
+  check_matrix(expected = adj0, actual = comps$adj0s)
   
   # And merging them ----
   message("and merging them...")
@@ -189,7 +189,7 @@ processHandwriting <- function(img, dims) {
   
   # checks
   check_graphdf(expected = adj.m, actual = comps$adjms)
-  check_nodeList(expected = nodeList, actual = comps$node_lists)
+  check_vector(expected = nodeList, actual = comps$node_lists)
   
   # Finding direct paths ----
   message("Finding direct paths...", appendLF = FALSE)
@@ -208,7 +208,7 @@ processHandwriting <- function(img, dims) {
   pathList <- AllUniquePaths(adj.m, skel_graph0, nodeList)
   
   # checks
-  check_pathList(expected = pathList, actual = comps$pathLists)
+  check_list(expected = pathList, actual = comps$pathLists)
   
   # And loops ----
   message("and loops...")
@@ -229,8 +229,8 @@ processHandwriting <- function(img, dims) {
   allPaths <- append(pathList, loopList)
   
   # check
-  check_pathList(expected=loopList, actual=comps$loop_lists)
-  check_pathList(expected=allPaths, actual=comps$allPaths)
+  check_list(expected=loopList, actual=comps$loop_lists)
+  check_list(expected=allPaths, actual=comps$allPaths)
   
   # set nodeOnlyDist values: 1 = edge is connected to a node; 0 = edge is not connected to a node
   for (i in 1:n){
@@ -247,16 +247,33 @@ processHandwriting <- function(img, dims) {
   skel_graph0 <- updated$skel_graph0
   
   # check
-  check_skel_graph(expected = skel_graph0, actual = comps$skel_graph0s)
+  check_igraph(expected = skel_graph0, actual = comps$skel_graph0s)
   check_graphdf(expected = graphdf0, actual = comps$graphdf0s)
   
   # Looking for graph break points ----
   # Nominate and check candidate breakpoints
   message("Looking for graph break points...", appendLF = FALSE)
+  comps$candidateNodes <- list()
+  comps$hasTroughs <- list()
+  for (i in 1:n){
+    if (length(comps$pathLists[[i]]) >= 1) {
+      candidates <- getCandidateNodes(pathList = comps$pathLists[[i]], dims = dims)
+      comps$candidateNodes[[i]] <- candidates$candidateNodes
+      comps$hasTroughs[[i]] <- candidates$hasTrough
+    } else {
+      comps$candidateNodes[[i]] <- list()
+      comps$hasTroughs[[i]] <- list()
+    }
+  }
+  
+  # expected
   candidates <- getCandidateNodes(pathList = pathList, dims = dims)
   candidateNodes <- candidates$candidateNodes
   hasTrough <- candidates$hasTrough
   rm(candidates)
+  
+  # checks
+  check_vector(expected = candidateNodes, actual = comps$candidateNodes)
   
   # And discarding bad ones ----
   message("and discarding bad ones...")
@@ -703,50 +720,87 @@ findMergeNodes <- function(skel_graph, mergeMat) {
 }
 
 getCandidateNodes <- function(pathList, dims) {
-  hasTrough <- rep(FALSE, length(pathList))
-  troughNodes <- c()
-  candidateNodes <- c()
-  for (i in 1:length(pathList))
-  {
-    # Look for troughs in edges
-    tempPath <- pathList[[i]]
+  isTroughNode <- function(rows, j) {
+    if (any(rows[1:(j - 1)] < rows[j] - 1) & any(rows[(j + 1):length(rows)] < rows[j] - 1)) {
+      # Find all vertices to the left of j in tempPath that are at least 2
+      # rows higher than j (in the image). Of these vertices, find the
+      # vertex that is closest to j from the left in tempPath
+      lowerEnd <- max(which(rows[1:(j - 1)] < rows[j] - 1))
+      # Find all vertices to the right of j in tempPath that are at least 2
+      # rows higher than j (in the image). Of these vertices, find the
+      # vertex that is closest to j from the right in tempPath
+      upperEnd <- min(which(rows[(j + 1):length(rows)] < rows[j] - 1))
+      # If none of the vertices between the lowerEnd and upperEnd are one or
+      # more rows lower than j, then assign j as a trough node
+      if (!any(rows[lowerEnd:(j + upperEnd)] > rows[j])) {
+        isTrough <- TRUE
+      } else {
+        isTrough <- FALSE
+      }
+    } else {
+      isTrough <- FALSE
+    }
+    return(isTrough)
+  }
+  
+  findTroughNodes <- function(tempPath, dims, j) {
+    troughNodes <- c()
+    # if path has more than 10 vertices
     if (length(tempPath) > 10) {
       # get the row number of each vertex in the path
       rows <- ((tempPath - 1) %% dims[1]) + 1
-      for (j in 5:(length(rows) - 4))
-      { # if there is at least one vertex before j and at least on after j that are higher than j
-        if (any(rows[1:(j - 1)] < rows[j] - 1) & any(rows[(j + 1):length(rows)] < rows[j] - 1)) {
-          # of all the vertices that are 2 or more rows higher than j (in the image) and to the left of 
-          # j (in the rows vector) find the index of the vertex (in rows[1:(j-1)]) that is closest to j from
-          # the left
-          lowerEnd <- max(which(rows[1:(j - 1)] < rows[j] - 1))
-          # of all the vertices that are 2 or more rows higher than j (in the image) and to the right of 
-          # j (in the rows vector) find the index of the vertex (in rows[(j+1):length(rows)]) that is closest to j from
-          # the right
-          upperEnd <- min(which(rows[(j + 1):length(rows)] < rows[j] - 1))
-          # if none of the vertices between the lowerEnd and upperEnd are lower than vertex j, assign j
-          # as a trough node
-          if (!any(rows[lowerEnd:(j + upperEnd)] > rows[j])) {
-            troughNodes <- c(troughNodes, tempPath[j])
-            hasTrough[i] <- TRUE
-          }
+      # skip the first 4 and last 4 vertices. Assign vertex j as a troughNode if
+      # the following conditions are met: 
+      #    (1) there is at least one vertex before j in tempPath that is at least 
+      #        2 rows higher than j 
+      #    (2) there is at least one vertex after j that is at least 2 rows higher than j 
+      #    (3) there are no vertices in the path between j and the closest vertices
+      #        that satisfy conditions 1 and 2 that are lower than j. 
+      # If j is a troughNode, set hasTrough to true for path i = tempPath
+      for (j in 5:(length(rows) - 4)) { 
+        if (isTroughNode(rows = rows, j = j)){
+          troughNodes <- c(troughNodes, tempPath[j])
         }
       }
     }
-    if (hasTrough[i] == FALSE) {
-      # add the middle node to the candidate list
+    return(troughNodes)
+  }
+  
+  hasTrough <- rep(FALSE, length(pathList))
+  troughNodes <- c()
+  candidateNodes <- c()
+  for (i in 1:length(pathList)) {
+    tempPath <- pathList[[i]]
+    newTroughNodes <- findTroughNodes(tempPath = tempPath, dims = dims, j = j)
+    if (length(newTroughNodes) > 0){
+      troughNodes <- c(troughNodes, newTroughNodes)
+      hasTrough[i] <- TRUE
+    } else {
+      # for paths without a trough node, add the middle vertex to the candidate
+      # list
       candidateNodes <- c(candidateNodes, tempPath[ceiling(length(tempPath) / 2)])
     }
   }
-  # find the trough nodes where: (1) the row of the trough node is not equal to
-  # the row of the next trough node, or (2) the column of the trough node is
-  # different than the column of the next trough node minus 1, and (3) the column of the 
-  # trough node minus 1 is not equal to the column of the text trough node.
-  breaks <- which(i_to_r(troughNodes[-1], dims[1]) != i_to_r(troughNodes[-length(troughNodes)], dims[1]) |
-                    i_to_c(troughNodes[-1], dims[1]) != i_to_c(troughNodes[-length(troughNodes)], dims[1]) - 1 &
-                    i_to_c(troughNodes[-1], dims[1]) - 1 != i_to_c(troughNodes[-length(troughNodes)], dims[1]))
+  
+  # find the indice(s) of the trough node(s) that is not in the same row as its
+  # neighbor to the right
+  breaks_by_row <- which(i_to_r(troughNodes[-length(troughNodes)], dims[1]) != i_to_r(troughNodes[-1], dims[1])) 
+  # find the indice(s) of the trough node(s) that when you subtract 1 from its row it is not in
+  # the same row as its neighbor to the right
+  breaks_by_col1 <- which(i_to_c(troughNodes[-length(troughNodes)], dims[1]) - 1 != i_to_c(troughNodes[-1], dims[1]))
+  # find the indice(s) of the trough node(s) that is not in the same row as its neighbor to the right minus 1
+  breaks_by_col2 <- which(i_to_c(troughNodes[-length(troughNodes)], dims[1]) != i_to_c(troughNodes[-1], dims[1]) - 1)
+  
+  # combine the breaks - Why were these rules chosen???
+  breaks <- intersect(union(breaks_by_row, breaks_by_col1), breaks_by_col2)
+  # add indices of the first and last vertex in the troughNodes list
   breaks <- c(1, breaks, length(troughNodes))
-  candidateNodes <- c(candidateNodes, troughNodes[ceiling((breaks[-1] + breaks[-length(breaks)]) / 2)])
+  
+  # take the average between each break index and the next, rounding up to the
+  # nearest integer and add the troughNodes at these indices to the candidates
+  # list - Why do we take the average???
+  average_breaks <- ceiling((breaks[-1] + breaks[-length(breaks)]) / 2)
+  candidateNodes <- c(candidateNodes, troughNodes[average_breaks])
   
   return(list('candidateNodes' = candidateNodes, 'hasTrough' = hasTrough))
 }
@@ -1450,10 +1504,12 @@ check_graphdf <- function(expected, actual){
   
   if (!identical(actual, expected)){
     stop('graphdfs are not identical')
-  } 
+  } else {
+    message('graphdfs are identical')
+  }
 }
 
-check_skel_graph <- function(expected, actual){
+check_igraph <- function(expected, actual){
   # compare vertices
   actual_vertices <- lapply(actual, function(x) igraph::as_data_frame(x, 'vertices'))
   actual_vertices <- do.call(rbind, actual_vertices)
@@ -1475,11 +1531,13 @@ check_skel_graph <- function(expected, actual){
   verticesTF <- identical(actual_edges, expected_edges)
   
   if (!edgesTF | !verticesTF){
-    stop('skel_graphs are not identical')
-  } 
+    stop('igraphs are not identical')
+  } else {
+    message('igraphs are identical')
+  }
 }
 
-check_adj <- function(expected, actual){
+check_matrix <- function(expected, actual){
   actual_df <- do.call(rbind, lapply(actual, melt))
   actual_df <- actual_df %>% tidyr::complete(Var1, Var2, fill = list(value = 0)) 
   actual_df <- actual_df %>% 
@@ -1499,18 +1557,22 @@ check_adj <- function(expected, actual){
   valueTF <- identical(actual_df$value, expected_df$value)
   
   if (!var1TF | !var2TF | !valueTF){
-    stop('adjs are not identical')
-  } 
+    stop('matrices are not identical')
+  } else {
+    message('matrices are identical')
+  }
 }
 
-check_nodeList <- function(expected, actual){
+check_vector <- function(expected, actual){
   actual <- unlist(actual)
   if (!identical(sort(actual), sort(expected))){
-    stop('nodeLists are not identical')
-  } 
+    stop('vectors are not identical')
+  } else {
+    message('vectors are identical')
+  }
 }
 
-check_pathList <- function(expected, actual){
+check_list <- function(expected, actual){
   new <- list()
   counter <- 1
   # unnest
@@ -1541,8 +1603,10 @@ check_pathList <- function(expected, actual){
   expectedTF <- all(unlist(expected) == "match")
   
   if (!actualTF | !expectedTF){
-    stop("pathLists do not match")
+    stop("lists do not contain the same sublists")
   } else {
-    message("pathLists are identical")
+    message("lists contain the same sublists")
   }
 }
+
+
