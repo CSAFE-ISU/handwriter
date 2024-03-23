@@ -225,11 +225,11 @@ processHandwriting <- function(img, dims) {
   }
   
   # expected
-  loopList <- getLoops(node_list, skel_graph, skel_graph0, path_list, dim(img))
-  all_paths <- append(path_list, loopList)
+  loop_list <- getLoops(node_list, skel_graph, skel_graph0, path_list, dim(img))
+  all_paths <- append(path_list, loop_list)
   
   # check
-  check_list(expected=loopList, actual=comps$loop_lists)
+  check_list(expected=loop_list, actual=comps$loop_lists)
   check_list(expected=all_paths, actual=comps$all_paths)
   
   # set node_only_dist values: 1 = edge is connected to a node; 0 = edge is not connected to a node
@@ -255,17 +255,17 @@ processHandwriting <- function(img, dims) {
   message("Looking for graph break points...", appendLF = FALSE)
   # Find candidate and trough nodes
   comps$candidate_nodes <- list()
-  comps$hasTroughs <- list()
+  comps$has_troughs <- list()
   comps$troughNodes <- list()
   for (i in 1:n){
     if (length(comps$path_lists[[i]]) >= 1) {
       candidates <- getcandidate_nodes(path_list = comps$path_lists[[i]], dims = dims)
       comps$candidate_nodes[[i]] <- candidates$candidate_nodes
-      comps$hasTroughs[[i]] <- candidates$hasTrough
+      comps$has_troughs[[i]] <- candidates$has_trough
       comps$troughNodes[[i]] <- candidates$troughNodes
     } else {
       comps$candidate_nodes[[i]] <- list()
-      comps$hasTroughs[[i]] <- list()
+      comps$has_troughs[[i]] <- list()
       comps$troughNodes[[i]] <- list()
     }
   }
@@ -299,7 +299,7 @@ processHandwriting <- function(img, dims) {
   # expected
   candidates <- getcandidate_nodes(path_list = path_list, dims = dims)
   candidate_nodes <- candidates$candidate_nodes
-  hasTrough <- candidates$hasTrough
+  has_trough <- candidates$has_trough
   candidate_nodes <- addTroughNodesToCandidates(candidate_nodes = candidate_nodes,
                                                troughNodes = candidates$troughNodes,
                                                dims = dims)
@@ -310,39 +310,77 @@ processHandwriting <- function(img, dims) {
   
   # And discarding bad ones ----
   message("and discarding bad ones...")
-  comps$preStackBreaks <- list()
+  comps$pre_stack_breaks <- list()
   for (i in 1:n){
     tempPaths <- comps$path_lists[[i]]
     if (length(tempPaths) > 0){
-      comps$preStackBreaks[[i]] <- getPreStackBreaks(path_list = tempPaths, 
+      comps$pre_stack_breaks[[i]] <- getpre_stack_breaks(path_list = tempPaths, 
                                                      node_list = unlist(comps$node_lists[[i]]), 
                                                      candidate_nodes = unlist(comps$candidate_nodes[[i]]), 
                                                      terminal_nodes = unlist(comps$terminal_nodes[[i]]), 
                                                      dims = dims, 
                                                      all_paths = comps$all_paths[[i]])
     } else {
-      comps$preStackBreaks[[i]] <- list()
+      comps$pre_stack_breaks[[i]] <- list()
     }
   }
   
   # expected
-  preStackBreaks <- getPreStackBreaks(path_list = path_list, node_list = node_list, candidate_nodes = candidate_nodes, 
+  pre_stack_breaks <- getpre_stack_breaks(path_list = path_list, node_list = node_list, candidate_nodes = candidate_nodes, 
                                       terminal_nodes = terminal_nodes, dims = dims, all_paths = all_paths)
   
   # check
-  check_vector(expected = preStackBreaks, actual = comps$preStackBreaks)
+  check_vector(expected = pre_stack_breaks, actual = comps$pre_stack_breaks)
   
   
   # Isolating graph paths ----
   message("Isolating graph paths...")
-  isolated <- isolateGraphPaths(all_paths = all_paths, skel_graph0 = skel_graph0, preStackBreaks = preStackBreaks, dims = dims, 
-                                path_list = path_list, loopList = loopList, node_list = node_list, terminal_nodes = terminal_nodes, 
-                                hasTrough = hasTrough)
+  # assign sequential IDs to paths within each component
+  comps$final_breaks <- list()
+  for (i in 1:n){
+    temp_graph <- comps$skel_graph0s[[i]]
+    if (length(V(temp_graph)$name) > 0 ){
+      isolated <- isolateGraphPaths(all_paths = comps$all_paths[[i]],
+                                    skel_graph0 = comps$skel_graph0[[i]],
+                                    pre_stack_breaks = comps$pre_stack_breaks[[i]],
+                                    dims = dims,
+                                    path_list = comps$path_lists[[i]],
+                                    loop_list = comps$loop_lists[[i]],
+                                    node_list = comps$node_lists[[i]],
+                                    terminal_nodes = comps$terminal_nodes[[i]],
+                                    has_trough = comps$has_troughs[[i]])
+      comps$all_paths[[i]] <- isolated$all_paths
+      comps$skel_graph0s[[i]] <- isolated$skel_graph0
+      comps$final_breaks[[i]] <- isolated$final_breaks
+      comps$node_lists[[i]] <- isolated$node_list
+    } 
+  }
+  
+  # assign sequential IDs to paths across all components
+  path_counter <- 0
+  for (i in 1:n){
+    if (length(V(comps$skel_graph0s[[i]])$letterID) > 0){
+      V(comps$skel_graph0s[[i]])$letterID <- V(comps$skel_graph0s[[i]])$letterID + path_counter
+      # vertices that are break points have letterID = NA
+      path_counter <- max(V(comps$skel_graph0s[[i]])$letterID, na.rm = TRUE)
+    }
+  }
+
+  # expected
+  isolated <- isolateGraphPaths(all_paths = all_paths, skel_graph0 = skel_graph0, pre_stack_breaks = pre_stack_breaks, dims = dims, 
+                                path_list = path_list, loop_list = loop_list, node_list = node_list, terminal_nodes = terminal_nodes, 
+                                has_trough = has_trough)
   all_paths <- isolated$all_paths
   skel_graph0 <- isolated$skel_graph0
-  finalBreaks <- isolated$finalBreaks
+  final_breaks <- isolated$final_breaks
   node_list <- isolated$node_list
   rm(isolated)
+  
+  # checks
+  check_list(expected = all_paths, actual = comps$all_paths)
+  check_igraph(expected = skel_graph0, actual = comps$skel_graph0s)
+  check_vector(expected = final_breaks, actual = comps$final_breaks)
+  check_vector(expected = node_list, actual = comps$node_lists)
   
   # Organizing letters ----
   message("Organizing letters...")
@@ -359,7 +397,7 @@ processHandwriting <- function(img, dims) {
   # Document processing complete ----
   message("Document processing complete.\n")
   
-  return(list(nodes = node_list, connectingNodes = connection_nodes, terminal_nodes = terminal_nodes, breakPoints = sort(finalBreaks), letterList = letterList))
+  return(list(nodes = node_list, connectingNodes = connection_nodes, terminal_nodes = terminal_nodes, breakPoints = sort(final_breaks), letterList = letterList))
 }
 
 
@@ -515,23 +553,23 @@ checkBreakPoints <- function(candidate_nodes, all_paths, nodeGraph, terminal_nod
 #'
 #' @param candidateBreaks possible breakpoints
 #' @param path_list list of paths
-#' @param loopList list of loops
+#' @param loop_list list of loops
 #' @param letters list of individual letter characters
 #' @param nodeGraph0 skeletonized graph
 #' @param node_list list of nodes
 #' @param terminal_nodes nodes at the ends of letters
-#' @param hasTrough whether or not break has a trough
+#' @param has_trough whether or not break has a trough
 #' @param dims graph dimensions
 #' @return removes breakpoints on simple graphs
 #' @noRd
-checkSimplicityBreaks <- function(candidateBreaks, path_list, loopList, letters, nodeGraph0, node_list, terminal_nodes, hasTrough, dims) {
+checkSimplicityBreaks <- function(candidateBreaks, path_list, loop_list, letters, nodeGraph0, node_list, terminal_nodes, has_trough, dims) {
   tooSimpleFlag <- rep(FALSE, length(candidateBreaks))
   for (i in 1:length(path_list))
   {
     tempPath <- path_list[[i]]
     nodestoCheck <- which(candidateBreaks %in% tempPath)
     if (length(nodestoCheck) >= 1) {
-      if (!hasTrough[i]) {
+      if (!has_trough[i]) {
         pathIndex <- which(tempPath == candidateBreaks[nodestoCheck])
         
         borderLetters <- c(
@@ -547,8 +585,8 @@ checkSimplicityBreaks <- function(candidateBreaks, path_list, loopList, letters,
         terminalRight <- sum(terminal_nodes %in% right)
         
         if (nodesOnLeft == 3 & nodesOnRight == 3 & terminalLeft == 2 & terminalRight == 2) {
-          pathsOnLeft <- length(pathLetterAssociate(c(path_list, loopList), left))
-          pathsOnRight <- length(pathLetterAssociate(c(path_list, loopList), right))
+          pathsOnLeft <- length(pathLetterAssociate(c(path_list, loop_list), left))
+          pathsOnRight <- length(pathLetterAssociate(c(path_list, loop_list), right))
           if (pathsOnLeft == 2 & pathsOnRight == 2) {
             tooSimpleFlag[nodestoCheck] <- TRUE
           }
@@ -810,7 +848,7 @@ findTroughNodes <- function(tempPath, dims, j) {
     #    (2) there is at least one vertex after j that is at least 2 rows higher than j 
     #    (3) there are no vertices in the path between j and the closest vertices
     #        that satisfy conditions 1 and 2 that are lower than j. 
-    # If j is a troughNode, set hasTrough to true for path i = tempPath
+    # If j is a troughNode, set has_trough to true for path i = tempPath
     for (j in 5:(length(rows) - 4)) { 
       if (isTroughNode(rows = rows, j = j)){
         troughNodes <- c(troughNodes, tempPath[j])
@@ -821,7 +859,7 @@ findTroughNodes <- function(tempPath, dims, j) {
 }
 
 getcandidate_nodes <- function(path_list, dims) {
-  hasTrough <- rep(FALSE, length(path_list))
+  has_trough <- rep(FALSE, length(path_list))
   troughNodes <- c()
   candidate_nodes <- c()
   for (i in 1:length(path_list)) {
@@ -829,14 +867,14 @@ getcandidate_nodes <- function(path_list, dims) {
     newTroughNodes <- findTroughNodes(tempPath = tempPath, dims = dims, j = j)
     if (length(newTroughNodes) > 0){
       troughNodes <- c(troughNodes, newTroughNodes)
-      hasTrough[i] <- TRUE
+      has_trough[i] <- TRUE
     } else {
       # for paths without a trough node, add the middle vertex to the candidate
       # list
       candidate_nodes <- c(candidate_nodes, tempPath[ceiling(length(tempPath) / 2)])
     }
   }
-  return(list('candidate_nodes' = candidate_nodes, 'hasTrough' = hasTrough, 'troughNodes' = troughNodes))
+  return(list('candidate_nodes' = candidate_nodes, 'has_trough' = has_trough, 'troughNodes' = troughNodes))
 }
 
 getGraphDF <- function(img_m, img, indices, dims) {
@@ -959,7 +997,7 @@ getLoops <- function(node_list, graph, graph0, path_list, dims) {
   check <- unused[degree(graph0, as.character(format(unused, scientific = FALSE, trim = TRUE))) > 1]
   check <- check[which(check %in% node_list)]
   
-  loopList <- list()
+  loop_list <- list()
   
   tryCatch(
     expr = {
@@ -976,7 +1014,7 @@ getLoops <- function(node_list, graph, graph0, path_list, dims) {
           graph <- igraph::delete_edges(graph, paste0(neigh[1], "|", neigh[2]))
           if (distances(graph, v = as.character(neigh[1]), to = as.character(neigh[2])) < Inf) {
             newPath <- as.numeric(names(unlist(shortest_paths(graph, from = format(neigh[1], scientific = FALSE), to = format(neigh[2], scientific = FALSE), weights = E(graph)$pen_dist)$vpath)))
-            loopList <- append(loopList, list(c(newPath, newPath[1])))
+            loop_list <- append(loop_list, list(c(newPath, newPath[1])))
           }
         }
       }
@@ -987,7 +1025,7 @@ getLoops <- function(node_list, graph, graph0, path_list, dims) {
   )
   
   ## Eliminate loop paths that we have found and find ones that dont have vertex on the loop. This is caused by combining of nodes that are close together.
-  used <- as.numeric(unique(c(unlist(path_list), unlist(loopList))))
+  used <- as.numeric(unique(c(unlist(path_list), unlist(loop_list))))
   unused <- as.numeric(vertexNames)[which(!(as.numeric(vertexNames) %in% used))]
   remaining0 <- induced_subgraph(graph0, vids = format(c(unused, node_list), scientific = FALSE, trim = TRUE))
   numNeighbors <- lapply(neighborhood(remaining0, nodes = V(remaining0)), length)
@@ -1000,13 +1038,13 @@ getLoops <- function(node_list, graph, graph0, path_list, dims) {
     {
       loopPart1 <- names(na.omit(dfs(remaining0, roots[i], unreachable = FALSE)$order))
       loopPart2 <- shortest_paths(fullGraph0, from = loopPart1[length(loopPart1)], to = roots[i])$vpath[[1]][-1]
-      loopList <- append(loopList, list(as.numeric(c(loopPart1, names(loopPart2)))))
+      loop_list <- append(loop_list, list(as.numeric(c(loopPart1, names(loopPart2)))))
     }
   }
   
   ## Now get loops that are more difficult. They are close to nodes, but separated by paths already found previously. Have to dig a little further.
   remaining0 <- induced_subgraph(graph0, vids = format(unused, scientific = FALSE, trim = TRUE))
-  used <- as.numeric(unique(c(unlist(path_list), unlist(loopList))))
+  used <- as.numeric(unique(c(unlist(path_list), unlist(loop_list))))
   unused <- as.numeric(vertexNames)[which(!(as.numeric(vertexNames) %in% used))]
   if (length(unused) > 0) {
     ends <- lapply(neighborhood(fullGraph0, order = 2, nodes = format(unused, scientific = FALSE, trim = TRUE)), function(x) node_list[which(format(node_list, scientific = FALSE, trim = TRUE) %in% names(x))])
@@ -1021,7 +1059,7 @@ getLoops <- function(node_list, graph, graph0, path_list, dims) {
         loopPart1 <- names(na.omit(dfs(remaining0, ends[i], unreachable = FALSE)$order))
         loopPart2a <- shortest_paths(fullGraph0, from = loopPart1[1], to = roots[i])$vpath[[1]][-1]
         loopPart2b <- shortest_paths(fullGraph0, from = loopPart1[length(loopPart1)], to = roots[i])$vpath[[1]][-1]
-        loopList <- append(loopList, list(as.numeric(c(rev(names(loopPart2a)), loopPart1, names(loopPart2b)))))
+        loop_list <- append(loop_list, list(as.numeric(c(rev(names(loopPart2a)), loopPart1, names(loopPart2b)))))
       }
     }
   }
@@ -1029,7 +1067,7 @@ getLoops <- function(node_list, graph, graph0, path_list, dims) {
   
   ## And a little deeper
   remaining0 <- induced_subgraph(graph0, vids = format(unused, scientific = FALSE, trim = TRUE))
-  used <- as.numeric(unique(c(unlist(path_list), unlist(loopList))))
+  used <- as.numeric(unique(c(unlist(path_list), unlist(loop_list))))
   unused <- as.numeric(vertexNames)[which(!(as.numeric(vertexNames) %in% used))]
   if (length(unused) > 0) {
     ends <- lapply(neighborhood(fullGraph0, order = 3, nodes = format(unused, scientific = FALSE, trim = TRUE)), function(x) node_list[which(format(node_list, scientific = FALSE, trim = TRUE) %in% names(x))])
@@ -1044,24 +1082,24 @@ getLoops <- function(node_list, graph, graph0, path_list, dims) {
         loopPart1 <- names(na.omit(dfs(remaining0, ends[i], unreachable = FALSE)$order))
         loopPart2a <- shortest_paths(fullGraph0, from = loopPart1[1], to = roots[i])$vpath[[1]][-1]
         loopPart2b <- shortest_paths(fullGraph0, from = loopPart1[length(loopPart1)], to = roots[i])$vpath[[1]][-1]
-        loopList <- append(loopList, list(as.numeric(c(rev(names(loopPart2a)), loopPart1, names(loopPart2b)))))
+        loop_list <- append(loop_list, list(as.numeric(c(rev(names(loopPart2a)), loopPart1, names(loopPart2b)))))
       }
     }
   }
   
   ## All that remains now is perfect loops. Start and end at same point with no intersections or end points.
-  remaining0 <- induced_subgraph(remaining0, vids = V(remaining0)[!(names(V(remaining0)) %in% unlist(loopList))])
+  remaining0 <- induced_subgraph(remaining0, vids = V(remaining0)[!(names(V(remaining0)) %in% unlist(loop_list))])
   while (TRUE) {
     if (length(V(remaining0)) > 0) {
       perfectLoop <- names(na.omit(dfs(remaining0, V(remaining0)[1], unreachable = FALSE)$order))
       remaining0 <- igraph::delete_vertices(remaining0, v = perfectLoop)
-      loopList <- append(loopList, list(as.numeric(c(perfectLoop, perfectLoop[1]))))
+      loop_list <- append(loop_list, list(as.numeric(c(perfectLoop, perfectLoop[1]))))
     } else {
       break
     }
   }
   
-  return(loopList)
+  return(loop_list)
 }
 
 #' getNodes
@@ -1228,7 +1266,7 @@ getNodeOrder <- function(letter, nodesInGraph, nodeConnectivity, dims) {
   }
 }
 
-getPreStackBreaks <- function(path_list, node_list, candidate_nodes, terminal_nodes, dims, all_paths) {
+getpre_stack_breaks <- function(path_list, node_list, candidate_nodes, terminal_nodes, dims, all_paths) {
   # create a graph with vertices for each node and edges between the first and last pixel / vertex in each path
   nodeGraph <- getNodeGraph(path_list, node_list)
   # flag candidates as good if the following are true: 
@@ -1239,10 +1277,10 @@ getPreStackBreaks <- function(path_list, node_list, candidate_nodes, terminal_no
   #         last node in the path 
   #     (4) the path contains more than 10 vertices.
   goodBreaks <- checkBreakPoints(candidate_nodes = candidate_nodes, all_paths = path_list, nodeGraph = nodeGraph, terminal_nodes = terminal_nodes, dims)
-  preStackBreaks <- candidate_nodes[goodBreaks]
+  pre_stack_breaks <- candidate_nodes[goodBreaks]
   # list the break(s) in each path or 'integer(0)' if the path does not contain a break
   pathsWithBreaks <- lapply(all_paths, function(x) {
-    which(x %in% preStackBreaks)
+    which(x %in% pre_stack_breaks)
   })
   # number of breaks per path
   breaksPerPath <- unlist(lapply(pathsWithBreaks, length))
@@ -1250,13 +1288,13 @@ getPreStackBreaks <- function(path_list, node_list, candidate_nodes, terminal_no
   # remove the original breaks so that each path has either 0 or 1 break.
   for (i in which(breaksPerPath > 1))
   { # if current path has more than one break, average the breaks and round up
-    newBreak <- floor(mean(which(all_paths[[i]] %in% preStackBreaks)))
+    newBreak <- floor(mean(which(all_paths[[i]] %in% pre_stack_breaks)))
     # drop pre stack breaks in current path from the pre stack breaks list
-    preStackBreaks <- preStackBreaks[which(!(preStackBreaks %in% all_paths[[i]]))]
+    pre_stack_breaks <- pre_stack_breaks[which(!(pre_stack_breaks %in% all_paths[[i]]))]
     # add "new break" for current path to list
-    preStackBreaks <- c(preStackBreaks, all_paths[[i]][newBreak])
+    pre_stack_breaks <- c(pre_stack_breaks, all_paths[[i]][newBreak])
   }
-  return(preStackBreaks)
+  return(pre_stack_breaks)
 }
 
 getSkeletonGraph <- function(graph, indices, node_list) {
@@ -1269,9 +1307,9 @@ getSkeletonGraph <- function(graph, indices, node_list) {
   return(skel_graph)
 }
 
-isolateGraphPaths <- function(all_paths, skel_graph0, preStackBreaks, dims, path_list, loopList, node_list, terminal_nodes, hasTrough) {
+isolateGraphPaths <- function(all_paths, skel_graph0, pre_stack_breaks, dims, path_list, loop_list, node_list, terminal_nodes, has_trough) {
   ## Break on breakpoints and group points by which letter they fall into. Adjust graph accordingly.
-  letterList <- letterPaths(all_paths, skel_graph0, preStackBreaks)
+  letterList <- letterPaths(all_paths, skel_graph0, pre_stack_breaks)
   letters <- letterList[[1]][unlist(lapply(letterList[[1]], length)) > 5]
   
   V(skel_graph0)$letterID <- letterList[[2]]
@@ -1279,17 +1317,17 @@ isolateGraphPaths <- function(all_paths, skel_graph0, preStackBreaks, dims, path
   V(skel_graph0)$letterID[!is.na(V(skel_graph0)$letterID)] <- as.numeric(as.factor(na.omit(V(skel_graph0)$letterID)))
   
   # Remove breakpoints that shouldn't have broken.
-  finalBreaks <- preStackBreaks[!(checkStacking(preStackBreaks, all_paths, letters, skel_graph0, dims))]
-  finalBreaks <- finalBreaks[!(checkSimplicityBreaks(finalBreaks, path_list, loopList, letters, skel_graph0, node_list, terminal_nodes, hasTrough, dims))]
+  final_breaks <- pre_stack_breaks[!(checkStacking(pre_stack_breaks, all_paths, letters, skel_graph0, dims))]
+  final_breaks <- final_breaks[!(checkSimplicityBreaks(final_breaks, path_list, loop_list, letters, skel_graph0, node_list, terminal_nodes, has_trough, dims))]
   
   pathsWithBreaks <- lapply(all_paths, function(x) {
-    which(x %in% preStackBreaks)
+    which(x %in% pre_stack_breaks)
   })
   breaksPerPath <- unlist(lapply(pathsWithBreaks, length))
   for (i in which(breaksPerPath > 0))
   {
     newNodes <- pathsWithBreaks[[i]]
-    if (all_paths[[i]][newNodes] %in% finalBreaks) {
+    if (all_paths[[i]][newNodes] %in% final_breaks) {
       tryCatch(
         expr = {
           E(skel_graph0, P = format(all_paths[[i]][c(newNodes - 2, newNodes - 1)], scientific = FALSE, trim = TRUE))$node_only_dist <- 1
@@ -1319,7 +1357,7 @@ isolateGraphPaths <- function(all_paths, skel_graph0, preStackBreaks, dims, path
   
   all_paths <- lapply(rapply(all_paths, enquote, how = "unlist"), eval)
   
-  return(list('all_paths' = all_paths, 'skel_graph0' = skel_graph0, 'finalBreaks' = finalBreaks, 'node_list' = node_list))
+  return(list('all_paths' = all_paths, 'skel_graph0' = skel_graph0, 'final_breaks' = final_breaks, 'node_list' = node_list))
 }
 
 isTroughNode <- function(rows, j) {
