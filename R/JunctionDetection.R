@@ -384,7 +384,22 @@ processHandwriting <- function(img, dims) {
   
   # Organizing letters ----
   message("Organizing letters...")
+  
+  comps$letters <- list()
+  for (i in 1:n){
+    temp_graph <- comps$skel_graph0s[[i]]
+    if (length(V(temp_graph)$letterID) > 0){
+      comps$letters[[i]] <- organizeLetters(temp_graph)
+    } else {
+      comps$letters[[i]] <- list()
+    }
+  }
+  
+  # expected
   letters <- organizeLetters(skel_graph0)
+  
+  # check
+  check_list(expected = letters, actual = comps$letters)
   
   # Creating letter lists ----
   message("Creating letter lists...")
