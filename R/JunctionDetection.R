@@ -403,7 +403,26 @@ processHandwriting <- function(img, dims) {
   
   # Creating letter lists ----
   message("Creating letter lists...")
+  comps$letterLists <- list()
+  for (i in 1:n){
+    if (length(comps$letters[[i]]) > 0){
+      comps$letterLists[[i]] <- createLetterLists(all_paths = comps$all_paths[[i]], 
+                                                  letters = comps$letters[[i]], 
+                                                  node_list = comps$node_lists[[i]], 
+                                                  connection_nodes = comps$node_connections[[i]], 
+                                                  terminal_nodes = comps$terminal_nodes[[i]], 
+                                                  dims = dims)
+    } else {
+      comps$letterLists[[i]] <- list()
+    }
+  }
+  
+  
+  
+  # expected
   letterList <- createLetterLists(all_paths, letters, node_list, connection_nodes, terminal_nodes, dims)
+  
+  check_list(expected = letterList, actual = comps$letterLists)
   
   # Adding character features ----
   message("Adding character features...")
