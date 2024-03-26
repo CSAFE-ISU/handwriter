@@ -341,7 +341,7 @@ processHandwriting <- function(img, dims) {
     temp_graph <- comps$skel_graph0s[[i]]
     if (length(V(temp_graph)$name) > 0 ){
       isolated <- isolateGraphPaths(all_paths = comps$all_paths[[i]],
-                                    skel_graph0 = comps$skel_graph0[[i]],
+                                    skel_graph0 = comps$skel_graph0s[[i]],
                                     pre_stack_breaks = comps$pre_stack_breaks[[i]],
                                     dims = dims,
                                     path_list = comps$path_lists[[i]],
@@ -1370,12 +1370,22 @@ getSkeletonGraph <- function(graph, indices, node_list) {
 }
 
 isolateGraphPaths <- function(all_paths, skel_graph0, pre_stack_breaks, dims, path_list, loop_list, node_list, terminal_nodes, has_trough) {
-  ## Break on breakpoints and group points by which letter they fall into. Adjust graph accordingly.
+  # Break on breakpoints and group points by which letter they fall into
+  # NOTE: skip if skel_graph0 and (or?) all_paths are empty. Even if pre_stack_breaks
+  # is empty, still need to run letterPaths() to assign letter number.
   letterList <- letterPaths(all_paths, skel_graph0, pre_stack_breaks)
-  letters <- letterList[[1]][unlist(lapply(letterList[[1]], length)) > 5]
   
+  # get number of vertices in each letter
+  letter_lengths <- unlist(lapply(letterList[[1]], length))
+  
+  # list letters with more than 5 vertices and those with 5 or fewer
+  letters <- letterList[[1]][letter_lengths > 5]
+  letters_short <- letterList[[1]][letter_lengths <= 5]
+  
+  # get letter IDs for all leters, even ones with 5 vertices or less
   V(skel_graph0)$letterID <- letterList[[2]]
-  skel_graph0 <- igraph::delete_vertices(skel_graph0, V(skel_graph0)[which(V(skel_graph0)$letterID %in% which(unlist(lapply(letterList[[1]], length)) <= 5))])
+  # delete vertices from letters with 5 or fewer vertices. does not delete vertices with letterID = NA
+  skel_graph0 <- igraph::delete_vertices(skel_graph0, V(skel_graph0)[which(V(skel_graph0)$letterID %in% which(letter_lengths <= 5))])
   V(skel_graph0)$letterID[!is.na(V(skel_graph0)$letterID)] <- as.numeric(as.factor(na.omit(V(skel_graph0)$letterID)))
   
   # Remove breakpoints that shouldn't have broken.
@@ -1722,9 +1732,13 @@ check_matrix <- function(expected, actual){
 
 check_vector <- function(expected, actual){
   actual <- unlist(actual)
-  if (identical(sort(actual), sort(expected))){
+  if (identical(actual, expected)){
     message('...CHECK: vectors are identical')
-  } else {
+  } else if (identical(sort(actual), sort(expected))){
+    message('...CHECK: vectors are identical if sorted')
+  } else if (identical(sort(unique(actual)), sort(expected))) {
+    message('...CHECK: vectors are identical if sorted and duplicates removed from actual')
+  } else {  
     stop('...CHECK: vectors are not identical')
   }
 }
