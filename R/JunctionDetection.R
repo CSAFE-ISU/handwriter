@@ -264,19 +264,16 @@ processHandwriting <- function(img, dims) {
   # Nominate and check candidate breakpoints
   message("Looking for graph break points...", appendLF = FALSE)
   # Find candidate and trough nodes
-  comps$candidate_nodes <- list()
-  comps$has_troughs <- list()
-  comps$troughNodes <- list()
   for (i in 1:n){
-    if (length(comps$path_lists[[i]]) >= 1) {
-      candidates <- getcandidate_nodes(path_list = comps$path_lists[[i]], dims = dims)
-      comps$candidate_nodes[[i]] <- candidates$candidate_nodes
-      comps$has_troughs[[i]] <- candidates$has_trough
-      comps$troughNodes[[i]] <- candidates$troughNodes
+    if (length(comps[[i]]$path_list) >= 1) {
+      candidates <- getcandidate_nodes(path_list = comps[[i]]$path_list, dims = dims)
+      comps[[i]]$candidate_nodes <- candidates$candidate_nodes
+      comps[[i]]$has_troughs <- candidates$has_trough
+      comps[[i]]$trough_nodes <- candidates$troughNodes
     } else {
-      comps$candidate_nodes[[i]] <- list()
-      comps$has_troughs[[i]] <- list()
-      comps$troughNodes[[i]] <- list()
+      comps[[i]]$candidate_nodes <- list()
+      comps[[i]]$has_troughs <- list()
+      comps[[i]]$trough_nodes <- list()
     }
   }
   
@@ -287,23 +284,19 @@ processHandwriting <- function(img, dims) {
   # criteria. If this function is run on individual components the ending list of 
   # candidate nodes can vary slightly from the candidate nodes that result from 
   # running this function on the entire document at once.
-  candidate_nodes <- addTroughNodesToCandidates(candidate_nodes = unlist(comps$candidate_nodes),
-                                                troughNodes = unlist(comps$troughNodes),
+  candidate_nodes <- addTroughNodesToCandidates(candidate_nodes = getVectorByName(comps, 'candidate_nodes'),
+                                                troughNodes = getVectorByName(comps, 'trough_nodes'),
                                                 dims = dims)
   # GROUP BY COMPONENTS
   # Sort candidate nodes into corresponding components
-  comps$candidate_nodes <- list()
   for (i in 1:n){
-    tempPaths <- comps$path_lists[[i]]
-    if (length(tempPaths) > 0){
-      subList <- list()
-      for (j in 1:length(tempPaths)){
-        subList[[j]] <- intersect(candidate_nodes, tempPaths[[j]])
-      }
-      comps$candidate_nodes[[i]] <- subList
+    # get all vertices in all paths in comps[[i]]$path_list as a vector
+    temp <- unlist(comps[[i]]$path_list)
+    if (length(temp) > 0){
+      comps[[i]]$candidate_nodes <- intersect(candidate_nodes, temp)
     } else {
-      comps$candidate_nodes[[i]] <- list()
-    } 
+      comps[[i]]$candidate_nodes <- list()
+    }
   }
   
   # expected
@@ -316,31 +309,30 @@ processHandwriting <- function(img, dims) {
   rm(candidates)
   
   # checks
-  check_vector(expected = candidate_nodes, actual = comps$candidate_nodes)
+  check_vector(expected = candidate_nodes, actual = comps, name = 'candidate_nodes')
   
   # And discarding bad ones ----
   message("and discarding bad ones...")
-  comps$pre_stack_breaks <- list()
   for (i in 1:n){
-    tempPaths <- comps$path_lists[[i]]
+    tempPaths <- comps[[i]]$path_list
     if (length(tempPaths) > 0){
-      comps$pre_stack_breaks[[i]] <- getpre_stack_breaks(path_list = tempPaths, 
-                                                         node_list = unlist(comps$node_lists[[i]]), 
-                                                         candidate_nodes = unlist(comps$candidate_nodes[[i]]), 
-                                                         terminal_nodes = unlist(comps$terminal_nodes[[i]]), 
-                                                         dims = dims, 
-                                                         all_paths = comps$all_paths[[i]])
+      comps[[i]]$pre_stack_breaks <- getPreStackBreaks(path_list = tempPaths, 
+                                                       node_list = comps[[i]]$node_list, 
+                                                       candidate_nodes = comps[[i]]$candidate_nodes, 
+                                                       terminal_nodes = comps[[i]]$terminal_nodes, 
+                                                       all_paths = comps[[i]]$all_paths,
+                                                       dims = dims)
     } else {
-      comps$pre_stack_breaks[[i]] <- list()
+      comps[[i]]$pre_stack_breaks <- list()
     }
   }
   
   # expected
-  pre_stack_breaks <- getpre_stack_breaks(path_list = path_list, node_list = node_list, candidate_nodes = candidate_nodes, 
-                                          terminal_nodes = terminal_nodes, dims = dims, all_paths = all_paths)
+  pre_stack_breaks <- getPreStackBreaks(path_list = path_list, node_list = node_list, candidate_nodes = candidate_nodes, 
+                                        terminal_nodes = terminal_nodes, dims = dims, all_paths = all_paths)
   
   # check
-  check_vector(expected = pre_stack_breaks, actual = comps$pre_stack_breaks)
+  check_vector(expected = pre_stack_breaks, actual = comps, name = pre_stack_breaks)
   
   
   # Isolating graph paths ----
@@ -350,19 +342,19 @@ processHandwriting <- function(img, dims) {
   for (i in 1:n){
     temp_graph <- comps$skel_graph0s[[i]]
     if (length(V(temp_graph)$name) > 0 ){
-      isolated <- isolateGraphPaths(all_paths = comps$all_paths[[i]],
+      isolated <- isolateGraphPaths(all_paths = comps[[i]]$all_paths,
                                     skel_graph0 = comps$skel_graph0s[[i]],
-                                    pre_stack_breaks = comps$pre_stack_breaks[[i]],
+                                    pre_stack_breaks = comps[[i]]$pre_stack_breaks,
                                     dims = dims,
-                                    path_list = comps$path_lists[[i]],
+                                    path_list = comps[[i]]$path_list,
                                     loop_list = comps$loop_lists[[i]],
-                                    node_list = comps$node_lists[[i]],
-                                    terminal_nodes = comps$terminal_nodes[[i]],
-                                    has_trough = comps$has_troughs[[i]])
-      comps$all_paths[[i]] <- isolated$all_paths
+                                    node_list = comps[[i]]$node_list,
+                                    terminal_nodes = comps[[i]]$terminal_nodes,
+                                    has_trough = comps[[i]]$has_troughs)
+      comps[[i]]$all_paths <- isolated$all_paths
       comps$skel_graph0s[[i]] <- isolated$skel_graph0
       comps$final_breaks[[i]] <- isolated$final_breaks
-      comps$node_lists[[i]] <- isolated$node_list
+      comps[[i]]$node_list <- isolated$node_list
     } 
   }
   
@@ -416,11 +408,11 @@ processHandwriting <- function(img, dims) {
   comps$letterLists <- list()
   for (i in 1:n){
     if (length(comps$letters[[i]]) > 0){
-      comps$letterLists[[i]] <- createLetterLists(all_paths = comps$all_paths[[i]], 
+      comps$letterLists[[i]] <- createLetterLists(all_paths = comps[[i]]$all_paths, 
                                                   letters = comps$letters[[i]], 
-                                                  node_list = comps$node_lists[[i]], 
+                                                  node_list = comps[[i]]$node_list, 
                                                   connection_nodes = comps$node_connections[[i]], 
-                                                  terminal_nodes = comps$terminal_nodes[[i]], 
+                                                  terminal_nodes = comps[[i]]$terminal_nodes, 
                                                   dims = dims)
     } else {
       comps$letterLists[[i]] <- list()
@@ -1031,6 +1023,10 @@ getGraphDF0 <- function(img_m, img, indices, dims, node_list) {
   return(graphdf0)
 }
 
+# get a list from of 'comps[[i]]$name' for i=1,2,...,n and name='skel_graph', or 'skel_graph0', or 'graph_df0', etc.
+getListByName <- function(comps, name){
+  return(lapply(comps, function(x) x[[name]]))
+}
 
 #' getLoops
 #'
@@ -1338,7 +1334,7 @@ getNodeOrder <- function(letter, nodesInGraph, nodeConnectivity, dims) {
   }
 }
 
-getpre_stack_breaks <- function(path_list, node_list, candidate_nodes, terminal_nodes, dims, all_paths) {
+getPreStackBreaks <- function(path_list, node_list, candidate_nodes, terminal_nodes, dims, all_paths) {
   # create a graph with vertices for each node and edges between the first and last pixel / vertex in each path
   nodeGraph <- getNodeGraph(path_list, node_list)
   # flag candidates as good if the following are true: 
@@ -1377,6 +1373,11 @@ getSkeletonGraph <- function(graph, indices, node_list) {
   # color vertex as 1 if vertex is a node, otherwise color as 0
   V(skel_graph)$color <- ifelse(V(skel_graph)$name %in% node_list, 1, 0)
   return(skel_graph)
+}
+
+# get a vector from of 'comps[[i]]$name' for i=1,2,...,n and name='skel_graph', or 'skel_graph0', or 'graph_df0', etc.
+getVectorByName <- function(comps, name){
+  return(unlist(sapply(comps, function(x) x[[name]])))
 }
 
 isolateGraphPaths <- function(all_paths, skel_graph0, pre_stack_breaks, dims, path_list, loop_list, node_list, terminal_nodes, has_trough) {
@@ -1670,7 +1671,7 @@ whichNeighbors0 <- function(coords, img) {
 # document (expected). 
 
 check_graphdf <- function(expected, actual, name){
-  actual <- lapply(actual, function(x) x[[name]])
+  actual <- getListByName(actual, name)
   actual <- do.call(rbind, actual)
   actual <- actual %>% 
     dplyr::mutate(from = as.numeric(from), to = as.numeric(to)) %>%
@@ -1690,7 +1691,7 @@ check_graphdf <- function(expected, actual, name){
 }
 
 check_igraph <- function(expected, actual, name){
-  actual <- lapply(actual, function(x) x[[name]])
+  actual <- getListByName(actual, name)
   
   # compare vertices
   actual_vertices <- lapply(actual, function(x) igraph::as_data_frame(x, 'vertices'))
@@ -1720,7 +1721,8 @@ check_igraph <- function(expected, actual, name){
 }
 
 check_matrix <- function(expected, actual, name){
-  actual <- lapply(actual, function(x) x[[name]])
+  actual <- getListByName(actual, name)
+  
   actual_df <- do.call(rbind, lapply(actual, melt))
   actual_df <- actual_df %>% tidyr::complete(Var1, Var2, fill = list(value = 0)) 
   actual_df <- actual_df %>% 
@@ -1745,8 +1747,8 @@ check_matrix <- function(expected, actual, name){
 }
 
 check_vector <- function(expected, actual, name){
-  actual <- lapply(actual, function(x) x[[name]])
-  actual <- unlist(actual)
+  actual <- getVectorByName(actual, name)
+  
   if (identical(actual, expected)){
     message('...CHECK: vectors are identical')
   } else if (identical(sort(actual), sort(expected))){
@@ -1759,7 +1761,7 @@ check_vector <- function(expected, actual, name){
 }
 
 check_flattend_list <- function(expected, actual, name){
-  actual <- lapply(actual, function(x) x[[name]])
+  actual <- getListByName(actual, name)
   actual <- flatten_list(actual = actual)
   
   if (identical(actual, expected)){
@@ -1788,7 +1790,7 @@ check_flattend_list <- function(expected, actual, name){
 }
 
 check_list <- function(expected, actual, name){
-  actual <- lapply(actual, function(x) x[[name]])
+  actual <- getListByName(actual, name)
   if (identical(actual, expected)){
     message('...CHECK: lists are identical')
   } else {
