@@ -129,24 +129,36 @@ processHandwriting <- function(img, dims) {
   
   # Split into componenets ----
   message("Splitting document into components...")
+  
+  skel_graphs <- igraph::decompose(skel_graph)
+  n <- length(skel_graphs)
   comps <- list()
-  comps$skel_graphs <- igraph::decompose(skel_graph)
-  comps$indices <- lapply(comps$skel_graphs, function(x) as.numeric(V(x)$name))
-  comps$img_ms <- lapply(comps$indices, function(x) i_to_rc(x, dims))
-  comps$node_lists <- lapply(comps$indices, function(x) intersect(x, node_list))
-  comps$terminal_nodes <- lapply(comps$node_lists, function(x) intersect(x, terminal_nodes))
-  comps$node_connections <- lapply(comps$node_lists, function(x) intersect(x, connection_nodes))
-  n <- length(comps$skel_graphs)
+  for (i in 1:length(skel_graphs)){
+    component <- list()
+    component$skel_graph <- skel_graphs[[i]]
+    # get vertex names
+    component$indices <- as.numeric(V(skel_graphs[[i]])$name)
+    # get rows and coluns of vertices
+    component$img_m <- i_to_rc(component$indices, dims)
+    component$node_list <- intersect(component$indices, node_list)
+    component$terminal_nodes <- intersect(component$node_list, terminal_nodes)
+    component$node_connections <- intersect(component$node_list, connection_nodes)
+    comps[[i]] <- component
+  }
+  rm(skel_graphs)
   
   # for each component ----
   # same as graph_df except neighbors on the diagonal are removed if there are neighbors on either
   # side of the diagonal
-  comps$graph_df0s <- list()
-  comps$skel_graph0s <- list()
-  comps$adj0s <- list()
   for (i in 1:n){
-    comps$graph_df0s[[i]] <- getGraphDF0(img_m=comps$img_ms[[i]], indices=comps$indices[[i]], node_list=comps$node_lists[[i]], img=img, dims=dims)
-    comps$skel_graph0s[[i]] <- getSkeletonGraph(graph=comps$graph_df0s[[i]], indices=comps$indices[[i]], node_list=comps$node_lists[[i]])
+    comps[[i]]$graph_df0 <- getGraphDF0(img_m=comps[[i]]$img_m, 
+                                        indices=comps[[i]]$indices, 
+                                        node_list=comps[[i]]$node_list, 
+                                        img=img, 
+                                        dims=dims)
+    comps[[i]]$skel_graph0 <- getSkeletonGraph(graph=comps[[i]]$graph_df0, 
+                                               indices=comps[[i]]$indices, 
+                                               node_list=comps[[i]]$node_list)
     # get adjacency matrix: (1) weight each edge in skel_graph0 with 1 if either
     # vertex is a node, this is the node_only_dist (2) find the shortest distance
     # between each pair of nodes (3) make an adjacency matrix for each pair of
@@ -154,7 +166,7 @@ processHandwriting <- function(img, dims) {
     # 2, where node_only_dist 1 occurs when the nodes are joined by a single edge
     # and 2 occurs when the nodes are joined by more than one edge but do not have
     # another node on the path between them.
-    comps$adj0s[[i]] <- getNodeOnlyDistAdjMatrix(comps$skel_graph0s[[i]], comps$node_lists[[i]])
+    comps[[i]]$adj0 <- getNodeOnlyDistAdjMatrix(comps[[i]]$skel_graph0, comps[[i]]$node_list)
   }
   
   # expected
@@ -163,9 +175,9 @@ processHandwriting <- function(img, dims) {
   adj0 <- getNodeOnlyDistAdjMatrix(skel_graph0, node_list)
   
   # checks
-  check_graphdf(expected = graphdf0, actual = comps$graph_df0s)
-  check_igraph(expected = skel_graph0, actual = comps$skel_graph0s)
-  check_matrix(expected = adj0, actual = comps$adj0s)
+  check_graphdf(expected = graphdf0, actual = comps, name='graph_df0')
+  check_igraph(expected = skel_graph0, actual = comps, name='skel_graph0')
+  check_matrix(expected = adj0, actual = comps, name='adj0')
   
   # And merging them ----
   message("and merging them...")
@@ -1659,7 +1671,8 @@ whichNeighbors0 <- function(coords, img) {
 # by component produces (actual) the same output as processing the entire
 # document (expected). 
 
-check_graphdf <- function(expected, actual){
+check_graphdf <- function(expected, actual, name){
+  actual <- lapply(actual, function(x) x[[name]])
   actual <- do.call(rbind, actual)
   actual <- actual %>% 
     dplyr::mutate(from = as.numeric(from), to = as.numeric(to)) %>%
@@ -1678,7 +1691,9 @@ check_graphdf <- function(expected, actual){
   }
 }
 
-check_igraph <- function(expected, actual){
+check_igraph <- function(expected, actual, name){
+  actual <- lapply(actual, function(x) x[[name]])
+  
   # compare vertices
   actual_vertices <- lapply(actual, function(x) igraph::as_data_frame(x, 'vertices'))
   actual_vertices <- do.call(rbind, actual_vertices)
@@ -1706,7 +1721,8 @@ check_igraph <- function(expected, actual){
   }
 }
 
-check_matrix <- function(expected, actual){
+check_matrix <- function(expected, actual, name){
+  actual <- lapply(actual, function(x) x[[name]])
   actual_df <- do.call(rbind, lapply(actual, melt))
   actual_df <- actual_df %>% tidyr::complete(Var1, Var2, fill = list(value = 0)) 
   actual_df <- actual_df %>% 
