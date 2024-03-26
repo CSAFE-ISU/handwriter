@@ -181,15 +181,14 @@ processHandwriting <- function(img, dims) {
   
   # And merging them ----
   message("and merging them...")
-  comps$adjms <- list()
   for (i in 1:n){
-    merged <- mergeNodes(node_list = comps$node_lists[[i]], 
-                         skel_graph0 = comps$skel_graph0s[[i]], 
-                         terminal_nodes = comps$terminal_nodes[[i]], 
-                         skel_graph = comps$skel_graphs[[i]], 
-                         adj0 = comps$adj0s[[i]])
-    comps$node_lists[[i]] <- merged$node_list
-    comps$adjms[[i]] <- merged$adjm
+    merged <- mergeNodes(node_list = comps[[i]]$node_list, 
+                         skel_graph0 = comps[[i]]$skel_graph0, 
+                         terminal_nodes = comps[[i]]$terminal_nodes, 
+                         skel_graph = comps[[i]]$skel_graph, 
+                         adj0 = comps[[i]]$adj0)
+    comps[[i]]$node_list <- merged$node_list
+    comps[[i]]$adjm <- merged$adjm
     rm(merged)
   }
   
@@ -200,19 +199,20 @@ processHandwriting <- function(img, dims) {
   rm(merged)
   
   # checks
-  check_graphdf(expected = adj.m, actual = comps$adjms)
-  check_vector(expected = node_list, actual = comps$node_lists)
+  check_graphdf(expected = adj.m, actual = comps, name = 'adjm')
+  check_vector(expected = node_list, actual = comps, name = 'node_list')
   
   # Finding direct paths ----
   message("Finding direct paths...", appendLF = FALSE)
   
-  comps$path_lists <- list()
   for (i in 1:n){
-    paths <- AllUniquePaths(comps$adjms[[i]], comps$skel_graph0s[[i]], comps$node_lists[[i]])
+    paths <- AllUniquePaths(comps[[i]]$adjm, 
+                            comps[[i]]$skel_graph0, 
+                            comps[[i]]$node_list)
     if (is.null(paths)){
-      comps$path_lists[[i]] <- list()
+      comps[[i]]$path_list <- list()
     } else {
-      comps$path_lists[[i]] <- paths
+      comps[[i]]$path_list <- paths
     }
   }
   
@@ -220,37 +220,35 @@ processHandwriting <- function(img, dims) {
   path_list <- AllUniquePaths(adj.m, skel_graph0, node_list)
   
   # checks
-  check_flattend_list(expected = path_list, actual = comps$path_lists)
+  check_flattend_list(expected = path_list, actual = comps, name = 'path_list')
   
   # And loops ----
   message("and loops...")
   
-  comps$loop_lists <- list()
-  comps$all_paths <- list()
   for (i in 1:n){
-    comps$loop_lists[[i]] <- getLoops(node_list = comps$node_lists[[i]],
-                                      graph = comps$skel_graphs[[i]],
-                                      graph0 = comps$skel_graph0s[[i]],
-                                      path_list = current_list <- comps$path_lists[[i]],
-                                      dims = dims)
-    comps$all_paths[[i]] <- append(current_list <- comps$path_lists[[i]], comps$loop_lists[[i]])
+    comps[[i]]$loop_list <- getLoops(node_list = comps[[i]]$node_list,
+                                     graph = comps[[i]]$skel_graph,
+                                     graph0 = comps[[i]]$skel_graph0,
+                                     path_list = comps[[i]]$path_list,
+                                     dims = dims)
+    comps[[i]]$all_paths <- append(comps[[i]]$path_list, comps[[i]]$loop_list)
   }
   
   # expected
-  loop_list <- getLoops(node_list, skel_graph, skel_graph0, path_list, dim(img))
+  loop_list <- getLoops(node_list, skel_graph, skel_graph0, path_list, dims)
   all_paths <- append(path_list, loop_list)
   
   # check
-  check_flattend_list(expected=loop_list, actual=comps$loop_lists)
-  check_flattend_list(expected=all_paths, actual=comps$all_paths)
+  check_flattend_list(expected=loop_list, actual=comps, name = 'loop_list')
+  check_flattend_list(expected=all_paths, actual=comps, name = 'all_paths')
   
   # set node_only_dist values: 1 = edge is connected to a node; 0 = edge is not connected to a node
   for (i in 1:n){
-    updated <- update_skel_graph0(graphdf0 = comps$graph_df0s[[i]], 
-                                  skel_graph0 = comps$skel_graph0s[[i]], 
-                                  node_list = comps$node_lists[[i]])
-    comps$graph_df0s[[i]] <- updated$graphdf0
-    comps$skel_graph0s[[i]] <- updated$skel_graph0
+    updated <- update_skel_graph0(graphdf0 = comps[[i]]$graph_df0, 
+                                  skel_graph0 = comps[[i]]$skel_graph0, 
+                                  node_list = comps[[i]]$node_list)
+    comps[[i]]$graph_df0 <- updated$graphdf0
+    comps[[i]]$skel_graph0 <- updated$skel_graph0
   }
   
   # expected
@@ -259,8 +257,8 @@ processHandwriting <- function(img, dims) {
   skel_graph0 <- updated$skel_graph0
   
   # check
-  check_igraph(expected = skel_graph0, actual = comps$skel_graph0s)
-  check_graphdf(expected = graphdf0, actual = comps$graph_df0s)
+  check_igraph(expected = skel_graph0, actual = comps, name = 'skel_graph0')
+  check_graphdf(expected = graphdf0, actual = comps, name = 'graph_df0')
   
   # Looking for graph break points ----
   # Nominate and check candidate breakpoints
@@ -1746,7 +1744,8 @@ check_matrix <- function(expected, actual, name){
   }
 }
 
-check_vector <- function(expected, actual){
+check_vector <- function(expected, actual, name){
+  actual <- lapply(actual, function(x) x[[name]])
   actual <- unlist(actual)
   if (identical(actual, expected)){
     message('...CHECK: vectors are identical')
@@ -1759,7 +1758,8 @@ check_vector <- function(expected, actual){
   }
 }
 
-check_flattend_list <- function(expected, actual){
+check_flattend_list <- function(expected, actual, name){
+  actual <- lapply(actual, function(x) x[[name]])
   actual <- flatten_list(actual = actual)
   
   if (identical(actual, expected)){
@@ -1787,7 +1787,8 @@ check_flattend_list <- function(expected, actual){
   }
 }
 
-check_list <- function(expected, actual){
+check_list <- function(expected, actual, name){
+  actual <- lapply(actual, function(x) x[[name]])
   if (identical(actual, expected)){
     message('...CHECK: lists are identical')
   } else {
