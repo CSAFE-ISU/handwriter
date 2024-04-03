@@ -126,263 +126,52 @@ processHandwriting <- function(img, dims) {
   # the edges by averaging their attributes. Color the nodes 1 and all other vertices 0.
   skel_graph <- getSkeletonGraph(graph=graph_df, indices=indices, node_list=node_list)
   rm(graph_df)
-  
-  # Split into componenets ----
-  message("Splitting document into components...")
-  
-  skel_graphs <- igraph::decompose(skel_graph)
-  n <- length(skel_graphs)
-  comps <- list()
-  for (i in 1:length(skel_graphs)){
-    component <- list()
-    component$skel_graph <- skel_graphs[[i]]
-    # get vertex names
-    component$indices <- as.numeric(V(skel_graphs[[i]])$name)
-    # get rows and coluns of vertices
-    component$img_m <- i_to_rc(component$indices, dims)
-    component$node_list <- intersect(component$indices, node_list)
-    component$terminal_nodes <- intersect(component$node_list, terminal_nodes)
-    component$node_connections <- intersect(component$node_list, connection_nodes)
-    comps[[i]] <- component
-  }
-  rm(skel_graphs)
-  
-  # for each component ----
-  # same as graph_df except neighbors on the diagonal are removed if there are neighbors on either
-  # side of the diagonal
-  for (i in 1:n){
-    comps[[i]]$graph_df0 <- getGraphDF0(img_m=comps[[i]]$img_m, 
-                                        indices=comps[[i]]$indices, 
-                                        node_list=comps[[i]]$node_list, 
-                                        img=img, 
-                                        dims=dims)
-    comps[[i]]$skel_graph0 <- getSkeletonGraph(graph=comps[[i]]$graph_df0, 
-                                               indices=comps[[i]]$indices, 
-                                               node_list=comps[[i]]$node_list)
-    # get adjacency matrix: (1) weight each edge in skel_graph0 with 1 if either
-    # vertex is a node, this is the node_only_dist (2) find the shortest distance
-    # between each pair of nodes (3) make an adjacency matrix for each pair of
-    # nodes where 1 means the the shortest path between them is node_only_dist 1 or
-    # 2, where node_only_dist 1 occurs when the nodes are joined by a single edge
-    # and 2 occurs when the nodes are joined by more than one edge but do not have
-    # another node on the path between them.
-    comps[[i]]$adj0 <- getNodeOnlyDistAdjMatrix(comps[[i]]$skel_graph0, comps[[i]]$node_list)
-  }
-  
-  # expected
+
   graphdf0 <- getGraphDF0(img_m=img_m, img=img, indices=indices, dims=dims, node_list=node_list)
   skel_graph0 <- getSkeletonGraph(graph=graphdf0, indices=indices, node_list=node_list)
   adj0 <- getNodeOnlyDistAdjMatrix(skel_graph0, node_list)
   
-  # checks
-  check_graphdf(expected = graphdf0, actual = comps, name='graph_df0')
-  check_igraph(expected = skel_graph0, actual = comps, name='skel_graph0')
-  check_matrix(expected = adj0, actual = comps, name='adj0')
-  
   # And merging them ----
   message("and merging them...")
-  for (i in 1:n){
-    merged <- mergeNodes(node_list = comps[[i]]$node_list, 
-                         skel_graph0 = comps[[i]]$skel_graph0, 
-                         terminal_nodes = comps[[i]]$terminal_nodes, 
-                         skel_graph = comps[[i]]$skel_graph, 
-                         adj0 = comps[[i]]$adj0)
-    comps[[i]]$node_list <- merged$node_list
-    comps[[i]]$adjm <- merged$adjm
-    rm(merged)
-  }
-  
-  # expected
   merged <- mergeNodes(node_list = node_list, skel_graph0 = skel_graph0, terminal_nodes = terminal_nodes, skel_graph = skel_graph, adj0 = adj0)
   node_list <- merged$node_list
   adj.m <- merged$adjm
   rm(merged)
   
-  # checks
-  check_graphdf(expected = adj.m, actual = comps, name = 'adjm')
-  check_vector(expected = node_list, actual = comps, name = 'node_list')
-  
   # Finding direct paths ----
   message("Finding direct paths...", appendLF = FALSE)
-  
-  for (i in 1:n){
-    paths <- AllUniquePaths(comps[[i]]$adjm, 
-                            comps[[i]]$skel_graph0, 
-                            comps[[i]]$node_list)
-    if (is.null(paths)){
-      comps[[i]]$path_list <- list()
-    } else {
-      comps[[i]]$path_list <- paths
-    }
-  }
-  
-  # expected
   path_list <- AllUniquePaths(adj.m, skel_graph0, node_list)
-  
-  # checks
-  check_list(expected = path_list, actual = comps, name = 'path_list', flatten = TRUE)
   
   # And loops ----
   message("and loops...")
-  
-  for (i in 1:n){
-    comps[[i]]$loop_list <- getLoops(node_list = comps[[i]]$node_list,
-                                     graph = comps[[i]]$skel_graph,
-                                     graph0 = comps[[i]]$skel_graph0,
-                                     path_list = comps[[i]]$path_list,
-                                     dims = dims)
-    comps[[i]]$all_paths <- append(comps[[i]]$path_list, comps[[i]]$loop_list)
-  }
-  
-  # expected
   loop_list <- getLoops(node_list, skel_graph, skel_graph0, path_list, dims)
   all_paths <- append(path_list, loop_list)
   
-  # check
-  check_list(expected=loop_list, actual=comps, name = 'loop_list', flatten = TRUE)
-  check_list(expected=all_paths, actual=comps, name = 'all_paths', flatten = TRUE)
-  
   # set node_only_dist values: 1 = edge is connected to a node; 0 = edge is not connected to a node
-  for (i in 1:n){
-    updated <- update_skel_graph0(graphdf0 = comps[[i]]$graph_df0, 
-                                  skel_graph0 = comps[[i]]$skel_graph0, 
-                                  node_list = comps[[i]]$node_list)
-    comps[[i]]$graph_df0 <- updated$graphdf0
-    comps[[i]]$skel_graph0 <- updated$skel_graph0
-  }
-  
-  # expected
   updated <- update_skel_graph0(graphdf0 = graphdf0, skel_graph0 = skel_graph0, node_list = node_list)
   graphdf0 <- updated$graphdf0
   skel_graph0 <- updated$skel_graph0
   
-  # check
-  check_igraph(expected = skel_graph0, actual = comps, name = 'skel_graph0')
-  check_graphdf(expected = graphdf0, actual = comps, name = 'graph_df0')
-  
   # Looking for graph break points ----
   # Nominate and check candidate breakpoints
   message("Looking for graph break points...", appendLF = FALSE)
-  # Find candidate and trough nodes
-  for (i in 1:n){
-    if (length(comps[[i]]$path_list) >= 1) {
-      temp_candidates <- getcandidate_nodes(path_list = comps[[i]]$path_list, dims = dims)
-      comps[[i]]$candidate_nodes <- temp_candidates$candidate_nodes
-      comps[[i]]$has_troughs <- temp_candidates$has_trough
-      comps[[i]]$trough_nodes <- temp_candidates$troughNodes
-    } else {
-      comps[[i]]$candidate_nodes <- list()
-      comps[[i]]$has_troughs <- list()
-      comps[[i]]$trough_nodes <- list()
-    }
-  }
-  candidate_nodes_actual <- getVectorByName(comps, 'candidate_nodes')
-  trough_nodes_actual <- getVectorByName(comps, 'trough_nodes')
-  
-  # expected
   candidates <- getcandidate_nodes(path_list = path_list, dims = dims)
   candidate_nodes <- candidates$candidate_nodes
   has_trough <- candidates$has_trough
   trough_nodes <- candidates$troughNodes
   rm(candidates)
   
-  # check
-  check_vector(candidate_nodes, candidate_nodes_actual, NULL, flatten = FALSE)
-  check_vector(trough_nodes, trough_nodes_actual, NULL, flatten = FALSE)
-  
-  # PERFORM ALL TOGETHER - NOT BY COMPONENT - so results match old version of
-  # code addTroughNodesToCandidates creates a vector of all troughNodes, finds
-  # nodes that meet the criteria (see notes in function), and takes the middle
-  # node (rounding up) between each node and the next in the list that meet the
-  # criteria. If this function is run on individual components the ending list of 
-  # candidate nodes can vary slightly from the candidate nodes that result from 
-  # running this function on the entire document at once.
-  candidate_nodes_new <- addTroughNodesToCandidates(candidate_nodes = candidate_nodes_actual,
-                                                    troughNodes = trough_nodes_actual,
-                                                    dims = dims)
-  # GROUP BY COMPONENTS
-  # Sort candidate nodes into corresponding components
-  for (i in 1:n){
-    # get all vertices in all paths in comps[[i]]$path_list as a vector
-    temp <- unlist(comps[[i]]$path_list)
-    if (length(temp) > 0){
-      comps[[i]]$candidate_nodes <- intersect(candidate_nodes_new, temp)
-    } else {
-      comps[[i]]$candidate_nodes <- list()
-    }
-  }
-  
-  # expected
   candidate_nodes <- addTroughNodesToCandidates(candidate_nodes = candidate_nodes,
                                                 troughNodes = trough_nodes,
                                                 dims = dims)
   
-  # checks
-  # check_vector(expected = candidate_nodes, actual = candidate_nodes_new, name = NULL, flatten = FALSE, tol = 10)
-  check_vector(expected = candidate_nodes, actual = comps, name = 'candidate_nodes', flatten = TRUE, tol = 10)
-  
   # And discarding bad ones ----
   message("and discarding bad ones...")
-  for (i in 1:n){
-    tempPaths <- comps[[i]]$path_list
-    if (length(tempPaths) > 0){
-      comps[[i]]$pre_stack_breaks <- getPreStackBreaks(path_list = tempPaths, 
-                                                       node_list = comps[[i]]$node_list, 
-                                                       candidate_nodes = comps[[i]]$candidate_nodes, 
-                                                       terminal_nodes = comps[[i]]$terminal_nodes, 
-                                                       all_paths = comps[[i]]$all_paths,
-                                                       dims = dims)
-    } else {
-      comps[[i]]$pre_stack_breaks <- list()
-    }
-  }
-  
-  # expected
   pre_stack_breaks <- getPreStackBreaks(path_list = path_list, node_list = node_list, candidate_nodes = candidate_nodes, 
                                         terminal_nodes = terminal_nodes, dims = dims, all_paths = all_paths)
   
-  # check
-  check_vector(expected = pre_stack_breaks, actual = comps, name = 'pre_stack_breaks', flatten = TRUE, tol = 10)
-  
-  
   # Isolating graph paths ----
   message("Isolating graph paths...")
-  # assign sequential IDs to paths within each component
-  for (i in 1:n){
-    temp_graph <- comps[[i]]$skel_graph0
-    if (length(V(temp_graph)$name) > 0) {
-      isolated <- isolateGraphPaths(all_paths = comps[[i]]$all_paths,
-                                    skel_graph0 = comps[[i]]$skel_graph0,
-                                    pre_stack_breaks = comps[[i]]$pre_stack_breaks,
-                                    path_list = comps[[i]]$path_list,
-                                    loop_list = comps[[i]]$loop_list,
-                                    node_list = comps[[i]]$node_list,
-                                    terminal_nodes = comps[[i]]$terminal_nodes,
-                                    has_trough = comps[[i]]$has_troughs,
-                                    dims = dims)
-      comps[[i]]$all_paths <- isolated$all_paths
-      comps[[i]]$skel_graph0 <- isolated$skel_graph0
-      comps[[i]]$final_breaks <- isolated$final_breaks
-      comps[[i]]$node_list <- isolated$node_list
-    } else {
-      # empty
-      comps[[i]]$final_breaks <- numeric(0)
-      # NOTE: comps[[i]]$all_paths, comps[[i]]$skel_graph0, comps[[i]]$node_list
-      # don't change from before this loop
-    }
-  }
-  
-  # assign sequential IDs to paths across all components
-  path_counter <- 0
-  for (i in 1:n){
-    if (length(V(comps[[i]]$skel_graph0)$letterID) > 0){
-      V(comps[[i]]$skel_graph0)$letterID <- V(comps[[i]]$skel_graph0)$letterID + path_counter
-      # vertices that are break points have letterID = NA
-      path_counter <- max(V(comps[[i]]$skel_graph0)$letterID, na.rm = TRUE)
-    }
-  }
-  
-  # expected
   isolated <- isolateGraphPaths(all_paths = all_paths, skel_graph0 = skel_graph0, pre_stack_breaks = pre_stack_breaks, dims = dims, 
                                 path_list = path_list, loop_list = loop_list, node_list = node_list, terminal_nodes = terminal_nodes, 
                                 has_trough = has_trough)
@@ -392,71 +181,22 @@ processHandwriting <- function(img, dims) {
   node_list <- isolated$node_list
   rm(isolated)
   
-  # checks
-  check_list(expected = all_paths, actual = comps, name = 'all_paths', flatten = TRUE)
-  check_igraph(expected = skel_graph0, actual = comps, name = 'skel_graph0')
-  check_vector(expected = final_breaks, actual = comps, name = 'final_breaks')
-  check_vector(expected = node_list, actual = comps, name = 'node_list')
-  
   # Organizing letters ----
   message("Organizing letters...")
-  
-  comps$letters <- list()
-  for (i in 1:n){
-    temp_graph <- comps[[i]]$skel_graph0
-    if (length(V(temp_graph)$letterID) > 0){
-      comps[[i]]$letters <- organizeLetters(temp_graph)
-    } else {
-      comps[[i]]$letters <- list()
-    }
-  }
-  
-  # expected
   letters <- organizeLetters(skel_graph0)
-  
-  # check
-  check_list(expected = letters, actual = comps, name = 'letters', flatten = TRUE)
-  
+
   # Creating letter lists ----
   message("Creating letter lists...")
-  comps$letterLists <- list()
-  for (i in 1:n){
-    if (length(comps[[i]]$letters) > 0){
-      comps[[i]]$letterList <- createLetterLists(all_paths = comps[[i]]$all_paths, 
-                                                 letters = comps[[i]]$letters, 
-                                                 node_list = comps[[i]]$node_list, 
-                                                 connection_nodes = comps[[i]]$node_connections, 
-                                                 terminal_nodes = comps[[i]]$terminal_nodes, 
-                                                 dims = dims)
-    } else {
-      comps[[i]]$letterList <- list()
-    }
-  }
-  
-  # expected
   letterList <- createLetterLists(all_paths, letters, node_list, connection_nodes, terminal_nodes, dims)
-  
-  # check
-  check_list(expected = letterList, actual = comps, name = 'letterList', flatten = TRUE)
   
   # Adding character features ----
   message("Adding character features...")
-  letterList_flat <- flatten_list(getListByName(comps, name='letterList'))
-  letters_flat <- flatten_list(getListByName(comps, name='letters'))
-  letterList_actual <- addCharacterFeatures(img = img, letterList = letterList_flat, letters = letters_flat, dims = dims)
-  
-  # expected
-  letterList_expected <- addCharacterFeatures(img = img, letterList = letterList, letters = letters, dims = dims)
-  
-  # check
-  letterList_actual_minusid <- lapply(letterList_actual, function(x) x$characterFeatures$uniqueid <- NULL)
-  letterList_expected_minusid <- lapply(letterList_expected, function(x) x$characterFeatures$uniqueid <- NULL)
-  check_sublist(list1 = letterList_expected_minusid, list2 = letterList_actual_minusid, custom_message = '...CHECK: Lists contain identical sublists if unique IDs are ignored')
-  
+  letterList <- addCharacterFeatures(img = img, letterList = letterList, letters = letters, dims = dims)
+
   # Document processing complete ----
   message("Document processing complete.\n")
   
-  # return(list(nodes = node_list, connectingNodes = connection_nodes, terminal_nodes = terminal_nodes, breakPoints = sort(final_breaks), letterList = letterList))
+  return(list(nodes = node_list, connectingNodes = connection_nodes, terminal_nodes = terminal_nodes, breakPoints = sort(final_breaks), letterList = letterList))
 }
 
 
