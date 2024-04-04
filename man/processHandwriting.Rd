@@ -2,7 +2,7 @@
 % Please edit documentation in R/JunctionDetection.R
 \name{processHandwriting}
 \alias{processHandwriting}
-\title{Process Handwriting}
+\title{Process Handwriting by Component}
 \usage{
 processHandwriting(img, dims)
 }
