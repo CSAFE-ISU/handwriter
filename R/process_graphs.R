@@ -64,7 +64,9 @@ extractGraphs = function(source_folder = getwd(), save_folder = getwd()){
 
 #' Extracts graphs from a .png image using handwriter functions
 #' 
-#' extractGraphs
+#' `r lifecycle::badge("superseded")`
+#' 
+#'Development on `getGraphs()` is complete. We recommend using `processDocument()` instead.
 #' 
 #' @param image .png image to be processed
 #' @param source_folder path to folder containing .png images
