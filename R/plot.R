@@ -121,6 +121,43 @@ plotNodes = function(doc, plot_break_pts = FALSE, nodeSize = 3, nodeColor = "red
   return(p)
 }
 
+#' plotNodesLine
+#'
+#' Internal function for drawing a line from two given nodes.
+#'  
+#' @param doc A document processed with [handwriter::processHandwriter()]
+#' @param nodeSize size of node; default set to 3
+#' @param nodeColor color of node; default set to red
+#' @return a line in between the two nodes
+#' 
+#' @noRd
+plotNodesLine = function(doc, nodeSize = 3, nodeColor = "red")
+{
+  X <- Y <- NULL
+  p = plotImageThinned(doc)
+  pointSet = data.frame(X = ((doc$process$nodes - 1) %/% dim(doc$image)[1]) + 1, Y = dim(doc$image)[1] - ((doc$process$nodes - 1) %% dim(doc$image)[1]))
+  sx = pointSet[[1]][[1]]
+  sy = pointSet[[2]][[1]]
+  ex = pointSet[[1]][[2]]
+  ey = pointSet[[2]][[2]]
+  p = p + geom_point(data = pointSet, aes(X, Y), size = nodeSize, shape = I(16), color = I(nodeColor), alpha = I(.4)) + geom_segment(x = sx, y = sy, xend = ex, yend = ey)
+  
+  return(p)
+}
+
+plotNodesLine1 = function(doc, nodeSize = 3, nodeColor = "red")
+{
+  X <- Y <- NULL
+  p = plotImageThinned(doc)
+  pointSet = data.frame(X = ((doc$process$nodes - 1) %/% dim(doc$image)[1]) + 1, Y = dim(doc$image)[1] - ((doc$process$nodes - 1) %% dim(doc$image)[1]))
+  sx = pointSet[[1]][[1]]
+  sy = pointSet[[2]][[1]]
+  ex = pointSet[[1]][[2]]
+  ey = pointSet[[2]][[2]]
+  p = p + geom_point(data = pointSet, aes(X, Y), size = nodeSize, shape = I(16), color = I(nodeColor), alpha = I(.4)) + geom_curve(x = sx, y = sy, xend = ex, yend = ey, curvature = 0, angle = 180)
+  return(p)
+}
+
 #' Plot Line
 #'
 #' This function returns a plot of a single line extracted from a document. 

@@ -67,44 +67,6 @@ char_to_feature = function(character, dims, uniqueid){
   return(features)
 }
 
-
-#' plotNodesLine
-#'
-#' Internal function for drawing a line from two given nodes.
-#'  
-#' @param doc A document processed with [handwriter::processHandwriter()]
-#' @param nodeSize size of node; default set to 3
-#' @param nodeColor color of node; default set to red
-#' @return a line in between the two nodes
-#' 
-#' @noRd
-plotNodesLine = function(doc, nodeSize = 3, nodeColor = "red")
-{
-  X <- Y <- NULL
-  p = plotImageThinned(doc)
-  pointSet = data.frame(X = ((doc$process$nodes - 1) %/% dim(doc$image)[1]) + 1, Y = dim(doc$image)[1] - ((doc$process$nodes - 1) %% dim(doc$image)[1]))
-  sx = pointSet[[1]][[1]]
-  sy = pointSet[[2]][[1]]
-  ex = pointSet[[1]][[2]]
-  ey = pointSet[[2]][[2]]
-  p = p + geom_point(data = pointSet, aes(X, Y), size = nodeSize, shape = I(16), color = I(nodeColor), alpha = I(.4)) + geom_segment(x = sx, y = sy, xend = ex, yend = ey)
-  
-  return(p)
-}
-
-plotNodesLine1 = function(doc, nodeSize = 3, nodeColor = "red")
-{
-  X <- Y <- NULL
-  p = plotImageThinned(doc)
-  pointSet = data.frame(X = ((doc$process$nodes - 1) %/% dim(doc$image)[1]) + 1, Y = dim(doc$image)[1] - ((doc$process$nodes - 1) %% dim(doc$image)[1]))
-  sx = pointSet[[1]][[1]]
-  sy = pointSet[[2]][[1]]
-  ex = pointSet[[1]][[2]]
-  ey = pointSet[[2]][[2]]
-  p = p + geom_point(data = pointSet, aes(X, Y), size = nodeSize, shape = I(16), color = I(nodeColor), alpha = I(.4)) + geom_curve(x = sx, y = sy, xend = ex, yend = ey, curvature = 0, angle = 180)
-  return(p)
-}
-
 #' get_aspect_info
 #'
 #' Extracts aspect ratio & supporting information from a character
@@ -339,28 +301,6 @@ character_features_by_line = function(character_features){
   return(characters_by_line)
 }
 
-#' loop_extract
-#'
-#' Iterates through all available paths from processHandwriting()
-#' Picks out loops for later character association.
-#' 
-#' @param allPaths All character (formerly letter) paths from processHandwriting()
-#' 
-#' @return List of all loops 
-#' 
-#' @noRd
-loop_extract = function(allPaths){
-  loops = list()
-  for(i in 1:length(allPaths)){
-    if(length(allPaths)<1){
-      next
-    }
-    if(allPaths[[i]][[1]]==allPaths[[i]][[length(allPaths[[i]])]]){
-      loops = c(loops,list(allPaths[[i]]))
-    }
-  }
-  return(loops)
-}
 
 #' all_centroids
 #'

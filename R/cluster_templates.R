@@ -145,6 +145,33 @@ make_clustering_templates <- function(template_dir,
 
 # Internal Functions ------------------------------------------------------
 
+#' AddSamplingStrata
+#'
+#' Add two new fields, numloops and stratum, to the characterFeatures list for
+#' each letter in letterList.
+#'
+#' @param letterList List of letters
+#' @return List of letters
+#'
+#' @noRd
+AddSamplingStrata = function(letterList){
+  # For each letter in the sample
+  for(i in 1:length(letterList)){
+    # Count the number of loops in the letter and store as a new field called numloops under characterFields
+    letterList[[i]]$characterFeatures$numloops = length(loop_extract(letterList[[i]]$allPaths))
+    # Add a new field called stratum under characterFields, where stratum is "1loop", "2loops", or the length of allPaths
+    if(letterList[[i]]$characterFeatures$numloops == 2){
+      letterList[[i]]$characterFeatures$stratum = "2loop"
+    } else if(letterList[[i]]$characterFeatures$numloops == 1){
+      letterList[[i]]$characterFeatures$stratum = "1loop"
+    } else {
+      letterList[[i]]$characterFeatures$stratum = length(letterList[[i]]$allPaths)
+    }
+  }
+  return(letterList)
+}
+
+
 
 #' Make Processed List
 #'
