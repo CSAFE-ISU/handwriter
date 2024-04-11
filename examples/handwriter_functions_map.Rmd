@@ -1,0 +1,78 @@
+---
+title: "handwriter functions map"
+author: "Stephanie Reinders"
+date: "2024-04-10"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(sdcHierarchies)
+```
+
+```{r}
+h <- hier_create(root = "Total", nodes = c('processDocument'))
+
+# processDocument
+h <- hier_add(h, root = "processDocument", nodes = c("readPNGBinary", "thinImage", "processHandwriting"))
+h <- hier_add(h, root = "processHandwriting", nodes = c("getNodes", 
+                                                        "i_to_rc (in processHandwriting)", 
+                                                        "getGraphDF",
+                                                        "getSkeletonGraph (output skel_graph)",
+                                                        "igraph::decompose",
+                                                        "new_group_by_component",
+                                                        "getGraphDF0",
+                                                        "getSkeletonGraph (output skel_graph0)",
+                                                        "getNodeOnlyDistAdjMatrix",
+                                                        "mergeNodes",
+                                                        "AllUniquePaths",
+                                                        "getLoops",
+                                                        "updateSkelGraph0",
+                                                        "getCandidateNodes",
+                                                        "addTroughNodesToCandidates",
+                                                        "getPreStackBreaks",
+                                                        "isolateGraphPaths",
+                                                        "new_assign_sequential_ids",
+                                                        "organizeLetters",
+                                                        "createLetterLists",
+                                                        "addCharacterFeatures",
+                                                        'flatten_list'))
+h <- hier_add(h, root = 'getNodes', nodes = c('i_to_rc (in getNodes)', 'countChanges', 'nested_node2by2fill'))
+h <- hier_add(h, root = 'nested_node2by2fill', nodes = c('whichNeighbors (in nested_node2by2fill)'))
+h <- hier_add(h, root = 'getGraphDF', nodes = c('whichNeighbors'))
+h <- hier_add(h, root = 'getGraphDF0', nodes = c('whichNeighbors0'))
+h <- hier_add(h, root = 'whichNeighbors0', nodes = c('whichNeighbors (in which Neighbors0)'))
+h <- hier_add(h, root = 'mergeNodes', nodes = c('i_to_r (in mergeNodes)', 
+                                                'i_to_c (in mergeNodes)', 
+                                                # 'findMergeNodes', 
+                                                'migrateConnections'))
+h <- hier_add(h, root = 'getCandidateNodes', nodes = c('findTroughNodes'))
+h <- hier_add(h, root = 'findTroughNodes', nodes = c('isTroughNode'))
+h <- hier_add(h, root = 'addTroughNodesToCandidates', nodes = c('i_to_r', 'i_to_c'))
+h <- hier_add(h, root = 'getPreStackBreaks', nodes = c('getNodeGraph', 'checkBreakPoints'))
+h <- hier_add(h, root = 'isolateGraphPaths', nodes = c('letterPaths', 'checkStacking', 'checkSimplicityBreaks'))
+h <- hier_add(h, root = 'checkSimplicityBreaks', nodes = c('pathLetterAssociate (in checkSimplicityBreaks)'))
+h <- hier_add(h, root = 'createLetterLists', nodes = c('pathLetterAssociate', 'nested_getConnectivity', 'getNodeOrder'))
+h <- hier_add(h, root = 'getNodeOrder', nodes = c('nested_toRC'))
+h <- hier_add(h, root = 'addCharacterFeatures', nodes = c('extract_character_features'))
+h <- hier_add(h, root = 'extract_character_features', nodes = c('char_to_feature',
+                                                                'add_updown_neighboring_char_dist',
+                                                                'add_line_info', 
+                                                                'nov_neighboring_char_dist', 
+                                                                'add_covariance_matrix'))
+h <- hier_add(h, root = 'char_to_feature', nodes = c('get_aspect_info', 'get_centroid_info'))
+h <- hier_add(h, root = 'get_aspect_info', nodes = c('i_to_rci (in get_aspect_info)'))
+h <- hier_add(h, root = 'get_centroid_info', nodes = c('i_to_rci (in get_centroid_info)', 'rc_to_i (in get_centroid_info)'))
+h <- hier_add(h, root = 'add_updown_neighboring_char_dist', nodes = c('i_to_rci', 'rc_to_i'))
+h <- hier_add(h, root = 'add_line_info', nodes = c('line_number_extract', 'all_down_dists', 'all_centroids'))
+h <- hier_add(h, root = 'line_number_extract', nodes = c('i_to_rci (in line_number_extract)'))
+h <- hier_add(h, root = 'nov_neighboring_char_dist', nodes = c('character_features_by_line'))
+h <- hier_add(h, root = 'add_covariance_matrix', nodes = c('i_to_rc (in add_covariance_matrix)'))
+
+
+```
+
+```{r}
+hier_display(h)
+```
+

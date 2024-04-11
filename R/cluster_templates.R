@@ -1034,3 +1034,50 @@ root_mean_square_error <- function(wcd, cluster) {
 
   return(rmse)
 }
+
+#' loop_extract
+#'
+#' Iterates through all available paths from processHandwriting()
+#' Picks out loops for later character association.
+#' 
+#' @param allPaths All character (formerly letter) paths from processHandwriting()
+#' 
+#' @return List of loops
+#' 
+#' @noRd
+loop_extract <- function(allPaths){
+  loops = list()
+  for(i in 1:length(allPaths)){
+    if(length(allPaths)<1){
+      next
+    }
+    if(allPaths[[i]][[1]]==allPaths[[i]][[length(allPaths[[i]])]]){
+      loops = c(loops,list(allPaths[[i]]))
+    }
+  }
+  return(loops)
+}
+
+#' centeredImage
+#'
+#' Find the letter's centroid and proptroid relative to the bottom left corner of the
+#' letter's image.
+#'
+#' @param letter A letter
+#' @return a named list with fields nodes, centroid, proptroid, image and allPaths
+#'
+#' @noRd
+centeredImage = function(letter)
+{
+  res = list()
+  res$nodes = letter$nodes
+  # Find the location (column and row numbers) of the centroid relative
+  # to the bottom left of the lettter image. Like (x,y) coordinates with 
+  # (0,0) in the bottom left corner of the image.
+  res$centroid = round(c(letter$characterFeatures$centroid_x, letter$characterFeatures$height - letter$characterFeatures$centroid_y + 1))
+  # Calculate the proptroid
+  res$proptroid = c(letter$characterFeatures$centroid_x, letter$characterFeatures$height - letter$characterFeatures$centroid_y + 1)/c(letter$characterFeatures$width, letter$characterFeatures$height)
+  res$image = letter$image
+  res$allPaths = letter$allPaths
+  return(res)
+}

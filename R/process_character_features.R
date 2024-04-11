@@ -28,7 +28,7 @@
 #' @return nested lists associating features to respective characters.
 #' 
 #' @noRd
-extract_character_features = function(img, character_lists,dims){
+extract_character_features <- function(img, character_lists,dims){
   
   character_features = list()
   
@@ -158,7 +158,7 @@ get_centroid_info = function(character, dims)
 #' @return nested lists associating features to respective characters.
 #' 
 #' @noRd
-add_covariance_matrix = function(character_lists, character_features, dims){
+add_covariance_matrix <- function(character_lists, character_features, dims){
   for(i in 1:length(character_lists)){
     matrix = i_to_rc(character_lists[[i]]$path, dims)
     x = matrix[,2]
@@ -187,7 +187,7 @@ add_covariance_matrix = function(character_lists, character_features, dims){
 #' @return Appends line information to character features
 #' 
 #' @noRd
-add_line_info = function(character_features,dims){
+add_line_info <- function(character_features,dims){
   line_info = line_number_extract(all_down_dists(character_features), all_centroids(character_features), dims)
   line_order = lapply(line_info, sort)
   for(i in 1:length(character_features)){
@@ -203,7 +203,7 @@ add_line_info = function(character_features,dims){
 
 
 #Return a list of the distances from the top of a character to the first thing above it
-add_updown_neighboring_char_dist = function(character_features, character_lists, img, dims){
+add_updown_neighboring_char_dist <- function(character_features, character_lists, img, dims){
 
   #For each character
   for(i in 1:length(character_lists)){
@@ -236,32 +236,9 @@ add_updown_neighboring_char_dist = function(character_features, character_lists,
   return(character_features)
 }
 
-
-#' get_loop_info
-#'
-#' Associator of loop to character association
-#' Relevant Features:
-#' Loop Count, how many loops are found in the letter
-#' Loop Major, length of farthest line that can be drawn inside of a loop
-#' Loop Minor, length of the perpendicular bisector of the loop major.
-#' 
-#' @param character Target for loop association
-#' @param dims Dimensions of binary image
-#' @return Loop information to respective character
-#' 
-#' @noRd
-get_loop_info = function(character,dims){
-  
-  #loops = loop_extract(character$allPaths)
-  #loop_info = list(loop_count = length(loops),loops = loops)
-  loop_info = list(loop_count = length(character$loops), loops = character$loops)
-  return(loop_info)
-}
-
-
 # Principle: Appending inside of a nested loop
 # NOTE: Uses distances between centroids, NOT right edge to left edge
-nov_neighboring_char_dist = function(character_features){
+nov_neighboring_char_dist <- function(character_features){
   by_line = character_features_by_line(character_features)
   for(line in 1:length(by_line)){
     for(i in 1:length(by_line[[line]])){
@@ -285,17 +262,16 @@ nov_neighboring_char_dist = function(character_features){
 }
 
 #sort character features indexed by their respective line
-character_features_by_line = function(character_features){
+character_features_by_line <- function(character_features){
   max_line = -Inf
   for(i in 1:length(character_features)){
     max_line = max(max_line, character_features[[i]]$line_number)
   }
   
-  characters_by_line = rep(list(list()),max_line)
+  characters_by_line = rep(list(list()), max_line)
   
   for(j in 1:length(character_features)){
-    
-    characters_by_line[[character_features[[j]]$line_number]] = append(characters_by_line[[character_features[[j]]$line_number]],list(character_features[[j]]))
+    characters_by_line[[character_features[[j]]$line_number]] <- append(characters_by_line[[character_features[[j]]$line_number]], list(character_features[[j]]))
   }
 
   return(characters_by_line)
@@ -311,10 +287,10 @@ character_features_by_line = function(character_features){
 #' @return All centroids concatenated with one another (unlisted)
 #' 
 #' @noRd
-all_centroids = function(character_features){
+all_centroids <- function(character_features){
   centroids = list()
   for(i in 1:length(character_features)){
-    centroids = c(centroids,character_features[[i]]$centroid_index)
+    centroids = c(centroids, character_features[[i]]$centroid_index)
   }
   return(unlist(centroids))
 }
@@ -328,10 +304,10 @@ all_centroids = function(character_features){
 #' @return All downdistance concatenated with one another (unlisted)
 #' 
 #' @noRd
-all_down_dists = function(character_features){
-  down_dists = list()
+all_down_dists <- function(character_features){
+  down_dists <- list()
   for(i in 1:length(character_features)){
-    down_dists = c(down_dists,character_features[[i]]$down_dist)
+    down_dists <- c(down_dists, character_features[[i]]$down_dist)
   }
   return(unlist(down_dists))
 }
@@ -349,7 +325,7 @@ all_down_dists = function(character_features){
 #' @importFrom utils head
 #' 
 #' @noRd
-line_number_extract = function(down_dists, all_centroids, dims){
+line_number_extract <- function(down_dists, all_centroids, dims){
   centroid_rci = matrix(i_to_rci(all_centroids,dims), ncol = 3)
   #sorting list based on y
   centroid_rci = matrix(centroid_rci[order(centroid_rci[,1]),], ncol = 3)
@@ -365,7 +341,6 @@ line_number_extract = function(down_dists, all_centroids, dims){
   
   threshold_num = as.numeric(median(trimmed)/2)
 
-  
   lines = list()
   cur_line = vector(mode="double", length=0)
   threshold = vector(mode="double", length=0)

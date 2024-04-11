@@ -424,7 +424,7 @@ getGraphInfo = function(imageList1, imageList2, isProto1, isProto2, numPathCuts)
   return(graphInfo)
 }
 
-getAllPairsDistances = function(graphInfo, numPathCuts)
+getAllPairsDistances <- function(graphInfo, numPathCuts)
 {
   for (ii in 1:graphInfo$pathCheckNum)
   {

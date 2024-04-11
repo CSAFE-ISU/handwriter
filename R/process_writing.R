@@ -139,7 +139,7 @@ processHandwriting <- function(img, dims) {
     # get graph
     component$graphs$skel_graph <- skel_graphs[[i]]
     # get vertex names
-    component$image$indices <- as.numeric(V(skel_graphs[[i]])$name)
+    component$image$indices <- as.numeric(igraph::V(skel_graphs[[i]])$name)
     # get rows and columns of vertices
     component$image$img_m <- i_to_rc(component$image$indices, dims)
     # nodes
@@ -259,7 +259,7 @@ processHandwriting <- function(img, dims) {
   # assign sequential IDs to paths within each component
   for (i in 1:n){
     temp_graph <- comps[[i]]$graphs$skel_graph0
-    if (length(V(temp_graph)$name) > 0) {
+    if (length(igraph::V(temp_graph)$name) > 0) {
       isolated <- isolateGraphPaths(allPaths = comps[[i]]$paths$allPaths,
                                     skel_graph0 = comps[[i]]$graphs$skel_graph0,
                                     pre_stack_breaks = comps[[i]]$nodes$pre_stack_breaks,
@@ -284,10 +284,10 @@ processHandwriting <- function(img, dims) {
   # assign sequential IDs to paths across all components
   path_counter <- 0
   for (i in 1:n){
-    if (length(V(comps[[i]]$graphs$skel_graph0)$letterID) > 0){
-      V(comps[[i]]$graphs$skel_graph0)$letterID <- V(comps[[i]]$graphs$skel_graph0)$letterID + path_counter
+    if (length(igraph::V(comps[[i]]$graphs$skel_graph0)$letterID) > 0){
+      igraph::V(comps[[i]]$graphs$skel_graph0)$letterID <- igraph::V(comps[[i]]$graphs$skel_graph0)$letterID + path_counter
       # vertices that are break points have letterID = NA
-      path_counter <- max(V(comps[[i]]$graphs$skel_graph0)$letterID, na.rm = TRUE)
+      path_counter <- max(igraph::V(comps[[i]]$graphs$skel_graph0)$letterID, na.rm = TRUE)
     }
   }
   
@@ -295,7 +295,7 @@ processHandwriting <- function(img, dims) {
   message("Organizing letters...")
   for (i in 1:n){
     temp_graph <- comps[[i]]$graphs$skel_graph0
-    if (length(V(temp_graph)$letterID) > 0){
+    if (length(igraph::V(temp_graph)$letterID) > 0){
       comps[[i]]$paths$letters <- organizeLetters(temp_graph)
     } else {
       comps[[i]]$paths$letters <- list()
@@ -408,9 +408,9 @@ AllUniquePaths <- function(adj, graph0, nodeList) {
   }
   
   # update graphdf0 with node_only_dist=1 if one or more of the edge's vertices is a node and 0.00001 otherwise
-  graphdf0 <- as_data_frame(graph0)
+  graphdf0 <- igraph::as_data_frame(graph0)
   graphdf0$node_only_dist <- ifelse(graphdf0$from %in% nodeList | graphdf0$to %in% nodeList, 1, 0.00001)
-  graph0 <- graph_from_data_frame(graphdf0, directed = FALSE)
+  graph0 <- igraph::graph_from_data_frame(graphdf0, directed = FALSE)
   
   for (i in 1:dim(adj)[1])
   {
@@ -418,12 +418,12 @@ AllUniquePaths <- function(adj, graph0, nodeList) {
     toNode <- as.character(format(adj[i, 2], scientific = FALSE, trim = TRUE))
     
     # calculate distances of shortest path between fromNode and toNode
-    dists <- distances(graph0, v = fromNode, to = toNode, weights = E(graph0)$node_only_dist)
+    dists <- igraph::distances(graph0, v = fromNode, to = toNode, weights = igraph::E(graph0)$node_only_dist)
     # for paths from node to node that don't go through another node?
     while (dists < 3 & dists >= 1) {
       # CALCULATE STEP:
       # get shortest path between fromNode and toNode
-      shortest <- shortest_paths(graph0, from = fromNode, to = toNode, weights = E(graph0)$node_only_dist)
+      shortest <- igraph::shortest_paths(graph0, from = fromNode, to = toNode, weights = igraph::E(graph0)$node_only_dist)
       # count vertices in shortest path, including fromNode and toNode
       len <- length(unlist(shortest[[1]]))
       # add the shortest path to the list
@@ -440,7 +440,7 @@ AllUniquePaths <- function(adj, graph0, nodeList) {
         stop("There must be some mistake. Single node should have node_only_dist path length of 0.")
       }
       # recalculate shortest path distance on updated graph
-      dists <- distances(graph0, v = fromNode, to = toNode, weights = E(graph0)$node_only_dist)
+      dists <- igraph::distances(graph0, v = fromNode, to = toNode, weights = igraph::E(graph0)$node_only_dist)
     }
   }
   
@@ -472,7 +472,7 @@ checkBreakPoints <- function(candidateNodes, allPaths, nodeGraph, terminalNodes,
     # delete edge between the first and last node in the path if it exists
     tempNodeGraph <- igraph::delete_edges(nodeGraph, paste0(tempPath[1], "|", tempPath[length(tempPath)]))
     
-    if (distances(tempNodeGraph, v = tempPath[1], to = tempPath[length(tempPath)]) < Inf) {
+    if (igraph::distances(tempNodeGraph, v = tempPath[1], to = tempPath[length(tempPath)]) < Inf) {
       # No breaking on multiple paths between nodes. 
       breakFlag[nodeChecks] <- FALSE
     } else if (any(tempPath %in% terminalNodes)) {
@@ -513,8 +513,8 @@ checkSimplicityBreaks <- function(candidateBreaks, pathList, loopList, letters, 
         pathIndex <- which(tempPath == candidateBreaks[nodestoCheck])
         
         borderLetters <- c(
-          V(nodeGraph0)$letterID[which(V(nodeGraph0)$name == tempPath[pathIndex - 1])],
-          V(nodeGraph0)$letterID[which(V(nodeGraph0)$name == tempPath[pathIndex + 1])]
+          igraph::V(nodeGraph0)$letterID[which(igraph::V(nodeGraph0)$name == tempPath[pathIndex - 1])],
+          igraph::V(nodeGraph0)$letterID[which(igraph::V(nodeGraph0)$name == tempPath[pathIndex + 1])]
         )
         left <- letters[[borderLetters[1]]]
         right <- letters[[borderLetters[2]]]
@@ -564,8 +564,8 @@ checkStacking <- function(candidateBreaks, allPaths, letters, nodeGraph0, dims) 
         pathIndex <- which(tempPath == candidateBreaks[nodeChecks])
         
         borderLetters <- c(
-          V(nodeGraph0)$letterID[which(V(nodeGraph0)$name == tempPath[pathIndex - 1])],
-          V(nodeGraph0)$letterID[which(V(nodeGraph0)$name == tempPath[pathIndex + 1])]
+          igraph::V(nodeGraph0)$letterID[which(igraph::V(nodeGraph0)$name == tempPath[pathIndex - 1])],
+          igraph::V(nodeGraph0)$letterID[which(igraph::V(nodeGraph0)$name == tempPath[pathIndex + 1])]
         )
         gr1 <- letters[[borderLetters[1]]]
         gr1Rows <- ((gr1 - 1) %% dims[1]) + 1
@@ -754,7 +754,7 @@ findMergeNodes <- function(skel_graph, mergeMat) {
   {
     fromNode <- as.character(format(mergeMat[i, 1], scientific = FALSE, trim = TRUE))
     toNode <- as.character(format(mergeMat[i, 2], scientific = FALSE, trim = TRUE))
-    path <- shortest_paths(skel_graph, from = fromNode, to = toNode, weights = E(skel_graph)$pen_dist)$vpath[[1]]
+    path <- igraph::shortest_paths(skel_graph, from = fromNode, to = toNode, weights = igraph::E(skel_graph)$pen_dist)$vpath[[1]]
     len <- length(path)
     newNodes[i] <- as.numeric(names(path[ceiling(len / 2)]))
   }
@@ -926,7 +926,7 @@ getGraphDF0 <- function(img_m, img, indices, dims, nodeList) {
 #' @importFrom utils combn
 #' @noRd
 getLoops <- function(nodeList, graph, graph0, pathList, dims) {
-  vertexNames <- names(V(graph0))
+  vertexNames <- names(igraph::V(graph0))
   
   fullGraph0 <- graph0
   
@@ -942,7 +942,7 @@ getLoops <- function(nodeList, graph, graph0, pathList, dims) {
   } else {
     unusedAdj[which(unused %in% nodeList), which(unused %in% nodeList)] <- 0
   }
-  unusedGraph <- graph_from_adjacency_matrix(unusedAdj, mode = "undirected")
+  unusedGraph <- igraph::graph_from_adjacency_matrix(unusedAdj, mode = "undirected")
   
   graph0 <- intersection(graph0, unusedGraph, keep.all.vertices = TRUE)
   graph <- intersection(graph, graph0, byname = TRUE, keep.all.vertices = TRUE)
@@ -953,7 +953,7 @@ getLoops <- function(nodeList, graph, graph0, pathList, dims) {
   
   tryCatch(
     expr = {
-      neighbors <- neighborhood(graph, nodes = as.character(check))
+      neighbors <- igraph::neighborhood(graph, nodes = as.character(check))
       
       if (any(unlist(lapply(neighbors, length)) > 3)) {
         warning("At least 1 of the nodes in the potential loops has more than 2 neighbors after removal of the connections. Try again! \nThe nodes in question are: \n", dput(names(neighbors)[which(unlist(lapply(neighbors, length)) > 3)]))
@@ -964,8 +964,8 @@ getLoops <- function(nodeList, graph, graph0, pathList, dims) {
         for (i in 1:length(neighbors)) {
           neigh <- as.numeric(names(neighbors[[i]]))
           graph <- igraph::delete_edges(graph, paste0(neigh[1], "|", neigh[2]))
-          if (distances(graph, v = as.character(neigh[1]), to = as.character(neigh[2])) < Inf) {
-            newPath <- as.numeric(names(unlist(shortest_paths(graph, from = format(neigh[1], scientific = FALSE), to = format(neigh[2], scientific = FALSE), weights = E(graph)$pen_dist)$vpath)))
+          if (igraph::distances(graph, v = as.character(neigh[1]), to = as.character(neigh[2])) < Inf) {
+            newPath <- as.numeric(names(unlist(igraph::shortest_paths(graph, from = format(neigh[1], scientific = FALSE), to = format(neigh[2], scientific = FALSE), weights = igraph::E(graph)$pen_dist)$vpath)))
             loopList <- append(loopList, list(c(newPath, newPath[1])))
           }
         }
@@ -979,38 +979,38 @@ getLoops <- function(nodeList, graph, graph0, pathList, dims) {
   ## Eliminate loop paths that we have found and find ones that dont have vertex on the loop. This is caused by combining of nodes that are close together.
   used <- as.numeric(unique(c(unlist(pathList), unlist(loopList))))
   unused <- as.numeric(vertexNames)[which(!(as.numeric(vertexNames) %in% used))]
-  remaining0 <- induced_subgraph(graph0, vids = format(c(unused, nodeList), scientific = FALSE, trim = TRUE))
-  numNeighbors <- lapply(neighborhood(remaining0, nodes = V(remaining0)), length)
-  remaining0 <- induced_subgraph(remaining0, vids = V(remaining0)[numNeighbors > 1])
+  remaining0 <- igraph::induced_subgraph(graph0, vids = format(c(unused, nodeList), scientific = FALSE, trim = TRUE))
+  numNeighbors <- lapply(igraph::neighborhood(remaining0, nodes = igraph::V(remaining0)), length)
+  remaining0 <- igraph::induced_subgraph(remaining0, vids = igraph::V(remaining0)[numNeighbors > 1])
   
-  roots <- format(nodeList[which(nodeList %in% names(V(remaining0)))], scientific = FALSE, trim = TRUE)
+  roots <- format(nodeList[which(nodeList %in% names(igraph::V(remaining0)))], scientific = FALSE, trim = TRUE)
   
   if (length(roots) > 0) {
     for (i in 1:length(roots))
     {
-      loopPart1 <- names(na.omit(dfs(remaining0, roots[i], unreachable = FALSE)$order))
-      loopPart2 <- shortest_paths(fullGraph0, from = loopPart1[length(loopPart1)], to = roots[i])$vpath[[1]][-1]
+      loopPart1 <- names(na.omit(igraph::dfs(remaining0, roots[i], unreachable = FALSE)$order))
+      loopPart2 <- igraph::shortest_paths(fullGraph0, from = loopPart1[length(loopPart1)], to = roots[i])$vpath[[1]][-1]
       loopList <- append(loopList, list(as.numeric(c(loopPart1, names(loopPart2)))))
     }
   }
   
   ## Now get loops that are more difficult. They are close to nodes, but separated by paths already found previously. Have to dig a little further.
-  remaining0 <- induced_subgraph(graph0, vids = format(unused, scientific = FALSE, trim = TRUE))
+  remaining0 <- igraph::induced_subgraph(graph0, vids = format(unused, scientific = FALSE, trim = TRUE))
   used <- as.numeric(unique(c(unlist(pathList), unlist(loopList))))
   unused <- as.numeric(vertexNames)[which(!(as.numeric(vertexNames) %in% used))]
   if (length(unused) > 0) {
-    ends <- lapply(neighborhood(fullGraph0, order = 2, nodes = format(unused, scientific = FALSE, trim = TRUE)), function(x) nodeList[which(format(nodeList, scientific = FALSE, trim = TRUE) %in% names(x))])
+    ends <- lapply(igraph::neighborhood(fullGraph0, order = 2, nodes = format(unused, scientific = FALSE, trim = TRUE)), function(x) nodeList[which(format(nodeList, scientific = FALSE, trim = TRUE) %in% names(x))])
     
     roots <- format(unique(unlist(ends)), scientific = FALSE, trim = TRUE)
     if (length(roots) > 0) {
-      ends <- neighborhood(fullGraph0, order = 2, nodes = roots)
+      ends <- igraph::neighborhood(fullGraph0, order = 2, nodes = roots)
       ends <- unlist(lapply(ends, function(x) names(x)[which(names(x) %in% format(unused, scientific = FALSE, trim = TRUE))][1]))
       
       for (i in 1:length(roots))
       {
-        loopPart1 <- names(na.omit(dfs(remaining0, ends[i], unreachable = FALSE)$order))
-        loopPart2a <- shortest_paths(fullGraph0, from = loopPart1[1], to = roots[i])$vpath[[1]][-1]
-        loopPart2b <- shortest_paths(fullGraph0, from = loopPart1[length(loopPart1)], to = roots[i])$vpath[[1]][-1]
+        loopPart1 <- names(na.omit(igraph::dfs(remaining0, ends[i], unreachable = FALSE)$order))
+        loopPart2a <- igraph::shortest_paths(fullGraph0, from = loopPart1[1], to = roots[i])$vpath[[1]][-1]
+        loopPart2b <- igraph::shortest_paths(fullGraph0, from = loopPart1[length(loopPart1)], to = roots[i])$vpath[[1]][-1]
         loopList <- append(loopList, list(as.numeric(c(rev(names(loopPart2a)), loopPart1, names(loopPart2b)))))
       }
     }
@@ -1022,28 +1022,28 @@ getLoops <- function(nodeList, graph, graph0, pathList, dims) {
   used <- as.numeric(unique(c(unlist(pathList), unlist(loopList))))
   unused <- as.numeric(vertexNames)[which(!(as.numeric(vertexNames) %in% used))]
   if (length(unused) > 0) {
-    ends <- lapply(neighborhood(fullGraph0, order = 3, nodes = format(unused, scientific = FALSE, trim = TRUE)), function(x) nodeList[which(format(nodeList, scientific = FALSE, trim = TRUE) %in% names(x))])
+    ends <- lapply(igraph::neighborhood(fullGraph0, order = 3, nodes = format(unused, scientific = FALSE, trim = TRUE)), function(x) nodeList[which(format(nodeList, scientific = FALSE, trim = TRUE) %in% names(x))])
     
     roots <- format(unique(unlist(ends)), scientific = FALSE, trim = TRUE)
     if (length(roots) > 0) {
-      ends <- neighborhood(fullGraph0, order = 3, nodes = roots)
+      ends <- igraph::neighborhood(fullGraph0, order = 3, nodes = roots)
       ends <- unlist(lapply(ends, function(x) names(x)[which(names(x) %in% format(unused, scientific = FALSE, trim = TRUE))][1]))
       
       for (i in 1:length(roots))
       {
         loopPart1 <- names(na.omit(dfs(remaining0, ends[i], unreachable = FALSE)$order))
-        loopPart2a <- shortest_paths(fullGraph0, from = loopPart1[1], to = roots[i])$vpath[[1]][-1]
-        loopPart2b <- shortest_paths(fullGraph0, from = loopPart1[length(loopPart1)], to = roots[i])$vpath[[1]][-1]
+        loopPart2a <- igraph::shortest_paths(fullGraph0, from = loopPart1[1], to = roots[i])$vpath[[1]][-1]
+        loopPart2b <- igraph::shortest_paths(fullGraph0, from = loopPart1[length(loopPart1)], to = roots[i])$vpath[[1]][-1]
         loopList <- append(loopList, list(as.numeric(c(rev(names(loopPart2a)), loopPart1, names(loopPart2b)))))
       }
     }
   }
   
   ## All that remains now is perfect loops. Start and end at same point with no intersections or end points.
-  remaining0 <- induced_subgraph(remaining0, vids = V(remaining0)[!(names(V(remaining0)) %in% unlist(loopList))])
+  remaining0 <- igraph::induced_subgraph(remaining0, vids = igraph::V(remaining0)[!(names(igraph::V(remaining0)) %in% unlist(loopList))])
   while (TRUE) {
-    if (length(V(remaining0)) > 0) {
-      perfectLoop <- names(na.omit(dfs(remaining0, V(remaining0)[1], unreachable = FALSE)$order))
+    if (length(igraph::V(remaining0)) > 0) {
+      perfectLoop <- names(na.omit(dfs(remaining0, igraph::V(remaining0)[1], unreachable = FALSE)$order))
       remaining0 <- igraph::delete_vertices(remaining0, v = perfectLoop)
       loopList <- append(loopList, list(as.numeric(c(perfectLoop, perfectLoop[1]))))
     } else {
@@ -1132,8 +1132,8 @@ getNodes <- function(indices, dims) {
 #' @return a graph of nodes
 #' @noRd
 getNodeGraph <- function(allPaths, nodeList) {
-  nodeGraph <- make_empty_graph(directed = FALSE)
-  nodeGraph <- add_vertices(nodeGraph, length(nodeList), name = format(nodeList, scientific = FALSE, trim = TRUE))
+  nodeGraph <- igraph::make_empty_graph(directed = FALSE)
+  nodeGraph <- igraph::add_vertices(nodeGraph, length(nodeList), name = format(nodeList, scientific = FALSE, trim = TRUE))
   for (i in 1:length(allPaths))
   {
     nodeGraph <- igraph::add_edges(nodeGraph, format(c(allPaths[[i]][1], allPaths[[i]][length(allPaths[[i]])]), scientific = FALSE, trim = TRUE))
@@ -1144,10 +1144,10 @@ getNodeGraph <- function(allPaths, nodeList) {
 # Weight each edge in skel_graph0 with node_only_dist (1=neighbor of node, 0 otherwise).
 # Then find the shortest distance from each node to each other node.
 getNodeOnlyDistAdjMatrix <- function(skel_graph0, nodeList) {
-  dists0 <- distances(skel_graph0, 
+  dists0 <- igraph::distances(skel_graph0, 
                       v = as.character(format(nodeList, scientific = FALSE, trim = TRUE)), 
                       to = as.character(format(nodeList, scientific = FALSE, trim = TRUE)), 
-                      weights = E(skel_graph0)$node_only_dist)
+                      weights = igraph::E(skel_graph0)$node_only_dist)
   # Create adjacency matrix with 1 if the distance is 1 or 2 and 0 otherwise
   adj0 <- ifelse(dists0 == 1 | dists0 == 2, 1, 0)
   
@@ -1255,7 +1255,7 @@ getSkeletonGraph <- function(graph, indices, nodeList) {
   # if more than one edge connects the same two vertices, combine the edges into a single edge and combine their attributes using the mean
   skel_graph <- igraph::simplify(skel_graph, remove.multiple = TRUE, edge.attr.comb = "mean")
   # color vertex as 1 if vertex is a node, otherwise color as 0
-  V(skel_graph)$color <- ifelse(V(skel_graph)$name %in% nodeList, 1, 0)
+  igraph::V(skel_graph)$color <- ifelse(igraph::V(skel_graph)$name %in% nodeList, 1, 0)
   return(skel_graph)
 }
 
@@ -1273,10 +1273,10 @@ isolateGraphPaths <- function(allPaths, skel_graph0, pre_stack_breaks, dims, pat
   letters_short <- letterList[[1]][letter_lengths <= 5]
   
   # get letter IDs for all leters, even ones with 5 vertices or less
-  V(skel_graph0)$letterID <- letterList[[2]]
+  igraph::V(skel_graph0)$letterID <- letterList[[2]]
   # delete vertices from letters with 5 or fewer vertices. does not delete vertices with letterID = NA
-  skel_graph0 <- igraph::delete_vertices(skel_graph0, V(skel_graph0)[which(V(skel_graph0)$letterID %in% which(letter_lengths <= 5))])
-  V(skel_graph0)$letterID[!is.na(V(skel_graph0)$letterID)] <- as.numeric(as.factor(na.omit(V(skel_graph0)$letterID)))
+  skel_graph0 <- igraph::delete_vertices(skel_graph0, igraph::V(skel_graph0)[which(igraph::V(skel_graph0)$letterID %in% which(letter_lengths <= 5))])
+  igraph::V(skel_graph0)$letterID[!is.na(igraph::V(skel_graph0)$letterID)] <- as.numeric(as.factor(na.omit(igraph::V(skel_graph0)$letterID)))
   
   # Remove breakpoints that shouldn't have broken
   if (length(pre_stack_breaks) > 0) {
@@ -1292,8 +1292,8 @@ isolateGraphPaths <- function(allPaths, skel_graph0, pre_stack_breaks, dims, pat
       if (allPaths[[i]][newNodes] %in% final_breaks) {
         tryCatch(
           expr = {
-            E(skel_graph0, P = format(allPaths[[i]][c(newNodes - 2, newNodes - 1)], scientific = FALSE, trim = TRUE))$node_only_dist <- 1
-            E(skel_graph0, P = format(allPaths[[i]][c(newNodes + 1, newNodes + 2)], scientific = FALSE, trim = TRUE))$node_only_dist <- 1
+            igraph::E(skel_graph0, P = format(allPaths[[i]][c(newNodes - 2, newNodes - 1)], scientific = FALSE, trim = TRUE))$node_only_dist <- 1
+            igraph::E(skel_graph0, P = format(allPaths[[i]][c(newNodes + 1, newNodes + 2)], scientific = FALSE, trim = TRUE))$node_only_dist <- 1
           }, error = function(e) {
             
           }
@@ -1306,15 +1306,15 @@ isolateGraphPaths <- function(allPaths, skel_graph0, pre_stack_breaks, dims, pat
       
       # letterIDs = range(V(skel_graph0)$letterID[names(V(skel_graph0)) %in% format(allPaths[[i]], scientific = FALSE, trim = TRUE)], na.rm = TRUE)
       # Had to break this above line into this to stop a range(numeric(0)) error from happening
-      skelInPaths <- V(skel_graph0)$letterID[names(V(skel_graph0)) %in% format(allPaths[[i]], scientific = FALSE, trim = TRUE)]
+      skelInPaths <- igraph::V(skel_graph0)$letterID[names(igraph::V(skel_graph0)) %in% format(allPaths[[i]], scientific = FALSE, trim = TRUE)]
       if (identical(skelInPaths, numeric(0))) {
         letterIDs <- c(Inf, -Inf)
       } else {
         letterIDs <- range(skelInPaths, na.rm = TRUE)
       }
       
-      V(skel_graph0)$letterID[which(V(skel_graph0)$letterID == letterIDs[2])] <- letterIDs[1]
-      V(skel_graph0)$letterID[which(names(V(skel_graph0)) %in% format(allPaths[[i]][newNodes], scientific = FALSE, trim = TRUE))] <- letterIDs[1]
+      igraph::V(skel_graph0)$letterID[which(igraph::V(skel_graph0)$letterID == letterIDs[2])] <- letterIDs[1]
+      igraph::V(skel_graph0)$letterID[which(names(igraph::V(skel_graph0)) %in% format(allPaths[[i]][newNodes], scientific = FALSE, trim = TRUE))] <- letterIDs[1]
     }
     allPaths <- lapply(rapply(allPaths, enquote, how = "unlist"), eval)
   } else {
@@ -1358,10 +1358,10 @@ isTroughNode <- function(rows, j) {
 #' @return assigned letters to nodes in graph
 #' @noRd
 letterPaths <- function(allPaths, nodeGraph0, breakPoints) {
-  oldVerts <- V(nodeGraph0)$name
+  oldVerts <- igraph::V(nodeGraph0)$name
   # delete break points from the graph
-  if (any(as.character(format(breakPoints, scientific = FALSE, trim = TRUE)) %in% names(V(nodeGraph0)))) {
-    nodeGraph0 <- delete_vertices(nodeGraph0, v = as.character(format(breakPoints, scientific = FALSE, trim = TRUE)))
+  if (any(as.character(format(breakPoints, scientific = FALSE, trim = TRUE)) %in% names(igraph::V(nodeGraph0)))) {
+    nodeGraph0 <- igraph::delete_vertices(nodeGraph0, v = as.character(format(breakPoints, scientific = FALSE, trim = TRUE)))
   }
   
   # find connected components
@@ -1370,7 +1370,7 @@ letterPaths <- function(allPaths, nodeGraph0, breakPoints) {
   # assign the ID to the original vertices that are not break points
   grIDs2[which(!(oldVerts %in% format(breakPoints, scientific = FALSE, trim = TRUE)))] <- comps$membership
   # lists of vertex names grouped by path
-  grPaths <- lapply(1:max(comps$membership), function(x) as.numeric(V(nodeGraph0)$name[comps$membership == x]))
+  grPaths <- lapply(1:max(comps$membership), function(x) as.numeric(igraph::V(nodeGraph0)$name[comps$membership == x]))
   
   return(list(grPaths, grIDs2))
 }
@@ -1382,7 +1382,7 @@ mergeNodes <- function(nodeList, skel_graph0, terminalNodes, skel_graph, adj0) {
   emergencyBreak <- 100
   while (TRUE) {
     # count smallest number of edges between each pair of nodes (each edge weighted as 1?)
-    distsFull <- distances(skel_graph0, 
+    distsFull <- igraph::distances(skel_graph0, 
                            v = as.character(format(nodeList, scientific = FALSE, trim = TRUE)), 
                            to = as.character(format(nodeList, scientific = FALSE, trim = TRUE)), 
                            weights = NA)
@@ -1396,8 +1396,8 @@ mergeNodes <- function(nodeList, skel_graph0, terminalNodes, skel_graph, adj0) {
       break 
     }
     
-    rNodes <- ((nodesToMerge - 1) %% length(nodeList)) + 1
-    cNodes <- ((nodesToMerge - 1) %/% length(nodeList)) + 1
+    rNodes <- i_to_r(nodesToMerge, length(nodeList))
+    cNodes <- i_to_c(nodesToMerge, length(nodeList)) 
     mergeSets <- cbind(nodeList[rNodes], nodeList[cNodes])
     # add column: 1=neither node is terminal, 0 otherwise
     mergeSets <- cbind(mergeSets, apply(mergeSets, 1, function(x) {
@@ -1459,8 +1459,8 @@ migrateConnections <- function(adj0, mergeSets, newNodes) {
 }
 
 organizeLetters <- function(skel_graph0) {
-  letters <- replicate(n = length(na.omit(unique(V(skel_graph0)$letterID))), list())
-  strs <- names(V(skel_graph0))
+  letters <- replicate(n = length(na.omit(unique(igraph::V(skel_graph0)$letterID))), list())
+  strs <- names(igraph::V(skel_graph0))
   for (i in 1:length(na.omit(unique(V(skel_graph0)$letterID))))
   {
     tmp <- as.numeric(as.factor(V(skel_graph0)$letterID))
@@ -1488,9 +1488,9 @@ pathLetterAssociate <- function(allPaths, letter) {
 }
 
 updateSkelGraph0 <- function(graphdf0, skel_graph0, nodeList){
-  graphdf0 <- as_data_frame(skel_graph0)
+  graphdf0 <- igraph::as_data_frame(skel_graph0)
   graphdf0$node_only_dist <- ifelse(graphdf0$from %in% nodeList | graphdf0$to %in% nodeList, 1, 0)
-  skel_graph0 <- graph_from_data_frame(graphdf0, directed = FALSE)
+  skel_graph0 <- igraph::graph_from_data_frame(graphdf0, directed = FALSE)
   return(list('graphdf0'=graphdf0, 'skel_graph0'=skel_graph0))
 }
 
