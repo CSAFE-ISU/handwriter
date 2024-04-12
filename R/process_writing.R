@@ -103,59 +103,18 @@ processHandwriting <- function(img, dims) {
   nodeList <- nodes$nodeList  # all nodes
   terminalNodes <- nodes$terminalNodes
   nodeConnections <- nodes$nodeConnections
-  rm(nodes)
   
   # Skeletonize writer ----
   message("Skeletonizing writing...", appendLF = FALSE)
   skeleton <- skeletonize(img = img, indices = indices, dims = dims, nodeList = nodeList)
   
-  # Split into componenets ----
+  # Split into components ----
   message("Splitting document into components...")
-  
-  skeletons <- igraph::decompose(skeleton)
-  n <- length(skeletons)
-  comps <- list()
-  for (i in 1:length(skeletons)){
-    # create empty named list
-    component <- sapply(c('graphs', 'image', 'nodes', 'paths'), function(x) NULL)
-    # get graph
-    component$graphs$skeleton <- skeletons[[i]]
-    # get vertex names
-    component$image$indices <- as.numeric(igraph::V(skeletons[[i]])$name)
-    # get rows and columns of vertices
-    component$image$img_m <- i_to_rc(component$image$indices, dims)
-    # nodes
-    component$nodes$nodeList <- intersect(component$image$indices, nodeList)
-    component$nodes$terminalNodes <- intersect(component$nodes$nodeList, terminalNodes)
-    component$nodes$nodeConnections <- intersect(component$nodes$nodeList, nodeConnections)
-    comps[[i]] <- component
-  }
-  rm(skeletons)
-  
-  # for each component ----
-  # same as skeleton_df except neighbors on the diagonal are removed if there are neighbors on either
-  # side of the diagonal
-  for (i in 1:n){
-    comps[[i]]$graphs$skeleton_df0 <- getSkeletonDF0(img_m=comps[[i]]$image$img_m, 
-                                                     indices=comps[[i]]$image$indices, 
-                                                     nodeList=comps[[i]]$nodes$nodeList, 
-                                                     img=img, 
-                                                     dims=dims)
-    comps[[i]]$graphs$skeleton0 <- getSkeleton(skeleton_df=comps[[i]]$graphs$skeleton_df0, 
-                                               indices=comps[[i]]$image$indices, 
-                                               nodeList=comps[[i]]$nodes$nodeList)
-    # get adjacency matrix: (1) weight each edge in skeleton0 with 1 if either
-    # vertex is a node, this is the node_only_dist (2) find the shortest distance
-    # between each pair of nodes (3) make an adjacency matrix for each pair of
-    # nodes where 1 means the the shortest path between them is node_only_dist 1 or
-    # 2, where node_only_dist 1 occurs when the nodes are joined by a single edge
-    # and 2 occurs when the nodes are joined by more than one edge but do not have
-    # another node on the path between them.
-    comps[[i]]$nodes$adj0 <- getNodeOnlyDistAdjMatrix(comps[[i]]$graphs$skeleton0, comps[[i]]$nodes$nodeList)
-  }
-  
+  comps <- getComponents(skeleton = skeleton, img = img, dims = dims, nodes = nodes)
+
   # And merging them ----
   message("and merging them...")
+  n <- length(comps)
   for (i in 1:n){
     merged <- mergeNodes(nodeList = comps[[i]]$nodes$nodeList, 
                          skeleton0 = comps[[i]]$graphs$skeleton0, 
@@ -329,6 +288,98 @@ processHandwriting <- function(img, dims) {
 
 
 # Clean -------------------------------------------------------------------
+
+getComponents <- function(skeleton, img, dims, nodes) {
+  # split skeleton into connected components
+  skeletons <- igraph::decompose(skeleton)
+  
+  initializeComponents <- function(skeletons){
+    # create list of empty components
+    n <- length(skeletons)
+    comps <- list()
+    for (i in 1:n){
+      component <- sapply(c('graphs', 'image', 'nodes', 'paths'), function(x) NULL)
+      comps[[i]] <- component
+    }
+    return(comps)
+  }
+  
+  addSkeletons <- function(skeletons, comps) {
+    # add skeleton to each component
+    n <- length(comps)
+    for (i in 1:n){
+      comps[[i]]$graphs$skeleton <- skeletons[[i]]
+    }
+    return(comps)
+  }
+  
+  addIndices <- function(skeletons, comps, dims) {
+    # add indices to each component
+    n <- length(comps)
+    for (i in 1:n){
+      # get vertex names
+      comps[[i]]$image$indices <- as.numeric(igraph::V(skeletons[[i]])$name)
+      # get rows and columns of vertices
+      comps[[i]]$image$img_m <- i_to_rc(comps[[i]]$image$indices, dims)
+    }  
+    return(comps)
+  }
+  
+  addNodes <- function(comps, nodes) {
+    # add nodes to each component
+    n <- length(comps)
+    for (i in 1:n){
+      # nodes
+      comps[[i]]$nodes$nodeList <- intersect(comps[[i]]$image$indices, nodes$nodeList)
+      comps[[i]]$nodes$terminalNodes <- intersect(comps[[i]]$nodes$nodeList, nodes$terminalNodes)
+      comps[[i]]$nodes$nodeConnections <- intersect(comps[[i]]$nodes$nodeList, nodes$nodeConnections)
+    }
+    return(comps)
+  }
+  
+  addSkeleton0s <- function(comps, img, dims) {
+    # add (1) skeleton_df0 and (2) skeleton0 to each component
+    n <- length(comps)
+    for (i in 1:n){
+      # same as skeleton_df except neighbors on the diagonal are removed if there
+      # are neighbors on either side of the diagonal
+      comps[[i]]$graphs$skeleton_df0 <- getSkeletonDF0(img_m=comps[[i]]$image$img_m, 
+                                                       indices=comps[[i]]$image$indices, 
+                                                       nodeList=comps[[i]]$nodes$nodeList, 
+                                                       img=img, 
+                                                       dims=dims)
+      comps[[i]]$graphs$skeleton0 <- getSkeleton(skeleton_df=comps[[i]]$graphs$skeleton_df0, 
+                                                 indices=comps[[i]]$image$indices, 
+                                                 nodeList=comps[[i]]$nodes$nodeList)
+    }
+    return(comps)
+  }
+  
+  addAdjMatrices <- function(comps) {
+    # add node only distance adjacency matrix to each component
+    n <- length(comps)
+    for (i in 1:n){
+      # get adjacency matrix: (1) weight each edge in skeleton0 with 1 if either
+      # vertex is a node, this is the node_only_dist (2) find the shortest distance
+      # between each pair of nodes (3) make an adjacency matrix for each pair of
+      # nodes where 1 means the the shortest path between them is node_only_dist 1 or
+      # 2, where node_only_dist 1 occurs when the nodes are joined by a single edge
+      # and 2 occurs when the nodes are joined by more than one edge but do not have
+      # another node on the path between them.
+      comps[[i]]$nodes$adj0 <- getNodeOnlyDistAdjMatrix(comps[[i]]$graphs$skeleton0, comps[[i]]$nodes$nodeList)
+    }
+    return(comps)
+  }
+  
+  comps <- initializeComponents(skeletons = skeletons)
+  comps <- addSkeletons(skeletons = skeletons, comps = comps)
+  comps <- addIndices(skeletons = skeletons, comps = comps, dims = dims)
+  comps <- addNodes(comps = comps, nodes = nodes)
+  comps <- addSkeleton0s(comps = comps, img = img, dims = dims)
+  comps <- addAdjMatrices(comps = comps)
+  
+  return(comps)
+}
 
 skeletonize <- function(img, indices, dims, nodeList) {
   # create skeleton graphs and dataframe. skeleton is created first using the

@@ -16,14 +16,8 @@ h <- hier_create(root = "Total", nodes = c('processDocument'))
 # processDocument
 h <- hier_add(h, root = "processDocument", nodes = c("readPNGBinary", "thinImage", "processHandwriting"))
 h <- hier_add(h, root = "processHandwriting", nodes = c("getNodes", 
-                                                        "i_to_rc (in processHandwriting)", 
-                                                        "getSkeletonDF",
-                                                        "getSkeleton (output skeleton)",
-                                                        "igraph::decompose",
-                                                        "new_group_by_component",
-                                                        "getSkeletonDF0",
-                                                        "getSkeleton (output skeleton0)",
-                                                        "getNodeOnlyDistAdjMatrix",
+                                                        "skeletonize",
+                                                        "getComponents",
                                                         "mergeNodes",
                                                         "getAllUniquePaths",
                                                         "getLoops",
@@ -38,8 +32,31 @@ h <- hier_add(h, root = "processHandwriting", nodes = c("getNodes",
                                                         "addCharacterFeatures",
                                                         'flatten_list'))
 h <- hier_add(h, root = 'getNodes', nodes = c('i_to_rc (in getNodes)', 'countChanges', 'nested_node2by2fill'))
+```
+
+```{r}
+# skeletonize
+h <- hier_add(h, root = 'skeletonize', nodes = c('getSkeletonDF (nested)', 
+                                                 'getSkeleton'))
+h <- hier_add(h, root = 'getSkeletonDF (nested)', nodes = c('i_to_rc (in getSkeletonDF)', 'findNeighbors'))
+```
+
+```{r}
+# getComponents
+h <- hier_add(h, root = 'getComponents', nodes = c('initializeComponents (nested)',
+                                                   'addSkeletons (nested)',
+                                                   'addIndices (nested)',
+                                                   'addNodes (nested)',
+                                                   'addSkeleton0s (nested)',
+                                                   'addAdjMatrices (nested)'))
+h <- hier_add(h, root = 'addIndices (nested)', nodes = c('i_to_rc'))
+h <- hier_add(h, root = 'addSkeleton0s (nested)', nodes = c('getSkeletonDF0', 'getSkeleton (in addSkeleton0s)'))
+h <- hier_add(h, root = 'addAdjMatrices (nested)', nodes = c('getNodeOnlyDistAdjMatrix'))
+
 h <- hier_add(h, root = 'nested_node2by2fill', nodes = c('findNeighbors (in nested_node2by2fill)'))
-h <- hier_add(h, root = 'getSkeletonDF', nodes = c('findNeighbors'))
+```
+
+```{r}
 h <- hier_add(h, root = 'getSkeletonDF0', nodes = c('findNeighbors0'))
 h <- hier_add(h, root = 'findNeighbors0', nodes = c('findNeighbors (in findNeighbors0)'))
 h <- hier_add(h, root = 'mergeNodes', nodes = c('i_to_r (in mergeNodes)', 
