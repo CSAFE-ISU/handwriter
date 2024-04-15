@@ -19,9 +19,7 @@ h <- hier_add(h, root = "processHandwriting", nodes = c("getNodes",
                                                         "skeletonize",
                                                         "getComponents",
                                                         "mergeAllNodes",
-                                                        "getAllUniquePaths",
-                                                        "getLoops",
-                                                        "updateSkeleton0",
+                                                        "getPaths",
                                                         "getBreakPoints",
                                                         "addTroughNodes",
                                                         "updateBreakPoints",
@@ -68,6 +66,17 @@ h <- hier_add(h, root = 'mergeNodes (nested)', nodes = c('i_to_r (1)',
                                                    'findMergeNodes (nested in mergeAllNodes)', 
                                                 'migrateConnections (nested in mergeAllNodes)'))
 ```
+
+```{r}
+h <- hier_add(h, root = 'getPaths', nodes = c('getAllNonLoopPaths (nested)', 
+                                              'getAllLoops (nested)', 
+                                              'updateAllSkeleton0s (nested)'))
+h <- hier_add(h, root = 'getAllNonLoopPaths (nested)', nodes = c('getNonLoopPathsForComponent (nested in getPaths)'))
+h <- hier_add(h, root = 'getAllLoops (nested)', nodes =  c('getLoopsForComponent (nested in getPaths'))
+h <- hier_add(h, root = 'updateAllSkeleton0s (nested)', nodes = c('updateSkeleton0 (nested in getPaths)'))
+```
+
+
 
 ```{r}
 h <- hier_add(h, root = 'getBreakPoints', nodes = c('findTroughNodes'))

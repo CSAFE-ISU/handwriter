@@ -118,43 +118,13 @@ processHandwriting <- function(img, dims) {
   
   # Finding paths ----
   message("Finding paths...", appendLF = FALSE)
-  n <- length(comps)
-  for (i in 1:n){
-    paths <- getAllUniquePaths(comps[[i]]$nodes$adjm, 
-                               comps[[i]]$graphs$skeleton0, 
-                               comps[[i]]$nodes$nodeList)
-    if (is.null(paths)){
-      comps[[i]]$paths$pathList <- list()
-    } else {
-      comps[[i]]$paths$pathList <- paths
-    }
-  }
-  
-  # And loops ----
-  message("and loops...")
-  
-  for (i in 1:n){
-    comps[[i]]$paths$loopList <- getLoops(nodeList = comps[[i]]$nodes$nodeList,
-                                          skeleton = comps[[i]]$graphs$skeleton,
-                                          skeleton0 = comps[[i]]$graphs$skeleton0,
-                                          pathList = comps[[i]]$paths$pathList,
-                                          dims = dims)
-    comps[[i]]$paths$allPaths <- append(comps[[i]]$paths$pathList, comps[[i]]$paths$loopList)
-  }
-  
-  # set node_only_dist values: 1 = edge is connected to a node; 0 = edge is not connected to a node
-  for (i in 1:n){
-    updated <- updateSkeleton0(graphdf0 = comps[[i]]$graphs$skeleton_df0, 
-                               skeleton0 = comps[[i]]$graphs$skeleton0, 
-                               nodeList = comps[[i]]$nodes$nodeList)
-    comps[[i]]$graphs$skeleton_df0 <- updated$graphdf0
-    comps[[i]]$graphs$skeleton0 <- updated$skeleton0
-  }
+  comps <- getPaths(comps = comps, dims = dims)
   
   # Looking for graph break points ----
   # Nominate and check candidate breakpoints
   message("Looking for graph break points...", appendLF = FALSE)
   # Find candidate and trough nodes
+  n <- length(comps)
   for (i in 1:n){
     if (length(comps[[i]]$paths$pathList) >= 1) {
       candidates <- getBreakPoints(pathList = comps[[i]]$paths$pathList, dims = dims)
@@ -383,6 +353,237 @@ getComponents <- function(skeleton, img, dims, nodes) {
   return(comps)
 }
 
+getPaths <- function(comps, dims) {
+  getNonLoopPathsForComponent <- function(adj, graph0, nodeList) {
+    paths <- list()
+    if (dim(adj)[1] == 0) {
+      return(NULL)
+    }
+    
+    # update graphdf0 with node_only_dist=1 if one or more of the edge's vertices is a node and 0.00001 otherwise
+    graphdf0 <- igraph::as_data_frame(graph0)
+    graphdf0$node_only_dist <- ifelse(graphdf0$from %in% nodeList | graphdf0$to %in% nodeList, 1, 0.00001)
+    graph0 <- igraph::graph_from_data_frame(graphdf0, directed = FALSE)
+    
+    for (i in 1:dim(adj)[1])
+    {
+      fromNode <- as.character(format(adj[i, 1], scientific = FALSE, trim = TRUE))
+      toNode <- as.character(format(adj[i, 2], scientific = FALSE, trim = TRUE))
+      
+      # calculate distances of shortest path between fromNode and toNode
+      dists <- igraph::distances(graph0, v = fromNode, to = toNode, weights = igraph::E(graph0)$node_only_dist)
+      # for paths from node to node that don't go through another node?
+      while (dists < 3 & dists >= 1) {
+        # CALCULATE STEP:
+        # get shortest path between fromNode and toNode
+        shortest <- igraph::shortest_paths(graph0, from = fromNode, to = toNode, weights = igraph::E(graph0)$node_only_dist)
+        # count vertices in shortest path, including fromNode and toNode
+        len <- length(unlist(shortest[[1]]))
+        # add the shortest path to the list
+        paths <- c(paths, list(as.numeric(names(shortest$vpath[[1]]))))
+        
+        # UPDATE STEP: If there are more than two vertices in the path, delete the
+        # middle edge. If there are 2 vertices in the path, delete the single edge
+        # between the vertices. 
+        if (len > 2) {
+          graph0 <- igraph::delete_edges(graph0, paste0(names(shortest$vpath[[1]])[len %/% 2], "|", names(shortest$vpath[[1]])[len %/% 2 + 1]))
+        } else if (len == 2) {
+          graph0 <- igraph::delete_edges(graph0, paste0(names(shortest$vpath[[1]])[1], "|", names(shortest$vpath[[1]])[2]))
+        } else {
+          stop("There must be some mistake. Single node should have node_only_dist path length of 0.")
+        }
+        # recalculate shortest path distance on updated graph
+        dists <- igraph::distances(graph0, v = fromNode, to = toNode, weights = igraph::E(graph0)$node_only_dist)
+      }
+    }
+    
+    return(paths)
+  }
+  
+  getAllNonLoopPaths <- function(comps) {
+    n <- length(comps)
+    for (i in 1:n){
+      paths <- getNonLoopPathsForComponent(comps[[i]]$nodes$adjm, 
+                                    comps[[i]]$graphs$skeleton0, 
+                                    comps[[i]]$nodes$nodeList)
+      if (is.null(paths)){
+        comps[[i]]$paths$pathList <- list()
+      } else {
+        comps[[i]]$paths$pathList <- paths
+      }
+    }
+    return(comps)
+  }
+  
+  getLoopsForComponent <- function(nodeList, skeleton, skeleton0, pathList, dims) {
+    vertexNames <- names(igraph::V(skeleton0))
+    
+    fullSkeleton0 <- skeleton0
+    
+    used <- unlist(lapply(pathList, function(x) {
+      x[-c(1, length(x))]
+    }))
+    unused <- as.numeric(vertexNames)[which(!(as.numeric(vertexNames) %in% used))]
+    unusedAdj <- matrix(1, ncol = length(unused), nrow = length(unused))
+    colnames(unusedAdj) <- as.character(format(unused, scientific = FALSE, trim = TRUE))
+    rownames(unusedAdj) <- as.character(format(unused, scientific = FALSE, trim = TRUE))
+    if (length(nodeList) > 1) {
+      unusedAdj[, which(unused %in% nodeList)][which(unused %in% nodeList), ] <- 0
+    } else {
+      unusedAdj[which(unused %in% nodeList), which(unused %in% nodeList)] <- 0
+    }
+    unusedSkeleton <- igraph::graph_from_adjacency_matrix(unusedAdj, mode = "undirected")
+    
+    skeleton0 <- intersection(skeleton0, unusedSkeleton, keep.all.vertices = TRUE)
+    skeleton <- intersection(skeleton, skeleton0, byname = TRUE, keep.all.vertices = TRUE)
+    check <- unused[degree(skeleton0, as.character(format(unused, scientific = FALSE, trim = TRUE))) > 1]
+    check <- check[which(check %in% nodeList)]
+    
+    loopList <- list()
+    
+    tryCatch(
+      expr = {
+        neighbors <- igraph::neighborhood(skeleton, nodes = as.character(check))
+        
+        if (any(unlist(lapply(neighbors, length)) > 3)) {
+          warning("At least 1 of the nodes in the potential loops has more than 2 neighbors after removal of the connections. Try again! \nThe nodes in question are: \n", dput(names(neighbors)[which(unlist(lapply(neighbors, length)) > 3)]))
+        }
+        
+        ## Get paths that start and end at the same point, where that point is a node in nodeList
+        if (length(neighbors) > 0) {
+          for (i in 1:length(neighbors)) {
+            neigh <- as.numeric(names(neighbors[[i]]))
+            skeleton <- igraph::delete_edges(skeleton, paste0(neigh[1], "|", neigh[2]))
+            if (igraph::distances(skeleton, v = as.character(neigh[1]), to = as.character(neigh[2])) < Inf) {
+              newPath <- as.numeric(names(unlist(igraph::shortest_paths(skeleton, from = format(neigh[1], scientific = FALSE), to = format(neigh[2], scientific = FALSE), weights = igraph::E(skeleton)$pen_dist)$vpath)))
+              loopList <- append(loopList, list(c(newPath, newPath[1])))
+            }
+          }
+        }
+      },
+      error = function(e) {
+        message("Error in loops... skipping...")
+      }
+    )
+    
+    ## Eliminate loop paths that we have found and find ones that dont have vertex on the loop. This is caused by combining of nodes that are close together.
+    used <- as.numeric(unique(c(unlist(pathList), unlist(loopList))))
+    unused <- as.numeric(vertexNames)[which(!(as.numeric(vertexNames) %in% used))]
+    remaining0 <- igraph::induced_subgraph(skeleton0, vids = format(c(unused, nodeList), scientific = FALSE, trim = TRUE))
+    numNeighbors <- lapply(igraph::neighborhood(remaining0, nodes = igraph::V(remaining0)), length)
+    remaining0 <- igraph::induced_subgraph(remaining0, vids = igraph::V(remaining0)[numNeighbors > 1])
+    
+    roots <- format(nodeList[which(nodeList %in% names(igraph::V(remaining0)))], scientific = FALSE, trim = TRUE)
+    
+    if (length(roots) > 0) {
+      for (i in 1:length(roots))
+      {
+        loopPart1 <- names(na.omit(igraph::dfs(remaining0, roots[i], unreachable = FALSE)$order))
+        loopPart2 <- igraph::shortest_paths(fullSkeleton0, from = loopPart1[length(loopPart1)], to = roots[i])$vpath[[1]][-1]
+        loopList <- append(loopList, list(as.numeric(c(loopPart1, names(loopPart2)))))
+      }
+    }
+    
+    ## Now get loops that are more difficult. They are close to nodes, but separated by paths already found previously. Have to dig a little further.
+    remaining0 <- igraph::induced_subgraph(skeleton0, vids = format(unused, scientific = FALSE, trim = TRUE))
+    used <- as.numeric(unique(c(unlist(pathList), unlist(loopList))))
+    unused <- as.numeric(vertexNames)[which(!(as.numeric(vertexNames) %in% used))]
+    if (length(unused) > 0) {
+      ends <- lapply(igraph::neighborhood(fullSkeleton0, order = 2, nodes = format(unused, scientific = FALSE, trim = TRUE)), function(x) nodeList[which(format(nodeList, scientific = FALSE, trim = TRUE) %in% names(x))])
+      
+      roots <- format(unique(unlist(ends)), scientific = FALSE, trim = TRUE)
+      if (length(roots) > 0) {
+        ends <- igraph::neighborhood(fullSkeleton0, order = 2, nodes = roots)
+        ends <- unlist(lapply(ends, function(x) names(x)[which(names(x) %in% format(unused, scientific = FALSE, trim = TRUE))][1]))
+        
+        for (i in 1:length(roots))
+        {
+          loopPart1 <- names(na.omit(igraph::dfs(remaining0, ends[i], unreachable = FALSE)$order))
+          loopPart2a <- igraph::shortest_paths(fullSkeleton0, from = loopPart1[1], to = roots[i])$vpath[[1]][-1]
+          loopPart2b <- igraph::shortest_paths(fullSkeleton0, from = loopPart1[length(loopPart1)], to = roots[i])$vpath[[1]][-1]
+          loopList <- append(loopList, list(as.numeric(c(rev(names(loopPart2a)), loopPart1, names(loopPart2b)))))
+        }
+      }
+    }
+    
+    
+    ## And a little deeper
+    remaining0 <- induced_subgraph(skeleton0, vids = format(unused, scientific = FALSE, trim = TRUE))
+    used <- as.numeric(unique(c(unlist(pathList), unlist(loopList))))
+    unused <- as.numeric(vertexNames)[which(!(as.numeric(vertexNames) %in% used))]
+    if (length(unused) > 0) {
+      ends <- lapply(igraph::neighborhood(fullSkeleton0, order = 3, nodes = format(unused, scientific = FALSE, trim = TRUE)), function(x) nodeList[which(format(nodeList, scientific = FALSE, trim = TRUE) %in% names(x))])
+      
+      roots <- format(unique(unlist(ends)), scientific = FALSE, trim = TRUE)
+      if (length(roots) > 0) {
+        ends <- igraph::neighborhood(fullSkeleton0, order = 3, nodes = roots)
+        ends <- unlist(lapply(ends, function(x) names(x)[which(names(x) %in% format(unused, scientific = FALSE, trim = TRUE))][1]))
+        
+        for (i in 1:length(roots))
+        {
+          loopPart1 <- names(na.omit(dfs(remaining0, ends[i], unreachable = FALSE)$order))
+          loopPart2a <- igraph::shortest_paths(fullSkeleton0, from = loopPart1[1], to = roots[i])$vpath[[1]][-1]
+          loopPart2b <- igraph::shortest_paths(fullSkeleton0, from = loopPart1[length(loopPart1)], to = roots[i])$vpath[[1]][-1]
+          loopList <- append(loopList, list(as.numeric(c(rev(names(loopPart2a)), loopPart1, names(loopPart2b)))))
+        }
+      }
+    }
+    
+    ## All that remains now is perfect loops. Start and end at same point with no intersections or end points.
+    remaining0 <- igraph::induced_subgraph(remaining0, vids = igraph::V(remaining0)[!(names(igraph::V(remaining0)) %in% unlist(loopList))])
+    while (TRUE) {
+      if (length(igraph::V(remaining0)) > 0) {
+        perfectLoop <- names(na.omit(dfs(remaining0, igraph::V(remaining0)[1], unreachable = FALSE)$order))
+        remaining0 <- igraph::delete_vertices(remaining0, v = perfectLoop)
+        loopList <- append(loopList, list(as.numeric(c(perfectLoop, perfectLoop[1]))))
+      } else {
+        break
+      }
+    }
+    
+    return(loopList)
+  }
+  
+  getAllLoops <- function(comps, dims) {
+    n <- length(comps)
+    for (i in 1:n){
+      comps[[i]]$paths$loopList <- getLoopsForComponent(nodeList = comps[[i]]$nodes$nodeList,
+                                            skeleton = comps[[i]]$graphs$skeleton,
+                                            skeleton0 = comps[[i]]$graphs$skeleton0,
+                                            pathList = comps[[i]]$paths$pathList,
+                                            dims = dims)
+      comps[[i]]$paths$allPaths <- append(comps[[i]]$paths$pathList, comps[[i]]$paths$loopList)
+    }
+    return(comps)
+  }
+  
+  updateSkeleton0 <- function(graphdf0, skeleton0, nodeList){
+    graphdf0 <- igraph::as_data_frame(skeleton0)
+    graphdf0$node_only_dist <- ifelse(graphdf0$from %in% nodeList | graphdf0$to %in% nodeList, 1, 0)
+    skeleton0 <- igraph::graph_from_data_frame(graphdf0, directed = FALSE)
+    return(list('graphdf0'=graphdf0, 'skeleton0'=skeleton0))
+  }
+  
+  updateAllSkeleton0s <- function(comps) {
+    # set node_only_dist values: 1 = edge is connected to a node; 0 = edge is not connected to a node
+    n <- length(comps)
+    for (i in 1:n){
+      updated <- updateSkeleton0(graphdf0 = comps[[i]]$graphs$skeleton_df0, 
+                                 skeleton0 = comps[[i]]$graphs$skeleton0, 
+                                 nodeList = comps[[i]]$nodes$nodeList)
+      comps[[i]]$graphs$skeleton_df0 <- updated$graphdf0
+      comps[[i]]$graphs$skeleton0 <- updated$skeleton0
+    }
+    return(comps)
+  }
+  
+  comps <- getAllNonLoopPaths(comps = comps)
+  comps <- getAllLoops(comps = comps, dims = dims)
+  comps <- updateAllSkeleton0s(comps = comps)
+
+  return(comps)
+}
+
 mergeAllNodes <- function(comps) {
   findMergeNodes <- function(skeleton, mergeMat) {
     newNodes <- rep(NA, dim(mergeMat)[1])
@@ -492,7 +693,6 @@ mergeAllNodes <- function(comps) {
   }
   return(comps)
 }
-
 
 skeletonize <- function(img, indices, dims, nodeList) {
   # create skeleton graphs and dataframe. skeleton is created first using the
@@ -628,59 +828,6 @@ addTroughNodes <- function(breakPoints, troughNodes, dims) {
   return(breakPoints)
 }
 
-#' getAllUniquePaths
-#'
-#' Internal function for getting a list of all non loop paths in a writing sample.
-#'
-#' @param adj adjacent matrix of nodes
-#' @param graph0 skeletonized graph
-#' @return a list of all non loop paths
-#' @noRd
-getAllUniquePaths <- function(adj, graph0, nodeList) {
-  paths <- list()
-  if (dim(adj)[1] == 0) {
-    return(NULL)
-  }
-  
-  # update graphdf0 with node_only_dist=1 if one or more of the edge's vertices is a node and 0.00001 otherwise
-  graphdf0 <- igraph::as_data_frame(graph0)
-  graphdf0$node_only_dist <- ifelse(graphdf0$from %in% nodeList | graphdf0$to %in% nodeList, 1, 0.00001)
-  graph0 <- igraph::graph_from_data_frame(graphdf0, directed = FALSE)
-  
-  for (i in 1:dim(adj)[1])
-  {
-    fromNode <- as.character(format(adj[i, 1], scientific = FALSE, trim = TRUE))
-    toNode <- as.character(format(adj[i, 2], scientific = FALSE, trim = TRUE))
-    
-    # calculate distances of shortest path between fromNode and toNode
-    dists <- igraph::distances(graph0, v = fromNode, to = toNode, weights = igraph::E(graph0)$node_only_dist)
-    # for paths from node to node that don't go through another node?
-    while (dists < 3 & dists >= 1) {
-      # CALCULATE STEP:
-      # get shortest path between fromNode and toNode
-      shortest <- igraph::shortest_paths(graph0, from = fromNode, to = toNode, weights = igraph::E(graph0)$node_only_dist)
-      # count vertices in shortest path, including fromNode and toNode
-      len <- length(unlist(shortest[[1]]))
-      # add the shortest path to the list
-      paths <- c(paths, list(as.numeric(names(shortest$vpath[[1]]))))
-      
-      # UPDATE STEP: If there are more than two vertices in the path, delete the
-      # middle edge. If there are 2 vertices in the path, delete the single edge
-      # between the vertices. 
-      if (len > 2) {
-        graph0 <- igraph::delete_edges(graph0, paste0(names(shortest$vpath[[1]])[len %/% 2], "|", names(shortest$vpath[[1]])[len %/% 2 + 1]))
-      } else if (len == 2) {
-        graph0 <- igraph::delete_edges(graph0, paste0(names(shortest$vpath[[1]])[1], "|", names(shortest$vpath[[1]])[2]))
-      } else {
-        stop("There must be some mistake. Single node should have node_only_dist path length of 0.")
-      }
-      # recalculate shortest path distance on updated graph
-      dists <- igraph::distances(graph0, v = fromNode, to = toNode, weights = igraph::E(graph0)$node_only_dist)
-    }
-  }
-  
-  return(paths)
-}
 
 #' checkBreakPoints
 #'
@@ -1028,147 +1175,7 @@ getSkeletonDF0 <- function(img_m, img, indices, dims, nodeList) {
   return(graphdf0)
 }
 
-#' Get Loops
-#'
-#' Internal function for getting looped paths.
-#'
-#' @param nodeList A list of all found nodes
-#' @param skeleton first skeletonized graph
-#' @param skeleton0 second skeletonized graph
-#' @param pathList The current path list to check for loops
-#' @param dims dimensions of the image
-#' @return A list of all loops found
-#'
-#' @importFrom utils combn
-#' @noRd
-getLoops <- function(nodeList, skeleton, skeleton0, pathList, dims) {
-  vertexNames <- names(igraph::V(skeleton0))
-  
-  fullSkeleton0 <- skeleton0
-  
-  used <- unlist(lapply(pathList, function(x) {
-    x[-c(1, length(x))]
-  }))
-  unused <- as.numeric(vertexNames)[which(!(as.numeric(vertexNames) %in% used))]
-  unusedAdj <- matrix(1, ncol = length(unused), nrow = length(unused))
-  colnames(unusedAdj) <- as.character(format(unused, scientific = FALSE, trim = TRUE))
-  rownames(unusedAdj) <- as.character(format(unused, scientific = FALSE, trim = TRUE))
-  if (length(nodeList) > 1) {
-    unusedAdj[, which(unused %in% nodeList)][which(unused %in% nodeList), ] <- 0
-  } else {
-    unusedAdj[which(unused %in% nodeList), which(unused %in% nodeList)] <- 0
-  }
-  unusedSkeleton <- igraph::graph_from_adjacency_matrix(unusedAdj, mode = "undirected")
-  
-  skeleton0 <- intersection(skeleton0, unusedSkeleton, keep.all.vertices = TRUE)
-  skeleton <- intersection(skeleton, skeleton0, byname = TRUE, keep.all.vertices = TRUE)
-  check <- unused[degree(skeleton0, as.character(format(unused, scientific = FALSE, trim = TRUE))) > 1]
-  check <- check[which(check %in% nodeList)]
-  
-  loopList <- list()
-  
-  tryCatch(
-    expr = {
-      neighbors <- igraph::neighborhood(skeleton, nodes = as.character(check))
-      
-      if (any(unlist(lapply(neighbors, length)) > 3)) {
-        warning("At least 1 of the nodes in the potential loops has more than 2 neighbors after removal of the connections. Try again! \nThe nodes in question are: \n", dput(names(neighbors)[which(unlist(lapply(neighbors, length)) > 3)]))
-      }
-      
-      ## Get paths that start and end at the same point, where that point is a node in nodeList
-      if (length(neighbors) > 0) {
-        for (i in 1:length(neighbors)) {
-          neigh <- as.numeric(names(neighbors[[i]]))
-          skeleton <- igraph::delete_edges(skeleton, paste0(neigh[1], "|", neigh[2]))
-          if (igraph::distances(skeleton, v = as.character(neigh[1]), to = as.character(neigh[2])) < Inf) {
-            newPath <- as.numeric(names(unlist(igraph::shortest_paths(skeleton, from = format(neigh[1], scientific = FALSE), to = format(neigh[2], scientific = FALSE), weights = igraph::E(skeleton)$pen_dist)$vpath)))
-            loopList <- append(loopList, list(c(newPath, newPath[1])))
-          }
-        }
-      }
-    },
-    error = function(e) {
-      message("Error in loops... skipping...")
-    }
-  )
-  
-  ## Eliminate loop paths that we have found and find ones that dont have vertex on the loop. This is caused by combining of nodes that are close together.
-  used <- as.numeric(unique(c(unlist(pathList), unlist(loopList))))
-  unused <- as.numeric(vertexNames)[which(!(as.numeric(vertexNames) %in% used))]
-  remaining0 <- igraph::induced_subgraph(skeleton0, vids = format(c(unused, nodeList), scientific = FALSE, trim = TRUE))
-  numNeighbors <- lapply(igraph::neighborhood(remaining0, nodes = igraph::V(remaining0)), length)
-  remaining0 <- igraph::induced_subgraph(remaining0, vids = igraph::V(remaining0)[numNeighbors > 1])
-  
-  roots <- format(nodeList[which(nodeList %in% names(igraph::V(remaining0)))], scientific = FALSE, trim = TRUE)
-  
-  if (length(roots) > 0) {
-    for (i in 1:length(roots))
-    {
-      loopPart1 <- names(na.omit(igraph::dfs(remaining0, roots[i], unreachable = FALSE)$order))
-      loopPart2 <- igraph::shortest_paths(fullSkeleton0, from = loopPart1[length(loopPart1)], to = roots[i])$vpath[[1]][-1]
-      loopList <- append(loopList, list(as.numeric(c(loopPart1, names(loopPart2)))))
-    }
-  }
-  
-  ## Now get loops that are more difficult. They are close to nodes, but separated by paths already found previously. Have to dig a little further.
-  remaining0 <- igraph::induced_subgraph(skeleton0, vids = format(unused, scientific = FALSE, trim = TRUE))
-  used <- as.numeric(unique(c(unlist(pathList), unlist(loopList))))
-  unused <- as.numeric(vertexNames)[which(!(as.numeric(vertexNames) %in% used))]
-  if (length(unused) > 0) {
-    ends <- lapply(igraph::neighborhood(fullSkeleton0, order = 2, nodes = format(unused, scientific = FALSE, trim = TRUE)), function(x) nodeList[which(format(nodeList, scientific = FALSE, trim = TRUE) %in% names(x))])
-    
-    roots <- format(unique(unlist(ends)), scientific = FALSE, trim = TRUE)
-    if (length(roots) > 0) {
-      ends <- igraph::neighborhood(fullSkeleton0, order = 2, nodes = roots)
-      ends <- unlist(lapply(ends, function(x) names(x)[which(names(x) %in% format(unused, scientific = FALSE, trim = TRUE))][1]))
-      
-      for (i in 1:length(roots))
-      {
-        loopPart1 <- names(na.omit(igraph::dfs(remaining0, ends[i], unreachable = FALSE)$order))
-        loopPart2a <- igraph::shortest_paths(fullSkeleton0, from = loopPart1[1], to = roots[i])$vpath[[1]][-1]
-        loopPart2b <- igraph::shortest_paths(fullSkeleton0, from = loopPart1[length(loopPart1)], to = roots[i])$vpath[[1]][-1]
-        loopList <- append(loopList, list(as.numeric(c(rev(names(loopPart2a)), loopPart1, names(loopPart2b)))))
-      }
-    }
-  }
-  
-  
-  ## And a little deeper
-  remaining0 <- induced_subgraph(skeleton0, vids = format(unused, scientific = FALSE, trim = TRUE))
-  used <- as.numeric(unique(c(unlist(pathList), unlist(loopList))))
-  unused <- as.numeric(vertexNames)[which(!(as.numeric(vertexNames) %in% used))]
-  if (length(unused) > 0) {
-    ends <- lapply(igraph::neighborhood(fullSkeleton0, order = 3, nodes = format(unused, scientific = FALSE, trim = TRUE)), function(x) nodeList[which(format(nodeList, scientific = FALSE, trim = TRUE) %in% names(x))])
-    
-    roots <- format(unique(unlist(ends)), scientific = FALSE, trim = TRUE)
-    if (length(roots) > 0) {
-      ends <- igraph::neighborhood(fullSkeleton0, order = 3, nodes = roots)
-      ends <- unlist(lapply(ends, function(x) names(x)[which(names(x) %in% format(unused, scientific = FALSE, trim = TRUE))][1]))
-      
-      for (i in 1:length(roots))
-      {
-        loopPart1 <- names(na.omit(dfs(remaining0, ends[i], unreachable = FALSE)$order))
-        loopPart2a <- igraph::shortest_paths(fullSkeleton0, from = loopPart1[1], to = roots[i])$vpath[[1]][-1]
-        loopPart2b <- igraph::shortest_paths(fullSkeleton0, from = loopPart1[length(loopPart1)], to = roots[i])$vpath[[1]][-1]
-        loopList <- append(loopList, list(as.numeric(c(rev(names(loopPart2a)), loopPart1, names(loopPart2b)))))
-      }
-    }
-  }
-  
-  ## All that remains now is perfect loops. Start and end at same point with no intersections or end points.
-  remaining0 <- igraph::induced_subgraph(remaining0, vids = igraph::V(remaining0)[!(names(igraph::V(remaining0)) %in% unlist(loopList))])
-  while (TRUE) {
-    if (length(igraph::V(remaining0)) > 0) {
-      perfectLoop <- names(na.omit(dfs(remaining0, igraph::V(remaining0)[1], unreachable = FALSE)$order))
-      remaining0 <- igraph::delete_vertices(remaining0, v = perfectLoop)
-      loopList <- append(loopList, list(as.numeric(c(perfectLoop, perfectLoop[1]))))
-    } else {
-      break
-    }
-  }
-  
-  return(loopList)
-}
+
 
 #' getNodes
 #'
@@ -1553,13 +1560,6 @@ pathLetterAssociate <- function(allPaths, letter) {
     }
   }
   return(associatedPaths)
-}
-
-updateSkeleton0 <- function(graphdf0, skeleton0, nodeList){
-  graphdf0 <- igraph::as_data_frame(skeleton0)
-  graphdf0$node_only_dist <- ifelse(graphdf0$from %in% nodeList | graphdf0$to %in% nodeList, 1, 0)
-  skeleton0 <- igraph::graph_from_data_frame(graphdf0, directed = FALSE)
-  return(list('graphdf0'=graphdf0, 'skeleton0'=skeleton0))
 }
 
 #' findNeighbors
