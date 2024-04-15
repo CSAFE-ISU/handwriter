@@ -20,11 +20,7 @@ h <- hier_add(h, root = "processHandwriting", nodes = c("getNodes",
                                                         "getComponents",
                                                         "mergeAllNodes",
                                                         "getPaths",
-                                                        "getBreakPoints",
-                                                        "addTroughNodes",
-                                                        "updateBreakPoints",
-                                                        "isolateGraphs",
-                                                        "new_assign_sequential_ids",
+                                                        "splitPathsIntoGraphs",
                                                         "organizeLetters",
                                                         "createLetterLists",
                                                         "addCharacterFeatures",
@@ -76,16 +72,31 @@ h <- hier_add(h, root = 'getAllLoops (nested)', nodes =  c('getLoopsForComponent
 h <- hier_add(h, root = 'updateAllSkeleton0s (nested)', nodes = c('updateSkeleton0 (nested in getPaths)'))
 ```
 
+```{r}
+h <- hier_add(h, root = 'splitPathsIntoGraphs', nodes = c('getAllBreakPoints (nested)',
+                                                          'updateAllBreakPoints (nested)',
+                                                          'isolateAllGraphs (nested)',
+                                                          'assignGraphIDs (nested)'))
+
+h <- hier_add(h, root = 'getAllBreakPoints (nested)', nodes = c('getBreakPointsForComponent (nested in splitPathsIntoGraphs)', 'addTroughNodes (nested in splitPathsIntoGraphs)'))
+h <- hier_add(h, root = 'getBreakPointsForComponent (nested in splitPathsIntoGraphs)', nodes = c('findTroughNodes (nested in splitPathsIntoGraphs)'))
+h <- hier_add(h, root = 'findTroughNodes (nested in splitPathsIntoGraphs)', nodes = c('isTroughNode (nested in splitGraphsIntoNodes'))
+h <- hier_add(h, root = 'addTroughNodes (nested in splitPathsIntoGraphs)', nodes = c('i_to_r (2)', 'i_to_c (2)'))
+
+h <- hier_add(h, root = 'updateAllBreakPoints (nested)', nodes = c('updateBreakPointsForComponent (nested in splitPathsIntoGraphs)'))
+h <- hier_add(h, root = 'updateBreakPointsForComponent (nested in splitPathsIntoGraphs)', nodes = c('getNodeGraph', 'checkBreakPoints'))
+
+h <- hier_add(h, root = 'isolateAllGraphs (nested)', nodes = c('isolateGraphsForComponent (nested in splitPathsIntoGraphs)'))
+h <- hier_add(h, root = 'isolateGraphsForComponent (nested in splitPathsIntoGraphs)', nodes = c('makeGraphs (nested in splitPathsIntoGraphs)',
+                                                                                                'checkStacking (nested in splitPathsIntoGraphs)',
+                                                                                                'checkSimplicityBreaks (nested in splitPathsIntoGraphs)'))
+h <- hier_add(h, root = 'checkSimplicityBreaks (nested in splitPathsIntoGraphs)', nodes = c('pathLetterAssociate (1)'))
+```
 
 
 ```{r}
-h <- hier_add(h, root = 'getBreakPoints', nodes = c('findTroughNodes'))
-h <- hier_add(h, root = 'findTroughNodes', nodes = c('isTroughNode'))
-h <- hier_add(h, root = 'addTroughNodes', nodes = c('i_to_r (2)', 'i_to_c (2)'))
-h <- hier_add(h, root = 'updateBreakPoints', nodes = c('getNodeGraph', 'checkBreakPoints'))
-h <- hier_add(h, root = 'isolateGraphs', nodes = c('makeGraphs', 'checkStacking', 'checkSimplicityBreaks'))
-h <- hier_add(h, root = 'checkSimplicityBreaks', nodes = c('pathLetterAssociate (in checkSimplicityBreaks)'))
-h <- hier_add(h, root = 'createLetterLists', nodes = c('pathLetterAssociate', 'nested_getConnectivity', 'getNodeOrder'))
+
+h <- hier_add(h, root = 'createLetterLists', nodes = c('pathLetterAssociate (2)', 'nested_getConnectivity', 'getNodeOrder'))
 h <- hier_add(h, root = 'getNodeOrder', nodes = c('nested_toRC'))
 h <- hier_add(h, root = 'addCharacterFeatures', nodes = c('extract_character_features'))
 h <- hier_add(h, root = 'extract_character_features', nodes = c('char_to_feature',
