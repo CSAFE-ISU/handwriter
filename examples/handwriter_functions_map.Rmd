@@ -56,17 +56,21 @@ h <- hier_add(h, root = 'getComponents', nodes = c('initializeComponents (nested
                                                    'addSkeleton0s (nested)',
                                                    'addAdjMatrices (nested)'))
 h <- hier_add(h, root = 'addIndices (nested)', nodes = c('i_to_rc (3)'))
-h <- hier_add(h, root = 'addSkeleton0s (nested)', nodes = c('getSkeletonDF0', 'getSkeleton (2)'))
+h <- hier_add(h, root = 'addSkeleton0s (nested)', nodes = c('getSkeletonDF0', 
+                                                            'getSkeleton (2)'))
+h <- hier_add(h, root = 'getSkeletonDF0', nodes = c('findNeighbors0'))
+h <- hier_add(h, root = 'findNeighbors0', nodes = c('findNeighbors (3)'))
 h <- hier_add(h, root = 'addAdjMatrices (nested)', nodes = c('getAdjMatrix (nested)'))
 ```
 
 ```{r}
-h <- hier_add(h, root = 'getSkeletonDF0', nodes = c('findNeighbors0'))
-h <- hier_add(h, root = 'findNeighbors0', nodes = c('findNeighbors (3)'))
 h <- hier_add(h, root = 'mergeNodes', nodes = c('i_to_r (1)', 
                                                 'i_to_c (1)', 
-                                                'findMergeNodes', 
-                                                'migrateConnections'))
+                                                'findMergeNodes (nested)', 
+                                                'migrateConnections (nested)'))
+```
+
+```{r}
 h <- hier_add(h, root = 'getBreakPoints', nodes = c('findTroughNodes'))
 h <- hier_add(h, root = 'findTroughNodes', nodes = c('isTroughNode'))
 h <- hier_add(h, root = 'addTroughNodes', nodes = c('i_to_r (2)', 'i_to_c (2)'))

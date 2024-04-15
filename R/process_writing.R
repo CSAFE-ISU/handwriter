@@ -827,26 +827,8 @@ createLetterLists <- function(allPaths, letters, nodeList, nodeConnections, term
   return(graphList)
 }
 
-#' findMergeNodes
-#'
-#' Internal function to merge nodes that are very close together.
-#'
-#' @param skeleton the skeltonized graph
-#' @param mergeMat sets of the nodes to merge into a single nodes
-#' @return The merged node
-#' @noRd
-findMergeNodes <- function(skeleton, mergeMat) {
-  newNodes <- rep(NA, dim(mergeMat)[1])
-  for (i in 1:dim(mergeMat)[1])
-  {
-    fromNode <- as.character(format(mergeMat[i, 1], scientific = FALSE, trim = TRUE))
-    toNode <- as.character(format(mergeMat[i, 2], scientific = FALSE, trim = TRUE))
-    path <- igraph::shortest_paths(skeleton, from = fromNode, to = toNode, weights = igraph::E(skeleton)$pen_dist)$vpath[[1]]
-    len <- length(path)
-    newNodes[i] <- as.numeric(names(path[ceiling(len / 2)]))
-  }
-  return(newNodes)
-}
+
+
 
 findTroughNodes <- function(tempPath, dims) {
   troughNodes <- c()
@@ -1446,6 +1428,42 @@ makeGraphs <- function(allPaths, skeleton0, breakPoints) {
 }
 
 mergeNodes <- function(nodeList, skeleton0, terminalNodes, skeleton, adj0) {
+  
+  findMergeNodes <- function(skeleton, mergeMat) {
+    newNodes <- rep(NA, dim(mergeMat)[1])
+    for (i in 1:dim(mergeMat)[1])
+    {
+      fromNode <- as.character(format(mergeMat[i, 1], scientific = FALSE, trim = TRUE))
+      toNode <- as.character(format(mergeMat[i, 2], scientific = FALSE, trim = TRUE))
+      path <- igraph::shortest_paths(skeleton, from = fromNode, to = toNode, weights = igraph::E(skeleton)$pen_dist)$vpath[[1]]
+      len <- length(path)
+      newNodes[i] <- as.numeric(names(path[ceiling(len / 2)]))
+    }
+    return(newNodes)
+  }
+  
+  migrateConnections <- function(adj0, mergeSets, newNodes) {
+    toDelete <- NULL
+    for (i in 1:dim(mergeSets)[1]) {
+      whichRowCol <- which(colnames(adj0) %in% format(mergeSets[i, c(1, 2)], scientific = FALSE, trim = TRUE))
+      newConnectivities <- apply(matrix(adj0[whichRowCol, ], nrow = length(whichRowCol)), 2, function(x) x[1] == 1 | x[2] == 1)
+      newConnectivities[is.na(newConnectivities)] <- 0
+      
+      toAdd <- dim(adj0)[1] + 1
+      toDelete <- c(toDelete, which(rownames(adj0) %in% format(mergeSets[i, c(1, 2)], scientific = FALSE, trim = TRUE)))
+      
+      adj0 <- rbind(cbind(adj0, 0), 0)
+      adj0[, toAdd] <- c(newConnectivities, 0)
+      adj0[toAdd, ] <- c(newConnectivities, 0)
+      colnames(adj0)[toAdd] <- format(newNodes[i], scientific = FALSE, trim = TRUE)
+      rownames(adj0)[toAdd] <- format(newNodes[i], scientific = FALSE, trim = TRUE)
+    }
+    if (length(toDelete) > 0) {
+      adj0 <- as.matrix(adj0[, -toDelete])[-toDelete, ]
+    }
+    return(adj0)
+  }
+  
   # bind global variable to fix check() note
   value <- NULL
   
@@ -1504,28 +1522,6 @@ mergeNodes <- function(nodeList, skeleton0, terminalNodes, skeleton, adj0) {
   }
   
   return(list('nodeList'=nodeList, 'adjm'=adj.m))
-}
-
-migrateConnections <- function(adj0, mergeSets, newNodes) {
-  toDelete <- NULL
-  for (i in 1:dim(mergeSets)[1]) {
-    whichRowCol <- which(colnames(adj0) %in% format(mergeSets[i, c(1, 2)], scientific = FALSE, trim = TRUE))
-    newConnectivities <- apply(matrix(adj0[whichRowCol, ], nrow = length(whichRowCol)), 2, function(x) x[1] == 1 | x[2] == 1)
-    newConnectivities[is.na(newConnectivities)] <- 0
-    
-    toAdd <- dim(adj0)[1] + 1
-    toDelete <- c(toDelete, which(rownames(adj0) %in% format(mergeSets[i, c(1, 2)], scientific = FALSE, trim = TRUE)))
-    
-    adj0 <- rbind(cbind(adj0, 0), 0)
-    adj0[, toAdd] <- c(newConnectivities, 0)
-    adj0[toAdd, ] <- c(newConnectivities, 0)
-    colnames(adj0)[toAdd] <- format(newNodes[i], scientific = FALSE, trim = TRUE)
-    rownames(adj0)[toAdd] <- format(newNodes[i], scientific = FALSE, trim = TRUE)
-  }
-  if (length(toDelete) > 0) {
-    adj0 <- as.matrix(adj0[, -toDelete])[-toDelete, ]
-  }
-  return(adj0)
 }
 
 organizeLetters <- function(skeleton0) {
