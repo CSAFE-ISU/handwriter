@@ -18,7 +18,7 @@ h <- hier_add(h, root = "processDocument", nodes = c("readPNGBinary", "thinImage
 h <- hier_add(h, root = "processHandwriting", nodes = c("getNodes", 
                                                         "skeletonize",
                                                         "getComponents",
-                                                        "mergeNodes",
+                                                        "mergeAllNodes",
                                                         "getAllUniquePaths",
                                                         "getLoops",
                                                         "updateSkeleton0",
@@ -41,14 +41,12 @@ h <- hier_add(h, root = 'node2by2fill (nested)', nodes = c('findNeighbors (1)'))
 ```
 
 ```{r}
-# skeletonize
 h <- hier_add(h, root = 'skeletonize', nodes = c('getSkeletonDF (nested)', 
                                                  'getSkeleton (1)'))
 h <- hier_add(h, root = 'getSkeletonDF (nested)', nodes = c('i_to_rc (2)', 'findNeighbors (2)'))
 ```
 
 ```{r}
-# getComponents
 h <- hier_add(h, root = 'getComponents', nodes = c('initializeComponents (nested)',
                                                    'addSkeletons (nested)',
                                                    'addIndices (nested)',
@@ -64,10 +62,11 @@ h <- hier_add(h, root = 'addAdjMatrices (nested)', nodes = c('getAdjMatrix (nest
 ```
 
 ```{r}
-h <- hier_add(h, root = 'mergeNodes', nodes = c('i_to_r (1)', 
-                                                'i_to_c (1)', 
-                                                'findMergeNodes (nested)', 
-                                                'migrateConnections (nested)'))
+h <- hier_add(h, root = 'mergeAllNodes', nodes = c('mergeNodes (nested)'))
+h <- hier_add(h, root = 'mergeNodes (nested)', nodes = c('i_to_r (1)', 
+                                                   'i_to_c (1)',
+                                                   'findMergeNodes (nested in mergeAllNodes)', 
+                                                'migrateConnections (nested in mergeAllNodes)'))
 ```
 
 ```{r}
