@@ -355,6 +355,19 @@ getComponents <- function(skeleton, img, dims, nodes) {
     return(comps)
   }
   
+  getAdjMatrix <- function(skeleton0, nodeList) {
+    # Weight each edge in skeleton0 with node_only_dist (1=neighbor of node, 0 otherwise).
+    # Then find the shortest distance from each node to each other node.
+    dists0 <- igraph::distances(skeleton0, 
+                                v = as.character(format(nodeList, scientific = FALSE, trim = TRUE)), 
+                                to = as.character(format(nodeList, scientific = FALSE, trim = TRUE)), 
+                                weights = igraph::E(skeleton0)$node_only_dist)
+    # Create adjacency matrix with 1 if the distance is 1 or 2 and 0 otherwise
+    adj0 <- ifelse(dists0 == 1 | dists0 == 2, 1, 0)
+    
+    return(adj0)
+  }
+  
   addAdjMatrices <- function(comps) {
     # add node only distance adjacency matrix to each component
     n <- length(comps)
@@ -366,7 +379,7 @@ getComponents <- function(skeleton, img, dims, nodes) {
       # 2, where node_only_dist 1 occurs when the nodes are joined by a single edge
       # and 2 occurs when the nodes are joined by more than one edge but do not have
       # another node on the path between them.
-      comps[[i]]$nodes$adj0 <- getNodeOnlyDistAdjMatrix(comps[[i]]$graphs$skeleton0, comps[[i]]$nodes$nodeList)
+      comps[[i]]$nodes$adj0 <- getAdjMatrix(comps[[i]]$graphs$skeleton0, comps[[i]]$nodes$nodeList)
     }
     return(comps)
   }
@@ -814,55 +827,6 @@ createLetterLists <- function(allPaths, letters, nodeList, nodeConnections, term
   return(graphList)
 }
 
-
-#' countChanges
-#'
-#' Internal function for counting the number of edges connected to a point
-#'
-#' @param coords \(row, column\) coordinates of a single point to consider
-#' @param img The non-thinned image as binary bit map. Double-check: processHandwriting might call countChanges on thinned image
-#' @return The number of edges connected to coords
-#' @noRd
-countChanges <- function(coords, img) {
-  rr <- coords[1]
-  cc <- coords[2]
-  # If the point isn't in the first or last row or in the first or last column
-  if (rr > 1 & cc > 1 & rr < dim(img)[1] & cc < dim(img)[2]) {
-    # 1. Get a 3x3 matrix with the (rr, cc) as the center point and 8 pixels surrounding it. 
-    # 2. Transpose the 3x3 matrix.
-    # 3. Flatten the 3x3 matrix to a vector. The vector lists the elements of the 3x3 matrix in 
-    # step 1, NOT step 2, starting in the top left and going by row. I.e. the first three elements of 
-    # the vector are the first row of the step 1 matrix, the next three elements are the second row, and 
-    # the final three elements are the third row.
-    # 4. Reorder the vector starting with the pixel located directly above (r, c) in step 1 and then 
-    # moving clockwise and ending at the pixel located directly above (r, c)
-    neighbs <- c(t(img[(rr - 1):(rr + 1), ][, (cc - 1):(cc + 1)]))[c(2, 3, 6, 9, 8, 7, 4, 1, 2)]
-    ## Count the number of zeros directly preceeded by a one
-    # 1. create logical vector where it is TRUE if neighbs = 1 FALSE if neighbs = 0
-    # 2. circular-shift neighbs to the left by 1 and create logical vector where 
-    # TRUE if shifts neighbs = 1 and FALSE otherwise
-    # 3. Count the number of entries that are TRUE in the logical vectors from step 1 and step 2.
-    # Example: neighbs = 1 0 1 1 1 1 1 1 1 
-    #   Step 1. TRUE FALSE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-    #   Step 2. shifted = 0 1 1 1 1 1 1 1 1
-    #           TRUE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
-    #   Step 3. The result is 1
-    # Example: neighbs = 1 0 1 1 0 0 1 1 1
-    #   Step 1. TRUE FALSE TRUE TRUE FALSE FALSE TRUE TRUE TRUE
-    #   Step 2. shifted = 0 1 1 0 0 1 1 1 1
-    #           TRUE FALSE FALSE TRUE TRUE FALSE FALSE FALSE FALSE
-    #   Step 3. The result is 2
-    # Example: neighbs = 0 1 1 1 0 1 0 1 0
-    #   Step 1. FALSE TRUE TRUE TRUE FALSE TRUE FALSE TRUE FALSE
-    #   Step 2. shifted =  1 1 1 0 1 0 1 0 0
-    #           FALSE FALSE FALSE TRUE FALSE TRUE FALSE TRUE TRUE
-    #   Step 3. The result is 3
-    return(sum(neighbs == 1 & c(neighbs[-1], neighbs[1]) == 0))
-  } else {
-    stop("Please use `crop` to crop your image. Not padded around outside.")
-  }
-}
-
 #' findMergeNodes
 #'
 #' Internal function to merge nodes that are very close together.
@@ -1135,26 +1099,52 @@ getLoops <- function(nodeList, skeleton, skeleton0, pathList, dims) {
 #' @return Returns image matrix. 1 is blank, 0 is a node.
 #' @noRd
 getNodes <- function(indices, dims) {
-  ## First, we find endpoints and intersections of skeleton.
+  countChanges <- function(coords, img) {
+    rr <- coords[1]
+    cc <- coords[2]
+    # If the point isn't in the first or last row or in the first or last column
+    if (rr > 1 & cc > 1 & rr < dim(img)[1] & cc < dim(img)[2]) {
+      # 1. Get a 3x3 matrix with the (rr, cc) as the center point and 8 pixels surrounding it. 
+      # 2. Transpose the 3x3 matrix.
+      # 3. Flatten the 3x3 matrix to a vector. The vector lists the elements of the 3x3 matrix in 
+      # step 1, NOT step 2, starting in the top left and going by row. I.e. the first three elements of 
+      # the vector are the first row of the step 1 matrix, the next three elements are the second row, and 
+      # the final three elements are the third row.
+      # 4. Reorder the vector starting with the pixel located directly above (r, c) in step 1 and then 
+      # moving clockwise and ending at the pixel located directly above (r, c)
+      neighbs <- c(t(img[(rr - 1):(rr + 1), ][, (cc - 1):(cc + 1)]))[c(2, 3, 6, 9, 8, 7, 4, 1, 2)]
+      ## Count the number of zeros directly preceeded by a one
+      # 1. create logical vector where it is TRUE if neighbs = 1 FALSE if neighbs = 0
+      # 2. circular-shift neighbs to the left by 1 and create logical vector where 
+      # TRUE if shifts neighbs = 1 and FALSE otherwise
+      # 3. Count the number of entries that are TRUE in the logical vectors from step 1 and step 2.
+      # Example: neighbs = 1 0 1 1 1 1 1 1 1 
+      #   Step 1. TRUE FALSE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
+      #   Step 2. shifted = 0 1 1 1 1 1 1 1 1
+      #           TRUE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+      #   Step 3. The result is 1
+      # Example: neighbs = 1 0 1 1 0 0 1 1 1
+      #   Step 1. TRUE FALSE TRUE TRUE FALSE FALSE TRUE TRUE TRUE
+      #   Step 2. shifted = 0 1 1 0 0 1 1 1 1
+      #           TRUE FALSE FALSE TRUE TRUE FALSE FALSE FALSE FALSE
+      #   Step 3. The result is 2
+      # Example: neighbs = 0 1 1 1 0 1 0 1 0
+      #   Step 1. FALSE TRUE TRUE TRUE FALSE TRUE FALSE TRUE FALSE
+      #   Step 2. shifted =  1 1 1 0 1 0 1 0 0
+      #           FALSE FALSE FALSE TRUE FALSE TRUE FALSE TRUE TRUE
+      #   Step 3. The result is 3
+      return(sum(neighbs == 1 & c(neighbs[-1], neighbs[1]) == 0))
+    } else {
+      stop("Please use `crop` to crop your image. Not padded around outside.")
+    }
+  }
   
-  # convert thinned image from list of pixel indices to matrix of 0 for
-  # handwriting and 1 elsewhere
-  img <- matrix(1, ncol = dims[2], nrow = dims[1])
-  img[indices] <- 0
-  
-  # create a node at each endpoint (only one connected edge) and at each pixel with three or more 
-  # connected edges
-  img_m <- i_to_rc(indices, dims=dims)   # convert thinned image indices to row and column
-  # for each pixel in the thinned image, count the number of connected edges
-  changeCount <- matrix(apply(X = img_m, MARGIN = 1, FUN = countChanges, img = img), byrow = F, nrow = 1)
-  nodes <- matrix(1, dims[1], dims[2])
-  # add nodes to matrix as 0
-  nodes[indices] <- ifelse(changeCount == 1 | changeCount >= 3, 0, 1)
-  
-  ## If there is a 2x2 block in the thinned image and none of those pixels are nodes, make one of them a node.
-  ## All will have connectivity of 2. Choose pixel with most neighbors as node. Also make opposite diagonal pixel a node.
-  ## When nodes are combined later this will form 1 node that absorbs all connections.
   node2by2fill <- function(coords, img) {
+    # If there is a 2x2 block in the thinned image and none of those pixels are
+    # nodes, make one of them a node. All will have connectivity of 2. Choose
+    # pixel with most neighbors as node. Also make opposite diagonal pixel a
+    # node. When nodes are combined later this will form 1 node that absorbs all
+    # connections.
     rr <- coords[1]
     cc <- coords[2]
     
@@ -1177,6 +1167,22 @@ getNodes <- function(indices, dims) {
       return(c(NA, NA))
     }
   }
+  
+  # First, we find endpoints and intersections of skeleton.
+  
+  # convert thinned image from list of pixel indices to matrix of 0 for
+  # handwriting and 1 elsewhere
+  img <- matrix(1, ncol = dims[2], nrow = dims[1])
+  img[indices] <- 0
+  
+  # create a node at each endpoint (only one connected edge) and at each pixel with three or more 
+  # connected edges
+  img_m <- i_to_rc(indices, dims=dims)   # convert thinned image indices to row and column
+  # for each pixel in the thinned image, count the number of connected edges
+  changeCount <- matrix(apply(X = img_m, MARGIN = 1, FUN = countChanges, img = img), byrow = F, nrow = 1)
+  nodes <- matrix(1, dims[1], dims[2])
+  # add nodes to matrix as 0
+  nodes[indices] <- ifelse(changeCount == 1 | changeCount >= 3, 0, 1)
   
   # check every pixel in thinned image for 2x2 filled neighborhood and assign
   # nodes to that neighborhood
@@ -1212,18 +1218,7 @@ getNodeGraph <- function(allPaths, nodeList) {
   return(nodeGraph)
 }
 
-# Weight each edge in skeleton0 with node_only_dist (1=neighbor of node, 0 otherwise).
-# Then find the shortest distance from each node to each other node.
-getNodeOnlyDistAdjMatrix <- function(skeleton0, nodeList) {
-  dists0 <- igraph::distances(skeleton0, 
-                              v = as.character(format(nodeList, scientific = FALSE, trim = TRUE)), 
-                              to = as.character(format(nodeList, scientific = FALSE, trim = TRUE)), 
-                              weights = igraph::E(skeleton0)$node_only_dist)
-  # Create adjacency matrix with 1 if the distance is 1 or 2 and 0 otherwise
-  adj0 <- ifelse(dists0 == 1 | dists0 == 2, 1, 0)
-  
-  return(adj0)
-}
+
 
 
 #' getNodeOrder
