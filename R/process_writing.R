@@ -94,7 +94,7 @@ processHandwriting <- function(img, dims) {
   img[indices] <- 0
   
   # Getting Nodes ----
-  message("Getting Nodes...", appendLF = FALSE)
+  message("Getting Nodes...")
   # create nodes. Nodes are placed in 3 locations: (1) at endpoints. These are
   # called terminal nodes and only have one connected edge, (2) at intersections. 
   # A node is placed at vertices with 3 or more connected edges, and (3) a node
@@ -105,7 +105,7 @@ processHandwriting <- function(img, dims) {
   nodeConnections <- nodes$nodeConnections
   
   # Skeletonize writer ----
-  message("Skeletonizing writing...", appendLF = FALSE)
+  message("Skeletonizing writing...")
   skeleton <- skeletonize(img = img, indices = indices, dims = dims, nodeList = nodeList)
   
   # Split into components ----
@@ -113,15 +113,15 @@ processHandwriting <- function(img, dims) {
   comps <- getComponents(skeleton = skeleton, img = img, dims = dims, nodes = nodes)
   
   # And merging them ----
-  message("and merging them...")
+  message("Mering nodes...")
   comps <- mergeAllNodes(comps = comps)
   
   # Finding paths ----
-  message("Finding paths...", appendLF = FALSE)
+  message("Finding paths...")
   comps <- getPaths(comps = comps, dims = dims)
   
   # Split paths into graphs ----
-  message("Split paths into graphs...", appendLF = FALSE)
+  message("Split paths into graphs...")
   comps <- splitPathsIntoGraphs(comps = comps, dims = dims)
   
   # Organizing letters ----
@@ -170,7 +170,7 @@ processHandwriting <- function(img, dims) {
   graphList <- flatten_list(sapply(comps, function(x) x[['paths']][['graphList']]))
   
   # Document processing complete ----
-  message("Document processing complete.\n")
+  message("Document processing complete")
   
   return(list(nodes = nodeList, connectingNodes = nodeConnections, terminalNodes = terminalNodes, breakPoints = sort(breakPoints), letterList = graphList))
 }
@@ -1525,8 +1525,12 @@ getSkeleton <- function(skeleton_df, indices, nodeList) {
 }
 
 organizeLetters <- function(skeleton0) {
+  # make an empty list for each graphID
   letters <- replicate(n = length(na.omit(unique(igraph::V(skeleton0)$graphID))), list())
+  # get the graphID of each vertex
   strs <- names(igraph::V(skeleton0))
+  
+  # for each graphID
   for (i in 1:length(na.omit(unique(V(skeleton0)$graphID))))
   {
     tmp <- as.numeric(as.factor(V(skeleton0)$graphID))
