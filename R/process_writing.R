@@ -86,7 +86,7 @@ processHandwriting <- function(img, dims) {
   value <- from <- to <- node_only_dist <- man_dist <- euc_dist <- pen_dist <- NULL
   
   # Starting Processing ----
-  message("Starting Processing...")
+  message("Starting Processing...\n")
   # convert thinned handwriting from list of pixel indices to binary matrix: 0 for
   # handwriting and 1 elsewhere
   indices <- img  # thinned image as list of pixel indices
@@ -94,7 +94,7 @@ processHandwriting <- function(img, dims) {
   img[indices] <- 0
   
   # Getting Nodes ----
-  message("Getting Nodes...", appendLF = FALSE)
+  message("Getting Nodes...\n", appendLF = FALSE)
   # create nodes. Nodes are placed in 3 locations: (1) at endpoints. These are
   # called terminal nodes and only have one connected edge, (2) at intersections. 
   # A node is placed at vertices with 3 or more connected edges, and (3) a node
@@ -105,23 +105,23 @@ processHandwriting <- function(img, dims) {
   nodeConnections <- nodes$nodeConnections
   
   # Skeletonize writer ----
-  message("Skeletonizing writing...", appendLF = FALSE)
+  message("Skeletonizing writing...\n", appendLF = FALSE)
   skeleton <- skeletonize(img = img, indices = indices, dims = dims, nodeList = nodeList)
   
   # Split into components ----
-  message("Splitting document into components...")
+  message("Splitting document into components...\n")
   comps <- getComponents(skeleton = skeleton, img = img, dims = dims, nodes = nodes)
   
   # And merging them ----
-  message("and merging them...")
+  message("Mering nodes...\n")
   comps <- mergeAllNodes(comps = comps)
   
   # Finding paths ----
-  message("Finding paths...", appendLF = FALSE)
+  message("Finding paths...\n", appendLF = FALSE)
   comps <- getPaths(comps = comps, dims = dims)
   
   # Split paths into graphs ----
-  message("Split paths into graphs...", appendLF = FALSE)
+  message("Split paths into graphs...\n", appendLF = FALSE)
   comps <- splitPathsIntoGraphs(comps = comps, dims = dims)
   
   # Organizing letters ----
@@ -1525,8 +1525,12 @@ getSkeleton <- function(skeleton_df, indices, nodeList) {
 }
 
 organizeLetters <- function(skeleton0) {
+  # make an empty list for each graphID
   letters <- replicate(n = length(na.omit(unique(igraph::V(skeleton0)$graphID))), list())
+  # get the graphID of each vertex
   strs <- names(igraph::V(skeleton0))
+  
+  # for each graphID
   for (i in 1:length(na.omit(unique(V(skeleton0)$graphID))))
   {
     tmp <- as.numeric(as.factor(V(skeleton0)$graphID))
