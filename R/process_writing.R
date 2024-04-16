@@ -86,7 +86,7 @@ processHandwriting <- function(img, dims) {
   value <- from <- to <- node_only_dist <- man_dist <- euc_dist <- pen_dist <- NULL
   
   # Starting Processing ----
-  message("Starting Processing...")
+  message("Starting Processing...\n")
   # convert thinned handwriting from list of pixel indices to binary matrix: 0 for
   # handwriting and 1 elsewhere
   indices <- img  # thinned image as list of pixel indices
@@ -94,7 +94,11 @@ processHandwriting <- function(img, dims) {
   img[indices] <- 0
   
   # Getting Nodes ----
+<<<<<<< HEAD
   message("Getting Nodes...")
+=======
+  message("Getting Nodes...\n", appendLF = FALSE)
+>>>>>>> 853696d545fa654cdbdf3e7f38c15df6a999082a
   # create nodes. Nodes are placed in 3 locations: (1) at endpoints. These are
   # called terminal nodes and only have one connected edge, (2) at intersections. 
   # A node is placed at vertices with 3 or more connected edges, and (3) a node
@@ -109,7 +113,7 @@ processHandwriting <- function(img, dims) {
   skeleton <- skeletonize(img = img, indices = indices, dims = dims, nodeList = nodeList)
   
   # Split into components ----
-  message("Splitting document into components...")
+  message("Splitting document into components...\n")
   comps <- getComponents(skeleton = skeleton, img = img, dims = dims, nodes = nodes)
   
   # And merging them ----
