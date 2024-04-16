@@ -93,10 +93,9 @@ h <- hier_add(h, root = 'isolateGraphsForComponent (nested in splitPathsIntoGrap
 h <- hier_add(h, root = 'checkSimplicityBreaks (nested in splitPathsIntoGraphs)', nodes = c('pathLetterAssociate (1)'))
 ```
 
-
 ```{r}
 
-h <- hier_add(h, root = 'createLetterLists', nodes = c('pathLetterAssociate (2)', 'nested_getConnectivity', 'getNodeOrder'))
+h <- hier_add(h, root = 'createLetterLists', nodes = c('pathLetterAssociate (2)', 'getConnectivity (nested)', 'getNodeOrder'))
 h <- hier_add(h, root = 'getNodeOrder', nodes = c('nested_toRC'))
 h <- hier_add(h, root = 'addCharacterFeatures', nodes = c('extract_character_features'))
 h <- hier_add(h, root = 'extract_character_features', nodes = c('char_to_feature',
@@ -119,8 +118,3 @@ h <- hier_add(h, root = 'add_covariance_matrix', nodes = c('i_to_rc (4)'))
 ```{r}
 hier_display(h)
 ```
-
-
-
-
-

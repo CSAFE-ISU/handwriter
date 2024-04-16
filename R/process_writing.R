@@ -128,7 +128,7 @@ processHandwriting <- function(img, dims) {
   message("Organizing letters...")
   n <- length(comps)
   for (i in 1:n){
-    temp_graph <- comps[[i]]$graphs$skeleton0
+    temp_graph <- comps[[i]]$skeletons$skeleton0
     if (length(igraph::V(temp_graph)$graphID) > 0){
       comps[[i]]$paths$letters <- organizeLetters(temp_graph)
     } else {
@@ -187,7 +187,7 @@ getComponents <- function(skeleton, img, dims, nodes) {
     n <- length(skeletons)
     comps <- list()
     for (i in 1:n){
-      component <- sapply(c('graphs', 'image', 'nodes', 'paths'), function(x) NULL)
+      component <- sapply(c('skeletons', 'image', 'nodes', 'paths'), function(x) NULL)
       comps[[i]] <- component
     }
     return(comps)
@@ -197,7 +197,7 @@ getComponents <- function(skeleton, img, dims, nodes) {
     # add skeleton to each component
     n <- length(comps)
     for (i in 1:n){
-      comps[[i]]$graphs$skeleton <- skeletons[[i]]
+      comps[[i]]$skeletons$skeleton <- skeletons[[i]]
     }
     return(comps)
   }
@@ -232,12 +232,12 @@ getComponents <- function(skeleton, img, dims, nodes) {
     for (i in 1:n){
       # same as skeleton_df except neighbors on the diagonal are removed if there
       # are neighbors on either side of the diagonal
-      comps[[i]]$graphs$skeleton_df0 <- getSkeletonDF0(img_m=comps[[i]]$image$img_m, 
+      comps[[i]]$skeletons$skeleton_df0 <- getSkeletonDF0(img_m=comps[[i]]$image$img_m, 
                                                        indices=comps[[i]]$image$indices, 
                                                        nodeList=comps[[i]]$nodes$nodeList, 
                                                        img=img, 
                                                        dims=dims)
-      comps[[i]]$graphs$skeleton0 <- getSkeleton(skeleton_df=comps[[i]]$graphs$skeleton_df0, 
+      comps[[i]]$skeletons$skeleton0 <- getSkeleton(skeleton_df=comps[[i]]$skeletons$skeleton_df0, 
                                                  indices=comps[[i]]$image$indices, 
                                                  nodeList=comps[[i]]$nodes$nodeList)
     }
@@ -268,7 +268,7 @@ getComponents <- function(skeleton, img, dims, nodes) {
       # 2, where node_only_dist 1 occurs when the nodes are joined by a single edge
       # and 2 occurs when the nodes are joined by more than one edge but do not have
       # another node on the path between them.
-      comps[[i]]$nodes$adj0 <- getAdjMatrix(comps[[i]]$graphs$skeleton0, comps[[i]]$nodes$nodeList)
+      comps[[i]]$nodes$adj0 <- getAdjMatrix(comps[[i]]$skeletons$skeleton0, comps[[i]]$nodes$nodeList)
     }
     return(comps)
   }
@@ -334,7 +334,7 @@ getPaths <- function(comps, dims) {
     n <- length(comps)
     for (i in 1:n){
       paths <- getNonLoopPathsForComponent(comps[[i]]$nodes$adjm, 
-                                           comps[[i]]$graphs$skeleton0, 
+                                           comps[[i]]$skeletons$skeleton0, 
                                            comps[[i]]$nodes$nodeList)
       if (is.null(paths)){
         comps[[i]]$paths$pathList <- list()
@@ -478,8 +478,8 @@ getPaths <- function(comps, dims) {
     n <- length(comps)
     for (i in 1:n){
       comps[[i]]$paths$loopList <- getLoopsForComponent(nodeList = comps[[i]]$nodes$nodeList,
-                                                        skeleton = comps[[i]]$graphs$skeleton,
-                                                        skeleton0 = comps[[i]]$graphs$skeleton0,
+                                                        skeleton = comps[[i]]$skeletons$skeleton,
+                                                        skeleton0 = comps[[i]]$skeletons$skeleton0,
                                                         pathList = comps[[i]]$paths$pathList,
                                                         dims = dims)
       comps[[i]]$paths$allPaths <- append(comps[[i]]$paths$pathList, comps[[i]]$paths$loopList)
@@ -498,11 +498,11 @@ getPaths <- function(comps, dims) {
     # set node_only_dist values: 1 = edge is connected to a node; 0 = edge is not connected to a node
     n <- length(comps)
     for (i in 1:n){
-      updated <- updateSkeleton0(graphdf0 = comps[[i]]$graphs$skeleton_df0, 
-                                 skeleton0 = comps[[i]]$graphs$skeleton0, 
+      updated <- updateSkeleton0(graphdf0 = comps[[i]]$skeletons$skeleton_df0, 
+                                 skeleton0 = comps[[i]]$skeletons$skeleton0, 
                                  nodeList = comps[[i]]$nodes$nodeList)
-      comps[[i]]$graphs$skeleton_df0 <- updated$graphdf0
-      comps[[i]]$graphs$skeleton0 <- updated$skeleton0
+      comps[[i]]$skeletons$skeleton_df0 <- updated$graphdf0
+      comps[[i]]$skeletons$skeleton0 <- updated$skeleton0
     }
     return(comps)
   }
@@ -614,9 +614,9 @@ mergeAllNodes <- function(comps) {
   n <- length(comps)
   for (i in 1:n){
     merged <- mergeNodes(nodeList = comps[[i]]$nodes$nodeList, 
-                         skeleton0 = comps[[i]]$graphs$skeleton0, 
+                         skeleton0 = comps[[i]]$skeletons$skeleton0, 
                          terminalNodes = comps[[i]]$nodes$terminalNodes, 
-                         skeleton = comps[[i]]$graphs$skeleton, 
+                         skeleton = comps[[i]]$skeletons$skeleton, 
                          adj0 = comps[[i]]$nodes$adj0)
     comps[[i]]$nodes$nodeList <- merged$nodeList
     comps[[i]]$nodes$adjm <- merged$adjm
@@ -625,7 +625,7 @@ mergeAllNodes <- function(comps) {
 }
 
 skeletonize <- function(img, indices, dims, nodeList) {
-  # create skeleton graphs and dataframe. skeleton is created first using the
+  # create skeletons and dataframe. skeleton is created first using the
   # following rules: (1) Every pixel in the thinned writing is a vertex. (2) An
   # edge is added between two vertices if the corresponding pixels are neighbors
   # in the writing. (3) if a vertex is a node it is colored 1, otherwise it is
@@ -735,17 +735,17 @@ splitPathsIntoGraphs <- function(comps, dims) {
     graph_counter <- 0 
     n <- length(comps)
     for (i in 1:n){
-      if (length(igraph::V(comps[[i]]$graphs$skeleton0)$graphID) > 0){
-        igraph::V(comps[[i]]$graphs$skeleton0)$graphID <- igraph::V(comps[[i]]$graphs$skeleton0)$graphID + graph_counter
+      if (length(igraph::V(comps[[i]]$skeletons$skeleton0)$graphID) > 0){
+        igraph::V(comps[[i]]$skeletons$skeleton0)$graphID <- igraph::V(comps[[i]]$skeletons$skeleton0)$graphID + graph_counter
         # vertices that are break points have graphID = NA
-        graph_counter <- max(igraph::V(comps[[i]]$graphs$skeleton0)$graphID, na.rm = TRUE)
+        graph_counter <- max(igraph::V(comps[[i]]$skeletons$skeleton0)$graphID, na.rm = TRUE)
       }
     }
     return(comps)
   }
   
   checkSimplicityBreaks <- function(breakPoints, pathList, loopList, letters, skeleton0, nodeList, terminalNodes, hasTrough, dims) {
-    # Internal function for removing breakpoints that separate graphs that are too
+    # Internal function for removing breakpoints that separate paths that are too
     # simple to be split. Remove break if graph on left and right of the break
     # have 4 or fewer nodes and no loops or double paths. Never remove break on a
     # trough.
@@ -892,10 +892,10 @@ splitPathsIntoGraphs <- function(comps, dims) {
     # assign sequential IDs to paths within each component
     n <- length(comps)
     for (i in 1:n){
-      temp_graph <- comps[[i]]$graphs$skeleton0
+      temp_graph <- comps[[i]]$skeletons$skeleton0
       if (length(igraph::V(temp_graph)$name) > 0) {
         isolated <- isolateGraphsForComponent(allPaths = comps[[i]]$paths$allPaths,
-                                              skeleton0 = comps[[i]]$graphs$skeleton0,
+                                              skeleton0 = comps[[i]]$skeletons$skeleton0,
                                               breakPoints = comps[[i]]$nodes$breakPoints,
                                               pathList = comps[[i]]$paths$pathList,
                                               loopList = comps[[i]]$paths$loopList,
@@ -904,7 +904,7 @@ splitPathsIntoGraphs <- function(comps, dims) {
                                               hasTrough = comps[[i]]$paths$hasTrough,
                                               dims = dims)
         comps[[i]]$paths$allGraphs <- isolated$allGraphs
-        comps[[i]]$graphs$skeleton0 <- isolated$skeleton0
+        comps[[i]]$skeletons$skeleton0 <- isolated$skeleton0
         comps[[i]]$nodes$breakPoints <- isolated$breakPoints
         comps[[i]]$nodes$nodeList <- isolated$nodeList
         comps[[i]]$paths$allPaths <- NULL
@@ -914,7 +914,7 @@ splitPathsIntoGraphs <- function(comps, dims) {
         # rename allPaths as allGraphs
         comps[[i]]$paths$allGraphs <- comps[[i]]$paths$allPaths
         comps[[i]]$paths$allPaths <- NULL
-        # NOTE: comps[[i]]$graphs$skeleton0, comps[[i]]$nodes$nodeList
+        # NOTE: comps[[i]]$skeletons$skeleton0, comps[[i]]$nodes$nodeList
         # don't change from before this loop
       }
     }
