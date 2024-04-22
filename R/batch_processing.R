@@ -105,7 +105,8 @@ process_batch_list <- function(images, output_dir, skip_docs_on_retry=TRUE) {
   }
   
   # stop sinking to problem log file
-  unlist(prob_log_file)
+  sink(file = NULL, type = "output")
+  sink(file = NULL, type = "message")
   
   # show list of problem docs from log NOTE: Initially, I added problem doc names
   # to a vector inside the error part of trycatch and returned the list of
