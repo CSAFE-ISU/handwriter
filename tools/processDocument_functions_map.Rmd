@@ -1,8 +1,6 @@
 ---
-title: "handwriter functions map"
-author: "Stephanie Reinders"
-date: "2024-04-10"
-output: html_document
+title: "handwriter functions map" author: "Stephanie Reinders" date:
+"2024-04-10" output: html_document
 ---
 
 ```{r setup, include=FALSE}
@@ -12,10 +10,9 @@ library(sdcHierarchies)
 
 ```{r}
 h <- hier_create(root = "Total", nodes = c('processDocument'))
-
 # processDocument
 h <- hier_add(h, root = "processDocument", nodes = c("readPNGBinary", "thinImage", "processHandwriting"))
-h <- hier_add(h, root = "processHandwriting", nodes = c("getNodes", 
+h <- hier_add(h, root = "processHandwriting", nodes = c("getNodes",
                                                         "skeletonize",
                                                         "getComponents",
                                                         "mergeAllNodes",
@@ -28,14 +25,14 @@ h <- hier_add(h, root = "processHandwriting", nodes = c("getNodes",
 ```
 
 ```{r}
-h <- hier_add(h, root = 'getNodes', nodes = c('i_to_rc (1)', 
-                                              'countChanges (nested)', 
+h <- hier_add(h, root = 'getNodes', nodes = c('i_to_rc (1)',
+                                              'countChanges (nested)',
                                               'node2by2fill (nested)'))
 h <- hier_add(h, root = 'node2by2fill (nested)', nodes = c('findNeighbors (1)'))
 ```
 
 ```{r}
-h <- hier_add(h, root = 'skeletonize', nodes = c('getSkeletonDF (nested)', 
+h <- hier_add(h, root = 'skeletonize', nodes = c('getSkeletonDF (nested)',
                                                  'getSkeleton (1)'))
 h <- hier_add(h, root = 'getSkeletonDF (nested)', nodes = c('i_to_rc (2)', 'findNeighbors (2)'))
 ```
@@ -48,7 +45,7 @@ h <- hier_add(h, root = 'getComponents', nodes = c('initializeComponents (nested
                                                    'addSkeleton0s (nested)',
                                                    'addAdjMatrices (nested)'))
 h <- hier_add(h, root = 'addIndices (nested)', nodes = c('i_to_rc (3)'))
-h <- hier_add(h, root = 'addSkeleton0s (nested)', nodes = c('getSkeletonDF0', 
+h <- hier_add(h, root = 'addSkeleton0s (nested)', nodes = c('getSkeletonDF0',
                                                             'getSkeleton (2)'))
 h <- hier_add(h, root = 'getSkeletonDF0', nodes = c('findNeighbors0'))
 h <- hier_add(h, root = 'findNeighbors0', nodes = c('findNeighbors (3)'))
@@ -57,15 +54,15 @@ h <- hier_add(h, root = 'addAdjMatrices (nested)', nodes = c('getAdjMatrix (nest
 
 ```{r}
 h <- hier_add(h, root = 'mergeAllNodes', nodes = c('mergeNodes (nested)'))
-h <- hier_add(h, root = 'mergeNodes (nested)', nodes = c('i_to_r (1)', 
+h <- hier_add(h, root = 'mergeNodes (nested)', nodes = c('i_to_r (1)',
                                                    'i_to_c (1)',
-                                                   'findMergeNodes (nested in mergeAllNodes)', 
+                                                   'findMergeNodes (nested in mergeAllNodes)',
                                                 'migrateConnections (nested in mergeAllNodes)'))
 ```
 
 ```{r}
-h <- hier_add(h, root = 'getPaths', nodes = c('getAllNonLoopPaths (nested)', 
-                                              'getAllLoops (nested)', 
+h <- hier_add(h, root = 'getPaths', nodes = c('getAllNonLoopPaths (nested)',
+                                              'getAllLoops (nested)',
                                               'updateAllSkeleton0s (nested)'))
 h <- hier_add(h, root = 'getAllNonLoopPaths (nested)', nodes = c('getNonLoopPathsForComponent (nested in getPaths)'))
 h <- hier_add(h, root = 'getAllLoops (nested)', nodes =  c('getLoopsForComponent (nested in getPaths'))
@@ -77,15 +74,12 @@ h <- hier_add(h, root = 'splitPathsIntoGraphs', nodes = c('getAllBreakPoints (ne
                                                           'updateAllBreakPoints (nested)',
                                                           'isolateAllGraphs (nested)',
                                                           'assignGraphIDs (nested)'))
-
 h <- hier_add(h, root = 'getAllBreakPoints (nested)', nodes = c('getBreakPointsForComponent (nested in splitPathsIntoGraphs)', 'addTroughNodes (nested in splitPathsIntoGraphs)'))
 h <- hier_add(h, root = 'getBreakPointsForComponent (nested in splitPathsIntoGraphs)', nodes = c('findTroughNodes (nested in splitPathsIntoGraphs)'))
 h <- hier_add(h, root = 'findTroughNodes (nested in splitPathsIntoGraphs)', nodes = c('isTroughNode (nested in splitGraphsIntoNodes'))
 h <- hier_add(h, root = 'addTroughNodes (nested in splitPathsIntoGraphs)', nodes = c('i_to_r (2)', 'i_to_c (2)'))
-
 h <- hier_add(h, root = 'updateAllBreakPoints (nested)', nodes = c('updateBreakPointsForComponent (nested in splitPathsIntoGraphs)'))
 h <- hier_add(h, root = 'updateBreakPointsForComponent (nested in splitPathsIntoGraphs)', nodes = c('getNodeGraph', 'checkBreakPoints'))
-
 h <- hier_add(h, root = 'isolateAllGraphs (nested)', nodes = c('isolateGraphsForComponent (nested in splitPathsIntoGraphs)'))
 h <- hier_add(h, root = 'isolateGraphsForComponent (nested in splitPathsIntoGraphs)', nodes = c('makeGraphs (nested in splitPathsIntoGraphs)',
                                                                                                 'checkStacking (nested in splitPathsIntoGraphs)',
@@ -94,14 +88,13 @@ h <- hier_add(h, root = 'checkSimplicityBreaks (nested in splitPathsIntoGraphs)'
 ```
 
 ```{r}
-
 h <- hier_add(h, root = 'createLetterLists', nodes = c('pathLetterAssociate (2)', 'getConnectivity (nested)', 'getNodeOrder'))
 h <- hier_add(h, root = 'getNodeOrder', nodes = c('nested_toRC'))
 h <- hier_add(h, root = 'addCharacterFeatures', nodes = c('extract_character_features'))
 h <- hier_add(h, root = 'extract_character_features', nodes = c('char_to_feature',
                                                                 'add_updown_neighboring_char_dist',
-                                                                'add_line_info', 
-                                                                'nov_neighboring_char_dist', 
+                                                                'add_line_info',
+                                                                'nov_neighboring_char_dist',
                                                                 'add_covariance_matrix'))
 h <- hier_add(h, root = 'char_to_feature', nodes = c('get_aspect_info', 'get_centroid_info'))
 h <- hier_add(h, root = 'get_aspect_info', nodes = c('i_to_rci (1)'))
@@ -111,10 +104,28 @@ h <- hier_add(h, root = 'add_line_info', nodes = c('line_number_extract', 'all_d
 h <- hier_add(h, root = 'line_number_extract', nodes = c('i_to_rci (4)'))
 h <- hier_add(h, root = 'nov_neighboring_char_dist', nodes = c('character_features_by_line'))
 h <- hier_add(h, root = 'add_covariance_matrix', nodes = c('i_to_rc (4)'))
-
-
 ```
 
 ```{r}
 hier_display(h)
 ```
+
+## Notes
+
+```{r}
+
+```
+
+1.  `comps[[i]]$nodes$adj0` get adjacency matrix for nodes:
+    1.  weight each edge in `skeleton0` with 1 if either vertex is a node, this is the node_only_dist
+    2.  find the shortest distance between each pair of nodes. If the two nodes are 1. not connected: the distance is Inf
+        1.  connected by a single edge: the distance if 1
+        2.  connected by more than one edge but with no nodes on the path: the distance is 2
+        3.  connected by more than one edge with one or more nodes on the path: the distance is 4 or greater. (If the distance is greater than 1 the distance is even.)
+    3.  make an adjacency matrix `adj0` that shows each pair of nodes. If two nodes are
+        1.  connected by a single edge, or by more than one edge but do not have another node between them: the value in the adjacency matrix is 1.
+        2.  otherwise: the value in the adjacency matrix is 0.
+1. Merge nodes:
+    1. Find the shortest distance between each pair of nodes, where the distance is measured as the number of edges. Note that in this case, the shortest path might run through another node, unlike in `adj0`.
+    1. Find pairs of nodes that are only 1 or 2 edges apart and neither node is a terminal node. Merge these nodes by keeping the second node if the nodes are connected by a single edge, and remove the first node from the node list. If the nodes are connected by two edges, add the vertex between the two nodes to the node list and remove the two nodes themselves from the node list.
+    1. Create a new dataframe called adjm based on an updated version of adj0 that includes the new nodes created from merging and the old, merged nodes are removed. Each row of adjm is a pair of nodes where the shortest path between them does not run through any other nodes.

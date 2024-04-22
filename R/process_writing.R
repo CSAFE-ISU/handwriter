@@ -86,7 +86,7 @@ processHandwriting <- function(img, dims) {
   value <- from <- to <- node_only_dist <- man_dist <- euc_dist <- pen_dist <- NULL
   
   # Starting Processing ----
-  message("Starting Processing...\n")
+  message("Starting Processing...")
   # convert thinned handwriting from list of pixel indices to binary matrix: 0 for
   # handwriting and 1 elsewhere
   indices <- img  # thinned image as list of pixel indices
@@ -94,11 +94,7 @@ processHandwriting <- function(img, dims) {
   img[indices] <- 0
   
   # Getting Nodes ----
-<<<<<<< HEAD
   message("Getting Nodes...")
-=======
-  message("Getting Nodes...\n", appendLF = FALSE)
->>>>>>> 853696d545fa654cdbdf3e7f38c15df6a999082a
   # create nodes. Nodes are placed in 3 locations: (1) at endpoints. These are
   # called terminal nodes and only have one connected edge, (2) at intersections. 
   # A node is placed at vertices with 3 or more connected edges, and (3) a node
@@ -113,7 +109,7 @@ processHandwriting <- function(img, dims) {
   skeleton <- skeletonize(img = img, indices = indices, dims = dims, nodeList = nodeList)
   
   # Split into components ----
-  message("Splitting document into components...\n")
+  message("Splitting document into components...")
   comps <- getComponents(skeleton = skeleton, img = img, dims = dims, nodes = nodes)
   
   # And merging them ----
@@ -288,29 +284,30 @@ getComponents <- function(skeleton, img, dims, nodes) {
 }
 
 getPaths <- function(comps, dims) {
-  getNonLoopPathsForComponent <- function(adj, graph0, nodeList) {
+  getNonLoopPathsForComponent <- function(adjm, skeleton0, nodeList) {
     paths <- list()
-    if (dim(adj)[1] == 0) {
+    if (dim(adjm)[1] == 0) {
       return(NULL)
     }
     
-    # update graphdf0 with node_only_dist=1 if one or more of the edge's vertices is a node and 0.00001 otherwise
-    graphdf0 <- igraph::as_data_frame(graph0)
-    graphdf0$node_only_dist <- ifelse(graphdf0$from %in% nodeList | graphdf0$to %in% nodeList, 1, 0.00001)
-    graph0 <- igraph::graph_from_data_frame(graphdf0, directed = FALSE)
+    # update skeleton_df0 with node_only_dist=1 if one or both of the edge's vertices is a node and 0.00001 otherwise
+    skeleton_df0 <- igraph::as_data_frame(skeleton0)
+    skeleton_df0$node_only_dist <- ifelse(skeleton_df0$from %in% nodeList | skeleton_df0$to %in% nodeList, 1, 0.00001)
+    skeleton0 <- igraph::graph_from_data_frame(skeleton_df0, directed = FALSE)
     
-    for (i in 1:dim(adj)[1])
+    # each pair of nodes in adjm satisfies the condition that the shortest path
+    # between the two nodes does not run through another node
+    for (i in 1:dim(adjm)[1])
     {
-      fromNode <- as.character(format(adj[i, 1], scientific = FALSE, trim = TRUE))
-      toNode <- as.character(format(adj[i, 2], scientific = FALSE, trim = TRUE))
+      fromNode <- as.character(format(adjm[i, 1], scientific = FALSE, trim = TRUE))
+      toNode <- as.character(format(adjm[i, 2], scientific = FALSE, trim = TRUE))
       
-      # calculate distances of shortest path between fromNode and toNode
-      dists <- igraph::distances(graph0, v = fromNode, to = toNode, weights = igraph::E(graph0)$node_only_dist)
-      # for paths from node to node that don't go through another node?
+      # calculate distances of shortest path between fromNode and toNode using node_only_dist
+      dists <- igraph::distances(skeleton0, v = fromNode, to = toNode, weights = igraph::E(skeleton0)$node_only_dist)
       while (dists < 3 & dists >= 1) {
         # CALCULATE STEP:
         # get shortest path between fromNode and toNode
-        shortest <- igraph::shortest_paths(graph0, from = fromNode, to = toNode, weights = igraph::E(graph0)$node_only_dist)
+        shortest <- igraph::shortest_paths(skeleton0, from = fromNode, to = toNode, weights = igraph::E(skeleton0)$node_only_dist)
         # count vertices in shortest path, including fromNode and toNode
         len <- length(unlist(shortest[[1]]))
         # add the shortest path to the list
@@ -320,14 +317,14 @@ getPaths <- function(comps, dims) {
         # middle edge. If there are 2 vertices in the path, delete the single edge
         # between the vertices. 
         if (len > 2) {
-          graph0 <- igraph::delete_edges(graph0, paste0(names(shortest$vpath[[1]])[len %/% 2], "|", names(shortest$vpath[[1]])[len %/% 2 + 1]))
+          skeleton0 <- igraph::delete_edges(skeleton0, paste0(names(shortest$vpath[[1]])[len %/% 2], "|", names(shortest$vpath[[1]])[len %/% 2 + 1]))
         } else if (len == 2) {
-          graph0 <- igraph::delete_edges(graph0, paste0(names(shortest$vpath[[1]])[1], "|", names(shortest$vpath[[1]])[2]))
+          skeleton0 <- igraph::delete_edges(skeleton0, paste0(names(shortest$vpath[[1]])[1], "|", names(shortest$vpath[[1]])[2]))
         } else {
           stop("There must be some mistake. Single node should have node_only_dist path length of 0.")
         }
         # recalculate shortest path distance on updated graph
-        dists <- igraph::distances(graph0, v = fromNode, to = toNode, weights = igraph::E(graph0)$node_only_dist)
+        dists <- igraph::distances(skeleton0, v = fromNode, to = toNode, weights = igraph::E(skeleton0)$node_only_dist)
       }
     }
     
@@ -519,29 +516,53 @@ getPaths <- function(comps, dims) {
 }
 
 mergeAllNodes <- function(comps) {
-  findMergeNodes <- function(skeleton, mergeMat) {
+  findNewMergedNodes <- function(skeleton, mergeMat) {
+    # mergeMat is a matrix of pairs of nodes to be merged. Each row is a single
+    # pair of nodes to be merged. If the nodes are connected by a single edge,
+    # pick the second node as the "new" merged node. If the nodes are connected by
+    # two edges, pick the vertex between the two nodes as the new merged node.
     newNodes <- rep(NA, dim(mergeMat)[1])
     for (i in 1:dim(mergeMat)[1])
     {
       fromNode <- as.character(format(mergeMat[i, 1], scientific = FALSE, trim = TRUE))
       toNode <- as.character(format(mergeMat[i, 2], scientific = FALSE, trim = TRUE))
-      path <- igraph::shortest_paths(skeleton, from = fromNode, to = toNode, weights = igraph::E(skeleton)$pen_dist)$vpath[[1]]
-      len <- length(path)
-      newNodes[i] <- as.numeric(names(path[ceiling(len / 2)]))
+      path <- igraph::shortest_paths(skeleton, from = fromNode, to = toNode, weights = igraph::E(skeleton)$pen_dist)
+      path_vertices <- path$vpath[[1]]
+      len <- length(path_vertices)
+      newNodes[i] <- as.numeric(names(path_vertices[ceiling(len / 2)]))
     }
     return(newNodes)
   }
   
   migrateConnections <- function(adj0, mergeSets, newNodes) {
+    # adj0 shows the connectivity for each pair of nodes. The connectivity is 1
+    # if the shortest path between two nodes does not run through another node,
+    # and 0 otherwise. For each pair of nodes to be merged in mergeSets,
+    # migrateConnections adds the new node to adj0. For the new node and every
+    # other node in adj0, the connectivity is 1 if either of the nodes merged to
+    # form the new node had connectivity with that node and 0 otherwise. The
+    # nodes that were merged into new nodes are deleted from adj0. Return the
+    # updated adj0 as a dataframe where each row is a pair of nodes with
+    # connectivity 1. 
+    
     toDelete <- NULL
     for (i in 1:dim(mergeSets)[1]) {
-      whichRowCol <- which(colnames(adj0) %in% format(mergeSets[i, c(1, 2)], scientific = FALSE, trim = TRUE))
-      newConnectivities <- apply(matrix(adj0[whichRowCol, ], nrow = length(whichRowCol)), 2, function(x) x[1] == 1 | x[2] == 1)
+      # make a subset of adj0, keeping only the rows for the nodes to be merged
+      whichRows <- which(rownames(adj0) %in% format(mergeSets[i, c(1, 2)], scientific = FALSE, trim = TRUE))
+      subset <- matrix(adj0[whichRows, ], nrow = length(whichRows))
+      # make logical vector. Each element corresponds to a node in adj0. TRUE =
+      # 1 of the merge nodes is connected to the node in the corresponding
+      # column. FALSE otherwise.
+      newConnectivities <- apply(subset, 2, function(x) x[1] == 1 | x[2] == 1)
+      # Convert to binary vector. Set any NAs to 0
       newConnectivities[is.na(newConnectivities)] <- 0
       
+      # row number of new row
       toAdd <- dim(adj0)[1] + 1
-      toDelete <- c(toDelete, which(rownames(adj0) %in% format(mergeSets[i, c(1, 2)], scientific = FALSE, trim = TRUE)))
+      # row numbers of rows to delete
+      toDelete <- c(toDelete, whichRows)
       
+      # add connections for new node as the last column and row of adj0
       adj0 <- rbind(cbind(adj0, 0), 0)
       adj0[, toAdd] <- c(newConnectivities, 0)
       adj0[toAdd, ] <- c(newConnectivities, 0)
@@ -549,12 +570,16 @@ mergeAllNodes <- function(comps) {
       rownames(adj0)[toAdd] <- format(newNodes[i], scientific = FALSE, trim = TRUE)
     }
     if (length(toDelete) > 0) {
+      # delete merged nodes from adj0
       adj0 <- as.matrix(adj0[, -toDelete])[-toDelete, ]
     }
     return(adj0)
   }
   
   mergeNodes <- function(nodeList, skeleton0, terminalNodes, skeleton, adj0) {
+    # Merge nodes that where: (1) they are connected by only one or two edges,
+    # and (2) neither node is a terminal node
+    
     # bind global variable to fix check() note
     value <- NULL
     
@@ -575,10 +600,13 @@ mergeAllNodes <- function(comps) {
         break 
       }
       
+      # build matrix of pairs of nodes to merge
       rNodes <- i_to_r(nodesToMerge, length(nodeList))
       cNodes <- i_to_c(nodesToMerge, length(nodeList)) 
       mergeSets <- cbind(nodeList[rNodes], nodeList[cNodes])
-      # add column: 1=neither node is terminal, 0 otherwise
+      
+      # Remove pairs where one or both nodes are terminal nodes. Add column:
+      # 1=neither node is terminal, 0 otherwise
       mergeSets <- cbind(mergeSets, apply(mergeSets, 1, function(x) {
         all(!(x %in% terminalNodes))
       }))
@@ -591,8 +619,8 @@ mergeAllNodes <- function(comps) {
         break 
       }
       
-      newNodes <- findMergeNodes(skeleton, mergeSets)
-      # combine nodes that were not in the mergeSets and the list of new nodes
+      newNodes <- findNewMergedNodes(skeleton, mergeSets)
+      # Add the new nodes to the nodeList and remove the nodes that were merged from the list
       nodeList <- unique(c(nodeList[!(nodeList %in% c(mergeSets[, c(1, 2)]))], newNodes))
       
       # migrate connections from original nodes to new nodes
