@@ -285,6 +285,22 @@ getComponents <- function(skeleton, img, dims, nodes) {
 
 getPaths <- function(comps, dims) {
   getNonLoopPathsForComponent <- function(adjm, skeleton0, nodeList) {
+    # ALGORITHM:
+    # 1. For each pair of nodes, n1 and n2, in adjm:
+    #     2. CALCULATE STEP: 
+    #          3. Find the shortest distance between n1 and n2 where an edge
+    #             has weight 1 if either vertex is a node and 0.00001 otherwise.
+    #          4. While the shortest distance d satisfies 1 <= d < 3:
+    #               5. Get the names of the vertices in the shortest path p between n1 and n2 as a vector
+    #               6. Get the number of vertices n in the shortest path p
+    #               7. Add p to the paths list 
+    #               8. UPDATE STEP: 
+    #                    9. If p has more than 2 vertices, delete the middle edge from skeleton0. If p has exactly 2 vertices,
+    #                       delete the single edge between the 2 vertices from skeleton0. Otherwise, return an error (Does this ever
+    #                       occur? Should this be a break instead?).
+    #                   10. Recalculate the shortest distance d between n1 and n2
+    # 11. return paths list
+    
     paths <- list()
     if (dim(adjm)[1] == 0) {
       return(NULL)
@@ -295,7 +311,7 @@ getPaths <- function(comps, dims) {
     skeleton_df0$node_only_dist <- ifelse(skeleton_df0$from %in% nodeList | skeleton_df0$to %in% nodeList, 1, 0.00001)
     skeleton0 <- igraph::graph_from_data_frame(skeleton_df0, directed = FALSE)
     
-    # each pair of nodes in adjm satisfies the condition that the shortest path
+    # NOTE: each pair of nodes in adjm satisfies the condition that the shortest path
     # between the two nodes does not run through another node
     for (i in 1:dim(adjm)[1])
     {
@@ -332,6 +348,7 @@ getPaths <- function(comps, dims) {
   }
   
   getAllNonLoopPaths <- function(comps) {
+    # get non-loop paths for all components
     n <- length(comps)
     for (i in 1:n){
       paths <- getNonLoopPathsForComponent(comps[[i]]$nodes$adjm, 
@@ -347,44 +364,73 @@ getPaths <- function(comps, dims) {
   }
   
   getLoopsForComponent <- function(nodeList, skeleton, skeleton0, pathList, dims) {
+    # NOTE: pathList contains all the unique, shortest, non-loop paths in the component
     vertexNames <- names(igraph::V(skeleton0))
     
     fullSkeleton0 <- skeleton0
     
+    # list all vertices in the paths except the first and last vertex in each path
     used <- unlist(lapply(pathList, function(x) {
-      x[-c(1, length(x))]
+      x[-c(1, length(x))]  # drop the first and last vertex in the path
     }))
+    
+    # create a skeleton graph of the vertices not in the used list. Add an edge
+    # between each pair of vertices except when both vertices are nodes.
     unused <- as.numeric(vertexNames)[which(!(as.numeric(vertexNames) %in% used))]
     unusedAdj <- matrix(1, ncol = length(unused), nrow = length(unused))
     colnames(unusedAdj) <- as.character(format(unused, scientific = FALSE, trim = TRUE))
     rownames(unusedAdj) <- as.character(format(unused, scientific = FALSE, trim = TRUE))
     if (length(nodeList) > 1) {
+      # select entries where the row is a node and the column is also a node and set the value to 0
       unusedAdj[, which(unused %in% nodeList)][which(unused %in% nodeList), ] <- 0
     } else {
+      # select the entry in the node's row and column and set the value to 0
       unusedAdj[which(unused %in% nodeList), which(unused %in% nodeList)] <- 0
     }
     unusedSkeleton <- igraph::graph_from_adjacency_matrix(unusedAdj, mode = "undirected")
     
-    skeleton0 <- intersection(skeleton0, unusedSkeleton, keep.all.vertices = TRUE)
-    skeleton <- intersection(skeleton, skeleton0, byname = TRUE, keep.all.vertices = TRUE)
-    check <- unused[degree(skeleton0, as.character(format(unused, scientific = FALSE, trim = TRUE))) > 1]
-    check <- check[which(check %in% nodeList)]
+    # update skeleton0, keeping only the edges that are in skeleton0 and
+    # unusedSkeleton. Do the same for skeleton
+    skeleton0 <- igraph::intersection(skeleton0, unusedSkeleton, keep.all.vertices = TRUE)
+    skeleton <- igraph::intersection(skeleton, skeleton0, byname = TRUE, keep.all.vertices = TRUE)
     
     loopList <- list()
     
+    # Find loops that start and end at a node ---- 
+    # 1. find any nodes that are in "unused" and have 2 or more attached edges.
+    # 2. for each node n1 in STEP 1:
+    #     3. list the node's direct neighbor (n1, n2, n3, ...)
+    #     4. delete the edge in skeleton between the node n1 and its first neighbor in the list n2
+    #     5. if n1 and n2 are still connected in skeleton: 
+    #            6. find the shortest path p in skeleton from n1 to n2
+    #            7. n1 is the first vertex in p and n2 is the last. Add n1 to the end of p to add
+    #               back the edge that we deleted between n1 and n2 in STEP 4. p is now a loop that 
+    #               begins and ends at node n1.
+    #            8. add p to loopList
+    # NOTE: the start and end node might have more than 2 attached edges (why do
+    # we give a warning about this?)
+    
+    # list the node(s) in skeleton0 that have more than one edge
+    check <- unused[degree(skeleton0, as.character(format(unused, scientific = FALSE, trim = TRUE))) > 1]
+    check <- check[which(check %in% nodeList)]
     tryCatch(
       expr = {
+        # list the node(s) to check and all of their immediate neighbors, i.e.
+        # all vertices connected to the node(s) by a single edge
         neighbors <- igraph::neighborhood(skeleton, nodes = as.character(check))
         
         if (any(unlist(lapply(neighbors, length)) > 3)) {
           warning("At least 1 of the nodes in the potential loops has more than 2 neighbors after removal of the connections. Try again! \nThe nodes in question are: \n", dput(names(neighbors)[which(unlist(lapply(neighbors, length)) > 3)]))
         }
         
-        ## Get paths that start and end at the same point, where that point is a node in nodeList
+        # get paths that start and end at the same point, where that point is a node in nodeList
         if (length(neighbors) > 0) {
           for (i in 1:length(neighbors)) {
+            # get vector of neighbors for node i
             neigh <- as.numeric(names(neighbors[[i]]))
+            # delete the edge between the node i (the first vertex in the list) and the second vertex in neigh
             skeleton <- igraph::delete_edges(skeleton, paste0(neigh[1], "|", neigh[2]))
+            # if the first and second vertices are still connected, add the path to the loop list
             if (igraph::distances(skeleton, v = as.character(neigh[1]), to = as.character(neigh[2])) < Inf) {
               newPath <- as.numeric(names(unlist(igraph::shortest_paths(skeleton, from = format(neigh[1], scientific = FALSE), to = format(neigh[2], scientific = FALSE), weights = igraph::E(skeleton)$pen_dist)$vpath)))
               loopList <- append(loopList, list(c(newPath, newPath[1])))
@@ -397,31 +443,59 @@ getPaths <- function(comps, dims) {
       }
     )
     
-    ## Eliminate loop paths that we have found and find ones that dont have vertex on the loop. This is caused by combining of nodes that are close together.
+    # set the used vertices list as the unique vertices in pathList and loopList
     used <- as.numeric(unique(c(unlist(pathList), unlist(loopList))))
+    # update the "unused" list
     unused <- as.numeric(vertexNames)[which(!(as.numeric(vertexNames) %in% used))]
+    
+    # Search for more loops ---- 
+    
+    # Create a subgraph of skeleton0 where the vertices are the nodes plus the
+    # vertices in "unused" and each vertex has at least 2 edges. Find a "root" -
+    # a node in the subgraph that has two or more neighbors that are in the
+    # "unused" vector but the node itself might not be in the "unused" vector.
+    # Perform a depth-first search through the subgraph vertices starting at the
+    # root to find the first part of the loop. To find the second part of the
+    # loop, search fullSkeleton0 (the original skeleton0) to find the shortest
+    # path between the the last vertex in the first part of the loop and the
+    # root. The second loop part is allowed to use vertices that have already
+    # been used in a path or loop, including the first loop part. Combine the
+    # first and second part of the loop to form the full loop. Vertices next to
+    # the root might be visited twice in the loop.
+    
+    # create a subgraph of skeleton0 where the vertices are the nodes plus the
+    # vertices in "unused".
     remaining0 <- igraph::induced_subgraph(skeleton0, vids = format(c(unused, nodeList), scientific = FALSE, trim = TRUE))
+    # for each vertex in the subgraph, count the number of direct neighbors
     numNeighbors <- lapply(igraph::neighborhood(remaining0, nodes = igraph::V(remaining0)), length)
+    # create a new subgraph from remaining0 that only keeps the vertices that have 2 or more neighbors
     remaining0 <- igraph::induced_subgraph(remaining0, vids = igraph::V(remaining0)[numNeighbors > 1])
-    
+    # find nodes in the new subgraph that have 2 or more neighbors
     roots <- format(nodeList[which(nodeList %in% names(igraph::V(remaining0)))], scientific = FALSE, trim = TRUE)
-    
     if (length(roots) > 0) {
       for (i in 1:length(roots))
-      {
+      { # perform a depth-first search starting from root i and get the vertex
+        # IDs in the order in which they were visited (unreachable = FALSE means
+        # search does not visit vertices that are unreachable from root i)
         loopPart1 <- names(na.omit(igraph::dfs(remaining0, roots[i], unreachable = FALSE)$order))
+        # find the shortest path in the original skeleton0 (fullSkeleton0) from
+        # the last vertex in loopPart1 to root i. Remove the last vertex in
+        # loopPart1 from the vector so that it isn't listed twice in the loop.
         loopPart2 <- igraph::shortest_paths(fullSkeleton0, from = loopPart1[length(loopPart1)], to = roots[i])$vpath[[1]][-1]
         loopList <- append(loopList, list(as.numeric(c(loopPart1, names(loopPart2)))))
       }
     }
-    
-    ## Now get loops that are more difficult. They are close to nodes, but separated by paths already found previously. Have to dig a little further.
-    remaining0 <- igraph::induced_subgraph(skeleton0, vids = format(unused, scientific = FALSE, trim = TRUE))
     used <- as.numeric(unique(c(unlist(pathList), unlist(loopList))))
     unused <- as.numeric(vertexNames)[which(!(as.numeric(vertexNames) %in% used))]
+    
+    # Search for even more loops ---- 
+    
+    # now get loops that are more difficult. They are close to nodes, but
+    # separated by paths already found previously. Have to dig a little further.
+    remaining0 <- igraph::induced_subgraph(skeleton0, vids = format(unused, scientific = FALSE, trim = TRUE))
     if (length(unused) > 0) {
-      ends <- lapply(igraph::neighborhood(fullSkeleton0, order = 2, nodes = format(unused, scientific = FALSE, trim = TRUE)), function(x) nodeList[which(format(nodeList, scientific = FALSE, trim = TRUE) %in% names(x))])
-      
+      neighbors <- igraph::neighborhood(fullSkeleton0, order = 2, nodes = format(unused, scientific = FALSE, trim = TRUE))
+      ends <- lapply(neighbors, function(x) nodeList[which(format(nodeList, scientific = FALSE, trim = TRUE) %in% names(x))])
       roots <- format(unique(unlist(ends)), scientific = FALSE, trim = TRUE)
       if (length(roots) > 0) {
         ends <- igraph::neighborhood(fullSkeleton0, order = 2, nodes = roots)
@@ -632,9 +706,10 @@ mergeAllNodes <- function(comps) {
       }
     }
     
-    # Set the diagonal and below of the adjacency matrix to 0
-    adj0[lower.tri(adj0)] <- 0
-    adj.m <- melt(adj0)
+    # Create an adjacency data frame for the updated nodes
+    adj.m <- adj0
+    adj.m[lower.tri(adj.m)] <- 0
+    adj.m <- melt(adj.m)
     adj.m <- subset(adj.m, value == 1)
     if (nrow(adj.m) > 0){
       names(adj.m) <- c("from", "to", "value")

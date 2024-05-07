@@ -1,6 +1,9 @@
 ---
 title: "handwriter functions map" author: "Stephanie Reinders" date:
 "2024-04-10" output: html_document
+editor_options: 
+  markdown: 
+    wrap: 72
 ---
 
 ```{r setup, include=FALSE}
@@ -110,14 +113,6 @@ h <- hier_add(h, root = 'add_covariance_matrix', nodes = c('i_to_rc (4)'))
 hier_display(h)
 ```
 
-## Example
-```{r}
-devtools::load_all()
-main_dir <- '/Users/stephanie/Documents/handwriting_datasets/CSAFE_pseudo_docs'
-files <- list.files(main_dir, full.names = TRUE)
-process_batch_dir(main_dir)
-```
-
 ## Notes
 
 1.  make an adjacency matrix `comps[[i]]$nodes$adj0` for nodes with the following steps:
@@ -135,4 +130,15 @@ process_batch_dir(main_dir)
     2.  Find pairs of nodes that are only 1 or 2 edges apart and neither node is a terminal node.
         1.  Merge the two nodes by keeping the second node if the nodes are connected by a single edge, and remove the first node from the node list.
         2.  If the two nodes are connected by two edges, add the vertex between the two nodes to the node list and remove the two nodes themselves from the node list.
+        3.  Connect the edges that were\
     3.  Create a new data frame called `adjm` based on an updated version of `adj0` that includes the new nodes created from merging and the old, merged nodes are removed. Each row of `adjm` is a pair of nodes where the shortest path between them does not run through any other nodes.
+3.  Create shortest, unique, non-loop paths:
+    1.  For each pair of nodes, n1 and n2, in adjm:
+        1.  Find the shortest distance between n1 and n2 where an edge has weight 1 if either vertex is a node and 0.00001 otherwise.
+        2.  While the shortest distance d satisfies 1 \<= d \< 3:
+            1.  Get the names of the vertices in the shortest path p between n1 and n2 as a vector
+            2.  Get the number of vertices n in the shortest path p
+            3.  Add p to the paths list
+            4.  If p has more than 2 vertices, delete the middle edge from skeleton0. If p has exactly 2 vertices,delete the single edge between the 2 vertices from skeleton0. Otherwise, return an error (Does this ever occur? Should this be a break instead?).
+            5.  Recalculate the shortest distance d between n1 and n2
+    2.  return paths list
