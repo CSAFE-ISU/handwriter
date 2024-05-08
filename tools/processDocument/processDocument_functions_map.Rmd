@@ -21,7 +21,7 @@ h <- hier_add(h, root = "processHandwriting", nodes = c("getNodes",
                                                         "mergeAllNodes",
                                                         "getPaths",
                                                         "splitPathsIntoGraphs",
-                                                        "organizeLetters",
+                                                        "organizeGraphs",
                                                         "createLetterLists",
                                                         "addCharacterFeatures",
                                                         'flatten_list'))
@@ -89,6 +89,11 @@ h <- hier_add(h, root = 'isolateGraphsForComponent (nested in splitPathsIntoGrap
                                                                                                 'checkSimplicityBreaks (nested in splitPathsIntoGraphs)'))
 h <- hier_add(h, root = 'checkSimplicityBreaks (nested in splitPathsIntoGraphs)', nodes = c('pathLetterAssociate (1)'))
 ```
+
+```{r}
+h <- hier_add(h, root = 'organizeGraphs', nodes = c('organizeGraphsForComponent'))
+```
+
 
 ```{r}
 h <- hier_add(h, root = 'createLetterLists', nodes = c('pathLetterAssociate (2)', 'getConnectivity (nested)', 'getNodeOrder'))

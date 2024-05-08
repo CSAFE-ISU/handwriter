@@ -124,24 +124,17 @@ processHandwriting <- function(img, dims) {
   message("Split paths into graphs...")
   comps <- splitPathsIntoGraphs(comps = comps, dims = dims)
   
-  # Organizing letters ----
-  message("Organizing letters...")
+  # Organizing graphs ----
+  message("Organizing graphs...")
+  comps <- organizeGraphs(comps)
+  
+  # Creating graph lists ----
+  message("Creating graph lists...")
   n <- length(comps)
   for (i in 1:n){
-    temp_graph <- comps[[i]]$skeletons$skeleton0
-    if (length(igraph::V(temp_graph)$graphID) > 0){
-      comps[[i]]$paths$letters <- organizeLetters(temp_graph)
-    } else {
-      comps[[i]]$paths$letters <- list()
-    }
-  }
-  
-  # Creating letter lists ----
-  message("Creating letter lists...")
-  for (i in 1:n){
-    if (length(comps[[i]]$paths$letters) > 0){
+    if (length(comps[[i]]$paths$graphs) > 0){
       comps[[i]]$paths$graphList <- createLetterLists(allPaths = comps[[i]]$paths$allGraphs, 
-                                                      letters = comps[[i]]$paths$letters, 
+                                                      graphs = comps[[i]]$paths$graphs, 
                                                       nodeList = comps[[i]]$nodes$nodeList, 
                                                       nodeConnections = comps[[i]]$nodes$nodeConnections, 
                                                       terminalNodes = comps[[i]]$nodes$terminalNodes, 
@@ -157,7 +150,7 @@ processHandwriting <- function(img, dims) {
     if (length(comps[[i]]$paths$graphList) > 0){
       comps[[i]]$paths$graphList <- addCharacterFeatures(img = img, 
                                                          graphList = comps[[i]]$paths$graphList, 
-                                                         letters = comps[[i]]$paths$letters, 
+                                                         graphs = comps[[i]]$paths$graphs, 
                                                          dims = dims)
     }
   }
@@ -172,7 +165,11 @@ processHandwriting <- function(img, dims) {
   # Document processing complete ----
   message("Document processing complete")
   
-  return(list(nodes = nodeList, connectingNodes = nodeConnections, terminalNodes = terminalNodes, breakPoints = sort(breakPoints), letterList = graphList))
+  return(list(nodes = nodeList, 
+              connectingNodes = nodeConnections, 
+              terminalNodes = terminalNodes, 
+              breakPoints = sort(breakPoints), 
+              letterList = graphList))
 }
 
 
@@ -1034,13 +1031,13 @@ splitPathsIntoGraphs <- function(comps, dims) {
     # is empty, still need to run makeGraphs() to assign graph number.
     graphList <- makeGraphs(allPaths, skeleton0, breakPoints)
     
-    # get number of vertices in each letter
+    # get number of vertices in each graph
     graph_lengths <- unlist(lapply(graphList[[1]], length))
     
     # list graphs with more than 5 vertices and those with 5 or fewer
     graphs <- graphList[[1]][graph_lengths > 5]
     
-    # get letter IDs for all leters, even ones with 5 vertices or less
+    # get graph IDs for all graphs, even ones with 5 vertices or less
     igraph::V(skeleton0)$graphID <- graphList[[2]]
     # delete vertices from graphs with 5 or fewer vertices. does not delete vertices with graphID = NA
     skeleton0 <- igraph::delete_vertices(skeleton0, igraph::V(skeleton0)[which(igraph::V(skeleton0)$graphID %in% which(graph_lengths <= 5))])
@@ -1196,21 +1193,50 @@ splitPathsIntoGraphs <- function(comps, dims) {
   return(comps)
 }
 
+organizeGraphs <- function(comps) {
+  organizeGraphsForComponent <- function(skeleton0) {
+    # make an empty list for each graphID
+    graphs <- replicate(n = length(na.omit(unique(igraph::V(skeleton0)$graphID))), list())
+    # get the graphID of each vertex
+    strs <- names(igraph::V(skeleton0))
+    
+    # for each graphID
+    for (i in 1:length(na.omit(unique(V(skeleton0)$graphID))))
+    {
+      tmp <- as.numeric(as.factor(V(skeleton0)$graphID))
+      graphs[[i]] <- as.numeric(strs[which(tmp == i)])
+    }
+    return(graphs)
+  }
+  
+  n <- length(comps)
+  for (i in 1:n){
+    temp_graph <- comps[[i]]$skeletons$skeleton0
+    if (length(igraph::V(temp_graph)$graphID) > 0){
+      comps[[i]]$paths$graphs <- organizeGraphsForComponent(temp_graph)
+    } else {
+      comps[[i]]$paths$graphs <- list()
+    }
+  }
+  
+  return(comps)
+}
+
 # Internal Functions ------------------------------------------------------
 #' add_character_features
 #'
 #' Internal method that adds features to characters
 #'
 #' @param img thinned binary image
-#' @param graphList list containing letter characters
-#' @param letters individual characters from graphList
+#' @param graphList list containing all graphs
+#' @param graphs individual characters from graphList
 #' @param dims image graph dimensions
-#' @return a list of letters with features applied
+#' @return a list of graphs with features applied
 #' @noRd
-addCharacterFeatures <- function(img, graphList, letters, dims) {
+addCharacterFeatures <- function(img, graphList, graphs, dims) {
   featureSets <- extract_character_features(img, graphList, dims)
   
-  for (i in 1:length(letters))
+  for (i in 1:length(graphs))
   {
     graphList[[i]]$characterFeatures <- featureSets[[i]]
   }
@@ -1265,32 +1291,32 @@ checkBreakPoints <- function(breakPoints, allPaths, nodeGraph, terminalNodes, di
 }
 
 
-createLetterLists <- function(allPaths, letters, nodeList, nodeConnections, terminalNodes, dims) {
+createLetterLists <- function(allPaths, graphs, nodeList, nodeConnections, terminalNodes, dims) {
   # Assign nodes to each letter
-  nodesinGraph <- replicate(length(letters), list(NA))
-  connectingNodesinGraph <- replicate(length(letters), list(NA))
-  terminalNodesinGraph <- replicate(length(letters), list(NA))
+  nodesinGraph <- replicate(length(graphs), list(NA))
+  connectingNodesinGraph <- replicate(length(graphs), list(NA))
+  terminalNodesinGraph <- replicate(length(graphs), list(NA))
   
-  for (i in 1:length(letters))
+  for (i in 1:length(graphs))
   {
-    nodesinGraph[[i]] <- letters[[i]][which(letters[[i]] %in% nodeList)]
-    connectingNodesinGraph[[i]] <- letters[[i]][which(letters[[i]] %in% nodeConnections)]
-    terminalNodesinGraph[[i]] <- letters[[i]][which(letters[[i]] %in% terminalNodes)]
+    nodesinGraph[[i]] <- graphs[[i]][which(graphs[[i]] %in% nodeList)]
+    connectingNodesinGraph[[i]] <- graphs[[i]][which(graphs[[i]] %in% nodeConnections)]
+    terminalNodesinGraph[[i]] <- graphs[[i]][which(graphs[[i]] %in% terminalNodes)]
   }
   
   
-  graphList <- replicate(length(letters), list(path = NA, nodes = NA), simplify = FALSE)
-  for (i in 1:length(letters))
+  graphList <- replicate(length(graphs), list(path = NA, nodes = NA), simplify = FALSE)
+  for (i in 1:length(graphs))
   {
-    graphList[[i]]$path <- letters[[i]]
+    graphList[[i]]$path <- graphs[[i]]
     # graphList[[i]]$nodes = nodesinGraph[[i]][nodeOrder[[i]]]
-    graphList[[i]]$allPaths <- pathLetterAssociate(allPaths, letters[[i]])
+    graphList[[i]]$allPaths <- pathLetterAssociate(allPaths, graphs[[i]])
   }
   
   letterAdj <- list()
-  nodeOrder <- replicate(list(), n = length(letters))
-  decCode <- rep("", length(letters))
-  connectivityScores <- replicate(list(), n = length(letters))
+  nodeOrder <- replicate(list(), n = length(graphs))
+  decCode <- rep("", length(graphs))
+  connectivityScores <- replicate(list(), n = length(graphs))
   
   getConnectivity <- function(pathEndings, nodesSingle) {
     res <- rep(NA, length(nodesSingle))
@@ -1301,7 +1327,7 @@ createLetterLists <- function(allPaths, letters, nodeList, nodeConnections, term
     return(res)
   }
   
-  for (i in 1:length(letters))
+  for (i in 1:length(graphs))
   {
     if (length(nodesinGraph[[i]]) > 0) {
       graphList[[i]]$adjMatrix <- matrix(0, ncol = length(nodesinGraph[[i]]), nrow = length(nodesinGraph[[i]]))
@@ -1311,7 +1337,7 @@ createLetterLists <- function(allPaths, letters, nodeList, nodeConnections, term
       
       connectivityScores[[i]] <- getConnectivity(pathEndings = c(pathStarts, pathEnds), nodesSingle = nodesinGraph[[i]])
       
-      nodeOrder[[i]] <- getNodeOrder(letters[[i]], nodesinGraph[[i]], connectivityScores[[i]], dims)
+      nodeOrder[[i]] <- getNodeOrder(graphs[[i]], nodesinGraph[[i]], connectivityScores[[i]], dims)
       
       nodeSet <- nodesinGraph[[i]][order(nodeOrder[[i]])]
       
@@ -1629,21 +1655,6 @@ getSkeleton <- function(skeleton_df, indices, nodeList) {
   # color vertex as 1 if vertex is a node, otherwise color as 0
   igraph::V(skeleton)$color <- ifelse(igraph::V(skeleton)$name %in% nodeList, 1, 0)
   return(skeleton)
-}
-
-organizeLetters <- function(skeleton0) {
-  # make an empty list for each graphID
-  letters <- replicate(n = length(na.omit(unique(igraph::V(skeleton0)$graphID))), list())
-  # get the graphID of each vertex
-  strs <- names(igraph::V(skeleton0))
-  
-  # for each graphID
-  for (i in 1:length(na.omit(unique(V(skeleton0)$graphID))))
-  {
-    tmp <- as.numeric(as.factor(V(skeleton0)$graphID))
-    letters[[i]] <- as.numeric(strs[which(tmp == i)])
-  }
-  return(letters)
 }
 
 #' pathLetterAssociate
