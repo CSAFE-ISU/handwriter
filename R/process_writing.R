@@ -141,7 +141,7 @@ processHandwriting <- function(img, dims) {
   nodeConnections <- unique(unlist(sapply(comps, function(x) x[['nodes']][['nodeConnections']])))
   terminalNodes <- unique(unlist(sapply(comps, function(x) x[['nodes']][['terminalNodes']])))
   breakPoints <- unique(unlist(sapply(comps, function(x) x[['nodes']][['breakPoints']])))
-  graphList <- flatten_list(sapply(comps, function(x) x[['paths']][['graphList']]))
+  graphList <- flattenList(sapply(comps, function(x) x[['paths']][['graphList']]))
   
   # Document processing complete ----
   message("Document processing complete")
@@ -154,7 +154,7 @@ processHandwriting <- function(img, dims) {
 }
 
 
-# Clean -------------------------------------------------------------------
+# Internal Functions ------------------------------------------------------
 createGraphLists <- function(comps, dims) {
   angleDiff <- function(fromIndex, toIndex, dims) {
     vecs <- toRC(c(fromIndex, toIndex), dims)
@@ -324,10 +324,47 @@ createGraphLists <- function(comps, dims) {
   return(comps)
 }
 
-getComponents <- function(skeleton, img, dims, nodes) {
-  # split skeleton into connected components
-  skeletons <- igraph::decompose(skeleton)
+#' findNeighbors
+#'
+#' Internal function for identifying which neighbors are black.
+#'
+#' @param coords coordinates to consider
+#' @param img The image as a bitmap
+#' @return Return a matrix of which neighbors are a black pixel
+#' @noRd
+findNeighbors <- function(coords, img) {
+  rr <- coords[1]
+  cc <- coords[2]
+  neighbs <- c(t(img[(rr - 1):(rr + 1), ][, (cc - 1):(cc + 1)]))[c(2, 3, 6, 9, 8, 7, 4, 1)]
+  yesNeighbs <- which(neighbs == 0)
+  res <- as.matrix(rep(0, 8), nrow = 1)
+  res[yesNeighbs] <- 1
   
+  return(res)
+}
+
+# convert a list of lists into a single 1-level list.
+# Example: list(list('a', 'b', 'c'), list('d'), list('e', 'f')) 
+# becomes list('a', 'b', 'c', 'd', 'e', 'f')
+flattenList <- function(actual) {
+  new <- list()
+  counter <- 1
+  for (i in 1:length(actual)){
+    current_list <- actual[[i]]
+    if (length(current_list) >= 1){
+      for (j in 1:length(current_list)){
+        current_path <- current_list[[j]]
+        if (length(current_path) >= 1){
+          new[[counter]] <- current_path
+          counter = counter + 1
+        }
+      }
+    }
+  }
+  return(new)
+}
+
+getComponents <- function(skeleton, img, dims, nodes) {
   initializeComponents <- function(skeletons){
     # create list of empty components
     n <- length(skeletons)
@@ -419,6 +456,75 @@ getComponents <- function(skeleton, img, dims, nodes) {
     return(comps)
   }
   
+  findNeighbors0 <- function(coords, img) {
+    # Internal function for identifying which neighbors are black excluding diagonals
+    # to the middle point when a non-diagonal between those two vertices exists. For example,
+    # if the pixel above and the pixel to the right are black then exclude (set to zero) the pixel
+    # above and to the right (the diagonal between the two) from the neighbors list
+    
+    # get matrix of which neighboring pixels are black. 1=pixel is black, 0=pixel is white.
+    res <- findNeighbors(coords, img)
+    
+    # if pixel above and pixel to the right are neighbors, remove pixel above to the
+    # right from neighbors list
+    if (res[1] == 1 | res[3] == 1) {
+      res[2] <- 0
+    }
+    # if pixel to the right and pixel to the bottom are neighbors, remove pixel below to the
+    # right from neighbors list
+    if (res[3] == 1 | res[5] == 1) {
+      res[4] <- 0
+    }
+    # if pixel below and pixel to the left are neighbors, remove pixel below to the
+    # left from neighbors list
+    if (res[5] == 1 | res[7] == 1) {
+      res[6] <- 0
+    }
+    # if pixel to the left and pixel to the top are neighbors, remove pixel above to the
+    # left from neighbors list
+    if (res[7] == 1 | res[1] == 1) {
+      res[8] <- 0
+    }
+    return(res)
+  }
+  
+  getSkeletonDF0 <- function(img_m, img, indices, dims, nodeList) {
+    # bind global variable to fix check() note
+    value <- from <- to <- node_only_dist <- NULL
+    
+    # Step 1: make matrix of neighborhoods for each pixel in the thinned writing: 
+    #   each row corresponds to a pixel in the thinned writing
+    #   each column corresponds to a location in the pixel's neighborhood
+    #   1=the neighborhood location contains a neighbor, 0=neighborhood location does not contain a neighbor
+    # Step 2: remove neighbors on the diagonal if there are neighbors in the neighborhood on either side of the diagonal.
+    # Example, if there is a neighbor in the top right pixel, and there are also neighbors in both the top and the right pixels.
+    # Remove the neighbor in the top right pixel.
+    neighborList0 <- t(apply(as.matrix(img_m, ncol = 2), 1, findNeighbors0, img = img))
+    # converts to dataframe where 
+    #   Var1 = pixel number (1, 2,..., total num. pixels in thinned writing), 
+    #   Var2 = neighborhood location index (in 1, 2,...,8), 
+    #   1=the neighborhood location contains a neighbor, 0=neighborhood location does not contain a neighbor
+    graphdf0 <- melt(neighborList0)
+    # filter for neighbors
+    graphdf0 <- subset(graphdf0, value == 1)
+    # get the index in thinned image of each pixel
+    graphdf0$from <- indices[graphdf0$Var1]
+    # get the index in thinned image of the neighbor pixel for each pixel
+    graphdf0$to <- graphdf0$from + c(-1, dims[1] - 1, dims[1], dims[1] + 1, 1, 1 - dims[1], -dims[1], -1 - dims[1])[graphdf0$Var2]
+    # node only distance = 1 if pixel is a node or its neighbor is a node, 0 otherwise
+    graphdf0$node_only_dist <- ifelse(graphdf0$from %in% nodeList | graphdf0$to %in% nodeList, 1, 0)
+    
+    # format from and to columns as character
+    graphdf0$from <- as.character(format(graphdf0$from, scientific = FALSE, trim = TRUE))  # trim=TRUE suppresses leading blanks for justification of numbers
+    graphdf0$to <- as.character(format(graphdf0$to, scientific = FALSE, trim = TRUE))
+    # drop Var1, Var2, and value columns
+    graphdf0 <- subset(graphdf0, select = c(from, to, node_only_dist))
+    
+    return(graphdf0)
+  }
+  
+  # split skeleton into connected components
+  skeletons <- igraph::decompose(skeleton)
   comps <- initializeComponents(skeletons = skeletons)
   comps <- addSkeletons(skeletons = skeletons, comps = comps)
   comps <- addIndices(skeletons = skeletons, comps = comps, dims = dims)
@@ -427,6 +533,107 @@ getComponents <- function(skeleton, img, dims, nodes) {
   comps <- addAdjMatrices(comps = comps)
   
   return(comps)
+}
+
+getNodes <- function(indices, dims) {
+  # Detect intersection points of an image thinned with thinImage.
+  countChanges <- function(coords, img) {
+    rr <- coords[1]
+    cc <- coords[2]
+    # If the point isn't in the first or last row or in the first or last column
+    if (rr > 1 & cc > 1 & rr < dim(img)[1] & cc < dim(img)[2]) {
+      # 1. Get a 3x3 matrix with the (rr, cc) as the center point and 8 pixels surrounding it. 
+      # 2. Transpose the 3x3 matrix.
+      # 3. Flatten the 3x3 matrix to a vector. The vector lists the elements of the 3x3 matrix in 
+      # step 1, NOT step 2, starting in the top left and going by row. I.e. the first three elements of 
+      # the vector are the first row of the step 1 matrix, the next three elements are the second row, and 
+      # the final three elements are the third row.
+      # 4. Reorder the vector starting with the pixel located directly above (r, c) in step 1 and then 
+      # moving clockwise and ending at the pixel located directly above (r, c)
+      neighbs <- c(t(img[(rr - 1):(rr + 1), ][, (cc - 1):(cc + 1)]))[c(2, 3, 6, 9, 8, 7, 4, 1, 2)]
+      ## Count the number of zeros directly preceeded by a one
+      # 1. create logical vector where it is TRUE if neighbs = 1 FALSE if neighbs = 0
+      # 2. circular-shift neighbs to the left by 1 and create logical vector where 
+      # TRUE if shifts neighbs = 1 and FALSE otherwise
+      # 3. Count the number of entries that are TRUE in the logical vectors from step 1 and step 2.
+      # Example: neighbs = 1 0 1 1 1 1 1 1 1 
+      #   Step 1. TRUE FALSE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
+      #   Step 2. shifted = 0 1 1 1 1 1 1 1 1
+      #           TRUE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+      #   Step 3. The result is 1
+      # Example: neighbs = 1 0 1 1 0 0 1 1 1
+      #   Step 1. TRUE FALSE TRUE TRUE FALSE FALSE TRUE TRUE TRUE
+      #   Step 2. shifted = 0 1 1 0 0 1 1 1 1
+      #           TRUE FALSE FALSE TRUE TRUE FALSE FALSE FALSE FALSE
+      #   Step 3. The result is 2
+      # Example: neighbs = 0 1 1 1 0 1 0 1 0
+      #   Step 1. FALSE TRUE TRUE TRUE FALSE TRUE FALSE TRUE FALSE
+      #   Step 2. shifted =  1 1 1 0 1 0 1 0 0
+      #           FALSE FALSE FALSE TRUE FALSE TRUE FALSE TRUE TRUE
+      #   Step 3. The result is 3
+      return(sum(neighbs == 1 & c(neighbs[-1], neighbs[1]) == 0))
+    } else {
+      stop("Please use `crop` to crop your image. Not padded around outside.")
+    }
+  }
+  
+  node2by2fill <- function(coords, img) {
+    # If there is a 2x2 block in the thinned image and none of those pixels are
+    # nodes, make one of them a node. All will have connectivity of 2. Choose
+    # pixel with most neighbors as node. Also make opposite diagonal pixel a
+    # node. When nodes are combined later this will form 1 node that absorbs all
+    # connections.
+    rr <- coords[1]
+    cc <- coords[2]
+    
+    # Check 2x2 neighborhood around point (rr, cc) to see if it has these values:
+    #      | cc | cc+1 |
+    # rr   | 0  | 0    |
+    # rr+1 | 0  | 0    |
+    if (img[rr, cc] == 0 & img[rr + 1, cc] == 0 & img[rr, cc + 1] == 0 & img[rr + 1, cc + 1] == 0) {
+      # create matrix of indices coordinate points of 2x2 neighborhood 
+      index2by2 <- matrix(c(rr, cc, rr + 1, cc, rr, cc + 1, rr + 1, cc + 1), byrow = TRUE, ncol = 2)
+      # count the number of neighbors for each pixel in the 2x2 neighborhood
+      numNeighbors <- colSums(apply(X = index2by2, MARGIN = 1, FUN = findNeighbors, img = img))
+      # make the pixel with the most neighbors a node
+      newNode <- index2by2[which.max(numNeighbors), ]
+      # make its opposite neighbor a node
+      oppositeCorner <- index2by2[(4:1)[which.max(numNeighbors)], ]
+      return(c(newNode[1] + (newNode[2] - 1) * dim(img)[1], 
+               oppositeCorner[1] + (oppositeCorner[2] - 1) * dim(img)[1]))
+    } else {
+      return(c(NA, NA))
+    }
+  }
+  
+  # First, we find endpoints and intersections of skeleton.
+  
+  # convert thinned image from list of pixel indices to matrix of 0 for
+  # handwriting and 1 elsewhere
+  img <- matrix(1, ncol = dims[2], nrow = dims[1])
+  img[indices] <- 0
+  
+  # create a node at each endpoint (only one connected edge) and at each pixel with three or more 
+  # connected edges
+  img_m <- i_to_rc(indices, dims=dims)   # convert thinned image indices to row and column
+  # for each pixel in the thinned image, count the number of connected edges
+  changeCount <- matrix(apply(X = img_m, MARGIN = 1, FUN = countChanges, img = img), byrow = F, nrow = 1)
+  nodes <- matrix(1, dims[1], dims[2])
+  # add nodes to matrix as 0
+  nodes[indices] <- ifelse(changeCount == 1 | changeCount >= 3, 0, 1)
+  
+  # check every pixel in thinned image for 2x2 filled neighborhood and assign
+  # nodes to that neighborhood
+  nodes2by2 <- t(apply(img_m, 1, FUN = node2by2fill, img = img))
+  # add 2x2 nodes to nodes matrix as 0
+  nodes[c(nodes2by2[apply(nodes2by2, 1, function(x) {all(!is.na(x))}), ])] <- 0
+  
+  nodeConnections <- c(indices[changeCount >= 3], c(nodes2by2[apply(nodes2by2, 1, function(x) {all(!is.na(x))}), ]))
+  nodeList <- which(nodes == 0)
+  # if a node isn't connected, assign it to the terminal nodes list
+  terminalNodes <- nodeList[!(nodeList %in% nodeConnections)]
+  
+  return(list('nodeConnections' = nodeConnections, 'nodeList' = nodeList, 'terminalNodes' = terminalNodes))
 }
 
 getPaths <- function(comps, dims) {
@@ -735,6 +942,16 @@ getPaths <- function(comps, dims) {
   return(comps)
 }
 
+getSkeleton <- function(skeleton_df, indices, nodeList) {
+  # build undirected skeleton_df with vertices=indices of the thinned writing and edges listed in skeleton_df
+  skeleton <- igraph::graph_from_data_frame(d = skeleton_df, vertices = as.character(format(indices, scientific = FALSE, trim = TRUE)), directed = FALSE)
+  # if more than one edge connects the same two vertices, combine the edges into a single edge and combine their attributes using the mean
+  skeleton <- igraph::simplify(skeleton, remove.multiple = TRUE, edge.attr.comb = "mean")
+  # color vertex as 1 if vertex is a node, otherwise color as 0
+  igraph::V(skeleton)$color <- ifelse(igraph::V(skeleton)$name %in% nodeList, 1, 0)
+  return(skeleton)
+}
+
 mergeAllNodes <- function(comps) {
   findNewMergedNodes <- function(skeleton, mergeMat) {
     # mergeMat is a matrix of pairs of nodes to be merged. Each row is a single
@@ -906,6 +1123,24 @@ organizeGraphs <- function(comps) {
   return(comps)
 }
 
+#' pathLetterAssociate
+#'
+#' Function associating entries in allPaths to each letter
+#'
+#' @param allPaths list of paths
+#' @param letter individual character
+#' @return associated path to each letter
+#' @noRd
+pathLetterAssociate <- function(allPaths, letter) {
+  associatedPaths <- list()
+  for (i in 1:length(allPaths)) {
+    if (all(allPaths[[i]] %in% letter)) {
+      associatedPaths <- c(associatedPaths, list(allPaths[[i]]))
+    }
+  }
+  return(associatedPaths)
+}
+
 skeletonize <- function(img, indices, dims, nodeList) {
   # create skeletons and dataframe. skeleton is created first using the
   # following rules: (1) Every pixel in the thinned writing is a vertex. (2) An
@@ -1024,6 +1259,36 @@ splitPathsIntoGraphs <- function(comps, dims) {
       }
     }
     return(comps)
+  }
+  
+  checkBreakPoints <- function(breakPoints, allPaths, nodeGraph, terminalNodes, dims) {
+    # Internal function called by processHandwriting that eliminates breakpoints
+    # based on rules to try to coherently separate letters.
+    
+    # Check rules for candidate breakpoints
+    breakFlag <- rep(TRUE, length(breakPoints))
+    
+    for (i in 1:length(allPaths)) { 
+      # create character vector of each vertex in path i
+      tempPath <- format(allPaths[[i]], scientific = FALSE, trim = TRUE)
+      # check if path i contains candidate nodes
+      nodeChecks <- which(breakPoints %in% tempPath)
+      # delete edge between the first and last node in the path if it exists
+      tempNodeGraph <- igraph::delete_edges(nodeGraph, paste0(tempPath[1], "|", tempPath[length(tempPath)]))
+      
+      if (igraph::distances(tempNodeGraph, v = tempPath[1], to = tempPath[length(tempPath)]) < Inf) {
+        # No breaking on multiple paths between nodes. 
+        breakFlag[nodeChecks] <- FALSE
+      } else if (any(tempPath %in% terminalNodes)) {
+        # No break if path has an endpoint
+        breakFlag[nodeChecks] <- FALSE
+      } else if (any(which(tempPath %in% c(breakPoints[nodeChecks])) <= 4 | which(tempPath %in% c(breakPoints[nodeChecks])) >= length(tempPath) - 3) | length(tempPath) <= 10) {
+        # No breaks too close to a vertex
+        breakFlag[nodeChecks[which(breakPoints[nodeChecks] <= 5 | breakPoints[nodeChecks] >= length(tempPath) - 4)]] <- FALSE
+      }
+    }
+    
+    return(breakFlag)
   }
   
   checkSimplicityBreaks <- function(breakPoints, pathList, loopList, letters, skeleton0, nodeList, terminalNodes, hasTrough, dims) {
@@ -1168,6 +1433,19 @@ splitPathsIntoGraphs <- function(comps, dims) {
       }
     }
     return(comps)
+  }
+  
+  getNodeGraph <- function(allPaths, nodeList) {
+    # Internal function for creating a graph from a path list and node list. More specifically,
+    # create a graph with a vertex for each node in nodeList. Then add an edge between the first and last
+    # node (pixel / vertex) in each path in allPaths.
+    nodeGraph <- igraph::make_empty_graph(directed = FALSE)
+    nodeGraph <- igraph::add_vertices(nodeGraph, length(nodeList), name = format(nodeList, scientific = FALSE, trim = TRUE))
+    for (i in 1:length(allPaths))
+    {
+      nodeGraph <- igraph::add_edges(nodeGraph, format(c(allPaths[[i]][1], allPaths[[i]][length(allPaths[[i]])]), scientific = FALSE, trim = TRUE))
+    }
+    return(nodeGraph)
   }
   
   isolateAllGraphs <- function(comps, dims) {
@@ -1369,340 +1647,4 @@ splitPathsIntoGraphs <- function(comps, dims) {
   comps <- assignGraphIDs(comps = comps)
   
   return(comps)
-}
-
-# Internal Functions ------------------------------------------------------
-
-#' checkBreakPoints
-#'
-#' Internal function called by processHandwriting that eliminates breakpoints
-#' based on rules to try to coherently separate letters.
-#'
-#' @param breakPoints possible breakpoints
-#' @param allPaths list of paths
-#' @param nodeGraph graph of nodes; call the getNodeGraph function
-#' @param terminalNodes nodes at the endpoints of the graph
-#' @param dims graph dimensions
-#'
-#' @return a graph without breakpoints and separated letters
-#' @noRd
-checkBreakPoints <- function(breakPoints, allPaths, nodeGraph, terminalNodes, dims) {
-  # Check rules for candidate breakpoints
-  breakFlag <- rep(TRUE, length(breakPoints))
-  
-  for (i in 1:length(allPaths)) { 
-    # create character vector of each vertex in path i
-    tempPath <- format(allPaths[[i]], scientific = FALSE, trim = TRUE)
-    # check if path i contains candidate nodes
-    nodeChecks <- which(breakPoints %in% tempPath)
-    # delete edge between the first and last node in the path if it exists
-    tempNodeGraph <- igraph::delete_edges(nodeGraph, paste0(tempPath[1], "|", tempPath[length(tempPath)]))
-    
-    if (igraph::distances(tempNodeGraph, v = tempPath[1], to = tempPath[length(tempPath)]) < Inf) {
-      # No breaking on multiple paths between nodes. 
-      breakFlag[nodeChecks] <- FALSE
-    } else if (any(tempPath %in% terminalNodes)) {
-      # No break if path has an endpoint
-      breakFlag[nodeChecks] <- FALSE
-    } else if (any(which(tempPath %in% c(breakPoints[nodeChecks])) <= 4 | which(tempPath %in% c(breakPoints[nodeChecks])) >= length(tempPath) - 3) | length(tempPath) <= 10) {
-      # No breaks too close to a vertex
-      breakFlag[nodeChecks[which(breakPoints[nodeChecks] <= 5 | breakPoints[nodeChecks] >= length(tempPath) - 4)]] <- FALSE
-    }
-  }
-  
-  return(breakFlag)
-}
-
-
-
-
-
-
-
-
-# convert a list of lists into a single 1-level list.
-# Example: list(list('a', 'b', 'c'), list('d'), list('e', 'f')) 
-# becomes list('a', 'b', 'c', 'd', 'e', 'f')
-flatten_list <- function(actual) {
-  new <- list()
-  counter <- 1
-  for (i in 1:length(actual)){
-    current_list <- actual[[i]]
-    if (length(current_list) >= 1){
-      for (j in 1:length(current_list)){
-        current_path <- current_list[[j]]
-        if (length(current_path) >= 1){
-          new[[counter]] <- current_path
-          counter = counter + 1
-        }
-      }
-    }
-  }
-  return(new)
-}
-
-getSkeletonDF0 <- function(img_m, img, indices, dims, nodeList) {
-  # bind global variable to fix check() note
-  value <- from <- to <- node_only_dist <- NULL
-  
-  # Step 1: make matrix of neighborhoods for each pixel in the thinned writing: 
-  #   each row corresponds to a pixel in the thinned writing
-  #   each column corresponds to a location in the pixel's neighborhood
-  #   1=the neighborhood location contains a neighbor, 0=neighborhood location does not contain a neighbor
-  # Step 2: remove neighbors on the diagonal if there are neighbors in the neighborhood on either side of the diagonal.
-  # Example, if there is a neighbor in the top right pixel, and there are also neighbors in both the top and the right pixels.
-  # Remove the neighbor in the top right pixel.
-  neighborList0 <- t(apply(as.matrix(img_m, ncol = 2), 1, findNeighbors0, img = img))
-  # converts to dataframe where 
-  #   Var1 = pixel number (1, 2,..., total num. pixels in thinned writing), 
-  #   Var2 = neighborhood location index (in 1, 2,...,8), 
-  #   1=the neighborhood location contains a neighbor, 0=neighborhood location does not contain a neighbor
-  graphdf0 <- melt(neighborList0)
-  # filter for neighbors
-  graphdf0 <- subset(graphdf0, value == 1)
-  # get the index in thinned image of each pixel
-  graphdf0$from <- indices[graphdf0$Var1]
-  # get the index in thinned image of the neighbor pixel for each pixel
-  graphdf0$to <- graphdf0$from + c(-1, dims[1] - 1, dims[1], dims[1] + 1, 1, 1 - dims[1], -dims[1], -1 - dims[1])[graphdf0$Var2]
-  # node only distance = 1 if pixel is a node or its neighbor is a node, 0 otherwise
-  graphdf0$node_only_dist <- ifelse(graphdf0$from %in% nodeList | graphdf0$to %in% nodeList, 1, 0)
-  
-  # format from and to columns as character
-  graphdf0$from <- as.character(format(graphdf0$from, scientific = FALSE, trim = TRUE))  # trim=TRUE suppresses leading blanks for justification of numbers
-  graphdf0$to <- as.character(format(graphdf0$to, scientific = FALSE, trim = TRUE))
-  # drop Var1, Var2, and value columns
-  graphdf0 <- subset(graphdf0, select = c(from, to, node_only_dist))
-  
-  return(graphdf0)
-}
-
-
-
-#' getNodes
-#'
-#' Detect intersection points of an image thinned with thinImage.
-#'
-#' @param indices Where to check for intersection. The indices of pixels locations in 
-#' the thinned image created by thinImage
-#' @param dims dimensions of the image
-#' @return Returns image matrix. 1 is blank, 0 is a node.
-#' @noRd
-getNodes <- function(indices, dims) {
-  countChanges <- function(coords, img) {
-    rr <- coords[1]
-    cc <- coords[2]
-    # If the point isn't in the first or last row or in the first or last column
-    if (rr > 1 & cc > 1 & rr < dim(img)[1] & cc < dim(img)[2]) {
-      # 1. Get a 3x3 matrix with the (rr, cc) as the center point and 8 pixels surrounding it. 
-      # 2. Transpose the 3x3 matrix.
-      # 3. Flatten the 3x3 matrix to a vector. The vector lists the elements of the 3x3 matrix in 
-      # step 1, NOT step 2, starting in the top left and going by row. I.e. the first three elements of 
-      # the vector are the first row of the step 1 matrix, the next three elements are the second row, and 
-      # the final three elements are the third row.
-      # 4. Reorder the vector starting with the pixel located directly above (r, c) in step 1 and then 
-      # moving clockwise and ending at the pixel located directly above (r, c)
-      neighbs <- c(t(img[(rr - 1):(rr + 1), ][, (cc - 1):(cc + 1)]))[c(2, 3, 6, 9, 8, 7, 4, 1, 2)]
-      ## Count the number of zeros directly preceeded by a one
-      # 1. create logical vector where it is TRUE if neighbs = 1 FALSE if neighbs = 0
-      # 2. circular-shift neighbs to the left by 1 and create logical vector where 
-      # TRUE if shifts neighbs = 1 and FALSE otherwise
-      # 3. Count the number of entries that are TRUE in the logical vectors from step 1 and step 2.
-      # Example: neighbs = 1 0 1 1 1 1 1 1 1 
-      #   Step 1. TRUE FALSE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-      #   Step 2. shifted = 0 1 1 1 1 1 1 1 1
-      #           TRUE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
-      #   Step 3. The result is 1
-      # Example: neighbs = 1 0 1 1 0 0 1 1 1
-      #   Step 1. TRUE FALSE TRUE TRUE FALSE FALSE TRUE TRUE TRUE
-      #   Step 2. shifted = 0 1 1 0 0 1 1 1 1
-      #           TRUE FALSE FALSE TRUE TRUE FALSE FALSE FALSE FALSE
-      #   Step 3. The result is 2
-      # Example: neighbs = 0 1 1 1 0 1 0 1 0
-      #   Step 1. FALSE TRUE TRUE TRUE FALSE TRUE FALSE TRUE FALSE
-      #   Step 2. shifted =  1 1 1 0 1 0 1 0 0
-      #           FALSE FALSE FALSE TRUE FALSE TRUE FALSE TRUE TRUE
-      #   Step 3. The result is 3
-      return(sum(neighbs == 1 & c(neighbs[-1], neighbs[1]) == 0))
-    } else {
-      stop("Please use `crop` to crop your image. Not padded around outside.")
-    }
-  }
-  
-  node2by2fill <- function(coords, img) {
-    # If there is a 2x2 block in the thinned image and none of those pixels are
-    # nodes, make one of them a node. All will have connectivity of 2. Choose
-    # pixel with most neighbors as node. Also make opposite diagonal pixel a
-    # node. When nodes are combined later this will form 1 node that absorbs all
-    # connections.
-    rr <- coords[1]
-    cc <- coords[2]
-    
-    # Check 2x2 neighborhood around point (rr, cc) to see if it has these values:
-    #      | cc | cc+1 |
-    # rr   | 0  | 0    |
-    # rr+1 | 0  | 0    |
-    if (img[rr, cc] == 0 & img[rr + 1, cc] == 0 & img[rr, cc + 1] == 0 & img[rr + 1, cc + 1] == 0) {
-      # create matrix of indices coordinate points of 2x2 neighborhood 
-      index2by2 <- matrix(c(rr, cc, rr + 1, cc, rr, cc + 1, rr + 1, cc + 1), byrow = TRUE, ncol = 2)
-      # count the number of neighbors for each pixel in the 2x2 neighborhood
-      numNeighbors <- colSums(apply(X = index2by2, MARGIN = 1, FUN = findNeighbors, img = img))
-      # make the pixel with the most neighbors a node
-      newNode <- index2by2[which.max(numNeighbors), ]
-      # make its opposite neighbor a node
-      oppositeCorner <- index2by2[(4:1)[which.max(numNeighbors)], ]
-      return(c(newNode[1] + (newNode[2] - 1) * dim(img)[1], 
-               oppositeCorner[1] + (oppositeCorner[2] - 1) * dim(img)[1]))
-    } else {
-      return(c(NA, NA))
-    }
-  }
-  
-  # First, we find endpoints and intersections of skeleton.
-  
-  # convert thinned image from list of pixel indices to matrix of 0 for
-  # handwriting and 1 elsewhere
-  img <- matrix(1, ncol = dims[2], nrow = dims[1])
-  img[indices] <- 0
-  
-  # create a node at each endpoint (only one connected edge) and at each pixel with three or more 
-  # connected edges
-  img_m <- i_to_rc(indices, dims=dims)   # convert thinned image indices to row and column
-  # for each pixel in the thinned image, count the number of connected edges
-  changeCount <- matrix(apply(X = img_m, MARGIN = 1, FUN = countChanges, img = img), byrow = F, nrow = 1)
-  nodes <- matrix(1, dims[1], dims[2])
-  # add nodes to matrix as 0
-  nodes[indices] <- ifelse(changeCount == 1 | changeCount >= 3, 0, 1)
-  
-  # check every pixel in thinned image for 2x2 filled neighborhood and assign
-  # nodes to that neighborhood
-  nodes2by2 <- t(apply(img_m, 1, FUN = node2by2fill, img = img))
-  # add 2x2 nodes to nodes matrix as 0
-  nodes[c(nodes2by2[apply(nodes2by2, 1, function(x) {all(!is.na(x))}), ])] <- 0
-  
-  nodeConnections <- c(indices[changeCount >= 3], c(nodes2by2[apply(nodes2by2, 1, function(x) {all(!is.na(x))}), ]))
-  nodeList <- which(nodes == 0)
-  # if a node isn't connected, assign it to the terminal nodes list
-  terminalNodes <- nodeList[!(nodeList %in% nodeConnections)]
-  
-  return(list('nodeConnections' = nodeConnections, 'nodeList' = nodeList, 'terminalNodes' = terminalNodes))
-}
-
-#' getNodeGraph
-#'
-#' Internal function for creating a graph from a path list and node list. More specifically,
-#' create a graph with a vertex for each node in nodeList. Then add an edge between the first and last
-#' node (pixel / vertex) in each path in allPaths.
-#'
-#' @param allPaths list of paths
-#' @param nodeList list of nodes
-#' @return a graph of nodes
-#' @noRd
-getNodeGraph <- function(allPaths, nodeList) {
-  nodeGraph <- igraph::make_empty_graph(directed = FALSE)
-  nodeGraph <- igraph::add_vertices(nodeGraph, length(nodeList), name = format(nodeList, scientific = FALSE, trim = TRUE))
-  for (i in 1:length(allPaths))
-  {
-    nodeGraph <- igraph::add_edges(nodeGraph, format(c(allPaths[[i]][1], allPaths[[i]][length(allPaths[[i]])]), scientific = FALSE, trim = TRUE))
-  }
-  return(nodeGraph)
-}
-
-
-
-
-#' getNodeOrder
-#'
-#' Internal function for ordering nodes in a letter.
-#'
-#' @param letter letter graph containing nodes to be ordered
-#' @param nodesInGraph how many nodes are in the letter
-#' @param nodeConnectivity how nodes are connected to each other
-#' @param dims graph dimensions
-#' @return order of the nodes
-#' @noRd
-
-getSkeleton <- function(skeleton_df, indices, nodeList) {
-  # build undirected skeleton_df with vertices=indices of the thinned writing and edges listed in skeleton_df
-  skeleton <- igraph::graph_from_data_frame(d = skeleton_df, vertices = as.character(format(indices, scientific = FALSE, trim = TRUE)), directed = FALSE)
-  # if more than one edge connects the same two vertices, combine the edges into a single edge and combine their attributes using the mean
-  skeleton <- igraph::simplify(skeleton, remove.multiple = TRUE, edge.attr.comb = "mean")
-  # color vertex as 1 if vertex is a node, otherwise color as 0
-  igraph::V(skeleton)$color <- ifelse(igraph::V(skeleton)$name %in% nodeList, 1, 0)
-  return(skeleton)
-}
-
-#' pathLetterAssociate
-#'
-#' Function associating entries in allPaths to each letter
-#'
-#' @param allPaths list of paths
-#' @param letter individual character
-#' @return associated path to each letter
-#' @noRd
-pathLetterAssociate <- function(allPaths, letter) {
-  associatedPaths <- list()
-  for (i in 1:length(allPaths)) {
-    if (all(allPaths[[i]] %in% letter)) {
-      associatedPaths <- c(associatedPaths, list(allPaths[[i]]))
-    }
-  }
-  return(associatedPaths)
-}
-
-#' findNeighbors
-#'
-#' Internal function for identifying which neighbors are black.
-#'
-#' @param coords coordinates to consider
-#' @param img The image as a bitmap
-#' @return Return a matrix of which neighbors are a black pixel
-#' @noRd
-findNeighbors <- function(coords, img) {
-  rr <- coords[1]
-  cc <- coords[2]
-  neighbs <- c(t(img[(rr - 1):(rr + 1), ][, (cc - 1):(cc + 1)]))[c(2, 3, 6, 9, 8, 7, 4, 1)]
-  yesNeighbs <- which(neighbs == 0)
-  res <- as.matrix(rep(0, 8), nrow = 1)
-  res[yesNeighbs] <- 1
-  
-  return(res)
-}
-
-#' findNeighbors0
-#'
-#' Internal function for identifying which neighbors are black excluding diagonals
-#' to the middle point when a non-diagonal between those two vertices exists. For example, 
-#' if the pixel above and the pixel to the right are black then exclude (set to zero) the pixel
-#' above and to the right (the diagonal between the two) from the neighbors list
-#'
-#' @param coords coordinates to consider
-#' @param img The image as a bitmap
-#' @return Return a list of which neighbors are a black pixel excluding diagonals to the
-#' middle point when a non-diagonal between those two vertices exists.
-#' @noRd
-findNeighbors0 <- function(coords, img) {
-  # get matrix of which neighboring pixels are black. 1=pixel is black, 0=pixel is white.
-  res <- findNeighbors(coords, img)
-  
-  # if pixel above and pixel to the right are neighbors, remove pixel above to the
-  # right from neighbors list
-  if (res[1] == 1 | res[3] == 1) {
-    res[2] <- 0
-  }
-  # if pixel to the right and pixel to the bottom are neighbors, remove pixel below to the
-  # right from neighbors list
-  if (res[3] == 1 | res[5] == 1) {
-    res[4] <- 0
-  }
-  # if pixel below and pixel to the left are neighbors, remove pixel below to the
-  # left from neighbors list
-  if (res[5] == 1 | res[7] == 1) {
-    res[6] <- 0
-  }
-  # if pixel to the left and pixel to the top are neighbors, remove pixel above to the
-  # left from neighbors list
-  if (res[7] == 1 | res[1] == 1) {
-    res[8] <- 0
-  }
-  return(res)
 }
