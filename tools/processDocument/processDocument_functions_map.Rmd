@@ -22,72 +22,72 @@ h <- hier_add(h, root = "processHandwriting", nodes = c("getNodes",
                                                         "getPaths",
                                                         "splitPathsIntoGraphs",
                                                         "organizeGraphs",
-                                                        "createLetterLists",
+                                                        "createGraphLists",
                                                         "addCharacterFeatures",
                                                         'flatten_list'))
 ```
 
 ```{r}
 h <- hier_add(h, root = 'getNodes', nodes = c('i_to_rc (1)',
-                                              'countChanges (nested)',
-                                              'node2by2fill (nested)'))
-h <- hier_add(h, root = 'node2by2fill (nested)', nodes = c('findNeighbors (1)'))
+                                              'countChanges',
+                                              'node2by2fill'))
+h <- hier_add(h, root = 'node2by2fill', nodes = c('findNeighbors (1)'))
 ```
 
 ```{r}
-h <- hier_add(h, root = 'skeletonize', nodes = c('getSkeletonDF (nested)',
+h <- hier_add(h, root = 'skeletonize', nodes = c('getSkeletonDF',
                                                  'getSkeleton (1)'))
-h <- hier_add(h, root = 'getSkeletonDF (nested)', nodes = c('i_to_rc (2)', 'findNeighbors (2)'))
+h <- hier_add(h, root = 'getSkeletonDF', nodes = c('i_to_rc (2)', 'findNeighbors (2)'))
 ```
 
 ```{r}
-h <- hier_add(h, root = 'getComponents', nodes = c('initializeComponents (nested)',
-                                                   'addSkeletons (nested)',
-                                                   'addIndices (nested)',
-                                                   'addNodes (nested)',
-                                                   'addSkeleton0s (nested)',
-                                                   'addAdjMatrices (nested)'))
-h <- hier_add(h, root = 'addIndices (nested)', nodes = c('i_to_rc (3)'))
-h <- hier_add(h, root = 'addSkeleton0s (nested)', nodes = c('getSkeletonDF0',
+h <- hier_add(h, root = 'getComponents', nodes = c('initializeComponents',
+                                                   'addSkeletons',
+                                                   'addIndices',
+                                                   'addNodes',
+                                                   'addSkeleton0s',
+                                                   'addAdjMatrices'))
+h <- hier_add(h, root = 'addIndices', nodes = c('i_to_rc (3)'))
+h <- hier_add(h, root = 'addSkeleton0s', nodes = c('getSkeletonDF0',
                                                             'getSkeleton (2)'))
 h <- hier_add(h, root = 'getSkeletonDF0', nodes = c('findNeighbors0'))
 h <- hier_add(h, root = 'findNeighbors0', nodes = c('findNeighbors (3)'))
-h <- hier_add(h, root = 'addAdjMatrices (nested)', nodes = c('getAdjMatrix (nested)'))
+h <- hier_add(h, root = 'addAdjMatrices', nodes = c('getAdjMatrix'))
 ```
 
 ```{r}
-h <- hier_add(h, root = 'mergeAllNodes', nodes = c('mergeNodes (nested)'))
-h <- hier_add(h, root = 'mergeNodes (nested)', nodes = c('i_to_r (1)',
+h <- hier_add(h, root = 'mergeAllNodes', nodes = c('mergeNodes'))
+h <- hier_add(h, root = 'mergeNodes', nodes = c('i_to_r (1)',
                                                    'i_to_c (1)',
-                                                   'findMergeNodes (nested in mergeAllNodes)',
-                                                'migrateConnections (nested in mergeAllNodes)'))
+                                                   'findMergeNodes',
+                                                'migrateConnections'))
 ```
 
 ```{r}
-h <- hier_add(h, root = 'getPaths', nodes = c('getAllNonLoopPaths (nested)',
-                                              'getAllLoops (nested)',
-                                              'updateAllSkeleton0s (nested)'))
-h <- hier_add(h, root = 'getAllNonLoopPaths (nested)', nodes = c('getNonLoopPathsForComponent (nested in getPaths)'))
-h <- hier_add(h, root = 'getAllLoops (nested)', nodes =  c('getLoopsForComponent (nested in getPaths'))
-h <- hier_add(h, root = 'updateAllSkeleton0s (nested)', nodes = c('updateSkeleton0 (nested in getPaths)'))
+h <- hier_add(h, root = 'getPaths', nodes = c('getAllNonLoopPaths',
+                                              'getAllLoops',
+                                              'updateAllSkeleton0s'))
+h <- hier_add(h, root = 'getAllNonLoopPaths', nodes = c('getNonLoopPathsForComponent'))
+h <- hier_add(h, root = 'getAllLoops', nodes =  c('getLoopsForComponent'))
+h <- hier_add(h, root = 'updateAllSkeleton0s', nodes = c('updateSkeleton0'))
 ```
 
 ```{r}
-h <- hier_add(h, root = 'splitPathsIntoGraphs', nodes = c('getAllBreakPoints (nested)',
-                                                          'updateAllBreakPoints (nested)',
-                                                          'isolateAllGraphs (nested)',
-                                                          'assignGraphIDs (nested)'))
-h <- hier_add(h, root = 'getAllBreakPoints (nested)', nodes = c('getBreakPointsForComponent (nested in splitPathsIntoGraphs)', 'addTroughNodes (nested in splitPathsIntoGraphs)'))
-h <- hier_add(h, root = 'getBreakPointsForComponent (nested in splitPathsIntoGraphs)', nodes = c('findTroughNodes (nested in splitPathsIntoGraphs)'))
-h <- hier_add(h, root = 'findTroughNodes (nested in splitPathsIntoGraphs)', nodes = c('isTroughNode (nested in splitGraphsIntoNodes'))
-h <- hier_add(h, root = 'addTroughNodes (nested in splitPathsIntoGraphs)', nodes = c('i_to_r (2)', 'i_to_c (2)'))
-h <- hier_add(h, root = 'updateAllBreakPoints (nested)', nodes = c('updateBreakPointsForComponent (nested in splitPathsIntoGraphs)'))
-h <- hier_add(h, root = 'updateBreakPointsForComponent (nested in splitPathsIntoGraphs)', nodes = c('getNodeGraph', 'checkBreakPoints'))
-h <- hier_add(h, root = 'isolateAllGraphs (nested)', nodes = c('isolateGraphsForComponent (nested in splitPathsIntoGraphs)'))
-h <- hier_add(h, root = 'isolateGraphsForComponent (nested in splitPathsIntoGraphs)', nodes = c('makeGraphs (nested in splitPathsIntoGraphs)',
-                                                                                                'checkStacking (nested in splitPathsIntoGraphs)',
-                                                                                                'checkSimplicityBreaks (nested in splitPathsIntoGraphs)'))
-h <- hier_add(h, root = 'checkSimplicityBreaks (nested in splitPathsIntoGraphs)', nodes = c('pathLetterAssociate (1)'))
+h <- hier_add(h, root = 'splitPathsIntoGraphs', nodes = c('getAllBreakPoints',
+                                                          'updateAllBreakPoints',
+                                                          'isolateAllGraphs',
+                                                          'assignGraphIDs'))
+h <- hier_add(h, root = 'getAllBreakPoints', nodes = c('getBreakPointsForComponent', 'addTroughNodes'))
+h <- hier_add(h, root = 'getBreakPointsForComponent', nodes = c('findTroughNodes'))
+h <- hier_add(h, root = 'findTroughNodes', nodes = c('isTroughNode'))
+h <- hier_add(h, root = 'addTroughNodes', nodes = c('i_to_r (2)', 'i_to_c (2)'))
+h <- hier_add(h, root = 'updateAllBreakPoints', nodes = c('updateBreakPointsForComponent'))
+h <- hier_add(h, root = 'updateBreakPointsForComponent', nodes = c('getNodeGraph', 'checkBreakPoints'))
+h <- hier_add(h, root = 'isolateAllGraphs', nodes = c('isolateGraphsForComponent'))
+h <- hier_add(h, root = 'isolateGraphsForComponent', nodes = c('makeGraphs',
+                                                                                                'checkStacking',
+                                                                                                'checkSimplicityBreaks'))
+h <- hier_add(h, root = 'checkSimplicityBreaks', nodes = c('pathLetterAssociate (1)'))
 ```
 
 ```{r}
@@ -96,8 +96,13 @@ h <- hier_add(h, root = 'organizeGraphs', nodes = c('organizeGraphsForComponent'
 
 
 ```{r}
-h <- hier_add(h, root = 'createLetterLists', nodes = c('pathLetterAssociate (2)', 'getConnectivity (nested)', 'getNodeOrder'))
-h <- hier_add(h, root = 'getNodeOrder', nodes = c('nested_toRC'))
+h <- hier_add(h, root = 'createGraphLists', nodes = c('createGraphListsForComponent'))
+h <- hier_add(h, root = 'createGraphListsForComponent', nodes = c('pathLetterAssociate (2)', 'getConnectivity', 'getNodeOrder'))
+h <- hier_add(h, root = 'getNodeOrder', nodes = c('angleDiff'))
+h <- hier_add(h, root = 'angleDiff', nodes = c('toRC'))
+```
+
+```{r}
 h <- hier_add(h, root = 'addCharacterFeatures', nodes = c('extract_character_features'))
 h <- hier_add(h, root = 'extract_character_features', nodes = c('char_to_feature',
                                                                 'add_updown_neighboring_char_dist',
