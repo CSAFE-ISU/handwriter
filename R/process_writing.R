@@ -134,15 +134,7 @@ processHandwriting <- function(img, dims) {
 
   # Adding character features ----
   message("Adding character features...")
-  n <- length(comps)
-  for (i in 1:n){
-    if (length(comps[[i]]$paths$graphList) > 0){
-      comps[[i]]$paths$graphList <- addCharacterFeatures(img = img, 
-                                                         graphList = comps[[i]]$paths$graphList, 
-                                                         graphs = comps[[i]]$paths$graphs, 
-                                                         dims = dims)
-    }
-  }
+  comps <- addGraphFeatures(comps = comps, img = img, dims = dims)
   
   # Flatten ----
   nodeList <- unique(unlist(sapply(comps, function(x) x[['nodes']][['nodeList']])))
@@ -163,7 +155,6 @@ processHandwriting <- function(img, dims) {
 
 
 # Clean -------------------------------------------------------------------
-
 createGraphLists <- function(comps, dims) {
   angleDiff <- function(fromIndex, toIndex, dims) {
     vecs <- toRC(c(fromIndex, toIndex), dims)
@@ -1381,32 +1372,6 @@ splitPathsIntoGraphs <- function(comps, dims) {
 }
 
 # Internal Functions ------------------------------------------------------
-#' add_character_features
-#'
-#' Internal method that adds features to characters
-#'
-#' @param img thinned binary image
-#' @param graphList list containing all graphs
-#' @param graphs individual characters from graphList
-#' @param dims image graph dimensions
-#' @return a list of graphs with features applied
-#' @noRd
-addCharacterFeatures <- function(img, graphList, graphs, dims) {
-  featureSets <- extract_character_features(img, graphList, dims)
-  
-  for (i in 1:length(graphs))
-  {
-    graphList[[i]]$characterFeatures <- featureSets[[i]]
-  }
-  
-  letterPlaces <- matrix(unlist(lapply(featureSets, FUN = function(x) {
-    c(x$line_number, x$order_within_line)
-  })), ncol = 2, byrow = TRUE)
-  letterOrder <- order(letterPlaces[, 1], letterPlaces[, 2])
-  graphList <- graphList[letterOrder]
-  
-  return(graphList)
-}
 
 #' checkBreakPoints
 #'

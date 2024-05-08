@@ -17,6 +17,36 @@
 
 # Internal Functions ------------------------------------------------------
 
+addGraphFeatures <- function(comps, img, dims) {
+  n <- length(comps)
+  for (i in 1:n){
+    if (length(comps[[i]]$paths$graphList) > 0){
+      comps[[i]]$paths$graphList <- addGraphFeaturesForComponent(img = img, 
+                                                                 graphList = comps[[i]]$paths$graphList, 
+                                                                 graphs = comps[[i]]$paths$graphs, 
+                                                                 dims = dims)
+    }
+  }
+  
+  return(comps)
+}
+
+addGraphFeaturesForComponent <- function(img, graphList, graphs, dims) {
+  featureSets <- extract_character_features(img, graphList, dims)
+  
+  for (i in 1:length(graphs))
+  {
+    graphList[[i]]$characterFeatures <- featureSets[[i]]
+  }
+  
+  letterPlaces <- matrix(unlist(lapply(featureSets, FUN = function(x) {
+    c(x$line_number, x$order_within_line)
+  })), ncol = 2, byrow = TRUE)
+  letterOrder <- order(letterPlaces[, 1], letterPlaces[, 2])
+  graphList <- graphList[letterOrder]
+  
+  return(graphList)
+}
 
 #' extract_character_features
 #'

@@ -23,7 +23,7 @@ h <- hier_add(h, root = "processHandwriting", nodes = c("getNodes",
                                                         "splitPathsIntoGraphs",
                                                         "organizeGraphs",
                                                         "createGraphLists",
-                                                        "addCharacterFeatures",
+                                                        "addGraphFeatures",
                                                         'flatten_list'))
 ```
 
@@ -103,7 +103,8 @@ h <- hier_add(h, root = 'angleDiff', nodes = c('toRC'))
 ```
 
 ```{r}
-h <- hier_add(h, root = 'addCharacterFeatures', nodes = c('extract_character_features'))
+h <- hier_add(h, root = 'addGraphFeatures', nodes = c('addGraphFeaturesForComponent'))
+h <- hier_add(h, root = 'addGraphFeaturesForComponent', nodes = c('extract_character_features'))
 h <- hier_add(h, root = 'extract_character_features', nodes = c('char_to_feature',
                                                                 'add_updown_neighboring_char_dist',
                                                                 'add_line_info',
