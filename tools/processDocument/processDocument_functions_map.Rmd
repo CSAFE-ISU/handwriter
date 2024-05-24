@@ -1,0 +1,155 @@
+---
+title: "handwriter functions map" author: "Stephanie Reinders" date:
+"2024-04-10" output: html_document
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(sdcHierarchies)
+```
+
+```{r}
+h <- hier_create(root = "Total", nodes = c('processDocument'))
+# processDocument
+h <- hier_add(h, root = "processDocument", nodes = c("readPNGBinary", "thinImage", "processHandwriting"))
+h <- hier_add(h, root = "processHandwriting", nodes = c("getNodes",
+                                                        "skeletonize",
+                                                        "getComponents",
+                                                        "mergeAllNodes",
+                                                        "getPaths",
+                                                        "splitPathsIntoGraphs",
+                                                        "organizeGraphs",
+                                                        "createGraphLists",
+                                                        "addGraphFeatures",
+                                                        'flatten_list'))
+```
+
+```{r}
+h <- hier_add(h, root = 'getNodes', nodes = c('i_to_rc (1)',
+                                              'countChanges',
+                                              'node2by2fill'))
+h <- hier_add(h, root = 'node2by2fill', nodes = c('findNeighbors (1)'))
+```
+
+```{r}
+h <- hier_add(h, root = 'skeletonize', nodes = c('getSkeletonDF',
+                                                 'getSkeleton (1)'))
+h <- hier_add(h, root = 'getSkeletonDF', nodes = c('i_to_rc (2)', 'findNeighbors (2)'))
+```
+
+```{r}
+h <- hier_add(h, root = 'getComponents', nodes = c('initializeComponents',
+                                                   'addSkeletons',
+                                                   'addIndices',
+                                                   'addNodes',
+                                                   'addSkeleton0s',
+                                                   'addAdjMatrices'))
+h <- hier_add(h, root = 'addIndices', nodes = c('i_to_rc (3)'))
+h <- hier_add(h, root = 'addSkeleton0s', nodes = c('getSkeletonDF0',
+                                                            'getSkeleton (2)'))
+h <- hier_add(h, root = 'getSkeletonDF0', nodes = c('findNeighbors0'))
+h <- hier_add(h, root = 'findNeighbors0', nodes = c('findNeighbors (3)'))
+h <- hier_add(h, root = 'addAdjMatrices', nodes = c('getAdjMatrix'))
+```
+
+```{r}
+h <- hier_add(h, root = 'mergeAllNodes', nodes = c('mergeNodes'))
+h <- hier_add(h, root = 'mergeNodes', nodes = c('i_to_r (1)',
+                                                   'i_to_c (1)',
+                                                   'findMergeNodes',
+                                                'migrateConnections'))
+```
+
+```{r}
+h <- hier_add(h, root = 'getPaths', nodes = c('getAllNonLoopPaths',
+                                              'getAllLoops',
+                                              'updateAllSkeleton0s'))
+h <- hier_add(h, root = 'getAllNonLoopPaths', nodes = c('getNonLoopPathsForComponent'))
+h <- hier_add(h, root = 'getAllLoops', nodes =  c('getLoopsForComponent'))
+h <- hier_add(h, root = 'updateAllSkeleton0s', nodes = c('updateSkeleton0'))
+```
+
+```{r}
+h <- hier_add(h, root = 'splitPathsIntoGraphs', nodes = c('getAllBreakPoints',
+                                                          'updateAllBreakPoints',
+                                                          'isolateAllGraphs',
+                                                          'assignGraphIDs'))
+h <- hier_add(h, root = 'getAllBreakPoints', nodes = c('getBreakPointsForComponent', 'addTroughNodes'))
+h <- hier_add(h, root = 'getBreakPointsForComponent', nodes = c('findTroughNodes'))
+h <- hier_add(h, root = 'findTroughNodes', nodes = c('isTroughNode'))
+h <- hier_add(h, root = 'addTroughNodes', nodes = c('i_to_r (2)', 'i_to_c (2)'))
+h <- hier_add(h, root = 'updateAllBreakPoints', nodes = c('updateBreakPointsForComponent'))
+h <- hier_add(h, root = 'updateBreakPointsForComponent', nodes = c('getNodeGraph', 'checkBreakPoints'))
+h <- hier_add(h, root = 'isolateAllGraphs', nodes = c('isolateGraphsForComponent'))
+h <- hier_add(h, root = 'isolateGraphsForComponent', nodes = c('makeGraphs',
+                                                                                                'checkStacking',
+                                                                                                'checkSimplicityBreaks'))
+h <- hier_add(h, root = 'checkSimplicityBreaks', nodes = c('pathLetterAssociate (1)'))
+```
+
+```{r}
+h <- hier_add(h, root = 'organizeGraphs', nodes = c('organizeGraphsForComponent'))
+```
+
+
+```{r}
+h <- hier_add(h, root = 'createGraphLists', nodes = c('createGraphListsForComponent'))
+h <- hier_add(h, root = 'createGraphListsForComponent', nodes = c('pathLetterAssociate (2)', 'getConnectivity', 'getNodeOrder'))
+h <- hier_add(h, root = 'getNodeOrder', nodes = c('angleDiff'))
+h <- hier_add(h, root = 'angleDiff', nodes = c('toRC'))
+```
+
+```{r}
+h <- hier_add(h, root = 'addGraphFeatures', nodes = c('addGraphFeaturesForComponent'))
+h <- hier_add(h, root = 'addGraphFeaturesForComponent', nodes = c('extract_character_features'))
+h <- hier_add(h, root = 'extract_character_features', nodes = c('char_to_feature',
+                                                                'add_updown_neighboring_char_dist',
+                                                                'add_line_info',
+                                                                'nov_neighboring_char_dist',
+                                                                'add_covariance_matrix'))
+h <- hier_add(h, root = 'char_to_feature', nodes = c('get_aspect_info', 'get_centroid_info'))
+h <- hier_add(h, root = 'get_aspect_info', nodes = c('i_to_rci (1)'))
+h <- hier_add(h, root = 'get_centroid_info', nodes = c('i_to_rci (2)', 'rc_to_i (1)'))
+h <- hier_add(h, root = 'add_updown_neighboring_char_dist', nodes = c('i_to_rci (3)', 'rc_to_i (2)'))
+h <- hier_add(h, root = 'add_line_info', nodes = c('line_number_extract', 'all_down_dists', 'all_centroids'))
+h <- hier_add(h, root = 'line_number_extract', nodes = c('i_to_rci (4)'))
+h <- hier_add(h, root = 'nov_neighboring_char_dist', nodes = c('character_features_by_line'))
+h <- hier_add(h, root = 'add_covariance_matrix', nodes = c('i_to_rc (4)'))
+```
+
+```{r}
+hier_display(h)
+```
+
+## Notes
+
+1.  make an adjacency matrix `comps[[i]]$nodes$adj0` for nodes with the following steps:
+    1.  weight each edge in `skeleton0` with 1 if either vertex is a node, this is the *node_only_dist*
+    2.  find the shortest distance between each pair of nodes. If the two nodes are
+        1.  not connected: the distance is Inf
+        2.  connected by a single edge: the distance if 1
+        3.  connected by more than one edge but with no nodes on the path: the distance is 2
+        4.  connected by more than one edge with one or more nodes on the path: the distance is 4 or greater. (If the distance is greater than 1 the distance is even.)
+    3.  make an adjacency matrix `adj0` that shows each pair of nodes. If two nodes are
+        1.  connected by a single edge, or by more than one edge but do not have another node between them: the value in the adjacency matrix is 1.
+        2.  otherwise: the value in the adjacency matrix is 0.
+2.  Merge nodes:
+    1.  Find the shortest distance between each pair of nodes, where the distance is measured as the number of edges. Note that in this case, the shortest path might run through another node, unlike in `adj0`.
+    2.  Find pairs of nodes that are only 1 or 2 edges apart and neither node is a terminal node.
+        1.  Merge the two nodes by keeping the second node if the nodes are connected by a single edge, and remove the first node from the node list.
+        2.  If the two nodes are connected by two edges, add the vertex between the two nodes to the node list and remove the two nodes themselves from the node list.
+        3.  Connect the edges that were\
+    3.  Create a new data frame called `adjm` based on an updated version of `adj0` that includes the new nodes created from merging and the old, merged nodes are removed. Each row of `adjm` is a pair of nodes where the shortest path between them does not run through any other nodes.
+3.  Create shortest, unique, non-loop paths:
+    1.  For each pair of nodes, n1 and n2, in adjm:
+        1.  Find the shortest distance between n1 and n2 where an edge has weight 1 if either vertex is a node and 0.00001 otherwise.
+        2.  While the shortest distance d satisfies 1 \<= d \< 3:
+            1.  Get the names of the vertices in the shortest path p between n1 and n2 as a vector
+            2.  Get the number of vertices n in the shortest path p
+            3.  Add p to the paths list
+            4.  If p has more than 2 vertices, delete the middle edge from skeleton0. If p has exactly 2 vertices,delete the single edge between the 2 vertices from skeleton0. Otherwise, return an error (Does this ever occur? Should this be a break instead?).
+            5.  Recalculate the shortest distance d between n1 and n2
+    2.  return paths list
