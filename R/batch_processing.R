@@ -147,7 +147,7 @@ process_batch_list <- function(images, output_dir, skip_docs_on_retry=TRUE) {
 #' @md
 process_batch_dir <- function(input_dir, output_dir = ".", skip_docs_on_retry=TRUE) {
   message("Listing documents to be processed...")
-  file_list <- list.files(input_dir, full.names = TRUE)
+  file_list <- list.files(input_dir, pattern = "(.PNG|.png)$", full.names = TRUE)
 
   document_list <- process_batch_list(images=file_list, 
                                       output_dir=output_dir,
