@@ -18,6 +18,7 @@
 # Internal Functions ------------------------------------------------------
 
 addGraphFeatures <- function(comps, img, dims) {
+  # For each component in comps, adds features, such as apsect info and centroid info, for each graph in the component
   n <- length(comps)
   for (i in 1:n){
     if (length(comps[[i]]$paths$graphList) > 0){
@@ -32,6 +33,7 @@ addGraphFeatures <- function(comps, img, dims) {
 }
 
 addGraphFeaturesForComponent <- function(img, graphList, graphs, dims) {
+  # adds features, such as apsect info and centroid info, for each graph
   featureSets <- extract_character_features(img, graphList, dims)
   
   for (i in 1:length(graphs))
@@ -50,7 +52,7 @@ addGraphFeaturesForComponent <- function(img, graphList, graphs, dims) {
 
 #' extract_character_features
 #'
-#' Primary driver of feature extraction. Parses all characters from a processed image.
+#' Parses all characters from a processed image.
 #' 
 #' @param img The thinned image bitmap
 #' @param character_lists Output from processHandwriting$letterLists
@@ -58,17 +60,17 @@ addGraphFeaturesForComponent <- function(img, graphList, graphs, dims) {
 #' @return nested lists associating features to respective characters.
 #' 
 #' @noRd
-extract_character_features <- function(img, character_lists,dims){
+extract_character_features <- function(img, character_lists, dims){
   
   character_features = list()
   
   for(i in 1:length(character_lists)){
-    cur_features = char_to_feature(character_lists[[i]],dims, i)
-    character_features = append(character_features,list(cur_features))
+    cur_features = char_to_feature(character_lists[[i]], dims, i)
+    character_features = append(character_features, list(cur_features))
   }
  
   character_features = add_updown_neighboring_char_dist(character_features, character_lists, img, dims)
-  character_features = add_line_info(character_features,dims)
+  character_features = add_line_info(character_features, dims)
   character_features = nov_neighboring_char_dist(character_features)
   character_features = add_covariance_matrix(character_lists, character_features, dims)
   
@@ -89,7 +91,7 @@ extract_character_features <- function(img, character_lists,dims){
 char_to_feature = function(character, dims, uniqueid){
   aspect_info = get_aspect_info(character$path,dims)
   centroid_info = get_centroid_info(character$path,dims)
-  features = c(aspect_info,centroid_info)
+  features = c(aspect_info, centroid_info)
   
   #persistent index for sorting/rearranging the features list
   features$uniqueid = uniqueid

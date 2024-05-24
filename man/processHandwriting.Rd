@@ -15,8 +15,11 @@ processHandwriting(img, dims)
 A list of the processed image
 }
 \description{
-The main driver of handwriting processing. Takes in an image of thinned handwriting created
-with \code{\link[=thinImage]{thinImage()}} and splits the the handwriting into component shapes called \emph{graphs}.
+The main driver of handwriting processing. Takes in an image of thinned
+handwriting created with \code{\link[=thinImage]{thinImage()}} and splits the the handwriting into
+shapes called \emph{graphs}. Instead of processing the entire document at once,
+the thinned writing is separated into connected components and each component
+is split into graphs.
 }
 \examples{
 twoSent_document <- list()
