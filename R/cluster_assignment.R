@@ -62,7 +62,7 @@ get_clusters_batch <- function(template, input_dir, output_dir, writer_indices, 
   }
 
   # list files in input dir
-  proclist <- list.files(input_dir, full.names = TRUE)
+  proclist <- list.files(input_dir, pattern = ".rds", full.names = TRUE)
 
   if (num_cores > 1) { # run in parallel
     my_cluster <- parallel::makeCluster(num_cores)
@@ -461,7 +461,7 @@ get_clusterassignment <- function(template_dir, input_type, num_graphs = "All", 
   }
 
   # list files in input dir
-  proclist <- list.files(input_dir, full.names = TRUE)
+  proclist <- list.files(input_dir, pattern = '.rds', full.names = TRUE)
 
   my_cluster <- parallel::makeCluster(num_cores)
   doParallel::registerDoParallel(my_cluster)
