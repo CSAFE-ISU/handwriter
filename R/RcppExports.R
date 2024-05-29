@@ -16,16 +16,12 @@ cleanBinaryImage <- function(img) {
 #' getGraphInfo_cpp
 #'
 #' Gather and format the parameter values need to calculate the distance
-NULL
-
-#'
+#' 
 #' @param imageList1 A graph
 #' @param imageList2 A graph
 #' @param isProto1 True or false. Is the graph information in prototype format?
 #' @param isProto2 True or false. Is the graph information in prototype format?
 #' @param numPathCuts An integer number of cuts to make when comparing segments
-NULL
-
 #'
 #' @noRd
 getGraphInfo_cpp <- function(imageList1, imageList2, isProto1, isProto2, numPathCuts) {
