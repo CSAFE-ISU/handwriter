@@ -209,9 +209,10 @@ create_dummy_image_list <- function(is_proto = TRUE, num_paths = 1) {
       lengths = lengths
     )
   } else {
+    pathends0 = array(path_ends, dim = c(2, 2, num_paths))
     image_list <- list(
       allPaths = lapply(1:num_paths, function(x) 1:x),
-      pathEndsrc = array(path_ends, dim = c(2, 2, num_paths)),
+      pathEndsrc = lapply(1:num_paths, function(x) pathends0[,,x]),
       pathQuarters = path_quarters,
       pathCenter = path_center,
       lengths = lengths,
