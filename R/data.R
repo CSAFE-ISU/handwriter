@@ -130,13 +130,7 @@
 #'   the distance between each graph and the center of the cluster to which it
 #'   was assigned  on each iteration.}
 #' \item{wcss}{A vector of the
-#'   within-cluster sum of squares on each iteration of the K-means algorithm.}
-#' \item{rmse}{A vector of the root-mean square error on each iteration of the
-#'   K-means algorithm.}
-#' \item{DaviesBouldinIndex}{The Davies-Bouldin index on
-#'   each iteration of the K-means algorithm.}
-#' \item{VarianceRatioCriterion}{The
-#'   variance-ratio criterion on each iteration of the K-means algorithm.} }
+#'   within-cluster sum of squares on each iteration of the K-means algorithm.}}
 #' @examples
 #' # view cluster fill counts for template training documents
 #' template_data <- format_template_data(example_cluster_template)
@@ -159,14 +153,14 @@
 #' }
 #' @examples
 #' # convert to a data frame and view all variable names
-#' df <- as.data.frame(coda::as.mcmc(example_model_1chain$fitted_model))
+#' df <- as.data.frame(coda::as.mcmc(example_model$fitted_model))
 #' colnames(df)
 #' 
 #' # view a trace plot
-#' plot_trace(variable = "mu[1,1]", model = example_model_1chain)
+#' plot_trace(variable = "mu[1,1]", model = example_model)
 #' 
 #' # drop the first 25 MCMC iterations for burn-in
-#' model <- drop_burnin(model = example_model_1chain, burn_in = 25)
+#' model <- drop_burnin(model = example_model, burn_in = 25)
 #'
 #' \dontrun{
 #' # analyze questioned documents
@@ -175,14 +169,14 @@
 #' analysis <- analyze_questioned_documents(
 #'    template_dir = template_dir,
 #'    questioned_images_dir = questioned_images_dir
-#'    model = example_model_1chain
+#'    model = example_model
 #'    num_cores = 2
 #' )
 #' analysis$posterior_probabilities
 #' }
 #' 
 #' @md
-"example_model_1chain"
+"example_model"
 
 #' Example of writership analysis
 #'
@@ -201,8 +195,8 @@
 #'   }
 #'
 #' @examples
-#' plot_cluster_fill_counts(formatted_data = example_analysis_1chain)
-#' plot_posterior_probabilities(analysis = example_analysis_1chain)
+#' plot_cluster_fill_counts(formatted_data = example_analysis)
+#' plot_posterior_probabilities(analysis = example_analysis)
 #'
 #' @md
-"example_analysis_1chain"
+"example_analysis"

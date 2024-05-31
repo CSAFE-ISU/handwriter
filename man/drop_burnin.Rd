@@ -18,7 +18,7 @@ A list of data frames of MCMC draws with burn-in dropped.
 \code{drop_burnin()} removes the burn-in from the Markov Chain Monte Carlo (MCMC) draws.
 }
 \examples{
-model <- drop_burnin(model = example_model_1chain, burn_in = 25)
-plot_trace(variable = "mu[1,2]", model = example_model_1chain)
+model <- drop_burnin(model = example_model, burn_in = 25)
+plot_trace(variable = "mu[1,2]", model = example_model)
 
 }

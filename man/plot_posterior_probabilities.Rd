@@ -18,6 +18,6 @@ questioned document and each known writer analyzed with
 \code{\link[=analyze_questioned_documents]{analyze_questioned_documents()}}.
 }
 \examples{
-plot_posterior_probabilities(analysis = example_analysis_1chain)
+plot_posterior_probabilities(analysis = example_analysis)
 
 }

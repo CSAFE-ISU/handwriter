@@ -67,7 +67,7 @@ test_that("clusters in formatted model data are labeled sequentially",{
 test_that("formatted questioned data is formatted correctly", {
   questioned_clusters <- readRDS(test_path("fixtures", "template", "data", "questioned_clusters.rds"))
   
-  data <- format_questioned_data(model=example_model_1chain,
+  data <- format_questioned_data(model=example_model,
                                  questioned_clusters=questioned_clusters, 
                                  writer_indices=c(2,5), 
                                  doc_indices=c(7,18))

@@ -22,6 +22,21 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// getGraphInfo_cpp
+Rcpp::List getGraphInfo_cpp(const Rcpp::List& imageList1, const Rcpp::List& imageList2, bool isProto1, bool isProto2, int numPathCuts);
+RcppExport SEXP _handwriter_getGraphInfo_cpp(SEXP imageList1SEXP, SEXP imageList2SEXP, SEXP isProto1SEXP, SEXP isProto2SEXP, SEXP numPathCutsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::List& >::type imageList1(imageList1SEXP);
+    Rcpp::traits::input_parameter< const Rcpp::List& >::type imageList2(imageList2SEXP);
+    Rcpp::traits::input_parameter< bool >::type isProto1(isProto1SEXP);
+    Rcpp::traits::input_parameter< bool >::type isProto2(isProto2SEXP);
+    Rcpp::traits::input_parameter< int >::type numPathCuts(numPathCutsSEXP);
+    rcpp_result_gen = Rcpp::wrap(getGraphInfo_cpp(imageList1, imageList2, isProto1, isProto2, numPathCuts));
+    return rcpp_result_gen;
+END_RCPP
+}
 // addToFeatures
 List addToFeatures(List FeatureSet, List LetterList, IntegerVector vectorDims);
 RcppExport SEXP _handwriter_addToFeatures(SEXP FeatureSetSEXP, SEXP LetterListSEXP, SEXP vectorDimsSEXP) {
@@ -82,6 +97,7 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_handwriter_cleanBinaryImage", (DL_FUNC) &_handwriter_cleanBinaryImage, 1},
+    {"_handwriter_getGraphInfo_cpp", (DL_FUNC) &_handwriter_getGraphInfo_cpp, 5},
     {"_handwriter_addToFeatures", (DL_FUNC) &_handwriter_addToFeatures, 3},
     {"_handwriter_rgba2rgb", (DL_FUNC) &_handwriter_rgba2rgb, 1},
     {"_handwriter_rgb2grayscale", (DL_FUNC) &_handwriter_rgb2grayscale, 1},

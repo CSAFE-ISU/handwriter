@@ -186,18 +186,10 @@ AddSamplingStrata = function(letterList){
 #' instead of the handwriting document.
 #'
 #' @param template_dir Input directory
-#' @return List containing graphs prepared for template creation. template_proc_list.rds
-#'   is saved in template_dir > data.
+#' @return List containing graphs prepared for template creation.
 #'
 #' @noRd
 make_proc_list <- function(template_dir) {
-  
-  # Load proc list if it already exists
-  if (file.exists(file.path(template_dir, "data", "template_proc_list.rds"))){
-    message("Loading template proc list...")
-    template_proc_list <- readRDS(file.path(template_dir, "data", "template_proc_list.rds"))
-    return(template_proc_list)
-  }
   
   # List files in template directory > data > template_graphs
   df <- data.frame(graph_paths = list.files(file.path(template_dir, "data", "template_graphs"), pattern = ".rds", full.names = TRUE), stringsAsFactors = FALSE)
@@ -214,7 +206,7 @@ make_proc_list <- function(template_dir) {
   })
 
   # Get the number of loops and edges in each graph
-  message("Adding sampling strata for each graph")
+  message("Adding sampling strata for each graph...")
   template_proc_list <- lapply(template_proc_list, function(x) {
     x$process$letterList <- AddSamplingStrata(x$process$letterList)
     return(x)
@@ -228,10 +220,6 @@ make_proc_list <- function(template_dir) {
     x$process$letterList <- MakeLetterListLetterSpecific(x$process$letterList, dim(x$image))
     return(x)
   }) # THIS MESSES UP PLOTTING!!
-
-  # Save to template directory
-  message("Saving template_dir > data > template_proc_list.rds...")
-  saveRDS(template_proc_list, file.path(template_dir, "data", "template_proc_list.rds"))
 
   return(template_proc_list)
 }
@@ -269,15 +257,6 @@ get_strata <- function(template_proc_list, template_dir) {
   stratum_table <- stratum_df %>%
     dplyr::group_by(stratum0_fac) %>%
     dplyr::summarize(n = dplyr::n())
-
-  # Save strata to csv file
-  message("Saving strata dataframe to template_dir > data > template_strata.rds...")
-  saveRDS(stratum_table, file.path(template_dir, "data", "template_strata.rds"))
-
-  # Calculate processing time
-  toc <- Sys.time()
-  elapsed <- paste0(round(as.numeric(difftime(time1 = toc, time2 = tic, units = "min")), 3), " minutes")
-  message(sprintf("Creating and saving strata dataframe: %s", elapsed))
 
   return(stratum_table)
 }
@@ -329,14 +308,7 @@ delete_crazy_graphs <- function(template_proc_list, max_edges, template_dir) {
     template_proc_list[[i]]$process$letterList <- template_proc_list[[i]]$process$letterList[keep_graphs]
   }
 
-  # Save to template directory
-  message("Saving updated graph list to template_dir > data > template_proc_list.rds")
-  saveRDS(template_proc_list, file.path(template_dir, "data", "template_proc_list.rds"))
-
-  # Calculate processing time
-  toc <- Sys.time() # stop timer
-  elapsed <- paste0(round(as.numeric(difftime(time1 = toc, time2 = tic, units = "min")), 3), " minutes")
-  message(sprintf("Deleted graphs with more than %d edges: %s", max_edges, elapsed))
+  message(sprintf("Deleted graphs with more than %d edges...", max_edges))
 
   return(template_proc_list)
 }
@@ -350,7 +322,7 @@ delete_crazy_graphs <- function(template_proc_list, max_edges, template_dir) {
 #'
 #' @param template_proc_list List of graphs output by make_proc_list()
 #' @param template_dir Input directory
-#' @return List of graphs. The list is saved as template_dir > data > template_images_list.rds
+#' @return List of graphs.
 #'
 #' @noRd
 make_images_list <- function(template_proc_list, template_dir, writer_indices) {
@@ -392,14 +364,6 @@ make_images_list <- function(template_proc_list, template_dir, writer_indices) {
     return(x)
   })
 
-  message("Saving list of images to template_dir > data > template_images_list.rds")
-  saveRDS(template_images_list, file.path(template_dir, "data", "template_images_list.rds"))
-
-  # Calculate processing time
-  toc <- Sys.time() # stop timer
-  elapsed <- paste0(round(as.numeric(difftime(time1 = toc, time2 = tic, units = "min")), 3), " minutes")
-  message(sprintf("Saved images list to template_dir > data > template_images_list.rds: %s", elapsed))
-
   return(template_images_list)
 }
 
@@ -417,8 +381,7 @@ make_images_list <- function(template_proc_list, template_dir, writer_indices) {
 #'   `All` uses all available graphs. An integer uses a random sample of graphs.
 #' @param full_template_images_list A list of all available training graphs
 #'   created by `make_images_list`
-#' @return List of graphs. The list is saved as template_dir > data >
-#'   template_images_list.rds
+#' @return List of graphs.
 #'
 #' @noRd
 chooseGraphs <- function(seed, num_graphs, full_template_images_list) {
@@ -604,10 +567,7 @@ letterKmeansWithOutlier_parallel <- function(template_proc_list, template_images
   centerMovedOld <- rep(TRUE, K) # whether each cluster lost or grained graphs on last iteration
   oldCenters <- centers
   changes <- c() # number of graphs that changed clusters on each iteration
-  db <- c() # Davies-Bouldin Index
-  vrc <- c() # Variance ratio criterion
   wcss <- c() # Within-cluster sum of squares
-  rmse <- c() # Root mean square error
 
   # Initial settings for outliers
   current_outlierCutoff <- Inf
@@ -622,7 +582,7 @@ letterKmeansWithOutlier_parallel <- function(template_proc_list, template_images
   while (TRUE) {
     # Cluster Assignment Step ----
     iters <- iters + 1
-    message(sprintf("Starting iteration %d of the k-means algorithm...", iters))
+    message(sprintf("\nStarting iteration %d of the k-means algorithm...", iters))
 
     message("Calculating the distances between graphs and cluster centers...")
     # Calculate the distance between each graph and each cluster center. If the cluster center didn't change, the distances for that
@@ -691,29 +651,14 @@ letterKmeansWithOutlier_parallel <- function(template_proc_list, template_images
     current_changes <- sum(cluster != oldCluster)
     changes <- c(changes, current_changes)
     current_perc_changes <- 100 * current_changes / n
-    message(sprintf("%d graphs changed clusters.", current_changes))
-    message(sprintf("%f percent of total graphs changed clusters.", current_perc_changes))
+    message(sprintf("%d graphs changed clusters...", current_changes))
+    message(sprintf("%f percent of total graphs changed clusters...", current_perc_changes))
 
     # Performance Measures ----
     # Caclulate the Within-Cluster Sum of Squares
     current_wcss <- within_cluster_sum_of_squares(wcd = current_wcd, cluster = cluster)
     wcss <- c(wcss, current_wcss)
-    message(sprintf("The within-cluster sum of squares is %f.", current_wcss))
-
-    # Calculate the root mean square error
-    current_rmse <- root_mean_square_error(wcd = current_wcd, cluster = cluster)
-    rmse <- c(rmse, current_rmse)
-    message(sprintf("The root mean square error is %f.", current_rmse))
-
-    # Calculate the Davies-Bouldin Index
-    current_db <- davies_bouldin(wcd = current_wcd, cluster = cluster, centers = centers, K = K, num_path_cuts = num_path_cuts)
-    db <- c(db, current_db)
-    message(sprintf("The Davies-Bouldin Index is %f.", current_db))
-
-    # Calculate the variance ratio criterion
-    current_vrc <- variance_ratio_criterion(wcd = current_wcd, cluster = cluster, centers = centers, K = K, num_path_cuts = num_path_cuts)
-    vrc <- c(vrc, current_vrc)
-    message(sprintf("The variance ratio criterion is %f.", current_vrc))
+    message(sprintf("The within-cluster sum of squares is %f...", current_wcss))
 
     # Check Stopping Criteria ----
     # Stop if the percent of graphs that changed clusters is <= 3%, if the
@@ -780,10 +725,7 @@ letterKmeansWithOutlier_parallel <- function(template_proc_list, template_images
     outlierCutoff = outlierCutoff,
     stop_reason = stop_reason, 
     wcd = wcd, 
-    wcss = wcss, 
-    rmse = rmse, 
-    DaviesBouldinIndex = db, 
-    VarianceRatioCriterion = vrc
+    wcss = wcss
   ))
 }
 
@@ -885,107 +827,6 @@ overall_meanGraph <- function(centers, num_path_cuts = 8) {
   return(list("overall_center_dists" = dists, overall_center = centers[[retindex]]))
 }
 
-
-#' Davies Bouldin Index
-#'
-#' davies_bouldin() calculates the Davies-Bouldin Index for the current
-#' iteration of the K-means algorithm
-#'
-#' @param wcd Matrix of within-cluster distances: the distances between each
-#'   graph and each cluster center
-#' @param cluster Vector of the cluster assignment for each graph
-#' @param centers List of cluster centers
-#' @param K Integer number of clusters
-#' @param num_path_cuts Integer number of sections to cut each graph into for
-#'   shape comparison
-#' @return The Davies-Bouldin Index
-#'
-#' @noRd
-davies_bouldin <- function(wcd, cluster, centers, K, num_path_cuts) {
-  # For each cluster, calculate the average distance between the graphs in that cluster and the cluster center
-  s <- rep(0, K)
-  for (i in 1:K) {
-    s[i] <- mean(wcd[cluster == i])
-  }
-
-  # Calculate the distance between each pair of cluster centers. We don't need to calculate the distance between a center and itself, so skip those calculations.
-  d <- matrix(NA, nrow = K, ncol = K)
-  for (i in 1:K) {
-    for (j in 1:K) {
-      if (i != j) {
-        d[i, j] <- getGraphDistance(centers[[i]], centers[[j]], isProto1 = TRUE, isProto2 = TRUE, numPathCuts = num_path_cuts)$matching_weight
-      }
-    }
-  }
-
-  # Calculate R_ij for all i and j. Again, we don't need to measure the separation between a cluster and itself, so skip those calculations
-  R <- matrix(NA, nrow = K, ncol = K)
-  for (i in 1:K) {
-    for (j in 1:K) {
-      if (i != j) {
-        R[i, j] <- (s[i] + s[j]) / d[i, j]
-      }
-    }
-  }
-
-  # Make list of clusters that have at least 1 graph
-  filled_clusters <- unique(cluster[cluster != -1])
-
-  # Find the max value of R for each filled cluster i
-  maxR <- rep(NA, length(filled_clusters))
-  for (i in 1:length(filled_clusters)) {
-    maxR[i] <- max(R[filled_clusters[i], ], na.rm = TRUE)
-  }
-
-  # Calculate the index
-  db <- sum(maxR) / length(filled_clusters)
-
-  return(db)
-}
-
-
-#' Variance Ratio Criterion
-#'
-#' `variance_ratio_criterion()` calculates the varience-ratio criterion for the
-#' current iteration of the K-means algorithm
-#'
-#' @param wcd Matrix of within-cluster distances: the distances between each
-#'   graph and each cluster center
-#' @param cluster Vector of the cluster assignment for each graph
-#' @param centers List of cluster centers
-#' @param K Integer number of clusters
-#' @param num_path_cuts Integer number of sections to cut each graph into for
-#'   shape comparison
-#' @return The variance-ratio criterion
-#'
-#' @noRd
-variance_ratio_criterion <- function(wcd, cluster, centers, K, num_path_cuts) {
-  # Count the number of graphs in each non-outlier cluster
-  ni <- c()
-  for (i in 1:K) {
-    ni <- c(ni, sum(cluster == i))
-  }
-
-  # Get total number of non-outlier graphs
-  n <- sum(ni)
-
-  # Estimate the overall mean graph (the center of the centers) and measure distance from all centers to
-  # the overall center
-  overall <- overall_meanGraph(centers = centers, num_path_cuts = num_path_cuts)
-
-  # Calculate the between-cluster variance: SS_B = (k-1)^(-1) \sum_{i=1}^k n_i \cdot d(m_i, m)^2
-  SSb <- sum(ni * overall$overall_center_dists^2) / (K - 1)
-
-  # Calculate the within-cluster variance: SS_W = (n-k)^(-1)\sum_{i=1}^k \sum_{x \in C_i} d(x, m_i)^2
-  wcd <- wcd[cluster != -1] # remove graphs in the outlier cluster
-  SSw <- sum(wcd^2) / (n - K)
-
-  # Calculate variance-ratio-criterion
-  vrc <- SSb / SSw
-  return(vrc)
-}
-
-
 #' Within Cluster Sum of Squares
 #'
 #' `within_cluster_sum_of_squares()` calculates the the within-cluster sum of squares for the
@@ -1006,7 +847,6 @@ within_cluster_sum_of_squares <- function(wcd, cluster) {
 
   return(wcss)
 }
-
 
 #' Root Mean Square Error
 #'

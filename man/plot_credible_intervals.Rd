@@ -29,7 +29,7 @@ Plot credible intervals for the model's pi parameters that estimate the true wri
 cluster fill counts.
 }
 \examples{
-plot_credible_intervals(model = example_model_1chain)
-plot_credible_intervals(model = example_model_1chain, facet = TRUE)
+plot_credible_intervals(model = example_model)
+plot_credible_intervals(model = example_model, facet = TRUE)
 
 }

@@ -20,7 +20,7 @@ Text that explains the variable
 \examples{
 about_variable(
   variable = "mu[1,2]",
-  model = example_model_1chain
+  model = example_model
 )
 
 }

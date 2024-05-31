@@ -202,8 +202,8 @@ fit_model <- function(template_dir,
 #' @return A list of data frames of MCMC draws with burn-in dropped.
 #'
 #' @examples
-#' model <- drop_burnin(model = example_model_1chain, burn_in = 25)
-#' plot_trace(variable = "mu[1,2]", model = example_model_1chain)
+#' model <- drop_burnin(model = example_model, burn_in = 25)
+#' plot_trace(variable = "mu[1,2]", model = example_model)
 #'
 #' @export
 #' @md
@@ -227,7 +227,7 @@ drop_burnin <- function(model, burn_in) {
 #' @examples
 #' about_variable(
 #'   variable = "mu[1,2]",
-#'   model = example_model_1chain
+#'   model = example_model
 #' )
 #'
 #' @export
@@ -292,8 +292,8 @@ about_variable <- function(variable, model) {
 #' @return A list of data frames. Each data frame lists the credible intervals for a single writer.
 #'
 #' @examples
-#' get_credible_intervals(model=example_model_1chain)
-#' get_credible_intervals(model=example_model_1chain, interval_min=0.05, interval_max=0.95)
+#' get_credible_intervals(model=example_model)
+#' get_credible_intervals(model=example_model, interval_min=0.05, interval_max=0.95)
 #'
 #' @export
 #' @md

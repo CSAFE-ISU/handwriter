@@ -170,9 +170,10 @@ create_dummy_image_list <- function(is_proto = TRUE, num_paths = 1) {
       lengths = lengths
     )
   } else {
+    pathends0 = array(path_ends, dim = c(2, 2, num_paths))
     image_list <- list(
       allPaths = lapply(1:num_paths, function(x) 1:x),
-      pathEndsrc = array(path_ends, dim = c(2, 2, num_paths)),
+      pathEndsrc = lapply(1:num_paths, function(x) pathends0[,,x]),
       pathQuarters = path_quarters,
       pathCenter = path_center,
       lengths = lengths,
@@ -192,6 +193,9 @@ test_that("getGraphInfo returns the correct output with two prototype image list
   graph_info <- getGraphInfo(image_list1, image_list2, TRUE, TRUE, 5)
   expect_equal(graph_info$numPaths1, 2)
   expect_equal(graph_info$numPaths2, 3)
+  graph_info2 <- getGraphInfo_cpp(image_list1, image_list2, TRUE, TRUE, 5)
+  expect_equal(graph_info2$numPaths1, 2)
+  expect_equal(graph_info2$numPaths2, 3)
 })
 
 # Test 2: getGraphInfo with two non-prototype image lists
@@ -202,6 +206,9 @@ test_that("getGraphInfo returns the correct output with two non-prototype image 
   graph_info <- getGraphInfo(image_list1, image_list2, FALSE, FALSE, 5)
   expect_equal(graph_info$numPaths1, 2)
   expect_equal(graph_info$numPaths2, 3)
+  graph_info2 <- getGraphInfo_cpp(image_list1, image_list2, FALSE, FALSE, 5)
+  expect_equal(graph_info2$numPaths1, 2)
+  expect_equal(graph_info2$numPaths2, 3)
 })
 
 # Test 3: getGraphInfo with one prototype and one non-prototype image list
@@ -212,6 +219,9 @@ test_that("getGraphInfo returns the correct output with one prototype and one no
   graph_info <- getGraphInfo(image_list1, image_list2, TRUE, FALSE, 5)
   expect_equal(graph_info$numPaths1, 2)
   expect_equal(graph_info$numPaths2, 3)
+  graph_info2 <- getGraphInfo_cpp(image_list1, image_list2, TRUE, FALSE, 5)
+  expect_equal(graph_info2$numPaths1, 2)
+  expect_equal(graph_info2$numPaths2, 3)
 })
 
 ##########################
