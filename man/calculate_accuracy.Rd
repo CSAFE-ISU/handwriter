@@ -25,11 +25,11 @@ the average posterior probability assigned to the true writer.
 calculate_accuracy(example_analysis)
 
 \dontrun{
-template_dir <- "/path/to/template_dir"
+main_dir <- "/path/to/main_dir"
 test_images_dir <- "/path/to/test_images"
 analysis <- analyze_questioned_documents(
-  template_dir = template_dir,
-  questioned_images_dir = test_images_dir,
+  main_dir = main_dir,
+  questioned_docs = test_images_dir,
   model = model,
   num_cores = 2,
   num_graphs = "All",

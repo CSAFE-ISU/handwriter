@@ -407,7 +407,7 @@ MakeLetterListLetterSpecific = function(letterList, dims)
 
 #' get_clusterassignment
 #'
-#' @param template_dir Directory containing a cluster template created with `make_clustering_templates`
+#' @param main_dir Directory containing a cluster template created with `make_clustering_templates`
 #' @param input_type `model` or `questioned`
 #' @param num_graphs 'All' or integer number of graphs to randomly select from each document.
 #' @param writer_indices Vector of start and end indices for the writer id in
@@ -419,15 +419,15 @@ MakeLetterListLetterSpecific = function(letterList, dims)
 #' @return list of processed handwriting with cluster assignments for each graph
 #'
 #' @noRd
-get_clusterassignment <- function(template_dir, input_type, num_graphs = "All", writer_indices, doc_indices, num_cores) {
+get_clusterassignment <- function(main_dir, input_type, num_graphs = "All", writer_indices, doc_indices, num_cores) {
   # bind global variables to fix check() note
   i <- outliercut <- docname <- NULL
 
   # load cluster file if it already exists
   if (input_type == "model") {
-    cluster_file <- file.path(template_dir, "data", "model_clusters.rds")
+    cluster_file <- file.path(main_dir, "data", "model_clusters.rds")
   } else if (input_type == "questioned") {
-    cluster_file <- file.path(template_dir, "data", "questioned_clusters.rds")
+    cluster_file <- file.path(main_dir, "data", "questioned_clusters.rds")
   } else {
     stop("Unknown input type. Use model or questioned.")
   }
@@ -437,24 +437,24 @@ get_clusterassignment <- function(template_dir, input_type, num_graphs = "All", 
   }
 
   # load template
-  if (file.exists(file.path(template_dir, "data", "template.rds"))) {
-    template <- readRDS(file.path(template_dir, "data", "template.rds"))
+  if (file.exists(file.path(main_dir, "data", "template.rds"))) {
+    template <- readRDS(file.path(main_dir, "data", "template.rds"))
   } else {
-    stop(paste("There is no cluster template in", template_dir))
+    stop(paste("There is no cluster template in", main_dir))
   }
 
   # get input directory
   if (input_type == "model") {
-    input_dir <- file.path(template_dir, "data", "model_graphs")
+    input_dir <- file.path(main_dir, "data", "model_graphs")
   } else {
-    input_dir <- file.path(template_dir, "data", "questioned_graphs")
+    input_dir <- file.path(main_dir, "data", "questioned_graphs")
   }
 
   # make output directory
   if (input_type == "model") {
-    output_dir <- file.path(template_dir, "data", "model_clusters")
+    output_dir <- file.path(main_dir, "data", "model_clusters")
   } else {
-    output_dir <- file.path(template_dir, "data", "questioned_clusters")
+    output_dir <- file.path(main_dir, "data", "questioned_clusters")
   }
   if (!dir.exists(output_dir)) {
     dir.create(output_dir)
@@ -543,9 +543,9 @@ get_clusterassignment <- function(template_dir, input_type, num_graphs = "All", 
 
   # save clusters
   if (input_type == "model") {
-    saveRDS(proclist, file.path(template_dir, "data", "model_clusters.rds"))
+    saveRDS(proclist, file.path(main_dir, "data", "model_clusters.rds"))
   } else {
-    saveRDS(proclist, file.path(template_dir, "data", "questioned_clusters.rds"))
+    saveRDS(proclist, file.path(main_dir, "data", "questioned_clusters.rds"))
   }
 
   return(proclist)

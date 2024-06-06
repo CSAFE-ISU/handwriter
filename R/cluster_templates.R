@@ -22,12 +22,12 @@
 #'
 #' `make_clustering_templates()` applies a K-means clustering algorithm to the
 #' input handwriting samples pre-processed with [`process_batch_dir()`] and saved
-#' in the input folder `template_dir > data > template_graphs`. The K-means
+#' in the input folder `main_dir > data > template_graphs`. The K-means
 #' algorithm sorts the graphs in the input handwriting samples into groups, or
 #' *clusters*, of similar graphs.
 #'
-#' @param template_dir Main directory that will store template files
-#' @param template_images_dir A directory containing template training images
+#' @param main_dir Main directory that will store template files
+#' @param template_docs A directory containing template training images
 #' @param writer_indices A vector of the starting and ending location of the
 #'   writer ID in the file name.
 #' @param max_edges Maximum number of edges allowed in input graphs. Graphs with
@@ -53,12 +53,12 @@
 #' @examples
 #' \dontrun{
 #' main_dir <- "path/to/folder"
-#' template_images_dir <- system.file("extdata/example_images/template_training_images",
+#' template_docs <- system.file("extdata/example_images/template_training_images",
 #'   package = "handwriter"
 #' )
 #' template_list <- make_clustering_templates(
-#'   template_dir = main_dir,
-#'   template_images_dir = template_images_dir,
+#'   main_dir = main_dir,
+#'   template_docs = template_docs,
 #'   writer_indices = c(2, 5),
 #'   K = 10,
 #'   num_dist_cores = 2,
@@ -71,8 +71,8 @@
 #'
 #' @export
 #' @md
-make_clustering_templates <- function(template_dir,
-                                      template_images_dir,
+make_clustering_templates <- function(main_dir,
+                                      template_docs,
                                       writer_indices,
                                       max_edges = 30,
                                       centers_seed,
@@ -87,29 +87,29 @@ make_clustering_templates <- function(template_dir,
   options(scipen = 999)
 
   # Setup folders ----
-  do_setup(template_dir = template_dir)
+  do_setup(main_dir = main_dir)
 
   # Process training documents ----
   message("Processing template training documents...")
   process_batch_dir(
-    input_dir = template_images_dir,
-    output_dir = file.path(template_dir, "data", "template_graphs")
+    input_dir = template_docs,
+    output_dir = file.path(main_dir, "data", "template_graphs")
   )
 
   # Make proclist ----
-  template_proc_list <- make_proc_list(template_dir = template_dir)
+  template_proc_list <- make_proc_list(main_dir = main_dir)
 
   # Delete large graphs ----
   # Make table of number of graphs with various numbers of loops and edges
-  strata <- get_strata(template_proc_list = template_proc_list, template_dir = template_dir)
+  strata <- get_strata(template_proc_list = template_proc_list, main_dir = main_dir)
 
   # Delete graphs with too many edges
-  template_proc_list <- delete_crazy_graphs(template_proc_list = template_proc_list, max_edges = max_edges, template_dir = template_dir)
+  template_proc_list <- delete_crazy_graphs(template_proc_list = template_proc_list, max_edges = max_edges, main_dir = main_dir)
 
   # Make images list ----
   full_template_images_list <- make_images_list(
     template_proc_list = template_proc_list,
-    template_dir = template_dir,
+    main_dir = main_dir,
     writer_indices = writer_indices
   )
 
@@ -138,7 +138,7 @@ make_clustering_templates <- function(template_dir,
     graphs_seed = graphs_seed
   )
   message("Saving template...")
-  saveRDS(template, file = file.path(template_dir, "data", "template.rds"))
+  saveRDS(template, file = file.path(main_dir, "data", "template.rds"))
   return(template)
 }
 
@@ -178,21 +178,21 @@ AddSamplingStrata = function(letterList){
 #' `process_batch_dir()` needs to be run first to processes handwriting documents
 #' in a specified folder. `process_batch_dir()` creates an RDS file for each
 #' document that contains the extracted graphs in the document and saves the
-#' file in `template_dir > data > template_graphs` in rds files. `make_proc_list()`
-#' loads the graph RDS files from `template_dir > data > template_graphs` into a
+#' file in `main_dir > data > template_graphs` in rds files. `make_proc_list()`
+#' loads the graph RDS files from `main_dir > data > template_graphs` into a
 #' single list. This function also adds the graph image matrix and the number of
 #' loops and edges to each item in the list. This function also records the
 #' locations information of each graph with respect to the individual graph
 #' instead of the handwriting document.
 #'
-#' @param template_dir Input directory
+#' @param main_dir Input directory
 #' @return List containing graphs prepared for template creation.
 #'
 #' @noRd
-make_proc_list <- function(template_dir) {
+make_proc_list <- function(main_dir) {
   
   # List files in template directory > data > template_graphs
-  df <- data.frame(graph_paths = list.files(file.path(template_dir, "data", "template_graphs"), pattern = ".rds", full.names = TRUE), stringsAsFactors = FALSE)
+  df <- data.frame(graph_paths = list.files(file.path(main_dir, "data", "template_graphs"), pattern = ".rds", full.names = TRUE), stringsAsFactors = FALSE)
 
   # Load graphs
   message("Loading processed template training documents...")
@@ -231,12 +231,12 @@ make_proc_list <- function(template_dir) {
 #' each strata (number of loops or edges)
 #'
 #' @param template_proc_list List of graphs output by make_proc_list()
-#' @param template_dir Input directory
+#' @param main_dir Input directory
 #' @return Dataframe of number of graphs per strata. The dataframe is saved in
 #'   tempalte_dir > data.
 #'
 #' @noRd
-get_strata <- function(template_proc_list, template_dir) {
+get_strata <- function(template_proc_list, main_dir) {
   tic <- Sys.time() # start timer
   message("Start making a dataframe of the number of graphs with various numbers of loops and edges...")
 
@@ -269,11 +269,11 @@ get_strata <- function(template_proc_list, template_dir) {
 #'
 #' @param template_proc_list List of graphs output by make_proc_list()
 #' @param max_edges Maximum number of edges to allow in each graph
-#' @param template_dir Input directory
+#' @param main_dir Input directory
 #' @return List of graphs
 #'
 #' @noRd
-delete_crazy_graphs <- function(template_proc_list, max_edges, template_dir) {
+delete_crazy_graphs <- function(template_proc_list, max_edges, main_dir) {
   tic <- Sys.time() # start timer
 
   # Make vectors of document #, letter #, and strata for each graph
@@ -321,11 +321,11 @@ delete_crazy_graphs <- function(template_proc_list, max_edges, template_dir) {
 #' centroid of the graph image.
 #'
 #' @param template_proc_list List of graphs output by make_proc_list()
-#' @param template_dir Input directory
+#' @param main_dir Input directory
 #' @return List of graphs.
 #'
 #' @noRd
-make_images_list <- function(template_proc_list, template_dir, writer_indices) {
+make_images_list <- function(template_proc_list, main_dir, writer_indices) {
   tic <- Sys.time() # start timer
 
   message("Processing the image (matrix) for each graph in template_proc_list...")
@@ -419,16 +419,16 @@ chooseGraphs <- function(seed, num_graphs, full_template_images_list) {
 
 #' Do Setup
 #'
-#' `do_setup()` creates the folder template_dir > starting_seed. It also creates
+#' `do_setup()` creates the folder main_dir > starting_seed. It also creates
 #' data and logs subfolders in the starting_seed folder.
 #'
-#' @param template_dir Input directory
+#' @param main_dir Input directory
 #'
 #' @noRd
-do_setup <- function(template_dir) {
+do_setup <- function(main_dir) {
 
-  # Create subfolder in template_dir if it doesn't already exist
-  make_dir(file.path(template_dir, "data"))
+  # Create subfolder in main_dir if it doesn't already exist
+  make_dir(file.path(main_dir, "data"))
 }
 
 

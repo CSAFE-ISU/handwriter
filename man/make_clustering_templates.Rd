@@ -5,8 +5,8 @@
 \title{Make Clustering Templates}
 \usage{
 make_clustering_templates(
-  template_dir,
-  template_images_dir,
+  main_dir,
+  template_docs,
   writer_indices,
   max_edges = 30,
   centers_seed,
@@ -20,9 +20,9 @@ make_clustering_templates(
 )
 }
 \arguments{
-\item{template_dir}{Main directory that will store template files}
+\item{main_dir}{Main directory that will store template files}
 
-\item{template_images_dir}{A directory containing template training images}
+\item{template_docs}{A directory containing template training images}
 
 \item{writer_indices}{A vector of the starting and ending location of the
 writer ID in the file name.}
@@ -60,19 +60,19 @@ List containing the cluster template
 \description{
 \code{make_clustering_templates()} applies a K-means clustering algorithm to the
 input handwriting samples pre-processed with \code{\link[=process_batch_dir]{process_batch_dir()}} and saved
-in the input folder \verb{template_dir > data > template_graphs}. The K-means
+in the input folder \verb{main_dir > data > template_graphs}. The K-means
 algorithm sorts the graphs in the input handwriting samples into groups, or
 \emph{clusters}, of similar graphs.
 }
 \examples{
 \dontrun{
 main_dir <- "path/to/folder"
-template_images_dir <- system.file("extdata/example_images/template_training_images",
+template_docs <- system.file("extdata/example_images/template_training_images",
   package = "handwriter"
 )
 template_list <- make_clustering_templates(
-  template_dir = main_dir,
-  template_images_dir = template_images_dir,
+  main_dir = main_dir,
+  template_docs = template_docs,
   writer_indices = c(2, 5),
   K = 10,
   num_dist_cores = 2,

@@ -23,8 +23,8 @@
 #' writership for the questioned documents using Markov Chain Monte Carlo (MCMC) draws from a hierarchical
 #' model created with [`fit_model()`].
 #'
-#' @param template_dir A directory that contains a cluster template created by [`make_clustering_templates()`]
-#' @param questioned_images_dir A directory containing questioned documents
+#' @param main_dir A directory that contains a cluster template created by [`make_clustering_templates()`]
+#' @param questioned_docs A directory containing questioned documents
 #' @param model A fitted model created by [`fit_model()`]
 #' @param num_cores An integer number of cores to use for parallel processing
 #'   with the `doParallel` package.
@@ -36,11 +36,11 @@
 #'
 #' @examples
 #' \dontrun{
-#' template_dir <- "/path/to/template_dir"
-#' questioned_images_dir <- "/path/to/questioned_images"
+#' main_dir <- "/path/to/main_dir"
+#' questioned_docs <- "/path/to/questioned_images"
 #' analysis <- analyze_questioned_documents(
-#'   template_dir = template_dir,
-#'   questioned_images_dir = questioned_images_dir,
+#'   main_dir = main_dir,
+#'   questioned_docs = questioned_docs,
 #'   model = model,
 #'   num_cores = 2,
 #'   num_graphs = "All",
@@ -52,25 +52,25 @@
 #'
 #' @export
 #' @md
-analyze_questioned_documents <- function(template_dir, questioned_images_dir, model, num_cores, num_graphs = "All", writer_indices, doc_indices) {
+analyze_questioned_documents <- function(main_dir, questioned_docs, model, num_cores, num_graphs = "All", writer_indices, doc_indices) {
   # bind global variables to fix check() note
   writer <- d <- NULL
   
   # process questioned documents
   message("Processing questioned documents...")
   process_batch_dir(
-    input_dir = questioned_images_dir,
-    output_dir = file.path(template_dir, "data", "questioned_graphs")
+    input_dir = questioned_docs,
+    output_dir = file.path(main_dir, "data", "questioned_graphs")
   )
 
   # load template
   message("Loading cluster template...")
-  template <- readRDS(file.path(template_dir, "data", "template.rds"))
+  template <- readRDS(file.path(main_dir, "data", "template.rds"))
 
   # get cluster assignments
   message("Getting cluster assignments for questioned documents...")
   questioned_clusters <- get_clusterassignment(
-    template_dir = template_dir,
+    main_dir = main_dir,
     input_type = "questioned",
     num_graphs = num_graphs,
     writer_indices = writer_indices,
@@ -181,7 +181,7 @@ analyze_questioned_documents <- function(template_dir, questioned_images_dir, mo
     "graph_measurements" = questioned_data$graph_measurements,
     "cluster_fill_counts" = questioned_data$cluster_fill_counts
   )
-  saveRDS(analysis, file.path(template_dir, "data", "analysis.rds"))
+  saveRDS(analysis, file.path(main_dir, "data", "analysis.rds"))
 
   return(analysis)
 }
@@ -204,11 +204,11 @@ analyze_questioned_documents <- function(template_dir, questioned_images_dir, mo
 #' calculate_accuracy(example_analysis)
 #'
 #' \dontrun{
-#' template_dir <- "/path/to/template_dir"
+#' main_dir <- "/path/to/main_dir"
 #' test_images_dir <- "/path/to/test_images"
 #' analysis <- analyze_questioned_documents(
-#'   template_dir = template_dir,
-#'   questioned_images_dir = test_images_dir,
+#'   main_dir = main_dir,
+#'   questioned_docs = test_images_dir,
 #'   model = model,
 #'   num_cores = 2,
 #'   num_graphs = "All",
