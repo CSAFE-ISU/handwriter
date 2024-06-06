@@ -14,7 +14,7 @@ get_clusters_batch(
 )
 }
 \arguments{
-\item{template}{A cluster template created with \code{\link{make_clustering_templates}}}
+\item{template}{A cluster template created with \code{\link{make_clustering_template}}}
 
 \item{input_dir}{A directory containing graphs created with \code{\link{process_batch_dir}}}
 

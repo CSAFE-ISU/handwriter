@@ -9,13 +9,12 @@ analyze_questioned_documents(
   questioned_docs,
   model,
   num_cores,
-  num_graphs = "All",
   writer_indices,
   doc_indices
 )
 }
 \arguments{
-\item{main_dir}{A directory that contains a cluster template created by \code{\link[=make_clustering_templates]{make_clustering_templates()}}}
+\item{main_dir}{A directory that contains a cluster template created by \code{\link[=make_clustering_template]{make_clustering_template()}}}
 
 \item{questioned_docs}{A directory containing questioned documents}
 
@@ -23,8 +22,6 @@ analyze_questioned_documents(
 
 \item{num_cores}{An integer number of cores to use for parallel processing
 with the \code{doParallel} package.}
-
-\item{num_graphs}{"All" or integer number of graphs to randomly select from each questioned document.}
 
 \item{writer_indices}{A vector of start and stop characters for writer IDs in file names}
 
@@ -48,7 +45,6 @@ analysis <- analyze_questioned_documents(
   questioned_docs = questioned_docs,
   model = model,
   num_cores = 2,
-  num_graphs = "All",
   writer_indices = c(2, 5),
   doc_indices = c(7, 18)
 )

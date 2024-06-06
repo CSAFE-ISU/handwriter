@@ -25,7 +25,7 @@
 #' Carlo (MCMC) estimates.
 #'
 #' @param main_dir A directory that contains a cluster template created by
-#'   [`make_clustering_templates()`]
+#'   [`make_clustering_template()`]
 #' @param model_docs A directory containing model training documents
 #' @param num_iters An integer number of iterations of MCMC.
 #' @param num_chains An integer number of chains to use.
@@ -109,7 +109,6 @@ fit_model <- function(main_dir,
   model_clusters <- get_clusterassignment(
     main_dir = main_dir,
     input_type = "model",
-    num_graphs = "All",
     writer_indices = writer_indices,
     doc_indices = doc_indices,
     num_cores = num_cores

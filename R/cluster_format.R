@@ -25,7 +25,7 @@
 #' called `cluster_fill_counts`.
 #'
 #' @param template A single cluster template created by
-#'   [`make_clustering_templates()`]
+#'   [`make_clustering_template()`]
 #' @return List that contains the cluster fill counts
 #'
 #' @examples

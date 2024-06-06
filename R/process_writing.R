@@ -118,7 +118,7 @@ processHandwriting <- function(img, dims) {
   comps <- getComponents(skeleton = skeleton, img = img, dims = dims, nodes = nodes)
   
   # And merging them ----
-  message("Mering nodes...")
+  message("Merging nodes...")
   comps <- mergeAllNodes(comps = comps)
   
   # Finding paths ----

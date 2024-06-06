@@ -17,7 +17,7 @@
 
 #' get_clusters_batch
 #'
-#' @param template A cluster template created with [`make_clustering_templates`]
+#' @param template A cluster template created with [`make_clustering_template`]
 #' @param input_dir A directory containing graphs created with [`process_batch_dir`]
 #' @param output_dir Output directory for cluster assignments
 #' @param writer_indices Vector of start and end indices for the writer id in
@@ -407,9 +407,8 @@ MakeLetterListLetterSpecific = function(letterList, dims)
 
 #' get_clusterassignment
 #'
-#' @param main_dir Directory containing a cluster template created with `make_clustering_templates`
+#' @param main_dir Directory containing a cluster template created with `make_clustering_template`
 #' @param input_type `model` or `questioned`
-#' @param num_graphs 'All' or integer number of graphs to randomly select from each document.
 #' @param writer_indices Vector of start and end indices for the writer id in
 #'   the document names
 #' @param doc_indices Vector of start and end indices for the document id in the
@@ -419,7 +418,7 @@ MakeLetterListLetterSpecific = function(letterList, dims)
 #' @return list of processed handwriting with cluster assignments for each graph
 #'
 #' @noRd
-get_clusterassignment <- function(main_dir, input_type, num_graphs = "All", writer_indices, doc_indices, num_cores) {
+get_clusterassignment <- function(main_dir, input_type, writer_indices, doc_indices, num_cores) {
   # bind global variables to fix check() note
   i <- outliercut <- docname <- NULL
 
@@ -526,13 +525,6 @@ get_clusterassignment <- function(main_dir, input_type, num_graphs = "All", writ
     df$pc_rotation <- apply(df, 1, get_pc_rotation)
     df$pc_wrapped <- 2 * df$pc_rotation
 
-    # sample graphs
-    if (num_graphs != "All") {
-      df <- df %>%
-        dplyr::group_by(docname) %>%
-        dplyr::slice_sample(n = num_graphs)
-    }
-
     # sort columns
     df <- df[, c("docname", "writer", "doc", "cluster", "slope", "xvar", "yvar", "covar", "pc_rotation", "pc_wrapped")]
 
@@ -540,6 +532,8 @@ get_clusterassignment <- function(main_dir, input_type, num_graphs = "All", writ
 
     return(df)
   }
+  
+  parallel::stopCluster(my_cluster)
 
   # save clusters
   if (input_type == "model") {

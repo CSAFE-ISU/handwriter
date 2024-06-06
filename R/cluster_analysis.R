@@ -23,12 +23,11 @@
 #' writership for the questioned documents using Markov Chain Monte Carlo (MCMC) draws from a hierarchical
 #' model created with [`fit_model()`].
 #'
-#' @param main_dir A directory that contains a cluster template created by [`make_clustering_templates()`]
+#' @param main_dir A directory that contains a cluster template created by [`make_clustering_template()`]
 #' @param questioned_docs A directory containing questioned documents
 #' @param model A fitted model created by [`fit_model()`]
 #' @param num_cores An integer number of cores to use for parallel processing
 #'   with the `doParallel` package.
-#' @param num_graphs "All" or integer number of graphs to randomly select from each questioned document.
 #' @param writer_indices A vector of start and stop characters for writer IDs in file names
 #' @param doc_indices A vector of start and stop characters for document names in file names
 #' @return A list of likelihoods, votes, and posterior probabilities of
@@ -43,7 +42,6 @@
 #'   questioned_docs = questioned_docs,
 #'   model = model,
 #'   num_cores = 2,
-#'   num_graphs = "All",
 #'   writer_indices = c(2, 5),
 #'   doc_indices = c(7, 18)
 #' )
@@ -52,7 +50,7 @@
 #'
 #' @export
 #' @md
-analyze_questioned_documents <- function(main_dir, questioned_docs, model, num_cores, num_graphs = "All", writer_indices, doc_indices) {
+analyze_questioned_documents <- function(main_dir, questioned_docs, model, num_cores, writer_indices, doc_indices) {
   # bind global variables to fix check() note
   writer <- d <- NULL
   
@@ -72,7 +70,6 @@ analyze_questioned_documents <- function(main_dir, questioned_docs, model, num_c
   questioned_clusters <- get_clusterassignment(
     main_dir = main_dir,
     input_type = "questioned",
-    num_graphs = num_graphs,
     writer_indices = writer_indices,
     doc_indices = doc_indices,
     num_cores = num_cores
@@ -159,6 +156,8 @@ analyze_questioned_documents <- function(main_dir, questioned_docs, model, num_c
     return(likelihoods)
   }
   names(likelihood_evals) <- questioned_data$cluster_fill_counts$docname
+  
+  parallel::stopCluster(my_cluster)
 
   # tally votes
   message("Tallying votes...")
@@ -211,7 +210,6 @@ analyze_questioned_documents <- function(main_dir, questioned_docs, model, num_c
 #'   questioned_docs = test_images_dir,
 #'   model = model,
 #'   num_cores = 2,
-#'   num_graphs = "All",
 #'   writer_indices = c(2, 5),
 #'   doc_indices = c(7, 18)
 #' )

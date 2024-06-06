@@ -32,7 +32,6 @@ analysis <- analyze_questioned_documents(
   questioned_docs = test_images_dir,
   model = model,
   num_cores = 2,
-  num_graphs = "All",
   writer_indices = c(2, 5),
   doc_indices = c(7, 18)
 )
