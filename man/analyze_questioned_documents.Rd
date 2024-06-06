@@ -5,8 +5,8 @@
 \title{Analyze Questioned Documents}
 \usage{
 analyze_questioned_documents(
-  template_dir,
-  questioned_images_dir,
+  main_dir,
+  questioned_docs,
   model,
   num_cores,
   num_graphs = "All",
@@ -15,9 +15,9 @@ analyze_questioned_documents(
 )
 }
 \arguments{
-\item{template_dir}{A directory that contains a cluster template created by \code{\link[=make_clustering_templates]{make_clustering_templates()}}}
+\item{main_dir}{A directory that contains a cluster template created by \code{\link[=make_clustering_templates]{make_clustering_templates()}}}
 
-\item{questioned_images_dir}{A directory containing questioned documents}
+\item{questioned_docs}{A directory containing questioned documents}
 
 \item{model}{A fitted model created by \code{\link[=fit_model]{fit_model()}}}
 
@@ -41,11 +41,11 @@ model created with \code{\link[=fit_model]{fit_model()}}.
 }
 \examples{
 \dontrun{
-template_dir <- "/path/to/template_dir"
-questioned_images_dir <- "/path/to/questioned_images"
+main_dir <- "/path/to/main_dir"
+questioned_docs <- "/path/to/questioned_images"
 analysis <- analyze_questioned_documents(
-  template_dir = template_dir,
-  questioned_images_dir = questioned_images_dir,
+  main_dir = main_dir,
+  questioned_docs = questioned_docs,
   model = model,
   num_cores = 2,
   num_graphs = "All",

@@ -1,10 +1,10 @@
 # Single Chain ------------------------------------------------------------
 # test_that("analyze questioned documents works with a single chain", {
 #   iters <- 200  # number of MCMC iterations in example_model
-#   template_dir <- test_path("fixtures", "template")
+#   main_dir <- test_path("fixtures", "template")
 #   questioned_docs <- system.file("extdata/example_images/questioned_docs", package = "handwriter")
-#   analysis <- analyze_questioned_documents(template_dir = template_dir, 
-#                                            questioned_images_dir = questioned_docs, 
+#   analysis <- analyze_questioned_documents(main_dir = main_dir, 
+#                                            questioned_docs = questioned_docs, 
 #                                            model = example_model, 
 #                                            num_cores = 2,
 #                                            writer_indices = c(2,5),

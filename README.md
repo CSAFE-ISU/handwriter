@@ -157,8 +157,8 @@ Next, create a new cluster template from the documents in
 
 ``` r
 template <- make_clustering_templates(
-  template_dir = "path/to/main_dir",
-  template_images_dir = "path/to/main_dir/data/template_docs",
+  main_dir = "path/to/main_dir",
+  template_docs = "path/to/main_dir/data/template_docs",
   writer_indices = c(7,10),
   max_edges = 25,
   centers_seed = 100,
@@ -216,7 +216,7 @@ so on.
 We fit a hierarchical model with the function `fit_model`. This function
 does the following:
 
-1.  Processes the model training documents in `model_images_dir`,
+1.  Processes the model training documents in `model_docs`,
     decomposing the handwriting into component graphs. The processed
     graphs are saved in RDS files in `main_dir \> data \> model_graphs`.
 2.  Calculates the cluster fill counts for each document by assigning
@@ -233,8 +233,8 @@ characters in the model training documents file names that contains the
 writer ID and a document name.
 
 ``` r
-model <- fit_model(template_dir = "path/to/main_dir", 
-                   model_images_dir = "path/to/main_dir/data/model_docs",
+model <- fit_model(main_dir = "path/to/main_dir", 
+                   model_docs = "path/to/main_dir/data/model_docs",
                    num_iters = 4000, 
                    num_chains = 1, 
                    num_cores = 2,
@@ -346,7 +346,7 @@ questioned documents with the function `analyze_questioned_documents`.
 This function does the following:
 
 1.  **Process Questioned Document(s):** Processes the questioned
-    documents in `questioned_images_dir`, decomposing the handwriting
+    documents in `questioned_docs`, decomposing the handwriting
     into component graphs. The processed graphs are saved in RDS files
     in `main_dir \> data \> questioned_graphs`.
 2.  **Estimate the Writer Profile of the Questioned Document(s):**
@@ -362,8 +362,8 @@ This function does the following:
 
 ``` r
 analysis <- analyze_questioned_documents(
-  template_dir = "path/to/main_dir", 
-  questioned_images_dir = "path/to/main_dir/questioned_docs", 
+  main_dir = "path/to/main_dir", 
+  questioned_docs = "path/to/main_dir/questioned_docs", 
   model = model, 
   writer_indices = c(8,11),
   doc_indices = c(13,16),
