@@ -134,10 +134,6 @@ getPaths <- function(comps, dims) {
         # all vertices connected to the node(s) by a single edge
         neighbors <- igraph::neighborhood(skeleton, nodes = as.character(check))
         
-        if (any(unlist(lapply(neighbors, length)) > 3)) {
-          warning("At least 1 of the nodes in the potential loops has more than 2 neighbors after removal of the connections. Try again! \nThe nodes in question are: \n", dput(names(neighbors)[which(unlist(lapply(neighbors, length)) > 3)]))
-        }
-        
         # get paths that start and end at the same point, where that point is a node in nodeList
         if (length(neighbors) > 0) {
           for (i in 1:length(neighbors)) {
