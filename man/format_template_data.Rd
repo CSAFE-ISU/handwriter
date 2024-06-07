@@ -8,7 +8,7 @@ format_template_data(template)
 }
 \arguments{
 \item{template}{A single cluster template created by
-\code{\link[=make_clustering_templates]{make_clustering_templates()}}}
+\code{\link[=make_clustering_template]{make_clustering_template()}}}
 }
 \value{
 List that contains the cluster fill counts

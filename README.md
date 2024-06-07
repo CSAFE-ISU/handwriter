@@ -133,14 +133,13 @@ named “writer0001.png”, “writer0002.png”, “writer0003.png” and so on
 
 Next, create a new cluster template from the documents in
 `main_dir > data > template_docs` with the function
-`make_clustering_templates`. This function
+`make_clustering_template`. This function
 
 1.  Processes the template training documents in `template_docs`,
     decomposing the handwriting into component shapes called *graphs*.
     The processed graphs are saved in RDS files in
     `main_dir \> data \> template_graphs`.
-2.  Deletes graphs with more than the maximum number of edges specified
-    by `max_edges.`
+2.  Deletes graphs with more than 30 edges.
 3.  Randomly selects `K` starting cluster centers using seed
     `centers_seed` for reproducibility.
 4.  Runs a K-means algorithm with the `K` starting cluster centers and
@@ -156,19 +155,17 @@ Next, create a new cluster template from the documents in
     for parallel processing with `num_dist_cores`.
 
 ``` r
-template <- make_clustering_templates(
+template <- make_clustering_template(
   main_dir = "path/to/main_dir",
   template_docs = "path/to/main_dir/data/template_docs",
   writer_indices = c(7,10),
-  max_edges = 25,
   centers_seed = 100,
-  graphs_seed = 101,
   K = 40,
   num_dist_cores = 4,
   max_iters = 25)
 ```
 
-Type `?make_clustering_templates` in the RStudio console for more
+Type `?make_clustering_template` in the RStudio console for more
 information about the function’s arguments.
 
 For the remainder of this tutorial, we use a small example cluster

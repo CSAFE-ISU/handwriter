@@ -102,7 +102,7 @@
 #' small, random sample of 1000 graphs.
 #'
 #' @format A list containing a single cluster template created by
-#'   [`make_clustering_templates()`]. The cluster template was created by
+#'   [`make_clustering_template()`]. The cluster template was created by
 #'   sorting a random sample of 1000 graphs from 10 training documents into 10
 #'   clusters with a K-means algorithm. The cluster template is a named list
 #'   with 16 items:

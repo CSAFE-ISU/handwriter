@@ -21,7 +21,7 @@ fit_model(
 }
 \arguments{
 \item{main_dir}{A directory that contains a cluster template created by
-\code{\link[=make_clustering_templates]{make_clustering_templates()}}}
+\code{\link[=make_clustering_template]{make_clustering_template()}}}
 
 \item{model_docs}{A directory containing model training documents}
 
