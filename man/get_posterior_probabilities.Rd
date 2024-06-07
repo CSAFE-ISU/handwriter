@@ -25,10 +25,6 @@ Get the posterior probabilities for questioned document analyzed with \code{\lin
 \examples{
 get_posterior_probabilities(
   analysis = example_analysis,
-  questioned_doc = "w0009_s03_pWOZ_r01"
-)
-get_posterior_probabilities(
-  analysis = example_analysis,
   questioned_doc = "w0030_s03_pWOZ_r01"
 )
 

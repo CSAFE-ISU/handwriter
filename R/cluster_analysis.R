@@ -219,8 +219,25 @@ analyze_questioned_documents <- function(main_dir, questioned_docs, model, num_c
 #' @export
 #' @md
 calculate_accuracy <- function(analysis) {
+  # bind global variables to fix check() note
+  known_writer <- known_writer_ID <- NULL
+  
   pp <- analysis$posterior_probabilities
-  accuracy <- sum(diag(as.matrix(pp[, -c(1)]))) / nrow(pp)
+  # add column for known writer ID
+  pp <- pp %>% 
+    tidyr::separate(known_writer, into = c(NA, NA, "known_writer_ID"), remove = FALSE)
+  
+  # get questioned documents and writers
+  q_docs <- analysis$cluster_fill_counts$docname
+  q_writers <- analysis$cluster_fill_counts$writer
+  
+  # get the poster probability for each doc and the true writer
+  predictions <- sapply(1:length(q_docs), function(i) {
+    pp %>% 
+      dplyr::filter(known_writer_ID == q_writers[i]) %>%
+      dplyr::pull(q_docs[i])})
+  
+  accuracy <- sum(predictions) / length(predictions)
   return(accuracy)
 }
 
@@ -241,10 +258,6 @@ calculate_accuracy <- function(analysis) {
 #' @export
 #'
 #' @examples
-#' get_posterior_probabilities(
-#'   analysis = example_analysis,
-#'   questioned_doc = "w0009_s03_pWOZ_r01"
-#' )
 #' get_posterior_probabilities(
 #'   analysis = example_analysis,
 #'   questioned_doc = "w0030_s03_pWOZ_r01"
