@@ -40,29 +40,27 @@ Create a new folder called `main_dir` on your computer to hold the handwriting d
 
 Save the handwritten documents that you want to use to train a new cluster template as PNG images in `main_dir > data > template_docs`. The template training documents need to be from writers that are NOT people of interest. Name all of the PNG images with a consistent format that includes an ID for the writer. For example, the PNG images could be named "writer0001.png", "writer0002.png", "writer0003.png" and so on. 
 
-Next, create a new cluster template from the documents in `main_dir > data > template_docs` with the function `make_clustering_templates`. This function
+Next, create a new cluster template from the documents in `main_dir > data > template_docs` with the function `make_clustering_template`. This function
 
 1.  Processes the template training documents in `template_docs`, decomposing the handwriting into component shapes called *graphs*. The processed graphs are saved in RDS files in `main_dir \> data \> template_graphs`.
-2.  Deletes graphs with more than the maximum number of edges specified by `max_edges.`
+2.  Deletes graphs with more than 30 edges.
 3.  Randomly selects `K` starting cluster centers using seed `centers_seed` for reproducibility.
 5.  Runs a K-means algorithm with the `K` starting cluster centers and the selected graphs. The algorithm iteratively groups the selected graphs into `K` clusters. The final grouping of `K` clusters is the cluster template.
 6.  Stores the writer ID for each training document. `writer_indices` is a vector of the start and stop characters of the writer ID in the PNG image file name. For example, if the PNG images are named "writer0001.png", "writer0002.png", "writer0003.png", and so on, `writer_indices = c(7,10)`
 7.  Performs some of the processes in parallel. Set the number of cores for parallel processing with `num_dist_cores`.
 
 ```{r, eval=FALSE}
-template <- make_clustering_templates(
-  template_dir = "path/to/main_dir",
-  template_images_dir = "path/to/main_dir/data/template_docs",
+template <- make_clustering_template(
+  main_dir = "path/to/main_dir",
+  template_docs = "path/to/main_dir/data/template_docs",
   writer_indices = c(7,10),
-  max_edges = 25,
   centers_seed = 100,
-  graphs_seed = 101,
   K = 40,
   num_dist_cores = 4,
   max_iters = 25)
 ```
 
-Type `?make_clustering_templates` in the RStudio console for more information about the function's arguments.
+Type `?make_clustering_template` in the RStudio console for more information about the function's arguments.
 
 For the remainder of this tutorial, we use a small example cluster template, `example_cluster_template` included in handwriter. 
 ```{r}
@@ -87,15 +85,15 @@ Save your known handwriting samples from the persons of interest in `main_dir \>
 
 We fit a hierarchical model with the function `fit_model`. This function does the following:
 
-1.  Processes the model training documents in `model_images_dir`, decomposing the handwriting into component graphs. The processed graphs are saved in RDS files in `main_dir \> data \> model_graphs`.
+1.  Processes the model training documents in `model_docs`, decomposing the handwriting into component graphs. The processed graphs are saved in RDS files in `main_dir \> data \> model_graphs`.
 2.  Calculates the cluster fill counts for each document by assigning each graph to the nearest cluster in the cluster template and counting the number of graphs assigned to each cluster. The cluster assignments are saved in main_dir \> data \> model_clusters.rds
 3.  Fits a hierarchical model to the cluster fill counts using the RJAGS package and draws posterior samples of model parameters with the coda package.
 
 In this example, we use 4000 MCMC iterations for the model. The inputs `writer_indices` and `doc_indices` are the starting and stopping characters in the model training documents file names that contains the writer ID and a document name.
 
 ```{r, eval = FALSE}
-model <- fit_model(template_dir = "path/to/main_dir", 
-                   model_images_dir = "path/to/main_dir/data/model_docs",
+model <- fit_model(main_dir = "path/to/main_dir", 
+                   model_docs = "path/to/main_dir/data/model_docs",
                    num_iters = 4000, 
                    num_chains = 1,
                    num_cores = 2,
@@ -152,14 +150,14 @@ Save your questioned document(s) in `main_dir > data > questioned_docs` as PNG i
 
 We estimate the posterior probability of writership for each of the questioned documents with the function `analyze_questioned_documents`. This function does the following:
 
-1.  **Process Questioned Document(s):** Processes the questioned documents in `questioned_images_dir`, decomposing the handwriting into component graphs. The processed graphs are saved in RDS files in `main_dir \> data \> questioned_graphs`.
+1.  **Process Questioned Document(s):** Processes the questioned documents in `questioned_docs`, decomposing the handwriting into component graphs. The processed graphs are saved in RDS files in `main_dir \> data \> questioned_graphs`.
 2.  **Estimate the Writer Profile of the Questioned Document(s):** Calculates the cluster fill counts for each questioned document by assigning each graph to the nearest cluster in the cluster template and counting the number of graphs assigned to each cluster. The cluster assignments are saved in `main_dir \> data \> questioned_clusters.rds`.
 3.  **Estimate the Posterior Probability of Writership:** Uses the fitted model from Step 3 to estimate the posterior probability of writership for each questioned document and each person of interest. The results are saved in `main_dir \> data \> analysis.rds`.
 
 ```{r, eval = FALSE}
 analysis <- analyze_questioned_documents(
-  template_dir = "path/to/main_dir", 
-  questioned_images_dir = "path/to/main_dir/questioned_docs", 
+  main_dir = "path/to/main_dir", 
+  questioned_docs = "path/to/main_dir/questioned_docs", 
   model = model, 
   writer_indices = c(8,11),
   doc_indices = c(13,16),

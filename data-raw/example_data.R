@@ -11,22 +11,19 @@
 
 
 # helper functions ----
-make_example_template <- function(main_dir, centers_seed, graphs_seed) {
+make_example_template <- function(main_dir, centers_seed) {
   # create folder if it doesn't already exist
   if (!dir.exists(main_dir)){dir.create(main_dir)}
   
   template_docs <- file.path(main_dir, 'data', 'template_docs')
   
-  example_cluster_template <- make_clustering_templates(template_dir = main_dir,
-                                                        template_images_dir = template_docs,
-                                                        writer_indices = c(2,5),
-                                                        max_edges = 30,
-                                                        K = 10,
-                                                        num_dist_cores = 2,
-                                                        max_iters = 3,
-                                                        num_graphs = 1000,
-                                                        centers_seed = centers_seed,
-                                                        graphs_seed = graphs_seed)
+  example_cluster_template <- make_clustering_template(main_dir = main_dir,
+                                                       template_docs = template_docs,
+                                                       writer_indices = c(2,5),
+                                                       K = 5,
+                                                       num_dist_cores = 2,
+                                                       max_iters = 3,
+                                                       centers_seed = centers_seed)
   
   # save to data folder
   usethis::use_data(example_cluster_template, overwrite = TRUE)
@@ -35,8 +32,8 @@ make_example_template <- function(main_dir, centers_seed, graphs_seed) {
 make_example_model <- function(main_dir){
   model_docs <- file.path(main_dir, 'data', 'model_docs')
   
-  example_model <- fit_model(template_dir = main_dir, 
-                             model_images_dir = model_docs,
+  example_model <- fit_model(main_dir = main_dir, 
+                             model_docs = model_docs,
                              num_iters = 200, 
                              num_chains = 1, 
                              num_cores = 5,
@@ -50,8 +47,8 @@ make_example_model <- function(main_dir){
 make_example_analyses <- function(main_dir, num_cores = 5) {
   questioned_docs <- file.path(main_dir, 'data', 'questioned_docs')
   
-  example_analysis <- analyze_questioned_documents(template_dir = main_dir, 
-                                                   questioned_images_dir = questioned_docs, 
+  example_analysis <- analyze_questioned_documents(main_dir = main_dir, 
+                                                   questioned_docs = questioned_docs, 
                                                    model = example_model, 
                                                    num_cores = num_cores,
                                                    writer_indices = c(2,5), 
@@ -64,12 +61,11 @@ make_example_analyses <- function(main_dir, num_cores = 5) {
 # build template and model in tests folder so that it can be used for testing
 main_dir <- file.path('examples', 'example_template')
 
-# choose starting seed and run number 
+# choose starting seed
 centers_seed <- 100
-graphs_seed <- 104
 
 # make example template
-make_example_template(main_dir, centers_seed, graphs_seed)
+make_example_template(main_dir, centers_seed)
 
 # make example models using the new example template
 devtools::load_all()
@@ -80,4 +76,3 @@ devtools::load_all()
 make_example_analyses(main_dir)
 
 # manually delete all files from examples > example_template > data except the 3 docs folders
-

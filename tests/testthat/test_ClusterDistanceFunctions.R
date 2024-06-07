@@ -1,6 +1,3 @@
-library(testthat)
-
-
 test_that("Testing the distXY function", {
   # Test case 1: Same point, expect 0 distance
   xy1 <- c(0, 0)
@@ -153,46 +150,10 @@ test_that("solveLP function", {
   expect_equal(result$matching, c(3, 2, 1))
 })
 
-
-########################
-#test for getGraphInfo
-#######################
-# test_getGraphInfo <- function() {
-#   path_to_rds_files <- here("examples", "extracted_graphs", "w0001")
-#   rds_files <- list.files(path = path_to_rds_files, pattern = "\\.rds$", full.names = TRUE)
-#   
-#   # Read the first two .rds files as imageList1 and imageList2
-#   imageList1 <- readRDS(rds_files[1])
-#   imageList2 <- readRDS(rds_files[2])
-#   isProto1 <- FALSE
-#   isProto2 <- FALSE
-#   numPathCuts <- 5
-#   
-#   graphInfo <- getGraphInfo(imageList1, imageList2, isProto1, isProto2, numPathCuts)
-#   
-#   expect_true(!is.null(graphInfo$numPaths1))
-#   expect_true(!is.null(graphInfo$numPaths2))
-#   expect_true(!is.null(graphInfo$pe1))
-#   expect_true(!is.null(graphInfo$pe2))
-#   expect_true(!is.null(graphInfo$pq1))
-#   expect_true(!is.null(graphInfo$pq2))
-#   expect_true(!is.null(graphInfo$cent1))
-#   expect_true(!is.null(graphInfo$cent2))
-#   expect_true(!is.null(graphInfo$len1))
-#   expect_true(!is.null(graphInfo$len2))
-#   expect_true(!is.null(graphInfo$letterSize))
-#   expect_true(!is.null(graphInfo$pathCheckNum))
-#   expect_true(!is.null(graphInfo$pathEndPointsMatch))
-#   expect_true(!is.null(graphInfo$weights))
-# }
-# test_getGraphInfo()
-
-
 # create_dummy_image_list, creates a list of dummy data, 
 # which is often useful for testing purposes. The function takes two arguments: is_proto, 
 # which is a boolean indicating whether the output should be in "proto" format or not, 
 # and num_paths, which is the number of paths to be created.
-
 
 create_dummy_image_list <- function(is_proto = TRUE, num_paths = 1) {
   numPathCuts <- 5

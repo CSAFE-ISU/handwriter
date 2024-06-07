@@ -35,11 +35,11 @@ model <- drop_burnin(model = example_model, burn_in = 25)
 
 \dontrun{
 # analyze questioned documents
-template_dir <- /path/to/cluster_template_directory
-questioned_images_dir <- /path/to/questioned_documents_directory
+main_dir <- /path/to/main_dir
+questioned_docs <- /path/to/questioned_documents_directory
 analysis <- analyze_questioned_documents(
-   template_dir = template_dir,
-   questioned_images_dir = questioned_images_dir
+   main_dir = main_dir,
+   questioned_docs = questioned_docs
    model = example_model
    num_cores = 2
 )
