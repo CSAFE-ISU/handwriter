@@ -56,16 +56,18 @@ Use `processDocument()` to
 library(handwriter)
 phrase <- system.file("extdata", "phrase_example.png", package = "handwriter")
 doc <- processDocument(phrase)
-#> path in readPNGBinary: /private/var/folders/1z/jk9bqhdd06j1fxx0_xm2jj980000gn/T/RtmpEaTBth/temp_libpath12a739c097f/handwriter/extdata/phrase_example.png
+#> path in readPNGBinary: /private/var/folders/1z/jk9bqhdd06j1fxx0_xm2jj980000gn/T/RtmpEwGR3a/temp_libpathb4fe4d792ef7/handwriter/extdata/phrase_example.png
 #> Starting Processing...
-#> Getting Nodes...and merging them...
-#> Finding direct paths...and loops...
-#> Looking for graph break points...and discarding bad ones...
-#> Isolating graph paths...
-#> Organizing letters...
-#> Creating letter lists...
+#> Getting Nodes...
+#> Skeletonizing writing...
+#> Splitting document into components...
+#> Merging nodes...
+#> Finding paths...
+#> Split paths into graphs...
+#> Organizing graphs...
+#> Creating graph lists...
 #> Adding character features...
-#> Document processing complete.
+#> Document processing complete
 ```
 
 We can view the image:
@@ -213,9 +215,9 @@ so on.
 We fit a hierarchical model with the function `fit_model`. This function
 does the following:
 
-1.  Processes the model training documents in `model_docs`,
-    decomposing the handwriting into component graphs. The processed
-    graphs are saved in RDS files in `main_dir \> data \> model_graphs`.
+1.  Processes the model training documents in `model_docs`, decomposing
+    the handwriting into component graphs. The processed graphs are
+    saved in RDS files in `main_dir \> data \> model_graphs`.
 2.  Calculates the cluster fill counts for each document by assigning
     each graph to the nearest cluster in the cluster template and
     counting the number of graphs assigned to each cluster. The cluster
@@ -239,14 +241,13 @@ model <- fit_model(main_dir = "path/to/main_dir",
                    doc_indices = c(11, 14))
 ```
 
-For this tutorial, we will use the small example model,
-`example_model_1chain`, included in handwriter. This model was trained
-from three documents each from writers 9, 30, 203, 238, and 400 from the
-[CSAFE handwriting
+For this tutorial, we will use the small example model, `example_model`,
+included in handwriter. This model was trained from three documents each
+from writers 9, 30, 203, 238, and 400 from the [CSAFE handwriting
 database](https://data.csafe.iastate.edu/HandwritingDatabase/).
 
 ``` r
-model <- example_model_1chain
+model <- example_model
 ```
 
 We can plot the cluster fill counts for each person of interest. (NOTE:
@@ -271,35 +272,16 @@ We can list the variables in the model:
 
 ``` r
 names(as.data.frame(coda::as.mcmc(model$fitted_model[[1]])))
-#>   [1] "eta[1]"    "eta[2]"    "eta[3]"    "eta[4]"    "eta[5]"    "eta[6]"   
-#>   [7] "eta[7]"    "eta[8]"    "eta[9]"    "eta[10]"   "gamma[1]"  "gamma[2]" 
-#>  [13] "gamma[3]"  "gamma[4]"  "gamma[5]"  "gamma[6]"  "gamma[7]"  "gamma[8]" 
-#>  [19] "gamma[9]"  "gamma[10]" "mu[1,1]"   "mu[2,1]"   "mu[3,1]"   "mu[4,1]"  
-#>  [25] "mu[5,1]"   "mu[1,2]"   "mu[2,2]"   "mu[3,2]"   "mu[4,2]"   "mu[5,2]"  
-#>  [31] "mu[1,3]"   "mu[2,3]"   "mu[3,3]"   "mu[4,3]"   "mu[5,3]"   "mu[1,4]"  
-#>  [37] "mu[2,4]"   "mu[3,4]"   "mu[4,4]"   "mu[5,4]"   "mu[1,5]"   "mu[2,5]"  
-#>  [43] "mu[3,5]"   "mu[4,5]"   "mu[5,5]"   "mu[1,6]"   "mu[2,6]"   "mu[3,6]"  
-#>  [49] "mu[4,6]"   "mu[5,6]"   "mu[1,7]"   "mu[2,7]"   "mu[3,7]"   "mu[4,7]"  
-#>  [55] "mu[5,7]"   "mu[1,8]"   "mu[2,8]"   "mu[3,8]"   "mu[4,8]"   "mu[5,8]"  
-#>  [61] "mu[1,9]"   "mu[2,9]"   "mu[3,9]"   "mu[4,9]"   "mu[5,9]"   "mu[1,10]" 
-#>  [67] "mu[2,10]"  "mu[3,10]"  "mu[4,10]"  "mu[5,10]"  "pi[1,1]"   "pi[2,1]"  
-#>  [73] "pi[3,1]"   "pi[4,1]"   "pi[5,1]"   "pi[1,2]"   "pi[2,2]"   "pi[3,2]"  
-#>  [79] "pi[4,2]"   "pi[5,2]"   "pi[1,3]"   "pi[2,3]"   "pi[3,3]"   "pi[4,3]"  
-#>  [85] "pi[5,3]"   "pi[1,4]"   "pi[2,4]"   "pi[3,4]"   "pi[4,4]"   "pi[5,4]"  
-#>  [91] "pi[1,5]"   "pi[2,5]"   "pi[3,5]"   "pi[4,5]"   "pi[5,5]"   "pi[1,6]"  
-#>  [97] "pi[2,6]"   "pi[3,6]"   "pi[4,6]"   "pi[5,6]"   "pi[1,7]"   "pi[2,7]"  
-#> [103] "pi[3,7]"   "pi[4,7]"   "pi[5,7]"   "pi[1,8]"   "pi[2,8]"   "pi[3,8]"  
-#> [109] "pi[4,8]"   "pi[5,8]"   "pi[1,9]"   "pi[2,9]"   "pi[3,9]"   "pi[4,9]"  
-#> [115] "pi[5,9]"   "pi[1,10]"  "pi[2,10]"  "pi[3,10]"  "pi[4,10]"  "pi[5,10]" 
-#> [121] "tau[1,1]"  "tau[2,1]"  "tau[3,1]"  "tau[4,1]"  "tau[5,1]"  "tau[1,2]" 
-#> [127] "tau[2,2]"  "tau[3,2]"  "tau[4,2]"  "tau[5,2]"  "tau[1,3]"  "tau[2,3]" 
-#> [133] "tau[3,3]"  "tau[4,3]"  "tau[5,3]"  "tau[1,4]"  "tau[2,4]"  "tau[3,4]" 
-#> [139] "tau[4,4]"  "tau[5,4]"  "tau[1,5]"  "tau[2,5]"  "tau[3,5]"  "tau[4,5]" 
-#> [145] "tau[5,5]"  "tau[1,6]"  "tau[2,6]"  "tau[3,6]"  "tau[4,6]"  "tau[5,6]" 
-#> [151] "tau[1,7]"  "tau[2,7]"  "tau[3,7]"  "tau[4,7]"  "tau[5,7]"  "tau[1,8]" 
-#> [157] "tau[2,8]"  "tau[3,8]"  "tau[4,8]"  "tau[5,8]"  "tau[1,9]"  "tau[2,9]" 
-#> [163] "tau[3,9]"  "tau[4,9]"  "tau[5,9]"  "tau[1,10]" "tau[2,10]" "tau[3,10]"
-#> [169] "tau[4,10]" "tau[5,10]"
+#>  [1] "eta[1]"   "eta[2]"   "eta[3]"   "eta[4]"   "eta[5]"   "gamma[1]"
+#>  [7] "gamma[2]" "gamma[3]" "gamma[4]" "gamma[5]" "mu[1,1]"  "mu[2,1]" 
+#> [13] "mu[3,1]"  "mu[1,2]"  "mu[2,2]"  "mu[3,2]"  "mu[1,3]"  "mu[2,3]" 
+#> [19] "mu[3,3]"  "mu[1,4]"  "mu[2,4]"  "mu[3,4]"  "mu[1,5]"  "mu[2,5]" 
+#> [25] "mu[3,5]"  "pi[1,1]"  "pi[2,1]"  "pi[3,1]"  "pi[1,2]"  "pi[2,2]" 
+#> [31] "pi[3,2]"  "pi[1,3]"  "pi[2,3]"  "pi[3,3]"  "pi[1,4]"  "pi[2,4]" 
+#> [37] "pi[3,4]"  "pi[1,5]"  "pi[2,5]"  "pi[3,5]"  "tau[1,1]" "tau[2,1]"
+#> [43] "tau[3,1]" "tau[1,2]" "tau[2,2]" "tau[3,2]" "tau[1,3]" "tau[2,3]"
+#> [49] "tau[3,3]" "tau[1,4]" "tau[2,4]" "tau[3,4]" "tau[1,5]" "tau[2,5]"
+#> [55] "tau[3,5]"
 ```
 
 View a description of a variable with the `about_variable` function.
@@ -343,9 +325,9 @@ questioned documents with the function `analyze_questioned_documents`.
 This function does the following:
 
 1.  **Process Questioned Document(s):** Processes the questioned
-    documents in `questioned_docs`, decomposing the handwriting
-    into component graphs. The processed graphs are saved in RDS files
-    in `main_dir \> data \> questioned_graphs`.
+    documents in `questioned_docs`, decomposing the handwriting into
+    component graphs. The processed graphs are saved in RDS files in
+    `main_dir \> data \> questioned_graphs`.
 2.  **Estimate the Writer Profile of the Questioned Document(s):**
     Calculates the cluster fill counts for each questioned document by
     assigning each graph to the nearest cluster in the cluster template
@@ -371,11 +353,11 @@ Let’s pretend that a handwriting sample from each of the 5 “persons of
 interest” is a questioned document. These documents are also from the
 [CSAFE handwriting
 database](https://data.csafe.iastate.edu/HandwritingDatabase/) and have
-already been analyzed with `example_model_1chain` and the results are
-included in handwriter as `example_analysis_1chain`.
+already been analyzed with `example_model` and the results are included
+in handwriter as `example_analysis`.
 
 ``` r
-analysis <- example_analysis_1chain
+analysis <- example_analysis
 ```
 
 View the cluster fill counts for each questioned document. Intuitively,
@@ -392,18 +374,10 @@ View the posterior probabilities of writership.
 
 ``` r
 analysis$posterior_probabilities
-#>       known_writer w0009_s03_pWOZ_r01.png w0030_s03_pWOZ_r01.png
-#> 1   known_writer_9                      1                      0
-#> 2  known_writer_30                      0                      1
-#> 3 known_writer_203                      0                      0
-#> 4 known_writer_238                      0                      0
-#> 5 known_writer_400                      0                      0
-#>   w0203_s03_pWOZ_r01.png w0238_s03_pWOZ_r01.png w0400_s03_pWOZ_r01.png
-#> 1                    0.0                      0                      0
-#> 2                    0.0                      0                      0
-#> 3                    0.3                      0                      0
-#> 4                    0.7                      1                      0
-#> 5                    0.0                      0                      1
+#>       known_writer w0030_s03_pWOZ_r01
+#> 1   known_writer_9                  0
+#> 2  known_writer_30                  1
+#> 3 known_writer_238                  0
 ```
 
 #### For Research Only
@@ -417,5 +391,5 @@ true writer. The accuracy of our model is
 
 ``` r
 calculate_accuracy(analysis)
-#> [1] 0.86
+#> [1] 1
 ```
