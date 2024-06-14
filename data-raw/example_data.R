@@ -37,7 +37,7 @@ make_example_model <- function(main_dir){
                              num_iters = 200, 
                              num_chains = 1, 
                              num_cores = 5,
-                             writer_indices = c(2, 5), 
+                             writer_indices = c(1, 5), 
                              doc_indices = c(7, 18))
   # save to data folder
   usethis::use_data(example_model, overwrite = TRUE)
@@ -51,7 +51,7 @@ make_example_analyses <- function(main_dir, num_cores = 5) {
                                                    questioned_docs = questioned_docs, 
                                                    model = example_model, 
                                                    num_cores = num_cores,
-                                                   writer_indices = c(2, 5), 
+                                                   writer_indices = c(1, 5), 
                                                    doc_indices = c(7, 18))
   
   usethis::use_data(example_analysis, overwrite = TRUE)

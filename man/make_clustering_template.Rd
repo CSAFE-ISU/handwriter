@@ -48,9 +48,7 @@ algorithm sorts the graphs in the input handwriting samples into groups, or
 \examples{
 \dontrun{
 main_dir <- "path/to/folder"
-template_docs <- system.file("extdata/example_images/template_training_images",
-  package = "handwriter"
-)
+template_docs <- "path/to/template_training_docs"
 template_list <- make_clustering_template(
   main_dir = main_dir,
   template_docs = template_docs,

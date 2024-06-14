@@ -95,17 +95,17 @@
 
 #' Example cluster template
 #'
-#' An example cluster template created from the template training example
-#' handwriting documents included in the package. These documents are located in
-#' `system.file("extdata/example_images/template_training_images", package =
-#' "handwriter")`. The cluster template was created with K=10 clusters and a
-#' small, random sample of 1000 graphs.
+#' An example cluster template created with [`make_clustering_template()`]. The
+#' cluster template was created from handwriting samples
+#' "w0016_s01_pLND_r01.png", "w0080_s01_pLND_r01.png", "w0124_s01_pLND_r01.png",
+#' "w0138_s01_pLND_r01.png", and "w0299_s01_pLND_r01.png" from the CSAFE Handwriting
+#' Database. The template has K=5 clusters.
 #'
 #' @format A list containing a single cluster template created by
-#'   [`make_clustering_template()`]. The cluster template was created by
-#'   sorting a random sample of 1000 graphs from 10 training documents into 10
-#'   clusters with a K-means algorithm. The cluster template is a named list
-#'   with 16 items:
+#'   [`make_clustering_template()`]. The cluster template was created by sorting
+#'   a random sample of 1000 graphs from 10 training documents into 10 clusters
+#'   with a K-means algorithm. The cluster template is a named list with 16
+#'   items:
 #' \describe{
 #' \item{seed}{An integer for the random number generator.}
 #' \item{cluster}{A vector of cluster assignments
@@ -135,7 +135,7 @@
 #' # view cluster fill counts for template training documents
 #' template_data <- format_template_data(example_cluster_template)
 #' plot_cluster_fill_counts(template_data, facet = TRUE)
-#' 
+#'
 #' @md
 "example_cluster_template"
 

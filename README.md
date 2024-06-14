@@ -56,7 +56,7 @@ Use `processDocument()` to
 library(handwriter)
 phrase <- system.file("extdata", "phrase_example.png", package = "handwriter")
 doc <- processDocument(phrase)
-#> path in readPNGBinary: /private/var/folders/1z/jk9bqhdd06j1fxx0_xm2jj980000gn/T/RtmpEwGR3a/temp_libpathb4fe4d792ef7/handwriter/extdata/phrase_example.png
+#> path in readPNGBinary: /private/var/folders/1z/jk9bqhdd06j1fxx0_xm2jj980000gn/T/RtmplsdN6z/temp_libpath947954bb6036/handwriter/extdata/phrase_example.png
 #> Starting Processing...
 #> Getting Nodes...
 #> Skeletonizing writing...
@@ -288,7 +288,7 @@ View a description of a variable with the `about_variable` function.
 
 ``` r
 about_variable(variable = "mu[1,1]", model = model)
-#> [1] "Mu is the location parameter of a wrapped-Cauchy distribution for writer ID 9 and cluster 1"
+#> [1] "Mu is the location parameter of a wrapped-Cauchy distribution for writer ID w0009 and cluster 1"
 ```
 
 View a trace plot of a variable.
@@ -374,10 +374,10 @@ View the posterior probabilities of writership.
 
 ``` r
 analysis$posterior_probabilities
-#>       known_writer w0030_s03_pWOZ_r01
-#> 1   known_writer_9                  0
-#> 2  known_writer_30                  1
-#> 3 known_writer_238                  0
+#>         known_writer w0030_s03_pWOZ_r01
+#> 1 known_writer_w0009                  0
+#> 2 known_writer_w0030                  1
+#> 3 known_writer_w0238                  0
 ```
 
 #### For Research Only
