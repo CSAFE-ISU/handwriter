@@ -55,12 +55,8 @@
 #' @examples
 #' \dontrun{
 #' main_dir <- "/path/to/main_dir"
-#' model_docs <- system.file("extdata/example_images/model_training_images",
-#'   package = "handwriter"
-#' )
-#' questioned_docs <- system.file("extdata/example_images/questioned_images",
-#'   package = "handwriter"
-#' )
+#' model_docs <- "path/to/model_training_docs"
+#' questioned_docs <- "path/to/questioned_docs"
 #'
 #' model <- fit_model(
 #'   main_dir = main_dir,

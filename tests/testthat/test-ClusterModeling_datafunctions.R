@@ -36,15 +36,11 @@ test_that("model data formated for rjags has the correct format", {
 
   # check vectors  
   expect_vector(data$rjags_data$docN, ptype=integer(), size=data$rjags_data$D)
-  expect_vector(data$rjags_data$docwriter, ptype=integer(), size=data$rjags_data$D)
+  expect_vector(data$rjags_data$docwriter, ptype=NULL, size=data$rjags_data$D)
   expect_equal(data$rjags_data$zero_vec, rep(0, data$rjags_data$numletters)) 
   expect_vector(data$rjags_data$pc_wrapped, ptype=numeric(), size=data$rjags_data$numletters)
-  expect_vector(data$rjags_data$letterwriter, ptype=integer(), size=data$rjags_data$numletters)
+  expect_vector(data$rjags_data$letterwriter, ptype=NULL, size=data$rjags_data$numletters)
   expect_vector(data$rjags_data$lettercluster, ptype=integer(), size=data$rjags_data$numletters)
-  
-  # check that docwriter is not writer IDs but instead numbers writers 1,2,...,data$W
-  expect_equal(1:data$rjags_data$W, unique(data$rjags_data$docwriter))
-  expect_equal(1:data$rjags_data$W, unique(data$rjags_data$letterwriter))
   
   # check matrix
   expect_equal(data$rjags_data$zero_mat, matrix(0, nrow=data$rjags_data$W, ncol=data$rjags_data$Gsmall))
@@ -82,13 +78,13 @@ test_that("formatted questioned data is formatted correctly", {
   expect_equal(sum(data$cluster_fill_counts[,-c(1,2,3)]), nrow(data$graph_measurements))
   
   # check vectors
-  expect_vector(data$graph_measurements$writer, ptype = integer())
+  expect_vector(data$graph_measurements$writer, ptype = NULL)
   expect_vector(data$graph_measurements$doc, ptype = character())
   expect_vector(data$graph_measurements$cluster, ptype = integer())
   expect_vector(data$graph_measurements$slope, ptype = numeric())
   expect_vector(data$graph_measurements$pc_rotation, ptype = numeric())
   expect_vector(data$graph_measurements$pc_wrapped, ptype = numeric())
-  expect_vector(data$cluster_fill_counts$writer, ptype = integer())
+  expect_vector(data$cluster_fill_counts$writer, ptype = NULL)
   expect_vector(data$cluster_fill_counts$doc, ptype = character())
   
   # check cluster labels

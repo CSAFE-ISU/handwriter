@@ -128,7 +128,7 @@ get_cluster_fill_counts <- function(df) {
 #'
 #' @noRd
 format_model_data <- function(model_clusters, writer_indices, doc_indices, a = 2, b = 0.25, c = 2, d = 2, e = 0.5) {
-  # bind global variable to fix
+  # bind global variable to fix note
   cluster <- NULL
   
   graph_measurements <- model_clusters 
@@ -152,13 +152,13 @@ format_model_data <- function(model_clusters, writer_indices, doc_indices, a = 2
     W = length(unique(cluster_fill_counts$writer)), # number of unique writers
     # docwise
     docN = as.integer(apply(cluster_fill_counts[, -c(1, 2, 3)], FUN = sum, MARGIN = 1)), # number of letters in each doc, e.g. N[1] = 354
-    docwriter = as.integer(as.factor(cluster_fill_counts$writer)), # vector of writers for each document numbered 1,2,...,W
+    docwriter = as.factor(cluster_fill_counts$writer), # vector of writers
     # letterwise
     zero_vec = rep(0, times = length(graph_measurements$pc_wrapped)),
     Gsmall = length(unique(graph_measurements$cluster)), # number of clusters (20)
     numletters = length(graph_measurements$pc_wrapped), # total number of letters
     pc_wrapped = graph_measurements$pc_wrapped, # principal component rotation observations
-    letterwriter = as.integer(as.factor(graph_measurements$writer)), # vector of writers for each letter
+    letterwriter = as.factor(graph_measurements$writer), # vector of writers for each letter
     lettercluster = as.integer(graph_measurements$cluster), # vector of cluster assignments, one for each letter
     zero_mat = matrix(0, nrow = length(unique(cluster_fill_counts$writer)), ncol = length(unique(graph_measurements$cluster))),
     a = a, b = b, c = c, d = d, e = e

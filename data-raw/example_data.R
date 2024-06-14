@@ -19,7 +19,7 @@ make_example_template <- function(main_dir, centers_seed) {
   
   example_cluster_template <- make_clustering_template(main_dir = main_dir,
                                                        template_docs = template_docs,
-                                                       writer_indices = c(2,5),
+                                                       writer_indices = c(2, 5),
                                                        K = 5,
                                                        num_dist_cores = 2,
                                                        max_iters = 3,
@@ -37,8 +37,8 @@ make_example_model <- function(main_dir){
                              num_iters = 200, 
                              num_chains = 1, 
                              num_cores = 5,
-                             writer_indices = c(2,5), 
-                             doc_indices = c(7,18))
+                             writer_indices = c(2, 5), 
+                             doc_indices = c(7, 18))
   # save to data folder
   usethis::use_data(example_model, overwrite = TRUE)
 }
@@ -51,8 +51,8 @@ make_example_analyses <- function(main_dir, num_cores = 5) {
                                                    questioned_docs = questioned_docs, 
                                                    model = example_model, 
                                                    num_cores = num_cores,
-                                                   writer_indices = c(2,5), 
-                                                   doc_indices = c(7,18))
+                                                   writer_indices = c(2, 5), 
+                                                   doc_indices = c(7, 18))
   
   usethis::use_data(example_analysis, overwrite = TRUE)
 }
