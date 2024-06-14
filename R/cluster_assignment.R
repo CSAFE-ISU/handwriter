@@ -122,7 +122,7 @@ get_clusters_batch <- function(template, input_dir, output_dir, writer_indices, 
 
       # add docname, writer, doc, slope, xvar, yvar, and covar
       df$docname <- doc$docname
-      df$writer <- as.integer(sapply(df$docname, function(x) substr(x, start = writer_indices[1], stop = writer_indices[2])))
+      df$writer <- sapply(df$docname, function(x) substr(x, start = writer_indices[1], stop = writer_indices[2]))
       df$doc <- sapply(df$docname, function(x) substr(x, start = doc_indices[1], stop = doc_indices[2]), USE.NAMES = FALSE)
       df$slope <- sapply(doc$process$letterList, function(x) x$characterFeatures$slope)
       df$xvar <- sapply(doc$process$letterList, function(x) x$characterFeatures$xvar)
@@ -202,7 +202,7 @@ get_clusters_batch <- function(template, input_dir, output_dir, writer_indices, 
 
       # add docname, writer, doc, slope, xvar, yvar, and covar
       df$docname <- doc$docname
-      df$writer <- as.integer(sapply(df$docname, function(x) substr(x, start = writer_indices[1], stop = writer_indices[2])))
+      df$writer <- sapply(df$docname, function(x) substr(x, start = writer_indices[1], stop = writer_indices[2]))
       df$doc <- sapply(df$docname, function(x) substr(x, start = doc_indices[1], stop = doc_indices[2]), USE.NAMES = FALSE)
       df$slope <- sapply(doc$process$letterList, function(x) x$characterFeatures$slope)
       df$xvar <- sapply(doc$process$letterList, function(x) x$characterFeatures$xvar)
@@ -507,7 +507,7 @@ get_clusterassignment <- function(main_dir, input_type, writer_indices, doc_indi
 
     # add docname, writer, doc, slope, xvar, yvar, and covar
     df$docname <- doc$docname
-    df$writer <- as.integer(sapply(df$docname, function(x) substr(x, start = writer_indices[1], stop = writer_indices[2])))
+    df$writer <- sapply(df$docname, function(x) substr(x, start = writer_indices[1], stop = writer_indices[2]))
     df$doc <- sapply(df$docname, function(x) substr(x, start = doc_indices[1], stop = doc_indices[2]), USE.NAMES = FALSE)
     df$slope <- sapply(doc$process$letterList, function(x) x$characterFeatures$slope)
     df$xvar <- sapply(doc$process$letterList, function(x) x$characterFeatures$xvar)

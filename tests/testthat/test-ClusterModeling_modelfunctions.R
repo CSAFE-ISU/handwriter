@@ -50,20 +50,16 @@ test_that("drop burn-in works on a single chain", {
 })
 
 test_that("about variable works on a single chain", {
-  expect_equal(about_variable(variable = "pi[1,3]", 
-                              model = example_model), 
-               "Pi is the cluster fill probability for writer ID 9 and cluster 3")
+  expect_equal(about_variable(variable = "pi[1,3]", model = example_model), 
+               "Pi is the cluster fill probability for writer ID 0009 and cluster 3")
   
-  expect_equal(about_variable(variable = "mu[2,5]", 
-                              model = example_model), 
-               "Mu is the location parameter of a wrapped-Cauchy distribution for writer ID 30 and cluster 5")
+  expect_equal(about_variable(variable = "mu[2,5]", model = example_model), 
+               "Mu is the location parameter of a wrapped-Cauchy distribution for writer ID 0030 and cluster 5")
   
-  expect_equal(about_variable(variable = "tau[3,5]", 
-                              model = example_model), 
-               "Tau is the scale parameter of a wrapped-Cauchy distribution for writer ID 238 and cluster 5")
+  expect_equal(about_variable(variable = "tau[3,5]", model = example_model), 
+               "Tau is the scale parameter of a wrapped-Cauchy distribution for writer ID 0238 and cluster 5")
   
-  expect_equal(about_variable(variable = "gamma[4]", 
-                              model = example_model), 
+  expect_equal(about_variable(variable = "gamma[4]", model = example_model), 
                "Gamma is the mean cluster fill probability across all writers for cluster 4")
   
   expect_equal(about_variable(variable = "eta[3]", 
