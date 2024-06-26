@@ -25,7 +25,7 @@ findNeighbors <- function(coords, img) {
 #' 
 #' Convert a list of lists into a single 1-level list.
 #'
-#' @param actual A list of sublists
+#' @param comps A list of connected components
 #'
 #' @return A list
 #'
@@ -33,21 +33,27 @@ findNeighbors <- function(coords, img) {
 #' flattenList(list(list('a', 'b', 'c'), list('d'), list('e', 'f')) )
 #' 
 #' @noRd
-flattenList <- function(actual) {
-  new <- list()
-  counter <- 1
-  for (i in 1:length(actual)){
-    current_list <- actual[[i]]
-    if (length(current_list) >= 1){
-      for (j in 1:length(current_list)){
-        current_path <- current_list[[j]]
-        if (length(current_path) >= 1){
-          new[[counter]] <- current_path
-          counter = counter + 1
+flattenList <- function(comps) {
+  if (length(comps) > 1){
+    actual <- sapply(comps, function(x) x[['paths']][['graphList']])
+    new <- list()
+    counter <- 1
+    for (i in 1:length(actual)){
+      current_list <- actual[[i]]
+      if (length(current_list) >= 1){
+        for (j in 1:length(current_list)){
+          current_path <- current_list[[j]]
+          if (length(current_path) >= 1){
+            new[[counter]] <- current_path
+            counter = counter + 1
+          }
         }
       }
     }
+  } else {
+    new <- comps[[1]][['paths']][['graphList']]
   }
+  
   return(new)
 }
 

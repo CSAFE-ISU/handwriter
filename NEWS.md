@@ -1,5 +1,9 @@
 # handwriter (development version)
 
+## Minor improvements and fixes
+
+* Fixed bug in `processDocument()` when the writing in the document is a single connected component, such as a single word written in cursive. Previously, the output of `processDocument()` for this kind of document was formatted incorrectly.
+
 # handwriter 3.1.1
 
 ## Patches
