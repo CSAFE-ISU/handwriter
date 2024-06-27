@@ -34,26 +34,18 @@ findNeighbors <- function(coords, img) {
 #' 
 #' @noRd
 flattenList <- function(comps) {
-  if (length(comps) > 1){
-    actual <- sapply(comps, function(x) x[['paths']][['graphList']])
-    new <- list()
-    counter <- 1
-    for (i in 1:length(actual)){
-      current_list <- actual[[i]]
-      if (length(current_list) >= 1){
-        for (j in 1:length(current_list)){
-          current_path <- current_list[[j]]
-          if (length(current_path) >= 1){
-            new[[counter]] <- current_path
-            counter = counter + 1
-          }
-        }
+  new <- list()
+  counter <- 1
+  for (i in 1:length(comps)) {
+    temp <- comps[[i]]$paths$graphList
+    if (length(temp) > 0){
+      for (j in 1:length(temp)) {
+        new[[counter]] <- comps[[i]]$paths$graphList[[j]]
+        counter <- counter + 1
       }
     }
-  } else {
-    new <- comps[[1]][['paths']][['graphList']]
   }
-  
+
   return(new)
 }
 

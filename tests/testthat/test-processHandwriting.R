@@ -34,3 +34,15 @@ test_that("processHandwriting works on sample3.png", {
   expect_equal(actual, expected, tolerance = 1e-08)
 })
 
+test_that("processHandwriting works on sample4.png", {
+  actual <- list()
+  actual$image <- readPNGBinary(testthat::test_path("fixtures", "processHandwriting", "samples", "sample4.png"))
+  actual$thin <- thinImage(actual$image)
+  actual$process <- processHandwriting(actual$thin, dim(actual$image))
+  actual$docname <- 'sample4'
+  
+  expected <- readRDS(testthat::test_path("fixtures", "processHandwriting", "graphs", "sample4_proclist.rds"))
+  
+  expect_equal(actual, expected, tolerance = 1e-08)
+})
+
