@@ -41,47 +41,65 @@
 #'
 #' @export
 #' @md
-plot_cluster_fill_counts <- function(formatted_data, facet = FALSE) {
+plot_cluster_fill_counts <- function(formatted_data, facet = TRUE) {
   # bind global variables to fix check() note
   writer <- cluster <- count <- doc <- NULL
   
+  # get type of data - plot lines for model writers will be different colors but
+  # plot lines for questioned documents will all be black with different
+  # linetypes to prevent a questioned document from having the same line color
+  # as one of the model writers
+  if ("fitted_model" %in% names(formatted_data)){
+    type <- "model"
+  } else {
+    type <- "questioned"
+  }
+  
   counts <- formatted_data$cluster_fill_counts
-
-  # only one doc per writer?
-  single_doc <- ifelse(length(unique(counts$writer)) == length(counts$writer), TRUE, FALSE)
-
+  
   # make cluster and count columns
   counts <- counts %>%
     tidyr::pivot_longer(cols = -c(1, 2, 3), names_to = "cluster", values_to = "count")
-
+  
   # change writer to factor
   counts <- counts %>%
     dplyr::mutate(writer = factor(writer))
-
+  
   # plot
-  if (single_doc) { # one doc per writer
-    p <- counts %>%
-      dplyr::mutate(cluster = as.integer(cluster)) %>% # allow lines between clusters
-      ggplot2::ggplot(aes(x = cluster, y = count, color = writer)) +
-      geom_line() +
-      geom_point() +
-      scale_x_continuous(breaks = as.integer(unique(counts$cluster))) +
-      theme_bw()
-  } else { # at least one writer has more than one doc
-    p <- counts %>%
-      dplyr::mutate(cluster = as.integer(cluster)) %>% # allow lines between clusters
-      ggplot2::ggplot(aes(x = cluster, y = count, group = interaction(writer, doc), color = writer)) +
-      geom_line() +
-      geom_point() +
-      scale_x_continuous(breaks = as.integer(unique(counts$cluster))) +
-      theme_bw()
-  }
-
+  p <- switch(type,
+              "model" = {
+                counts %>%
+                  dplyr::mutate(cluster = as.integer(cluster)) %>%  # allows lines between clusters
+                  ggplot2::ggplot(aes(x = cluster, 
+                                      y = count, 
+                                      group = interaction(writer, doc), 
+                                      color = writer)) + 
+                  geom_line() +
+                  geom_point() +
+                  scale_x_continuous(breaks = as.integer(unique(counts$cluster))) +
+                  theme_bw()
+              },
+              "questioned" = {
+                counts %>%
+                  dplyr::mutate(cluster = as.integer(cluster)) %>%  # allows lines between clusters
+                  ggplot2::ggplot(aes(x = cluster, 
+                                      y = count, 
+                                      group = interaction(writer, doc), 
+                                      linetype = writer)) + 
+                  geom_line() +
+                  geom_point() +
+                  scale_x_continuous(breaks = as.integer(unique(counts$cluster))) +
+                  theme_bw()
+              })
+  
   # facet (optional)
   if (facet) {
-    p <- p + facet_wrap(~writer)
+    p <- p + 
+      facet_wrap(~writer) +
+      # writer IDs appear above each box so hide the legend
+      theme(legend.position = "none")
   }
-
+  
   return(p)
 }
 
@@ -179,20 +197,20 @@ plot_trace <- function(variable, model) {
   
   # format MCMC draws from fitted model
   formatted_model <- format_draws(model)
-
+  
   # get parameter name from variable (E.g. mu[4,5] -> mu) and add an s on
   # the end
   param <- sub("\\[.*", "", variable)
   params <- paste0(param, "s")
-
+  
   # select data frame for variable
   p <- formatted_model[[params]]
   # add iteration column to data frame
   p["iteration"] <- 1:nrow(p)
-
+  
   # rename variable column. ggplot doesn't like names with brackets
   colnames(p)[colnames(p) == variable] <- "y"
-
+  
   # plot
   p <- p %>%
     ggplot2::ggplot(aes(x = iteration, y = y)) +
@@ -203,7 +221,7 @@ plot_trace <- function(variable, model) {
       subtitle = about_variable(variable = variable, model = model)
     ) +
     theme_bw()
-
+  
   return(p)
 }
 
@@ -251,12 +269,12 @@ plot_credible_intervals <- function(model, interval_min = 0.025, interval_max = 
     theme_bw() +
     theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
     labs(y = "median", color = "writer")
-
+  
   # facet (optional)
   if (facet) {
     p <- p + facet_wrap(~writer)
   }
-
+  
   return(p)
 }
 
