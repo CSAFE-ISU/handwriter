@@ -4,7 +4,7 @@
 \alias{plot_cluster_fill_counts}
 \title{Plot Cluster Fill Counts}
 \usage{
-plot_cluster_fill_counts(formatted_data, facet = FALSE)
+plot_cluster_fill_counts(formatted_data, facet = TRUE)
 }
 \arguments{
 \item{formatted_data}{Data created by \code{\link[=format_template_data]{format_template_data()}},
