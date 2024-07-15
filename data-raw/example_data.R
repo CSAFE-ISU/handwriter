@@ -19,7 +19,7 @@ make_example_template <- function(main_dir, centers_seed) {
   
   example_cluster_template <- make_clustering_template(main_dir = main_dir,
                                                        template_docs = template_docs,
-                                                       writer_indices = c(2, 5),
+                                                       writer_indices = c(1, 5),
                                                        K = 5,
                                                        num_dist_cores = 2,
                                                        max_iters = 3,
