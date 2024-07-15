@@ -45,10 +45,6 @@ format_template_data <- function(template) {
     dplyr::group_by(writer, doc, cluster) %>%
     dplyr::summarize(count = dplyr::n())
 
-  # make integer
-  counts <- counts %>%
-    dplyr::mutate(writer = as.integer(writer))
-
   # make a column for each cluster
   counts <- counts %>%
     tidyr::pivot_wider(names_from = cluster, values_from = count, values_fill = 0)

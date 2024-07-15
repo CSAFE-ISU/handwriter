@@ -11,11 +11,10 @@ a random sample of 1000 graphs from 10 training documents into 10 clusters
 with a K-means algorithm. The cluster template is a named list with 16
 items:
 \describe{
-\item{seed}{An integer for the random number generator.}
+\item{centers_seed}{An integer for the random number generator.}
 \item{cluster}{A vector of cluster assignments
 for each graph used to create the cluster template.}
-\item{centers}{A list
-of graphs used as the starting cluster centers for the K-means algorithm.}
+\item{centers}{The final cluster centers produced by the K-Means algorithm.}
 \item{K}{The number of clusters to build (10) with the K-means algorithm.}
 \item{n}{The number of training graphs to use (1000) in the K-means
 algorithm.}

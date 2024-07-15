@@ -6,6 +6,9 @@
 
 * Fixed bug in `get_credible_intervals()` and `plot_credible_intervals()` where the model writers were numbered sequentially. Now these functions use the writer IDs.
 
+* Fixed bug in `format_template_data()` where the function coerced writer IDs to integers even
+if the writer IDs contained characters.
+
 # handwriter 3.1.1
 
 ## Patches

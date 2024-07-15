@@ -15,7 +15,7 @@ test_that("template creation works", {
 
   warnings <- capture_warnings(actual <- make_clustering_template(main_dir = main_dir,
                                                                   template_docs = template_docs,
-                                                                  writer_indices = c(2, 5),
+                                                                  writer_indices = c(1, 5),
                                                                   K = 5,
                                                                   num_dist_cores = 1,
                                                                   max_iters = 3,
