@@ -52,7 +52,7 @@
 #' @md
 analyze_questioned_documents <- function(main_dir, questioned_docs, model, num_cores, writer_indices, doc_indices) {
   # bind global variables to fix check() note
-  writer <- d <- NULL
+  writer <- d <- docname <- NULL
   
   # process questioned documents
   message("Processing questioned documents...")
@@ -116,7 +116,7 @@ analyze_questioned_documents <- function(main_dir, questioned_docs, model, num_c
   doParallel::registerDoParallel(my_cluster)
 
   # list questioned writers
-  qwriters <- unique(questioned_data$graph_measurements$writer)
+  qdocs <- unique(questioned_data$graph_measurements$docname)
   
   # list known writers
   kwriters <- unique(model$graph_measurements$writer)
@@ -125,7 +125,7 @@ analyze_questioned_documents <- function(main_dir, questioned_docs, model, num_c
   message("Obtaining likelihood evaluations...")
   likelihood_evals <- foreach::foreach(d = 1:nrow(questioned_data$cluster_fill_counts)) %dopar% { # d is document
     # filter docs for current writer
-    qdoc2 <- questioned_data$graph_measurements %>% dplyr::filter(writer == qwriters[d]) # identical to m_qdoc
+    qdoc2 <- questioned_data$graph_measurements %>% dplyr::filter(docname == qdocs[d]) # identical to m_qdoc
 
     # get cluster assignments
     qcluster2 <- as.numeric(qdoc2$cluster) # identical to m_cluster
