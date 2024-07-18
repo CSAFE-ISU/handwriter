@@ -465,17 +465,20 @@ SaveAllLetterPlots = function(letterList, filePaths, dims, bgTransparent = TRUE)
 #' point of the graph. All points are represented as xy-coordinates and the
 #' center point is at (0,0).
 #'
-#' @param centers A list of template cluster centers
+#' @param template A cluster template created with [`make_clustering_template`]
+#' @param size The size of the output plot
 #'
 #' @return A plot
 #'
 #' @examples
 #' # plot cluster centers from example template
-#' plotClusterCenters(example_cluster_template$centers)
+#' plotClusterCenters(example_cluster_template)
 #'
 #' @export
 #' @md
 plotClusterCenters <- function(template, size=25) {
+  
+  cluster <- distance <- endx <- endy <- graph_num <- startx <- starty <- NULL
   
   build_segment_df <- function(proto, cluster = NULL){
     # a letter prototype consists of the start and end points of paths, points

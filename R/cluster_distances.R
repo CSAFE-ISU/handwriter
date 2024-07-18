@@ -622,9 +622,6 @@ weightedMeanGraphs = function(imageList1, imageList2, p1, isProto1 = FALSE, isPr
 #'   at the cut points and despite the name, the path might not be cut into
 #'   quarters.
 #' 
-#' @examples
-#' proto <- graphToPrototype(example_cluster_template$template_graphs[[1]])
-#' 
 #' @noMd
 graphToPrototype = function(graph, numPathCuts = 8)
 {
