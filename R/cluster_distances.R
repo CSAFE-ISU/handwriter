@@ -14,9 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-
 # Internal Functions ------------------------------------------------------
-
 
 #' distXY
 #'
@@ -245,48 +243,6 @@ solveLP = function(dists)
     matching =  order((which(x$solution != 0) - 1) %% dims + 1)
   ))
 }
-
-
-#' letterToPrototype
-#'
-#' Convert the graph to a prototype graph, a graph that serves as a cluster center.
-#'
-#' @param letter A graph from a handwriting sample
-#' @param numPathCuts Number of segments to cut the path(s) into
-#' @return List of pathEnds, pathQuarters, and pathCenters given as (x,y) coordinates
-#' with the graph centroid at (0,0). The returned list also contains path lengths.
-#' pathQuarters gives the (x,y) coordinates of the path at the cut points and despite the
-#' name, the path might not be cut into quarters.
-#'
-#' @noRd
-letterToPrototype = function(letter, numPathCuts = 8)
-{
-  pathCount = length(letter$allPaths)
-  resGraph = list(pathEnds = matrix(NA, ncol = 4, nrow = pathCount), pathQuarters = matrix(NA, ncol = 2*(numPathCuts-1), nrow = pathCount), pathCenter = matrix(NA, ncol = 2, nrow = pathCount), lengths = rep(NA, pathCount)) # identical to handwriter
-  
-  dims = dim(letter$image)
-  for(i in 1:pathCount)
-  {
-    pathLength = length(letter$allPaths[[i]])
-    resGraph$pathEnds[i,1:2] = c((letter$allPaths[[i]][1]-1) %/% dims[1] + 1, dims[1] - (letter$allPaths[[i]][1]-1) %% dims[1]) - letter$centroid
-    resGraph$pathEnds[i,3:4] = c((letter$allPaths[[i]][pathLength]-1) %/% dims[1] + 1, dims[1] - (letter$allPaths[[i]][pathLength]-1) %% dims[1]) - letter$centroid
-    
-    pathRC = PathToRC(letter$allPaths[[i]], dim(letter$image))
-    resGraph$pathCenter[i,] = c(mean(pathRC[,1]), mean(pathRC[,2])) - letter$centroid
-    
-    for(j in 1:(numPathCuts-1))
-    {
-      quartTemp = letter$allPaths[[i]][ceiling(pathLength/(numPathCuts/j))]
-      resGraph$pathQuarters[i,(j-1)*2 + 1:2] = c((quartTemp-1) %/% dims[1] + 1, dims[1] - (quartTemp-1) %% dims[1]) - letter$centroid
-      # resGraph$pathQuarters[i,(j-1)*2 + 1:2] = pointLineProportionVect(resGraph$pathEnds[i,1:2], resGraph$pathEnds[i,3:4], j/numPathCuts, resGraph$pathQuarters[i,(j-1)*2 + 1:2])
-    }
-    
-    #resGraph$pathQuarters[i,] = resGraph$pathQuarters[i,] - matrix(rep(resGraph$pathEnds[i,1:2], numPathCuts-1), nrow= 1)
-    resGraph$lengths[i] = pathLength
-  }
-  return(resGraph)
-}
-
 
 #' getGraphInfo
 #'
@@ -647,6 +603,57 @@ weightedMeanGraphs = function(imageList1, imageList2, p1, isProto1 = FALSE, isPr
                                        (numPathCuts - 1))
       resGraph$lengths = resGraph$lengths[-toDelete]
     }
+  }
+  return(resGraph)
+}
+
+#' Convert graph to a prototype
+#'
+#' A graph prototype consists of the starting and ending points of each path in
+#' the graph, as well as and evenly spaced points along each path. The prototype
+#' also stores the center point of the graph. All points are represented as
+#' xy-coordinates and the center point is at (0,0).
+#'
+#' @param graph A graph from a handwriting sample
+#' @param numPathCuts Number of segments to cut the path(s) into
+#' @return List of pathEnds, pathQuarters, and pathCenters given as (x,y)
+#'   coordinates with the graph centroid at (0,0). The returned list also
+#'   contains path lengths. pathQuarters gives the (x,y) coordinates of the path
+#'   at the cut points and despite the name, the path might not be cut into
+#'   quarters.
+#' 
+#' @examples
+#' proto <- graphToPrototype(example_cluster_template$template_graphs[[1]])
+#' 
+#' @noMd
+graphToPrototype = function(graph, numPathCuts = 8)
+{
+  pathCount = length(graph$allPaths)
+  resGraph = list(pathEnds = matrix(NA, ncol = 4, nrow = pathCount), 
+                  pathQuarters = matrix(NA, ncol = 2*(numPathCuts-1), nrow = pathCount),
+                  pathCenter = matrix(NA, ncol = 2, nrow = pathCount), 
+                  lengths = rep(NA, pathCount)) # identical to handwriter
+  
+  dims = dim(graph$image)
+  for(i in 1:pathCount)
+  {
+    pathLength = length(graph$allPaths[[i]])
+    resGraph$pathEnds[i,1:2] = c((graph$allPaths[[i]][1]-1) %/% dims[1] + 1, 
+                                 dims[1] - (graph$allPaths[[i]][1]-1) %% dims[1]) - graph$centroid
+    resGraph$pathEnds[i,3:4] = c((graph$allPaths[[i]][pathLength]-1) %/% dims[1] + 1, dims[1] - (graph$allPaths[[i]][pathLength]-1) %% dims[1]) - graph$centroid
+    
+    pathRC = PathToRC(graph$allPaths[[i]], dim(graph$image))
+    resGraph$pathCenter[i,] = c(mean(pathRC[,1]), mean(pathRC[,2])) - graph$centroid
+    
+    for(j in 1:(numPathCuts-1))
+    {
+      quartTemp = graph$allPaths[[i]][ceiling(pathLength/(numPathCuts/j))]
+      resGraph$pathQuarters[i,(j-1)*2 + 1:2] = c((quartTemp-1) %/% dims[1] + 1, dims[1] - (quartTemp-1) %% dims[1]) - graph$centroid
+      # resGraph$pathQuarters[i,(j-1)*2 + 1:2] = pointLineProportionVect(resGraph$pathEnds[i,1:2], resGraph$pathEnds[i,3:4], j/numPathCuts, resGraph$pathQuarters[i,(j-1)*2 + 1:2])
+    }
+    
+    #resGraph$pathQuarters[i,] = resGraph$pathQuarters[i,] - matrix(rep(resGraph$pathEnds[i,1:2], numPathCuts-1), nrow= 1)
+    resGraph$lengths[i] = pathLength
   }
   return(resGraph)
 }
