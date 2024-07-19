@@ -1,5 +1,9 @@
 # handwriter (development version)
 
+## New features
+
+* The new function `plotClusterCenters()` creates a plot of the clusters centers from a cluster template. The cluster centers are displayed as orange shapes. The function also plots all graphs in each cluster as grey shapes with 5% transparency to depict the variability of graph shapes within each cluster.
+
 ## Minor improvements and fixes
 
 * Fixed bug in `processDocument()` when the writing in the document is a single connected component, such as a single word written in cursive. Previously, the output of `processDocument()` for this kind of document was formatted incorrectly.
