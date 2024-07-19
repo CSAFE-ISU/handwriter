@@ -452,7 +452,7 @@ chooseCenters <- function(seed, K, template_proc_list, template_images_list) {
   # Reformat starting cluster centers as prototype graphs
   centerstarts <- replicate(K, list())
   for (k in 1:K) {
-    centerstarts[[k]] <- letterToPrototype(template_images_list[[samplingdf$ind[k]]], numPathCuts = 8)
+    centerstarts[[k]] <- graphToPrototype(template_images_list[[samplingdf$ind[k]]], numPathCuts = 8)
   }
   
   return(centerstarts)
@@ -692,7 +692,7 @@ meanGraphSet_slowchange <- function(template_images_list, num_path_cuts, num_dis
   dists <- rep(0, length(template_images_list))
   
   # convert the first graph in the list to a prototype
-  meanGraph1 <- letterToPrototype(template_images_list[[indices[1]]], numPathCuts = num_path_cuts)
+  meanGraph1 <- graphToPrototype(template_images_list[[indices[1]]], numPathCuts = num_path_cuts)
   
   # add graphs one-by-one to the mean graph calculation
   if (length(template_images_list) > 1) {
@@ -720,7 +720,7 @@ meanGraphSet_slowchange <- function(template_images_list, num_path_cuts, num_dis
   }
   
   # return the graph closest to the mean graph as a protoype
-  return(letterToPrototype(template_images_list[[retindex]], numPathCuts = num_path_cuts))
+  return(graphToPrototype(template_images_list[[retindex]], numPathCuts = num_path_cuts))
 }
 
 
