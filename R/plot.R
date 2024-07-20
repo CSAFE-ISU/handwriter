@@ -121,43 +121,6 @@ plotNodes = function(doc, plot_break_pts = FALSE, nodeSize = 3, nodeColor = "red
   return(p)
 }
 
-#' plotNodesLine
-#'
-#' Internal function for drawing a line from two given nodes.
-#'  
-#' @param doc A document processed with [handwriter::processHandwriter()]
-#' @param nodeSize size of node; default set to 3
-#' @param nodeColor color of node; default set to red
-#' @return a line in between the two nodes
-#' 
-#' @noRd
-plotNodesLine = function(doc, nodeSize = 3, nodeColor = "red")
-{
-  X <- Y <- NULL
-  p = plotImageThinned(doc)
-  pointSet = data.frame(X = ((doc$process$nodes - 1) %/% dim(doc$image)[1]) + 1, Y = dim(doc$image)[1] - ((doc$process$nodes - 1) %% dim(doc$image)[1]))
-  sx = pointSet[[1]][[1]]
-  sy = pointSet[[2]][[1]]
-  ex = pointSet[[1]][[2]]
-  ey = pointSet[[2]][[2]]
-  p = p + geom_point(data = pointSet, aes(X, Y), size = nodeSize, shape = I(16), color = I(nodeColor), alpha = I(.4)) + geom_segment(x = sx, y = sy, xend = ex, yend = ey)
-  
-  return(p)
-}
-
-plotNodesLine1 = function(doc, nodeSize = 3, nodeColor = "red")
-{
-  X <- Y <- NULL
-  p = plotImageThinned(doc)
-  pointSet = data.frame(X = ((doc$process$nodes - 1) %/% dim(doc$image)[1]) + 1, Y = dim(doc$image)[1] - ((doc$process$nodes - 1) %% dim(doc$image)[1]))
-  sx = pointSet[[1]][[1]]
-  sy = pointSet[[2]][[1]]
-  ex = pointSet[[1]][[2]]
-  ey = pointSet[[2]][[2]]
-  p = p + geom_point(data = pointSet, aes(X, Y), size = nodeSize, shape = I(16), color = I(nodeColor), alpha = I(.4)) + geom_curve(x = sx, y = sy, xend = ex, yend = ey, curvature = 0, angle = 180)
-  return(p)
-}
-
 #' Plot Line
 #'
 #' This function returns a plot of a single line extracted from a document. 
@@ -373,88 +336,6 @@ plotLetter = function(doc, whichLetter, showPaths = TRUE, showCentroid = TRUE, s
   return(p)
 }
 
-#' Add Letter Images
-#'
-#' Pulls out letterlist as its own object, and adds the image matrix as well
-#' 
-#' @param letterList Letter list from processHandwriting function
-#' @param dims Dimensions of the original document
-#' @return letterList with a new matrix `image` value for each sublist.
-#' 
-#' @examples
-#' twoSent_document = list()
-#' twoSent_document$image = twoSent
-#' twoSent_document$thin = thinImage(twoSent_document$image)
-#' twoSent_processList = processHandwriting(twoSent_document$thin, dim(twoSent_document$image))
-#' 
-#' dims = dim(twoSent_document$image)
-#' withLetterImages = AddLetterImages(twoSent_processList$letterList, dims)
-#' 
-#' @export
-#' @md
-AddLetterImages <- function(letterList, dims)
-{
-  skeletons = lapply(letterList, function(x) x$path)
-  r = lapply(skeletons, function(x) {((x-1) %% dims[1]) + 1})
-  c = lapply(skeletons, function(x) {((x-1) %/% dims[1]) + 1})
-  for(i in 1:length(letterList))
-  {
-    letterList[[i]]$image = matrix(1, nrow = diff(range(r[[i]]))+1, ncol = diff(range(c[[i]]))+1)
-    r[[i]] = r[[i]]-min(r[[i]])+1
-    c[[i]] = c[[i]]-min(c[[i]])+1
-    letterList[[i]]$image[cbind(r[[i]],c[[i]])] = 0
-  }
-  return(letterList)
-}
-
-#' Save All Letter Plots
-#'
-#' This function returns a plot of a single graph extracted from a document. It
-#' uses the letterList parameter from the [`processHandwriting()`] or
-#' [`processDocument()`] function and accepts a single value as whichLetter.
-#' Dims requires the dimensions of the entire document, since this isn't
-#' contained in [`processHandwriting()`] or
-#' [`processDocument()`]. Requires the \pkg{\link{magick}} package.
-#'
-#' @param letterList Letter list from [`processHandwriting()`] or
-#' [`processDocument()`] function
-#' @param filePaths Folder path to save images to
-#' @param dims Dimensions of original document
-#' @param bgTransparent Logical determines if the image is transparent
-#' @return No return value.
-#'
-#' @examples
-#' twoSent_document = list()
-#' twoSent_document$image = twoSent
-#' twoSent_document$thin = thinImage(twoSent_document$image)
-#' twoSent_processList = processHandwriting(twoSent_document$thin, dim(twoSent_document$image))
-#'
-#' dims = dim(twoSent_document$image)
-#' \dontrun{
-#' withLetterImages = AddLetterImages(twoSent_processList$letterList, "path/to/save", dims)
-#' }
-#'
-#' @seealso \code{\link[magick]{image_transparent}}
-#' @seealso \code{\link[magick]{image_write}}
-#' @seealso \code{\link[magick]{image_read}}
-#'
-#' @export
-#' @md
-SaveAllLetterPlots = function(letterList, filePaths, dims, bgTransparent = TRUE)
-{
-  if(is.null(letterList[[1]]$image))
-    letterList = AddLetterImages(letterList, dims)
-  
-  for(i in 1:length(letterList))
-  {
-    img= magick::image_read(as.raster(letterList[[i]]$image))
-    if(bgTransparent){
-      img  = magick::image_transparent(img, "white")
-      magick::image_write(path = paste0(filePaths, "letter", i, ".png"), img)
-    }
-  }
-}
-
 #' Plot Template Cluster Centers
 #'
 #' Plot the cluster centers of a cluster template created with
@@ -557,3 +438,37 @@ plotClusterCenters <- function(template, size=25) {
   return(p)
 }
 
+# Internal Functions ------------------------------------------------------
+
+#' Add Letter Images
+#'
+#' Pulls out letterlist as its own object, and adds the image matrix as well
+#' 
+#' @param letterList Letter list from processHandwriting function
+#' @param dims Dimensions of the original document
+#' @return letterList with a new matrix `image` value for each sublist.
+#' 
+#' @examples
+#' twoSent_document = list()
+#' twoSent_document$image = twoSent
+#' twoSent_document$thin = thinImage(twoSent_document$image)
+#' twoSent_processList = processHandwriting(twoSent_document$thin, dim(twoSent_document$image))
+#' 
+#' dims = dim(twoSent_document$image)
+#' withLetterImages = AddLetterImages(twoSent_processList$letterList, dims)
+#' 
+#' @noRd
+AddLetterImages <- function(letterList, dims)
+{
+  skeletons = lapply(letterList, function(x) x$path)
+  r = lapply(skeletons, function(x) {((x-1) %% dims[1]) + 1})
+  c = lapply(skeletons, function(x) {((x-1) %/% dims[1]) + 1})
+  for(i in 1:length(letterList))
+  {
+    letterList[[i]]$image = matrix(1, nrow = diff(range(r[[i]]))+1, ncol = diff(range(c[[i]]))+1)
+    r[[i]] = r[[i]]-min(r[[i]])+1
+    c[[i]] = c[[i]]-min(c[[i]])+1
+    letterList[[i]]$image[cbind(r[[i]],c[[i]])] = 0
+  }
+  return(letterList)
+}
