@@ -438,86 +438,41 @@ plotClusterCenters <- function(template, size=25) {
   return(p)
 }
 
-plotGraphs <- function(doc, size=25) {
-  
-  cluster <- distance <- endx <- endy <- graph_num <- startx <- starty <- NULL
-  
-  build_segment_df <- function(proto, cluster = NULL){
-    # a letter prototype consists of the start and end points of paths, points
-    # evenly spaced along each path, and the center of the letter. The letter's
-    # center might not be a point on the graph itself, so we don't use it in the
-    # plot. For each path in the letter, we will plot a line between each point and
-    # the next. Build a data frame of those line segments.
+plotGraphs <- function(doc) {
+  format_graph_df <- function(graph, i) {
+    # reshape the image matrix as a data frame where Var1 is the matrix row,
+    # Var2 is the matrix column and value is the matrix value in that row and
+    # column
+    df <- melt(graph$image)
     
-    num_paths <- dim(proto$pathEnds)[1]
+    # flip row number to represent y coordinate (Rows are indexed top to bottom,
+    # non-negative y values are plotted bottom to top)
+    df <- df %>% dplyr::mutate(Var1 = max(Var1) - Var1 + 1)
     
-    paths <- list()
-    for (i in 1:num_paths){
-      startx <- proto$pathEnds[i, 1]
-      starty <- proto$pathEnds[i, 2]
-      qrtsx <- proto$pathQuarters[i, seq(1, dim(proto$pathQuarters)[2]-1, 2)]
-      qrtsy <- proto$pathQuarters[i, seq(2, dim(proto$pathQuarters)[2], 2)]
-      endx <- proto$pathEnds[i, 3]
-      endy <- proto$pathEnds[i, 4]
-      pathx <- c(startx, qrtsx, endx)
-      pathy <- c(starty, qrtsy, endy)
-      
-      # we will tell ggplot to draw a line between each point and the next point 
-      # in the sequence so we make a data frame where each row contains the
-      # xy-coordinates of the start and end point of a line
-      start_pts <- data.frame(startx=pathx, starty=pathy)[1:(length(pathx)-1),]
-      end_pts <- data.frame(endx=pathx, endy=pathy)[2:length(pathx),]
-      df <- cbind(start_pts, end_pts)
-      paths[[i]] <- df
-    }
-    df <- do.call(rbind, paths)
-    if (!is.null(cluster)){
-      df$cluster <- as.factor(paste("cluster", cluster))
-    }
+    colnames(df) <- c("y", "x", "value")
+    
+    # add graph number for facet_wrap
+    df$graph <- i
     
     return(df)
   }
   
-  # find graphs closest to cluster centers
-  graphs <- template$template_graphs
-  lookup <- data.frame("graph_num"=1:template$n, "cluster"=template$cluster, "distance"=template$wcd[template$iters,])
-  closest <- lookup %>%
-    dplyr::group_by(cluster) %>% 
-    dplyr::slice(which.min(distance)) %>%
-    dplyr::pull(graph_num)
+  letterList <- AddLetterImages(doc$process$letterList, dim(doc$image))
   
-  # convert graphs to graph prototypes for easier plotting. Graph prototypes
-  # place the center of the graph at (0, 0) so the prototypes can be easily
-  # centered. The graph images would need to be centered before we can plot
-  # the clusters from the graph images directly.
-  graphs <- lapply(graphs, graphToPrototype)
+  dfs <- lapply(1:length(letterList), function(i) format_graph_df(letterList[[i]], i))
+  df <- do.call(rbind, dfs)
   
-  # create data frame of line segments in the cluster centers
-  centers <- graphs[closest]
-  centers_dfs <- lapply(1:length(centers), function(i) build_segment_df(proto = centers[[i]], cluster = i))
-  centers_df <- do.call(rbind, centers_dfs)
-  
-  graphs_by_cluster <- list()
-  for (k in 1:template$K){
-    graphs_k <- graphs[template$cluster==k]
-    graphs_k <- lapply(1:length(graphs_k), function(i) build_segment_df(proto = graphs_k[[i]]))
-    graphs_k_df <- do.call(rbind, graphs_k)
-    graphs_k_df$cluster <- as.factor(paste("cluster", k))
-    graphs_by_cluster[[k]] <- graphs_k_df
-  }
-  graphs_by_cluster <- do.call(rbind, graphs_by_cluster)
-  
-  # plot
-  p <- centers_df %>% ggplot2::ggplot() + 
-    ggplot2::geom_segment(data=graphs_by_cluster, aes(x=startx, y=starty, xend=endx, yend=endy), color = "grey30", alpha=0.05) +
-    ggplot2::geom_segment(aes(x=startx, y=starty, xend=endx, yend=endy), color = "orange") +
-    xlim(-size, size) +
-    ylim(-size, size) +
-    theme_void() +
-    facet_wrap(~cluster)
+  p <- df %>% 
+    ggplot2::ggplot(ggplot2::aes(x, y)) + 
+    ggplot2::geom_raster(aes(fill = as.factor(value)), na.rm=TRUE) + 
+    ggplot2::scale_fill_manual(values = c("black", "white"), guide = "none") + 
+    ggplot2::coord_fixed() + 
+    ggplot2::theme_void() +
+    ggplot2::facet_wrap(~graph)
   
   return(p)
 }
+
 
 # Internal Functions ------------------------------------------------------
 
