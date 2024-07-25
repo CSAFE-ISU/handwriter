@@ -338,6 +338,9 @@ plotLetter = function(doc, whichLetter, showPaths = TRUE, showCentroid = TRUE, s
 
 plotGraphs <- function(doc) {
   format_graph_df <- function(graph, i) {
+    # bind global variables to fix check() note
+    Var1 <- NULL
+    
     # reshape the image matrix as a data frame where Var1 is the matrix row,
     # Var2 is the matrix column and value is the matrix value in that row and
     # column
@@ -354,6 +357,9 @@ plotGraphs <- function(doc) {
     
     return(df)
   }
+  
+  # bind global variables to fix check() note
+  x <- y <- value <- NULL
   
   letterList <- AddLetterImages(doc$process$letterList, dim(doc$image))
   

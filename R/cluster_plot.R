@@ -333,25 +333,32 @@ plot_posterior_probabilities <- function(analysis) {
 #' Plot Template Cluster Centers
 #'
 #' Plot the cluster centers of a cluster template created with
-#' [`make_clustering_template`]. The handwriter R package stores the cluster
-#' centers of a cluster template as graph prototypes. A graph prototype consists
-#' of the starting and ending points of each path in the graph, as well as and
-#' evenly spaced points along each path. The prototype also stores the center
-#' point of the graph. All points are represented as xy-coordinates and the
-#' center point is at (0,0).
+#' [`make_clustering_template`]. This function uses a K-Means type algorithm to
+#' sort graphs from training documents into clusters. On each iteration of the
+#' algorithm, it calculates the mean graph of each cluster and finds the graph
+#' in each cluster that is closest to the mean graph. The graphs closest to the
+#' mean graphs are used as the cluster centers for the next iteration.
+#' Handwriter stores the cluster centers of a cluster template as graph
+#' prototypes. A graph prototype consists of the starting and ending points of
+#' each path in the graph, as well as and evenly spaced points along each path.
+#' The prototype also stores the center point of the graph. All points are
+#' represented as xy-coordinates and the center point is at (0,0).
 #'
 #' @param template A cluster template created with [`make_clustering_template`]
+#' @param plot_graphs TRUE plots all graphs in each cluster in addition to the
+#'   cluster centers. FALSE only plots the cluster centers.
 #' @param size The size of the output plot
 #'
 #' @return A plot
 #'
 #' @examples
 #' # plot cluster centers from example template
-#' plotClusterCenters(example_cluster_template)
+#' plot_cluster_centers(example_cluster_template)
+#' plot_cluster_centers(example_cluster_template, plot_graphs = TRUE)
 #'
 #' @export
 #' @md
-plotClusterCenters <- function(template, size=25) {
+plot_cluster_centers <- function(template, plot_graphs = FALSE, size=100) {
   
   cluster <- distance <- endx <- endy <- graph_num <- startx <- starty <- NULL
   
@@ -391,43 +398,61 @@ plotClusterCenters <- function(template, size=25) {
     return(df)
   }
   
-  # find graphs closest to cluster centers
-  graphs <- template$template_graphs
-  lookup <- data.frame("graph_num"=1:template$n, "cluster"=template$cluster, "distance"=template$wcd[template$iters,])
-  closest <- lookup %>%
-    dplyr::group_by(cluster) %>% 
-    dplyr::slice(which.min(distance)) %>%
-    dplyr::pull(graph_num)
-  
-  # convert graphs to graph prototypes for easier plotting. Graph prototypes
-  # place the center of the graph at (0, 0) so the prototypes can be easily
-  # centered. The graph images would need to be centered before we can plot
-  # the clusters from the graph images directly.
-  graphs <- lapply(graphs, graphToPrototype)
-  
-  # create data frame of line segments in the cluster centers
-  centers <- graphs[closest]
-  centers_dfs <- lapply(1:length(centers), function(i) build_segment_df(proto = centers[[i]], cluster = i))
-  centers_df <- do.call(rbind, centers_dfs)
-  
-  graphs_by_cluster <- list()
-  for (k in 1:template$K){
-    graphs_k <- graphs[template$cluster==k]
-    graphs_k <- lapply(1:length(graphs_k), function(i) build_segment_df(proto = graphs_k[[i]]))
-    graphs_k_df <- do.call(rbind, graphs_k)
-    graphs_k_df$cluster <- as.factor(paste("cluster", k))
-    graphs_by_cluster[[k]] <- graphs_k_df
+  build_segments_by_cluster <- function(template, graphs) {
+    # group graphs by cluster then build segment data frames
+    graphs_by_cluster <- list()
+    for (k in 1:template$K){
+      graphs_k <- graphs[template$cluster==k]
+      graphs_k <- lapply(1:length(graphs_k), function(i) build_segment_df(proto = graphs_k[[i]]))
+      graphs_k_df <- do.call(rbind, graphs_k)
+      graphs_k_df$cluster <- as.factor(paste("cluster", k))
+      graphs_by_cluster[[k]] <- graphs_k_df
+    }
+    graphs_by_cluster <- do.call(rbind, graphs_by_cluster)
+    return(graphs_by_cluster)
   }
-  graphs_by_cluster <- do.call(rbind, graphs_by_cluster)
   
-  # plot
+  build_segments_for_centers <- function(template) {
+    # build a data frame of segments for plotting the cluster centers
+    centers <- template$centers
+    centers_dfs <- lapply(1:length(centers), function(i) build_segment_df(proto = centers[[i]], cluster = i))
+    centers_df <- do.call(rbind, centers_dfs)
+    return(centers_df)
+  }
+  
+  # check whether template contains template graphs
+  if (plot_graphs && is.null(template$template_graphs)){
+    plot_graphs <- FALSE
+    message("The cluster template does not contain the training graphs. Only the cluster centers will be plotted.")
+  }
+  
+  if (plot_graphs) {
+    graphs <- template$template_graphs
+    # convert graphs to graph prototypes for easier plotting. Graph prototypes
+    # place the center of the graph at (0, 0) so the prototypes can be easily
+    # centered. The graph images would need to be centered before we can plot
+    # the clusters from the graph images directly.
+    graphs <- lapply(graphs, graphToPrototype)
+    graphs_by_cluster <- build_segments_by_cluster(template, graphs)
+  } 
+  
+  centers_df <- build_segments_for_centers(template)
+
+  plot_items <- function(plot_graphs) {
+    # add plot elements to a list so that plotting the graphs is controlled by
+    # an if statement. See Hadley's book
+    # https://ggplot2-book.org/programming.html#multiple-components.
+    list(
+      if (plot_graphs) {ggplot2::geom_segment(data=graphs_by_cluster, aes(x=startx, y=starty, xend=endx, yend=endy), color = "grey30", alpha=0.05)},
+      ggplot2::geom_segment(aes(x=startx, y=starty, xend=endx, yend=endy), color = "orange"),
+      xlim(-size, size),
+      ylim(-size, size),
+      theme_void(),
+      facet_wrap(~cluster)
+    )
+  }
   p <- centers_df %>% ggplot2::ggplot() + 
-    ggplot2::geom_segment(data=graphs_by_cluster, aes(x=startx, y=starty, xend=endx, yend=endy), color = "grey30", alpha=0.05) +
-    ggplot2::geom_segment(aes(x=startx, y=starty, xend=endx, yend=endy), color = "orange") +
-    xlim(-size, size) +
-    ylim(-size, size) +
-    theme_void() +
-    facet_wrap(~cluster)
+    plot_items(plot_graphs)
   
   return(p)
 }

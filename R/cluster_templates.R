@@ -674,8 +674,9 @@ letterKmeansWithOutlier_parallel <- function(template_proc_list, template_images
 
 #' Mean Graph Set Slow Change
 #'
-#' `meanGraphSet_slowchange()` calculates the mean graph of the graphs in the input template_images_list and returns the
-#' graph in template_images_list closest to the mean graph
+#' `meanGraphSet_slowchange()` calculates the mean graph of the graphs in the
+#' input template_images_list and returns the graph in template_images_list
+#' closest to the mean graph
 #'
 #' @param template_images_list List of graphs contained in a specific cluster
 #' @param num_path_cuts Integer number of sections to cut each graph into for
