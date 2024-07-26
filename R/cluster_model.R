@@ -136,7 +136,7 @@ fit_model <- function(main_dir,
     # Priors for wrapped cauchy
     for(g in 1:Gsmall){
       # g = cluster
-      gamma[g] ~ dgamma(a, b) T(0.1, 1.9)
+      gamma[g] ~ dgamma(a, b) T(0.1,)
       eta[g] ~ dunif(0,2*pi_constant)
       for(w in 1:W){
         # W = num unique writers
