@@ -1,103 +1,9 @@
+# analyze-writing
 
 
-<!-- README.md is generated from README.Rmd. Please edit that file -->
+## Introduction
 
-# handwriter
-
-<!-- badges: start -->
-<!-- badges: end -->
-
-The handwriter package performs writership analysis of a handwritten
-*questioned document* where the questioned document was written by one
-of *closed-set* of potential writers. For example, a handwritten bomb
-threat is found in a science classroom, and the police are able to
-determine that the note could only have been written by one of the
-students in 4th period science. The handwriter package builds a
-statistical model to estimate a *writer profile* from known handwriting
-samples from each writer in the closed-set. A writer profile is also
-estimated from the questioned document. The statistical model compares
-the writer profile from the questioned document with each of the writer
-profiles from the closed-set of potential writers and estimates the
-posterior probability that each closed-set writer wrote the questioned
-document.
-
-## Installation
-
-You can install handwriter from CRAN with:
-
-``` r
-install.packages("handwriter")
-```
-
-You can install the development version of handwriter from
-[GitHub](https://github.com/) with:
-
-``` r
-# install.packages("devtools")
-devtools::install_github("CSAFE-ISU/handwriter")
-```
-
-## Process a Handwriting Example
-
-The file “phrase_example.png” is a scanned PNG of handwriting from the
-CSAFE Handwriting Database. This PNG image is included in the handwriter
-package in a folder called “extdata.” Use the helper function
-`handwriter_example()` to find the path to where “phrase_example.png” is
-saved on your computer.
-
-Use `processDocument()` to
-
-1.  read the PNG file
-2.  convert the writing to black and white
-3.  thin it to a one-pixel-wide skeleton
-4.  place nodes to break the writing into component shapes called
-    *graphs*
-
-``` r
-library(handwriter)
-phrase <- system.file("extdata", "phrase_example.png", package = "handwriter")
-doc <- processDocument(phrase)
-#> path in readPNGBinary: /Library/Frameworks/R.framework/Versions/4.4-arm64/Resources/library/handwriter/extdata/phrase_example.png
-#> Starting Processing...
-#> Getting Nodes...
-#> Skeletonizing writing...
-#> Splitting document into components...
-#> Merging nodes...
-#> Finding paths...
-#> Split paths into graphs...
-#> Organizing graphs...
-#> Creating graph lists...
-#> Adding character features...
-#> Document processing complete
-```
-
-We can view the image:
-
-``` r
-plotImage(doc)
-```
-
-<img src="man/figures/README-image-1.png" style="width:100.0%" />
-
-We can view the thinned image:
-
-``` r
-plotImageThinned(doc)
-```
-
-<img src="man/figures/README-thin-1.png" style="width:100.0%" />
-
-We can also view the nodes:
-
-``` r
-plotNodes(doc)
-```
-
-<img src="man/figures/README-nodes-1.png" style="width:100.0%" />
-
-## Perform Writership Analysis
-
-This section explains how to perform handwriting analysis on questioned
+This tutorial explains how to perform handwriting analysis on questioned
 documents using handwriter. In particular, handwriter addresses the
 scenario where an investigator has a questioned handwritten document, a
 group of persons of interest has been identified, and the questioned
@@ -107,7 +13,7 @@ building’s main desk and the police discover that the note had to have
 been written by one of the one hundred employees working that day. More
 details on this method can be found in \[Crawford 2022\].
 
-### STEP 1: Create the Main Directory and Subdirectories
+## STEP 1: Create the Main Directory and Subdirectories
 
 Create a new folder called `main_dir` on your computer to hold the
 handwriting documents to be analyzed. When we create a new clustering
@@ -125,7 +31,7 @@ like this:
 │   │   ├── template_docs
 ```
 
-### STEP 2: Create a Cluster Template
+## STEP 2: Create a Cluster Template
 
 Save the handwritten documents that you want to use to train a new
 cluster template as PNG images in `main_dir > data > template_docs`. The
@@ -195,10 +101,9 @@ template_data <- format_template_data(template = template)
 plot_cluster_fill_counts(template_data, facet = TRUE)
 ```
 
-<img src="man/figures/README-unnamed-chunk-4-1.png"
-style="width:100.0%" />
+![](handwriter.markdown_strict_files/figure-markdown_strict/unnamed-chunk-4-1.png)
 
-### STEP 3: Fit a Hierarchical Model
+## STEP 3: Fit a Hierarchical Model
 
 We will use handwriting samples from each person of interest, calculate
 the cluster fill counts from each sample using the cluster template, and
@@ -237,7 +142,7 @@ writer ID and a document name.
 model <- fit_model(main_dir = "path/to/main_dir", 
                    model_docs = "path/to/main_dir/data/model_docs",
                    num_iters = 4000, 
-                   num_chains = 1, 
+                   num_chains = 1,
                    num_cores = 2,
                    writer_indices = c(7, 10), 
                    doc_indices = c(11, 14))
@@ -260,13 +165,12 @@ but the model data is already in the correct format.)
 plot_cluster_fill_counts(formatted_data=model, facet = TRUE)
 ```
 
-<img src="man/figures/README-unnamed-chunk-7-1.png"
-style="width:100.0%" />
+![](handwriter.markdown_strict_files/figure-markdown_strict/unnamed-chunk-7-1.png)
 
 The bars across the top of each graph show the Writer ID. Each graph has
 a line for each known handwriting sample from a given writer.
 
-#### Hierarchical Model Variables and Burn-in
+### Hierarchical Model Variables and Burn-in
 
 If you are interested in the variables used by the hierarchical model,
 continue reading this section. Otherwise, feel free to skip to the next
@@ -301,8 +205,7 @@ View a trace plot of a variable.
 plot_trace(variable = "mu[1,1]", model = model)
 ```
 
-<img src="man/figures/README-unnamed-chunk-10-1.png"
-style="width:100.0%" />
+![](handwriter.markdown_strict_files/figure-markdown_strict/unnamed-chunk-10-1.png)
 
 If we need to, we can drop the beginning MCMC iterations for burn-in.
 For example, if we want to drop the first 25 iterations, we use
@@ -318,7 +221,7 @@ project, replace `model.rds` in the `data` folder with
 saveRDS(model, file='data/model.rds')
 ```
 
-### Analyze Questioned Documents
+## Analyze Questioned Documents
 
 Save your questioned document(s) in `main_dir > data > questioned_docs`
 as PNG images. Assign a new writer ID to the questioned documents and
@@ -373,8 +276,7 @@ the cluster fill counts observed in each questioned document.
 plot_cluster_fill_counts(analysis, facet = TRUE)
 ```
 
-<img src="man/figures/README-unnamed-chunk-15-1.png"
-style="width:100.0%" />
+![](handwriter.markdown_strict_files/figure-markdown_strict/unnamed-chunk-15-1.png)
 
 View the posterior probabilities of writership.
 
@@ -386,7 +288,7 @@ analysis$posterior_probabilities
 #> 3 known_writer_w0238                  0
 ```
 
-#### For Research Only
+### For Research Only
 
 In practice, we would not know who wrote a questioned document, but in
 research we often perform tests to evaluate models using data where we

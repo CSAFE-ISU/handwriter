@@ -13,3 +13,4 @@
 ^README\.Rmd$
 ^tools$
 ^scratch.R$
+^altdoc$
