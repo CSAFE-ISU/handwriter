@@ -1,0 +1,44 @@
+
+
+# Plot Posterior Probabilities
+
+[**Source code**](https://github.com/CSAFE-ISU/handwriter/tree/176-automatic-documentation/R/#L)
+
+## Description
+
+Creates a tile plot of posterior probabilities of writership for each
+questioned document and each known writer analyzed with
+<code>analyze_questioned_documents()</code>.
+
+## Usage
+
+<pre><code class='language-R'>plot_posterior_probabilities(analysis)
+</code></pre>
+
+## Arguments
+
+<table>
+<tr>
+<td style="white-space: nowrap; font-family: monospace; vertical-align: top">
+<code id="analysis">analysis</code>
+</td>
+<td>
+A named list of analysis results from
+<code>analyze_questioned_documents()</code>.
+</td>
+</tr>
+</table>
+
+## Value
+
+A tile plot of posterior probabilities of writership.
+
+## Examples
+
+``` r
+library(handwriter)
+
+plot_posterior_probabilities(analysis = example_analysis)
+```
+
+![](plot_posterior_probabilities.markdown_strict_files/figure-markdown_strict/unnamed-chunk-1-1.png)
