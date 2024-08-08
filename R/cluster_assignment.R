@@ -229,7 +229,7 @@ get_clusters_batch <- function(template, input_dir, output_dir, writer_indices, 
       out_proclist[[i]] <- df
     }
     # rename
-    proclist <- out_proclist
+    proclist <- do.call(rbind, out_proclist)
   }
 
   # save clusters
