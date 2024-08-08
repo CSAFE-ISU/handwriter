@@ -71,7 +71,14 @@ get_clusters_batch <- function(template, input_dir, output_dir, writer_indices, 
     proclist <- foreach::foreach(
       i = 1:length(proclist),
       .combine = "rbind",
-      .export = c("AddLetterImages", "MakeLetterListLetterSpecific", "centeredImage", "makeassignment", "angle")
+      .export = c("move_problem_file", 
+                  "AddLetterImages", 
+                  "MakeLetterListLetterSpecific", 
+                  "list_images",
+                  "centeredImage", 
+                  "makeassignment",
+                  "make_clusters_df",
+                  "angle")
     ) %dopar% { # for each document i
 
       message(paste("     Loading graphs for", basename(proclist[i])))
@@ -79,11 +86,8 @@ get_clusters_batch <- function(template, input_dir, output_dir, writer_indices, 
 
       # check that doc$docname is not blank
       if (!("docname" %in% names(doc))) {
-        if (!dir.exists(file.path(output_dir, "problem_files"))) {
-          dir.create(file.path(output_dir, "problem_files"))
-        }
-        file.copy(proclist[i], file.path(output_dir, "problem_files", basename(proclist[i])))
-        message(paste("docname is NULL for", proclist[i], "\n"))
+        move_problem_file(path = proclist[i], output_dir = output_dir)
+        message(paste("docname is NULL for", path, "\n"))
         return()
       }
 
@@ -99,49 +103,13 @@ get_clusters_batch <- function(template, input_dir, output_dir, writer_indices, 
       doc$process$letterList <- AddLetterImages(doc$process$letterList, dim(doc$image))
       doc$process$letterList <- MakeLetterListLetterSpecific(doc$process$letterList, dim(doc$image)) ### THIS SCREWS UP PLOTLETTER AND OTHER PLOTTING!!!
 
-      imagesList <- list()
-      imagesList <- c(imagesList, lapply(doc$process$letterList, function(x) {
-        centeredImage(x)
-      }))
-      imagesList <- lapply(imagesList, function(x) {
-        x$nodesrc <- cbind(((x$nodes - 1) %/% dim(x$image)[1]) + 1, dim(x$image)[1] - ((x$nodes - 1) %% dim(x$image)[1]))
-        x$nodesrc <- x$nodesrc - matrix(rep(x$centroid, each = dim(x$nodesrc)[1]), ncol = 2)
-        x$pathEndsrc <- lapply(x$allPaths, function(z) {
-          cbind(((z[c(1, length(z))] - 1) %/% dim(x$image)[1]) + 1, dim(x$image)[1] - ((z[c(1, length(z))] - 1) %% dim(x$image)[1]))
-        })
-        x$pathEndsrc <- lapply(x$pathEndsrc, function(z) {
-          z - matrix(rep(x$centroid, each = 2), ncol = 2)
-        })
-        return(x)
-      })
+      imagesList <- list_images(doc)
 
       # get cluster assignments
       message(paste("     Getting cluster assignments for", doc$docname))
       cluster_assign <- sapply(imagesList, makeassignment, templateCenterList = template$centers, outliercut = outliercut)
-      df <- data.frame(cluster = cluster_assign)
-
-      # add docname, writer, doc, slope, xvar, yvar, and covar
-      df$docname <- doc$docname
-      df$writer <- sapply(df$docname, function(x) substr(x, start = writer_indices[1], stop = writer_indices[2]))
-      df$doc <- sapply(df$docname, function(x) substr(x, start = doc_indices[1], stop = doc_indices[2]), USE.NAMES = FALSE)
-      df$slope <- sapply(doc$process$letterList, function(x) x$characterFeatures$slope)
-      df$xvar <- sapply(doc$process$letterList, function(x) x$characterFeatures$xvar)
-      df$yvar <- sapply(doc$process$letterList, function(x) x$characterFeatures$yvar)
-      df$covar <- sapply(doc$process$letterList, function(x) x$characterFeatures$covar)
-
-      # calculate pc rotation angle and wrapped pc rotation angle
-      get_pc_rotation <- function(x) {
-        xv <- as.numeric(x["xvar"])
-        yv <- as.numeric(x["yvar"])
-        cv <- as.numeric(x["covar"])
-        eig <- eigen(cbind(c(xv, cv), c(cv, yv)), symmetric = TRUE)
-        return(angle(t(as.matrix(eig$vectors[, 1])), as.matrix(c(1, 0))))
-      }
-      df$pc_rotation <- apply(df, 1, get_pc_rotation)
-      df$pc_wrapped <- 2 * df$pc_rotation
-
-      # sort columns
-      df <- df[, c("docname", "writer", "doc", "cluster", "slope", "xvar", "yvar", "covar", "pc_rotation", "pc_wrapped")]
+      
+      df <- make_clusters_df(cluster_assign, doc, writer_indices, doc_indices)
 
       saveRDS(df, file = outfile)
       message(paste("     Saving cluster assignments for ", doc$docname, "\n"))
@@ -157,12 +125,8 @@ get_clusters_batch <- function(template, input_dir, output_dir, writer_indices, 
 
       # check that doc$docname is not blank
       if (!("docname" %in% names(doc))) {
-        if (!dir.exists(file.path(output_dir, "problem_files"))) {
-          dir.create(file.path(output_dir, "problem_files"))
-        }
-        message(paste("docname is NULL for", proclist[i], "\n"))
-        # copy file to problem files folder
-        file.copy(proclist[i], file.path(output_dir, "problem_files", basename(proclist[i])))
+        move_problem_file(path = proclist[i], output_dir = output_dir)
+        message(paste("docname is NULL for", path, "\n"))
         next
       }
 
@@ -179,49 +143,13 @@ get_clusters_batch <- function(template, input_dir, output_dir, writer_indices, 
       doc$process$letterList <- AddLetterImages(doc$process$letterList, dim(doc$image))
       doc$process$letterList <- MakeLetterListLetterSpecific(doc$process$letterList, dim(doc$image)) ### THIS SCREWS UP PLOTLETTER AND OTHER PLOTTING!!!
 
-      imagesList <- list()
-      imagesList <- c(imagesList, lapply(doc$process$letterList, function(x) {
-        centeredImage(x)
-      }))
-      imagesList <- lapply(imagesList, function(x) {
-        x$nodesrc <- cbind(((x$nodes - 1) %/% dim(x$image)[1]) + 1, dim(x$image)[1] - ((x$nodes - 1) %% dim(x$image)[1]))
-        x$nodesrc <- x$nodesrc - matrix(rep(x$centroid, each = dim(x$nodesrc)[1]), ncol = 2)
-        x$pathEndsrc <- lapply(x$allPaths, function(z) {
-          cbind(((z[c(1, length(z))] - 1) %/% dim(x$image)[1]) + 1, dim(x$image)[1] - ((z[c(1, length(z))] - 1) %% dim(x$image)[1]))
-        })
-        x$pathEndsrc <- lapply(x$pathEndsrc, function(z) {
-          z - matrix(rep(x$centroid, each = 2), ncol = 2)
-        })
-        return(x)
-      })
+      imagesList <- list_images(doc)
 
       # get cluster assignments
       message(paste("     Getting cluster assignments for", doc$docname))
       cluster_assign <- sapply(imagesList, makeassignment, templateCenterList = template$centers, outliercut = outliercut)
-      df <- data.frame(cluster = cluster_assign)
 
-      # add docname, writer, doc, slope, xvar, yvar, and covar
-      df$docname <- doc$docname
-      df$writer <- sapply(df$docname, function(x) substr(x, start = writer_indices[1], stop = writer_indices[2]))
-      df$doc <- sapply(df$docname, function(x) substr(x, start = doc_indices[1], stop = doc_indices[2]), USE.NAMES = FALSE)
-      df$slope <- sapply(doc$process$letterList, function(x) x$characterFeatures$slope)
-      df$xvar <- sapply(doc$process$letterList, function(x) x$characterFeatures$xvar)
-      df$yvar <- sapply(doc$process$letterList, function(x) x$characterFeatures$yvar)
-      df$covar <- sapply(doc$process$letterList, function(x) x$characterFeatures$covar)
-
-      # calculate pc rotation angle and wrapped pc rotation angle
-      get_pc_rotation <- function(x) {
-        xv <- as.numeric(x["xvar"])
-        yv <- as.numeric(x["yvar"])
-        cv <- as.numeric(x["covar"])
-        eig <- eigen(cbind(c(xv, cv), c(cv, yv)), symmetric = TRUE)
-        return(angle(t(as.matrix(eig$vectors[, 1])), as.matrix(c(1, 0))))
-      }
-      df$pc_rotation <- apply(df, 1, get_pc_rotation)
-      df$pc_wrapped <- 2 * df$pc_rotation
-
-      # sort columns
-      df <- df[, c("docname", "writer", "doc", "cluster", "slope", "xvar", "yvar", "covar", "pc_rotation", "pc_wrapped")]
+      df <- make_clusters_df(cluster_assign, doc, writer_indices, doc_indices)
 
       saveRDS(df, file = outfile)
       message(paste("     Saving cluster assignments for ", doc$docname, "\n"))
@@ -241,6 +169,36 @@ get_clusters_batch <- function(template, input_dir, output_dir, writer_indices, 
 
 # Internal Functions ------------------------------------------------------
 
+create_dir <- function(path) {
+  if (!dir.exists(path)) {
+    dir.create(path)
+  }
+}
+
+move_problem_file <- function(proclist, output_dir) {
+  create_dir(path = file.path(output_dir, "problem_files"))
+  file.rename(path, file.path(output_dir, "problem_files", basename(path)))
+  
+}
+
+list_images <- function(doc) {
+  imagesList <- list()
+  imagesList <- c(imagesList, lapply(doc$process$letterList, function(x) {
+    centeredImage(x)
+  }))
+  imagesList <- lapply(imagesList, function(x) {
+    x$nodesrc <- cbind(((x$nodes - 1) %/% dim(x$image)[1]) + 1, dim(x$image)[1] - ((x$nodes - 1) %% dim(x$image)[1]))
+    x$nodesrc <- x$nodesrc - matrix(rep(x$centroid, each = dim(x$nodesrc)[1]), ncol = 2)
+    x$pathEndsrc <- lapply(x$allPaths, function(z) {
+      cbind(((z[c(1, length(z))] - 1) %/% dim(x$image)[1]) + 1, dim(x$image)[1] - ((z[c(1, length(z))] - 1) %% dim(x$image)[1]))
+    })
+    x$pathEndsrc <- lapply(x$pathEndsrc, function(z) {
+      z - matrix(rep(x$centroid, each = 2), ncol = 2)
+    })
+    return(x)
+  })
+  return(imagesList)
+}
 
 makeassignment <- function(imageListElement, templateCenterList, outliercut) {
   dist <- min(unlist(lapply(templateCenterList, function(x) {
@@ -403,6 +361,35 @@ MakeLetterListLetterSpecific = function(letterList, dims)
                                              letter_leftmost_col = letter_leftmost_col)
   }
   return(letterList)
+}
+
+make_clusters_df <- function(cluster_assign, doc, writer_indices, doc_indices) {
+  # calculate pc rotation angle and wrapped pc rotation angle
+  # NOTE: foreach can't find get_pc_rotation unless it is nested in make_clusters_df
+  get_pc_rotation <- function(x) {
+    xv <- as.numeric(x["xvar"])
+    yv <- as.numeric(x["yvar"])
+    cv <- as.numeric(x["covar"])
+    eig <- eigen(cbind(c(xv, cv), c(cv, yv)), symmetric = TRUE)
+    return(angle(t(as.matrix(eig$vectors[, 1])), as.matrix(c(1, 0))))
+  }
+  
+  df <- data.frame(cluster = cluster_assign)
+  
+  # add docname, writer, doc, slope, xvar, yvar, and covar
+  df$docname <- doc$docname
+  df$writer <- sapply(df$docname, function(x) substr(x, start = writer_indices[1], stop = writer_indices[2]))
+  df$doc <- sapply(df$docname, function(x) substr(x, start = doc_indices[1], stop = doc_indices[2]), USE.NAMES = FALSE)
+  df$slope <- sapply(doc$process$letterList, function(x) x$characterFeatures$slope)
+  df$xvar <- sapply(doc$process$letterList, function(x) x$characterFeatures$xvar)
+  df$yvar <- sapply(doc$process$letterList, function(x) x$characterFeatures$yvar)
+  df$covar <- sapply(doc$process$letterList, function(x) x$characterFeatures$covar)
+  df$pc_rotation <- apply(df, 1, get_pc_rotation)
+  df$pc_wrapped <- 2 * df$pc_rotation
+  
+  # sort columns
+  df <- df[, c("docname", "writer", "doc", "cluster", "slope", "xvar", "yvar", "covar", "pc_rotation", "pc_wrapped")]
+  return(df)
 }
 
 #' get_clusterassignment

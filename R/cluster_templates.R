@@ -225,12 +225,11 @@ make_proc_list <- function(main_dir) {
 #' each strata (number of loops or edges)
 #'
 #' @param template_proc_list List of graphs output by make_proc_list()
-#' @param main_dir Input directory
 #' @return Dataframe of number of graphs per strata. The dataframe is saved in
 #'   tempalte_dir > data.
 #'
 #' @noRd
-get_strata <- function(template_proc_list, main_dir) {
+get_strata <- function(template_proc_list) {
   tic <- Sys.time() # start timer
   message("Start making a dataframe of the number of graphs with various numbers of loops and edges...")
   
@@ -850,8 +849,7 @@ loop_extract <- function(allPaths){
 #' @return a named list with fields nodes, centroid, proptroid, image and allPaths
 #'
 #' @noRd
-centeredImage = function(letter)
-{
+centeredImage <- function(letter) {
   res = list()
   res$nodes = letter$nodes
   # Find the location (column and row numbers) of the centroid relative
