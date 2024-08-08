@@ -1,0 +1,45 @@
+
+
+# Format Template Data
+
+[**Source code**](https://github.com/CSAFE-ISU/handwriter/tree/176-automatic-documentation/R/#L)
+
+## Description
+
+<code>format_template_data()</code> formats the template data for use
+with <code>plot_cluster_fill_counts()</code>. The output is a list that
+contains a data frame called <code>cluster_fill_counts</code>.
+
+## Usage
+
+<pre><code class='language-R'>format_template_data(template)
+</code></pre>
+
+## Arguments
+
+<table>
+<tr>
+<td style="white-space: nowrap; font-family: monospace; vertical-align: top">
+<code id="template">template</code>
+</td>
+<td>
+A single cluster template created by
+<code>make_clustering_template()</code>
+</td>
+</tr>
+</table>
+
+## Value
+
+List that contains the cluster fill counts
+
+## Examples
+
+``` r
+library(handwriter)
+
+template_data <- format_template_data(template = example_cluster_template)
+plot_cluster_fill_counts(formatted_data = template_data, facet = TRUE)
+```
+
+![](format_template_data.markdown_strict_files/figure-markdown_strict/unnamed-chunk-1-1.png)
