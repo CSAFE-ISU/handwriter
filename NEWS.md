@@ -15,6 +15,8 @@
 * Fixed bug in `format_template_data()` where the function coerced writer IDs to integers even
 if the writer IDs contained characters.
 
+* Fixed bug in `get_clusters_batch()` where the function would stall but not return an error message if a document had a graph with a large number of edges (paths). Now the function deletes graphs with more than 30 edges. 
+
 # handwriter 3.1.1
 
 ## Patches

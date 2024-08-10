@@ -98,7 +98,7 @@ make_clustering_template <- function(main_dir,
   
   # Delete large graphs ----
   # Make table of number of graphs with various numbers of loops and edges
-  strata <- get_strata(template_proc_list = template_proc_list, main_dir = main_dir)
+  strata <- get_strata(template_proc_list = template_proc_list)
   
   # Delete graphs with too many edges
   template_proc_list <- delete_crazy_graphs(template_proc_list = template_proc_list, max_edges = max_edges, main_dir = main_dir)
@@ -225,12 +225,11 @@ make_proc_list <- function(main_dir) {
 #' each strata (number of loops or edges)
 #'
 #' @param template_proc_list List of graphs output by make_proc_list()
-#' @param main_dir Input directory
 #' @return Dataframe of number of graphs per strata. The dataframe is saved in
 #'   tempalte_dir > data.
 #'
 #' @noRd
-get_strata <- function(template_proc_list, main_dir) {
+get_strata <- function(template_proc_list) {
   tic <- Sys.time() # start timer
   message("Start making a dataframe of the number of graphs with various numbers of loops and edges...")
   
@@ -260,6 +259,13 @@ get_strata <- function(template_proc_list, main_dir) {
 #'
 #' `delete_crazy_graphs()` removes graphs with more than max_edges from the
 #' template_proc_list output by `make_proc_list()`
+#' 
+#' NOTE: `delete_graphs` counts the number of paths (edges) per graph
+#' and uses that number to determine which, if any, graphs to delete.
+#' `delete_crazy_graphs` groups graphs by stata - 1 loop, 2 loops, 1 edge, 2
+#' edges, 3 edges, and so on. However, if a graphs with tons of paths (edges)
+#' also has 1 or 2 loops, the graph will have the strata "1 loop" or "2 loops" 
+#' and will NOT be deleted by `delete_crazy_graphs`.
 #'
 #' @param template_proc_list List of graphs output by make_proc_list()
 #' @param max_edges Maximum number of edges to allow in each graph
@@ -850,8 +856,7 @@ loop_extract <- function(allPaths){
 #' @return a named list with fields nodes, centroid, proptroid, image and allPaths
 #'
 #' @noRd
-centeredImage = function(letter)
-{
+centeredImage <- function(letter) {
   res = list()
   res$nodes = letter$nodes
   # Find the location (column and row numbers) of the centroid relative
