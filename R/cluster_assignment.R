@@ -481,11 +481,11 @@ get_clusterassignment <- function(main_dir, input_type, writer_indices, doc_indi
 
   # list files in input dir
   proclist <- list.files(input_dir, pattern = '.rds', full.names = TRUE)
-    
   
+  # get cluster assignments  
   proclist <- get_clusters_batch(template, input_dir, output_dir, writer_indices, doc_indices, num_cores)
 
-  # save clusters
+  # save clusters in output dir
   if (input_type == "model") {
     saveRDS(proclist, file.path(main_dir, "data", "model_clusters.rds"))
   } else {
