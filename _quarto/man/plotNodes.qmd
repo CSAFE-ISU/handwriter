@@ -1,0 +1,58 @@
+## Plot Nodes {.unnumbered}
+
+
+### Description
+
+This function returns a plot with the full image plotted in light gray and the skeleton printed in black, with red triangles over the vertices.
+Also called from plotPath, which is a more useful function, in general.
+
+
+
+### Usage
+
+<pre><code class='language-R'>plotNodes(doc, plot_break_pts = FALSE, nodeSize = 3, nodeColor = "red")
+</code></pre>
+
+
+### Arguments
+
+<table>
+<tr><td style = "white-space: nowrap; font-family: monospace; vertical-align: top"><code id="doc">doc</code></td>
+<td>
+A document processed with <code>processHandwriting()</code>
+</td></tr>
+<tr><td style = "white-space: nowrap; font-family: monospace; vertical-align: top"><code id="plot_break_pts">plot_break_pts</code></td>
+<td>
+Logical value as to whether to plot nodes or break points. plot_break_pts=FALSE plots nodes and plot_break_pts=TRUE plots break point.
+</td></tr>
+<tr><td style = "white-space: nowrap; font-family: monospace; vertical-align: top"><code id="nodeSize">nodeSize</code></td>
+<td>
+Size of triangles printed. 3 by default. Move down to 2 or 1 for small text images.
+</td></tr>
+<tr><td style = "white-space: nowrap; font-family: monospace; vertical-align: top"><code id="nodeColor">nodeColor</code></td>
+<td>
+Which color the nodes should be
+</td></tr>
+</table>
+
+
+### Value
+
+Plot of full and thinned image with vertices overlaid.
+
+
+
+### Examples
+```{r, warning=FALSE, message=FALSE, eval=TRUE}
+library(handwriter)
+
+csafe_document <- list()
+csafe_document$image <- csafe
+csafe_document$thin <- thinImage(csafe_document$image)
+csafe_document$process <- processHandwriting(csafe_document$thin, dim(csafe_document$image))
+plotNodes(csafe_document)
+plotNodes(csafe_document, nodeSize=6, nodeColor="black")
+
+
+
+```

@@ -1,0 +1,54 @@
+## Get Credible Intervals {.unnumbered}
+
+
+### Description
+
+In a model created with <code>fit_model()</code> the pi parameters are the estimate of
+the true cluster fill count for a particular writer and cluster. The function
+<code>get_credible_intervals()</code> calculates the credible intervals of the pi
+parameters for each writer in the model.
+
+
+
+### Usage
+
+<pre><code class='language-R'>get_credible_intervals(model, interval_min = 0.05, interval_max = 0.95)
+</code></pre>
+
+
+### Arguments
+
+<table>
+<tr><td style = "white-space: nowrap; font-family: monospace; vertical-align: top"><code id="model">model</code></td>
+<td>
+A model output by <code>fit_model()</code>
+</td></tr>
+<tr><td style = "white-space: nowrap; font-family: monospace; vertical-align: top"><code id="interval_min">interval_min</code></td>
+<td>
+The lower bound for the credible interval. The number
+must be between 0 and 1.
+</td></tr>
+<tr><td style = "white-space: nowrap; font-family: monospace; vertical-align: top"><code id="interval_max">interval_max</code></td>
+<td>
+The upper bound for the credible interval. The number
+must be greater than <code>interval_min</code> and must be less than 1.
+</td></tr>
+</table>
+
+
+### Value
+
+A list of data frames. Each data frame lists the credible intervals for a single writer.
+
+
+
+### Examples
+```{r, warning=FALSE, message=FALSE, eval=TRUE}
+library(handwriter)
+
+get_credible_intervals(model=example_model)
+get_credible_intervals(model=example_model, interval_min=0.05, interval_max=0.95)
+
+
+
+```

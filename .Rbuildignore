@@ -11,6 +11,8 @@
 ^cran-comments\.md$
 ^CRAN-SUBMISSION$
 ^README\.Rmd$
+^README\.qmd$
 ^tools$
 ^scratch.R$
 ^altdoc$
+^_quarto$

@@ -1,0 +1,52 @@
+## Get Posterior Probabilities {.unnumbered}
+
+
+### Description
+
+Get the posterior probabilities for questioned document analyzed with <code>analyze_questioned_documents()</code>.
+
+
+
+### Usage
+
+<pre><code class='language-R'>get_posterior_probabilities(analysis, questioned_doc)
+</code></pre>
+
+
+### Arguments
+
+<table>
+<tr><td style = "white-space: nowrap; font-family: monospace; vertical-align: top"><code id="analysis">analysis</code></td>
+<td>
+The output of <code>analyze_questioned_documents()</code>. If more than
+one questioned document was analyzed with this function, then the data frame
+analysis\$posterior_probabilities lists the posterior probabilities for all
+questioned documents. <code>get_posterior_probabilities()</code> creates a data frame of the
+posterior probabilities for a single questioned document and sorts the known writers
+from the most likely to least likely to have written the questioned document.
+</td></tr>
+<tr><td style = "white-space: nowrap; font-family: monospace; vertical-align: top"><code id="questioned_doc">questioned_doc</code></td>
+<td>
+The filename of the questioned document
+</td></tr>
+</table>
+
+
+### Value
+
+A data frame of posterior probabilities for the questioned document
+
+
+
+### Examples
+```{r, warning=FALSE, message=FALSE, eval=TRUE}
+library(handwriter)
+
+get_posterior_probabilities(
+  analysis = example_analysis,
+  questioned_doc = "w0030_s03_pWOZ_r01"
+)
+
+
+
+```

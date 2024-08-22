@@ -1,0 +1,43 @@
+## Plot Thinned Image {.unnumbered}
+
+
+### Description
+
+This function returns a plot with the full image plotted in light gray and the thinned skeleton printed in black on top.
+
+
+
+### Usage
+
+<pre><code class='language-R'>plotImageThinned(doc)
+</code></pre>
+
+
+### Arguments
+
+<table>
+<tr><td style = "white-space: nowrap; font-family: monospace; vertical-align: top"><code id="doc">doc</code></td>
+<td>
+A document processed with <code>processHandwriting()</code>
+</td></tr>
+</table>
+
+
+### Value
+
+gpplot plot of thinned image
+
+
+
+### Examples
+```{r, warning=FALSE, message=FALSE, eval=TRUE}
+library(handwriter)
+
+csafe_document <- list()
+csafe_document$image <- csafe
+csafe_document$thin <- thinImage(csafe_document$image)
+plotImageThinned(csafe_document)
+
+
+
+```
