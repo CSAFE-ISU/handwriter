@@ -10,13 +10,15 @@ get_clusters_batch(
   output_dir,
   writer_indices,
   doc_indices,
-  num_cores = 1
+  num_cores = 1,
+  save_master_file = FALSE
 )
 }
 \arguments{
 \item{template}{A cluster template created with \code{\link{make_clustering_template}}}
 
-\item{input_dir}{A directory containing graphs created with \code{\link{process_batch_dir}}}
+\item{input_dir}{A directory containing graphs created with
+\code{\link{process_batch_dir}}}
 
 \item{output_dir}{Output directory for cluster assignments}
 
@@ -27,6 +29,12 @@ the graph file names}
 graph file names}
 
 \item{num_cores}{Integer number of cores to use for parallel processing}
+
+\item{save_master_file}{TRUE or FALSE. If TRUE, a master file named
+'all_clusters.rds' containing the cluster assignments for all documents in
+the input directory will be saved to the output directory. If FASLE, a
+master file will not be saved, but the individual files for each document
+in the input directory will still be saved to the output directory.}
 }
 \value{
 A list of cluster assignments

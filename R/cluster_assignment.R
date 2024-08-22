@@ -18,29 +18,35 @@
 #' get_clusters_batch
 #'
 #' @param template A cluster template created with [`make_clustering_template`]
-#' @param input_dir A directory containing graphs created with [`process_batch_dir`]
+#' @param input_dir A directory containing graphs created with
+#'   [`process_batch_dir`]
 #' @param output_dir Output directory for cluster assignments
 #' @param writer_indices Vector of start and end indices for the writer id in
 #'   the graph file names
 #' @param doc_indices Vector of start and end indices for the document id in the
 #'   graph file names
 #' @param num_cores Integer number of cores to use for parallel processing
+#' @param save_master_file TRUE or FALSE. If TRUE, a master file named
+#'   'all_clusters.rds' containing the cluster assignments for all documents in
+#'   the input directory will be saved to the output directory. If FASLE, a
+#'   master file will not be saved, but the individual files for each document
+#'   in the input directory will still be saved to the output directory.
 #'
 #' @return A list of cluster assignments
-#' 
+#'
 #' @examples
 #' \dontrun{
 #' template <- readRDS('path/to/template.rds')
 #' get_clusters_batch(template=template, input_dir='path/to/dir', output_dir='path/to/dir',
 #' writer_indices=c(2,5), doc_indices=c(7,18), num_cores=1)
-#' 
+#'
 #' get_clusters_batch(template=template, input_dir='path/to/dir', output_dir='path/to/dir',
 #' writer_indices=c(1,4), doc_indices=c(5,10), num_cores=5)
 #' }
-#' 
+#'
 #' @export
 #' @md
-get_clusters_batch <- function(template, input_dir, output_dir, writer_indices, doc_indices, num_cores = 1) {
+get_clusters_batch <- function(template, input_dir, output_dir, writer_indices, doc_indices, num_cores = 1, save_master_file = FALSE) {
   # bind global variables to fix check() note
   i <- outliercut <- docname <- NULL
 
@@ -55,7 +61,6 @@ get_clusters_batch <- function(template, input_dir, output_dir, writer_indices, 
     stop("num_cores is not greater than or equal to 1")
   }
 
-  message("Starting cluster assginment...")
   # make output directory
   if (!dir.exists(output_dir)) {
     dir.create(output_dir, recursive = TRUE)
@@ -169,7 +174,9 @@ get_clusters_batch <- function(template, input_dir, output_dir, writer_indices, 
   }
 
   # save clusters
-  saveRDS(proclist, file.path(output_dir, "all_clusters.rds"))
+  if (save_master_file){
+    saveRDS(proclist, file.path(output_dir, "all_clusters.rds"))
+  }
 
   return(proclist)
 }
@@ -483,7 +490,7 @@ get_clusterassignment <- function(main_dir, input_type, writer_indices, doc_indi
   proclist <- list.files(input_dir, pattern = '.rds', full.names = TRUE)
   
   # get cluster assignments  
-  proclist <- get_clusters_batch(template, input_dir, output_dir, writer_indices, doc_indices, num_cores)
+  proclist <- get_clusters_batch(template, input_dir, output_dir, writer_indices, doc_indices, num_cores, save_master_file = FALSE)
 
   # save clusters in output dir
   if (input_type == "model") {
