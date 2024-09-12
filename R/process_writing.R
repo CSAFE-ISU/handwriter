@@ -54,6 +54,11 @@ processDocument <- function(path) {
   doc$docname <- basename(path)
   doc$docname <- stringr::str_replace(doc$docname, ".png", "")
   doc$docname <- stringr::str_replace(doc$docname, ".PNG", "")
+  
+  if (!length(doc$process$letterList)){
+    stop("The document does not contain any graphs.")
+  }
+  
   return(doc)
 }
 

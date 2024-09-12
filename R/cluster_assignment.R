@@ -184,9 +184,27 @@ get_clusters_batch <- function(template, input_dir, output_dir, writer_indices, 
 
 # Internal Functions ------------------------------------------------------
 
-create_dir <- function(path) {
+#' Create a Directory
+#'
+#' Create a directory if it doesn't already exist. The user can optionally
+#' display a message in the console.
+#'
+#' @param path Path to new directory
+#' @param msg Optional message to display in the console
+#' @param ... Optional arguments passed to 'dir.create'
+#'
+#' @return Nothing is returned
+#'
+#' @noRD
+create_dir <- function(path, msg = NULL, ...) {
+  if (!is.null(msg)){
+    message(msg)
+  }
+  
   if (!dir.exists(path)) {
-    dir.create(path)
+    dir.create(path, ...)
+  } else {
+    message("Directory already exists.")
   }
 }
 

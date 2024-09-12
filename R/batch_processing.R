@@ -35,31 +35,29 @@
 #'   in output_dir > problems.txt. If this is the first run,
 #'   `process_batch_list` will attempt to process all documents in the images arguement.
 #'
-#' @return A list of processed documents
+#' @return No return value, called for side effects
 #'
 #' @examples
 #' \dontrun{
 #' images <- c('path/to/image1.png', 'path/to/image2.png', 'path/to/image3.png')
 #' process_batch_list(images, "path/to/output_dir", FALSE)
-#' docs <- process_batch_list(images, "path/to/output_dir", TRUE)
+#' process_batch_list(images, "path/to/output_dir", TRUE)
 #' }
 #'
 #' @export
 #' @md
 process_batch_list <- function(images, output_dir, skip_docs_on_retry=TRUE) {
   # output directory
-  if (!dir.exists(output_dir)) {
-    message("Creating output directory...")
-    dir.create(output_dir, recursive = TRUE)
-  }
+  create_dir(output_dir, msg = "Creating output directory...", recursive = TRUE)
   
   # skip docs that have already been processed
   outfiles <- sapply(images, function(img) file.path(output_dir, paste0(tools::file_path_sans_ext(basename(img)), "_proclist.rds")), USE.NAMES = FALSE)
-  outfiles <- sapply(outfiles, function(f) file.exists(f), USE.NAMES = FALSE)
-  images <- images[!outfiles]
+  outfiles_exist <- sapply(outfiles, function(f) file.exists(f), USE.NAMES = FALSE)
+  images <- images[!outfiles_exist]
+  outfiles <- outfiles[!outfiles_exist]
   # exit if all images have been processed
   if (length(images) == 0) {
-    message('All documents have been processed.')
+    message('All documents have been processed or flagged as problem files.')
     return()
   }
   
@@ -93,7 +91,7 @@ process_batch_list <- function(images, output_dir, skip_docs_on_retry=TRUE) {
     possibleError <- tryCatch(
       expr = { 
         image <- images[[i]]
-        outfile <- file.path(output_dir, paste0(tools::file_path_sans_ext(basename(image)), "_proclist.rds"))
+        outfile <- outfiles[[i]]
         message(sprintf("Processing document %s...", basename(image)))
         doc <- processDocument(image)
         message(sprintf("Saving processed document %s...\n", basename(image)))
@@ -114,7 +112,7 @@ process_batch_list <- function(images, output_dir, skip_docs_on_retry=TRUE) {
   # multiple times on the same input / out dirs, then only errors from the most recent
   # run would be returned.
   show_problem_docs(prob_log_file)
-
+  
   return()
 }
 
@@ -135,24 +133,22 @@ process_batch_list <- function(images, output_dir, skip_docs_on_retry=TRUE) {
 #'   in output_dir > problems.txt. If this is the first run,
 #'   `process_batch_list` will attempt to process all documents in input_dir.
 #' 
-#' @return A list of processed documents
+#' @return No return value, called for side effects
 #' 
 #' @examples
 #' \dontrun{
-#' process_batch_list("path/to/input_dir", "path/to/output_dir")
-#' docs <- process_batch_list("path/to/input_dir", "path/to/output_dir")
-#' }
+#' process_batch_dir("path/to/input_dir", "path/to/output_dir")
 #'
 #' @export
 #' @md
 process_batch_dir <- function(input_dir, output_dir = ".", skip_docs_on_retry=TRUE) {
   message("Listing documents to be processed...")
   file_list <- list.files(input_dir, pattern = "(.PNG|.png)$", full.names = TRUE)
-
-  document_list <- process_batch_list(images=file_list, 
-                                      output_dir=output_dir,
-                                      skip_docs_on_retry=skip_docs_on_retry)
-  return(document_list)
+  
+  process_batch_list(images=file_list, 
+                     output_dir=output_dir,
+                     skip_docs_on_retry=skip_docs_on_retry)
+  return()
 }
 
 
@@ -177,17 +173,17 @@ process_batch_dir <- function(input_dir, output_dir = ".", skip_docs_on_retry=TR
 #' @md
 read_and_process <- function(image_name, transform_output) {
   document <- list()
-
+  
   document$image <- readPNGBinary(image_name)
   document$thin <- thinImage(document$image)
   processList <- processHandwriting(document$thin, dim(document$image))
-
+  
   if (transform_output == "document") {
     document$process <- processList
     document$docname <- basename(image_name)
     return(document)
   }
-
+  
   processList$docname <- basename(image_name)
   return(processList)
 }
@@ -210,7 +206,7 @@ read_and_process <- function(image_name, transform_output) {
 #'
 #' @noRd
 get_docname_from_line <- function(line) {
-  docname <- stringr::str_extract(line, "(?<=error with document )(\\w+.[p|P][n|N][g|G])")
+  docname <- stringr::str_extract(line, "(?<=error with document )(.+[p|P][n|N][g|G])")
   return(docname)
 }
 
@@ -247,5 +243,5 @@ show_problem_docs <- function(prob_log_file) {
     message("The following documents could not be processed: ", paste0(problem_docs, collapse = ', '))
   }
 }
-  
+
 
