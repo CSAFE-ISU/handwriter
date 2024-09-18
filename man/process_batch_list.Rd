@@ -17,7 +17,7 @@ in output_dir > problems.txt. If this is the first run,
 \code{process_batch_list} will attempt to process all documents in the images arguement.}
 }
 \value{
-A list of processed documents
+No return value, called for side effects
 }
 \description{
 Process a list of handwriting samples saved as PNG images: (1) Load the image
@@ -32,7 +32,7 @@ Optional. Return a list of the processed documents.
 \dontrun{
 images <- c('path/to/image1.png', 'path/to/image2.png', 'path/to/image3.png')
 process_batch_list(images, "path/to/output_dir", FALSE)
-docs <- process_batch_list(images, "path/to/output_dir", TRUE)
+process_batch_list(images, "path/to/output_dir", TRUE)
 }
 
 }

@@ -195,7 +195,7 @@ get_clusters_batch <- function(template, input_dir, output_dir, writer_indices, 
 #'
 #' @return Nothing is returned
 #'
-#' @noRD
+#' @noRd
 create_dir <- function(path, msg = NULL, ...) {
   if (!is.null(msg)){
     message(msg)

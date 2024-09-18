@@ -138,7 +138,8 @@ process_batch_list <- function(images, output_dir, skip_docs_on_retry=TRUE) {
 #' @examples
 #' \dontrun{
 #' process_batch_dir("path/to/input_dir", "path/to/output_dir")
-#'
+#' }
+#' 
 #' @export
 #' @md
 process_batch_dir <- function(input_dir, output_dir = ".", skip_docs_on_retry=TRUE) {
