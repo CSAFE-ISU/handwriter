@@ -88,20 +88,22 @@ get_clusters_batch <- function(template, input_dir, output_dir, writer_indices, 
         "move_problem_file")
     ) %dopar% { # for each document i
 
-      message(paste("     Loading graphs for", basename(proclist[i])))
       doc <- readRDS(proclist[i])
 
       # check that doc$docname is not blank
       if (!("docname" %in% names(doc))) {
         move_problem_file(path = proclist[i], output_dir = output_dir)
-        message(paste("docname is NULL for", path, "\n"))
+        return()
+      }
+      
+      # return warning if document doesn't contain any graphs (E.g. document is blank)
+      if (!length(doc$process$letterList)){
         return()
       }
 
       # load outfile if it already exists
       outfile <- file.path(output_dir, paste0(stringr::str_replace(doc$docname, ".png", ""), ".rds"))
       if (file.exists(outfile)) {
-        message(paste("     Cluster assignments already exist for", doc$docname, "\n"))
         df <- readRDS(outfile)
         return(df)
       }
@@ -116,14 +118,12 @@ get_clusters_batch <- function(template, input_dir, output_dir, writer_indices, 
       imagesList <- list_images(doc)
 
       # get cluster assignments
-      message(paste("     Getting cluster assignments for", doc$docname))
       cluster_assign <- sapply(imagesList, makeassignment, templateCenterList = template$centers, outliercut = outliercut)
       
       df <- make_clusters_df(cluster_assign, doc, writer_indices, doc_indices)
 
       saveRDS(df, file = outfile)
-      message(paste("     Saving cluster assignments for ", doc$docname, "\n"))
-
+      
       return(df)
     }
   } else { # run sequentially
@@ -137,6 +137,12 @@ get_clusters_batch <- function(template, input_dir, output_dir, writer_indices, 
       if (!("docname" %in% names(doc))) {
         move_problem_file(path = proclist[i], output_dir = output_dir)
         message(paste("docname is NULL for", path, "\n"))
+        next
+      }
+      
+      # return warning if document doesn't contain any graphs (E.g. document is blank)
+      if (!length(doc$process$letterList)){
+        warning("The document does not contain any graphs.")
         next
       }
 
@@ -171,6 +177,15 @@ get_clusters_batch <- function(template, input_dir, output_dir, writer_indices, 
     }
     # rename
     proclist <- do.call(rbind, out_proclist)
+  }
+  
+  # check for missing clusters. NOTE: The foreach loop could be restructured to
+  # allow a warning to be given if a document without graphs is encountered and
+  # this message could be removed.
+  outfiles <- list.files(output_dir, pattern = ".rds", full.names = TRUE)
+  outfiles <- outfiles[which(outfiles != "all_clusters.rds")]
+  if (length(outfiles) != nrow(proclist)){
+    warning('Unable to get cluster assignments for one or more documents.')
   }
 
   # save clusters
@@ -452,7 +467,11 @@ delete_graphs <- function(doc, max_edges = 30){
 
 #' get_clusterassignment
 #'
-#' @param main_dir Directory containing a cluster template created with `make_clustering_template`
+#' An internal function for getting cluster assignments for model or questioned
+#' documents. This function runs 'get_clusters_batch'.
+#'
+#' @param main_dir Directory containing a cluster template created with
+#'   `make_clustering_template`
 #' @param input_type `model` or `questioned`
 #' @param writer_indices Vector of start and end indices for the writer id in
 #'   the document names
