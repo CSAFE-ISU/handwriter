@@ -15,7 +15,8 @@ get_clusters_batch
   output_dir,
   writer_indices,
   doc_indices,
-  num_cores = 1
+  num_cores = 1,
+  save_master_file = FALSE
 )
 </code></pre>
 
@@ -29,7 +30,8 @@ A cluster template created with <code>make_clustering_template</code>
 </td></tr>
 <tr><td style = "white-space: nowrap; font-family: monospace; vertical-align: top"><code id="input_dir">input_dir</code></td>
 <td>
-A directory containing graphs created with <code>process_batch_dir</code>
+A directory containing graphs created with
+<code>process_batch_dir</code>
 </td></tr>
 <tr><td style = "white-space: nowrap; font-family: monospace; vertical-align: top"><code id="output_dir">output_dir</code></td>
 <td>
@@ -48,6 +50,14 @@ graph file names
 <tr><td style = "white-space: nowrap; font-family: monospace; vertical-align: top"><code id="num_cores">num_cores</code></td>
 <td>
 Integer number of cores to use for parallel processing
+</td></tr>
+<tr><td style = "white-space: nowrap; font-family: monospace; vertical-align: top"><code id="save_master_file">save_master_file</code></td>
+<td>
+TRUE or FALSE. If TRUE, a master file named
+'all_clusters.rds' containing the cluster assignments for all documents in
+the input directory will be saved to the output directory. If FASLE, a
+master file will not be saved, but the individual files for each document
+in the input directory will still be saved to the output directory.
 </td></tr>
 </table>
 

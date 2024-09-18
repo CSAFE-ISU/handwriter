@@ -14,6 +14,7 @@ knitr::opts_chunk$set(
 ```
 
 <!-- badges: start -->
+
 <!-- badges: end -->
 
 Handwriter is designed to assist forensic examiners by analyzing handwritten documents against a *closed set* of potential writers. It determines the probability that each writer wrote the document. Whether you are a forensic document examiner, legal professional, academic, or simply curious about how statistics are applied to handwriting, handwriter provides an automated way to evaluate handwriting samples.
@@ -35,22 +36,27 @@ Handwriter requires R, RStudio IDE, and JAGS.
 
 #### LAUNCH THE APP
 
-Open RStudio, navigate to the console window, and type:
+Open RStudio, navigate to the console window. Install the handwriterApp package. You only need to do this once.
 
-```{r, eval = FALSE}
-install.packages("devtools")
-devtools::install_github("CSAFE-ISU/handwriterApp")
+```{r, eval=FALSE}
+install.packages("handwriterApp")
+```
+
+Every time you want to use the app, type:
+
+```{r, eval=FALSE}
 library(handwriterApp)
 handwriterApp()
 ```
 
-In the pop-up window, click **Open in Browser**. If you use the app in the pop-up window
-instead of in a browser, some links will not work.
+In the pop-up window, click **Open in Browser**. If you use the app in the pop-up window instead of in a browser, some links will not work.
 
 Click **Simulate Casework** and follow the instructions in the app.
 
 ## Advanced
+
 You can install handwriter from CRAN with:
+
 ``` r
 install.packages("handwriter")
 ```
@@ -64,20 +70,21 @@ devtools::install_github("CSAFE-ISU/handwriter")
 
 ## Process a Handwriting Example
 
-The file "phrase_example.png" is a scanned PNG of handwriting from the CSAFE Handwriting Database. This PNG image is included in the handwriter package in a folder called "extdata." Use the helper function `handwriter_example()` to find the path to where "phrase_example.png" is saved on your computer. 
+The file "phrase_example.png" is a scanned PNG of handwriting from the CSAFE Handwriting Database. This PNG image is included in the handwriter package in a folder called "extdata." Use the helper function `handwriter_example()` to find the path to where "phrase_example.png" is saved on your computer.
 
-Use `processDocument()` to 
+Use `processDocument()` to
 
-1. read the PNG file
-2. convert the writing to black and white
-3. thin it to a one-pixel-wide skeleton
-4. place nodes to break the writing into component shapes called *graphs*
+1.  read the PNG file
+2.  convert the writing to black and white
+3.  thin it to a one-pixel-wide skeleton
+4.  place nodes to break the writing into component shapes called *graphs*
 
 ```{r example1}
 library(handwriter)
 phrase <- system.file("extdata", "phrase_example.png", package = "handwriter")
 doc <- processDocument(phrase)
 ```
+
 We can view the image:
 
 ```{r image}
@@ -85,22 +92,26 @@ plotImage(doc)
 ```
 
 We can view the thinned image:
+
 ```{r thin}
 plotImageThinned(doc)
 ```
 
 We can also view the nodes:
+
 ```{r nodes}
 plotNodes(doc)
 ```
 
 ## Perform Writership Analysis
-This section explains how to perform handwriting analysis on questioned documents using handwriter. In particular, handwriter addresses the scenario where an investigator has a questioned handwritten document, a group of persons of interest has been identified, and the questioned document had to have been written by one of the persons of interest. For example, imagine that a handwritten bomb threat was left at a office building's main desk and the police discover that the note had to have been written by one of the one hundred employees working that day. More details on this method can be found in [Crawford 2022].
+
+This section explains how to perform handwriting analysis on questioned documents using handwriter. In particular, handwriter addresses the scenario where an investigator has a questioned handwritten document, a group of persons of interest has been identified, and the questioned document had to have been written by one of the persons of interest. For example, imagine that a handwritten bomb threat was left at a office building's main desk and the police discover that the note had to have been written by one of the one hundred employees working that day. More details on this method can be found in \[Crawford 2022\].
 
 ### STEP 1: Create the Main Directory and Subdirectories
 
 Create a new folder called `main_dir` on your computer to hold the handwriting documents to be analyzed. When we create a new clustering template and fit a statistical model, those files will also be stored in this folder. Create a sub-folder in `main_dir` called `data`. In the `data` folder, create sub-folders called `model_docs`, `questioned_docs`, and `template_docs`. The folder structure will look like this:
-```bash
+
+``` bash
 ├── main_dir
 │   ├── data  
 │   │   ├── model_docs
@@ -110,16 +121,16 @@ Create a new folder called `main_dir` on your computer to hold the handwriting d
 
 ### STEP 2: Create a Cluster Template
 
-Save the handwritten documents that you want to use to train a new cluster template as PNG images in `main_dir > data > template_docs`. The template training documents need to be from writers that are NOT people of interest. Name all of the PNG images with a consistent format that includes an ID for the writer. For example, the PNG images could be named "writer0001.png", "writer0002.png", "writer0003.png" and so on. 
+Save the handwritten documents that you want to use to train a new cluster template as PNG images in `main_dir > data > template_docs`. The template training documents need to be from writers that are NOT people of interest. Name all of the PNG images with a consistent format that includes an ID for the writer. For example, the PNG images could be named "writer0001.png", "writer0002.png", "writer0003.png" and so on.
 
 Next, create a new cluster template from the documents in `main_dir > data > template_docs` with the function `make_clustering_template`. This function
 
 1.  Processes the template training documents in `template_docs`, decomposing the handwriting into component shapes called *graphs*. The processed graphs are saved in RDS files in `main_dir \> data \> template_graphs`.
 2.  Deletes graphs with more than 30 edges.
 3.  Randomly selects `K` starting cluster centers using seed `centers_seed` for reproducibility.
-5.  Runs a K-means algorithm with the `K` starting cluster centers and the selected graphs. The algorithm iteratively groups the selected graphs into `K` clusters. The final grouping of `K` clusters is the cluster template.
-6.  Stores the writer ID for each training document. `writer_indices` is a vector of the start and stop characters of the writer ID in the PNG image file name. For example, if the PNG images are named "writer0001.png", "writer0002.png", "writer0003.png", and so on, `writer_indices = c(7,10)`
-7.  Performs some of the processes in parallel. Set the number of cores for parallel processing with `num_dist_cores`.
+4.  Runs a K-means algorithm with the `K` starting cluster centers and the selected graphs. The algorithm iteratively groups the selected graphs into `K` clusters. The final grouping of `K` clusters is the cluster template.
+5.  Stores the writer ID for each training document. `writer_indices` is a vector of the start and stop characters of the writer ID in the PNG image file name. For example, if the PNG images are named "writer0001.png", "writer0002.png", "writer0003.png", and so on, `writer_indices = c(7,10)`
+6.  Performs some of the processes in parallel. Set the number of cores for parallel processing with `num_dist_cores`.
 
 ```{r, eval=FALSE}
 template <- make_clustering_template(
@@ -134,7 +145,8 @@ template <- make_clustering_template(
 
 Type `?make_clustering_template` in the RStudio console for more information about the function's arguments.
 
-For the remainder of this tutorial, we use a small example cluster template, `example_cluster_template` included in handwriter. 
+For the remainder of this tutorial, we use a small example cluster template, `example_cluster_template` included in handwriter.
+
 ```{r}
 template <- example_cluster_template
 ```
@@ -148,10 +160,9 @@ template_data <- format_template_data(template = template)
 plot_cluster_fill_counts(template_data, facet = TRUE)
 ```
 
-
 ### STEP 3: Fit a Hierarchical Model
 
-We will use handwriting samples from each person of interest, calculate the cluster fill counts from each sample using the cluster template, and fit a hierarchical model to estimate each person of interest's true cluster fill counts. 
+We will use handwriting samples from each person of interest, calculate the cluster fill counts from each sample using the cluster template, and fit a hierarchical model to estimate each person of interest's true cluster fill counts.
 
 Save your known handwriting samples from the persons of interest in `main_dir \> data \> model_docs` as PNG images. The model requires three handwriting samples from each person of interest. Each sample should be at least one paragraph in length. Name the PNG images with a consistent format so that all file names are the same length and the writer ID's are in the same location. For example, "writer0001_doc1.png", "writer0001_doc2.png", "writer0001_doc3.png", "writer0002_doc1.png", and so on.
 
@@ -174,22 +185,25 @@ model <- fit_model(main_dir = "path/to/main_dir",
 ```
 
 For this tutorial, we will use the small example model, `example_model`, included in handwriter. This model was trained from three documents each from writers 9, 30, 203, 238, and 400 from the [CSAFE handwriting database](https://data.csafe.iastate.edu/HandwritingDatabase/).
+
 ```{r}
 model <- example_model
 ```
 
-
-We can plot the cluster fill counts for each person of interest. (NOTE: We had to format the template data to work with the plotting function, but the model data is already in the correct format.) 
+We can plot the cluster fill counts for each person of interest. (NOTE: We had to format the template data to work with the plotting function, but the model data is already in the correct format.)
 
 ```{r}
 plot_cluster_fill_counts(formatted_data=model, facet = TRUE)
 ```
+
 The bars across the top of each graph show the Writer ID. Each graph has a line for each known handwriting sample from a given writer.
 
 #### Hierarchical Model Variables and Burn-in
+
 If you are interested in the variables used by the hierarchical model, continue reading this section. Otherwise, feel free to skip to the next section to learn how to analyze questioned documents.
 
-We can list the variables in the model: 
+We can list the variables in the model:
+
 ```{r}
 names(as.data.frame(coda::as.mcmc(model$fitted_model[[1]])))
 ```
@@ -212,12 +226,14 @@ If we need to, we can drop the beginning MCMC iterations for burn-in. For exampl
 model <- drop_burnin(model, burn_in = 25)
 ```
 
-If we want to save the updated model as the current model for this project,  replace `model.rds` in the `data` folder with
+If we want to save the updated model as the current model for this project, replace `model.rds` in the `data` folder with
+
 ```{r, eval=FALSE}
 saveRDS(model, file='data/model.rds')
 ```
 
 ### Analyze Questioned Documents
+
 Save your questioned document(s) in `main_dir > data > questioned_docs` as PNG images. Assign a new writer ID to the questioned documents and name the documents consistently. E.g. "unknown1000_doc1.png", "unknown1001_doc1.png", and so on.
 
 We estimate the posterior probability of writership for each of the questioned documents with the function `analyze_questioned_documents`. This function does the following:
@@ -242,7 +258,6 @@ Let's pretend that a handwriting sample from each of the 5 "persons of interest"
 analysis <- example_analysis
 ```
 
-
 View the cluster fill counts for each questioned document. Intuitively, the model assesses which writer's cluster fill counts look the most like the cluster fill counts observed in each questioned document.
 
 ```{r}
@@ -255,11 +270,10 @@ View the posterior probabilities of writership.
 analysis$posterior_probabilities
 ```
 
-
 #### For Research Only
+
 In practice, we would not know who wrote a questioned document, but in research we often perform tests to evaluate models using data where we know the ground truth. Because in this example, we know the true writer of each questioned document, we can measure the accuracy of the model. We define accuracy as the average posterior probability assigned to the true writer. The accuracy of our model is
 
 ```{r}
 calculate_accuracy(analysis)
 ```
-
