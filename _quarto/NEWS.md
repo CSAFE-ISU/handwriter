@@ -12,10 +12,11 @@
 
 * Fixed bug in `get_credible_intervals()` and `plot_credible_intervals()` where the model writers were numbered sequentially. Now these functions use the writer IDs.
 
-* Fixed bug in `format_template_data()` where the function coerced writer IDs to integers even
-if the writer IDs contained characters.
+* Fixed bug in `format_template_data()` where the function coerced writer IDs to integers even if the writer IDs contained characters.
 
-* Fixed bug in `get_clusters_batch()` where the function would stall but not return an error message if a document had a graph with a large number of edges (paths). Now the function deletes graphs with more than 30 edges. 
+* Fixed bug in `get_clusters_batch()` where the function would stall but not return an error message if a document had a graph with a large number of edges (paths). Now the function deletes graphs with more than 30 edges.
+
+* Fixed bug in `fit_model()` where the function saves the same data in two separate files: "model_clusters.rds" and "all_clusters.rds". I added an argument to `get_clusters_batch()` called 'save_master_file' and made the default FALSE. If TRUE, "all_clusters.rds" will be saved.
 
 # handwriter 3.1.1
 
