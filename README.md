@@ -32,11 +32,16 @@ Handwriter requires R, RStudio IDE, and JAGS.
 
 #### LAUNCH THE APP
 
-Open RStudio, navigate to the console window, and type:
+Open RStudio, navigate to the console window. Install the handwriterApp
+package. You only need to do this once.
 
 ``` r
-install.packages("devtools")
-devtools::install_github("CSAFE-ISU/handwriterApp")
+install.packages("handwriterApp")
+```
+
+Every time you want to use the app, type:
+
+``` r
 library(handwriterApp)
 handwriterApp()
 ```
@@ -220,7 +225,7 @@ template_data <- format_template_data(template = template)
 plot_cluster_fill_counts(template_data, facet = TRUE)
 ```
 
-<img src="man/figures/README-unnamed-chunk-5-1.png"
+<img src="man/figures/README-unnamed-chunk-6-1.png"
 style="width:100.0%" />
 
 ### STEP 3: Fit a Hierarchical Model
@@ -285,7 +290,7 @@ but the model data is already in the correct format.)
 plot_cluster_fill_counts(formatted_data=model, facet = TRUE)
 ```
 
-<img src="man/figures/README-unnamed-chunk-8-1.png"
+<img src="man/figures/README-unnamed-chunk-9-1.png"
 style="width:100.0%" />
 
 The bars across the top of each graph show the Writer ID. Each graph has
@@ -326,7 +331,7 @@ View a trace plot of a variable.
 plot_trace(variable = "mu[1,1]", model = model)
 ```
 
-<img src="man/figures/README-unnamed-chunk-11-1.png"
+<img src="man/figures/README-unnamed-chunk-12-1.png"
 style="width:100.0%" />
 
 If we need to, we can drop the beginning MCMC iterations for burn-in.
@@ -398,7 +403,7 @@ the cluster fill counts observed in each questioned document.
 plot_cluster_fill_counts(analysis, facet = TRUE)
 ```
 
-<img src="man/figures/README-unnamed-chunk-16-1.png"
+<img src="man/figures/README-unnamed-chunk-17-1.png"
 style="width:100.0%" />
 
 View the posterior probabilities of writership.
