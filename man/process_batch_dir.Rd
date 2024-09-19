@@ -17,7 +17,7 @@ in output_dir > problems.txt. If this is the first run,
 \code{process_batch_list} will attempt to process all documents in input_dir.}
 }
 \value{
-A list of processed documents
+No return value, called for side effects
 }
 \description{
 Process a list of handwriting samples saved as PNG images in a directory:
@@ -30,8 +30,7 @@ edges. Then combine edges into component shapes called \emph{graphs}.
 }
 \examples{
 \dontrun{
-process_batch_list("path/to/input_dir", "path/to/output_dir")
-docs <- process_batch_list("path/to/input_dir", "path/to/output_dir")
+process_batch_dir("path/to/input_dir", "path/to/output_dir")
 }
 
 }
