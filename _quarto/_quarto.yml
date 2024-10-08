@@ -4,114 +4,18 @@ website:
   navbar:
     logo: CSAFE_Tools_handwriter.png
     search: true
+    left:
+      - text: Home
+        file: index.qmd
+      - text: News
+        file: NEWS.md
     right:
       - icon: github
         href: https://github.com/CSAFE-ISU/handwriter
         aria-label: handwriter GitHub
-  sidebar:
-    collapse-level: 1
-    contents:
-      - text: Home
-        file: index.qmd
-      - section: Articles
-        contents:
-          - vignettes/handwriter.Rmd
-      - section: Reference
-        contents:
-          - text: about_variable
-            file: man/about_variable.qmd
-          - text: addToFeatures
-            file: man/addToFeatures.qmd
-          - text: analyze_questioned_documents
-            file: man/analyze_questioned_documents.qmd
-          - text: calculate_accuracy
-            file: man/calculate_accuracy.qmd
-          - text: cleanBinaryImage
-            file: man/cleanBinaryImage.qmd
-          - text: csafe
-            file: man/csafe.qmd
-          - text: drop_burnin
-            file: man/drop_burnin.qmd
-          - text: example_analysis
-            file: man/example_analysis.qmd
-          - text: example_cluster_template
-            file: man/example_cluster_template.qmd
-          - text: example_model
-            file: man/example_model.qmd
-          - text: extractGraphs
-            file: man/extractGraphs.qmd
-          - text: fit_model
-            file: man/fit_model.qmd
-          - text: format_template_data
-            file: man/format_template_data.qmd
-          - text: get_cluster_fill_counts
-            file: man/get_cluster_fill_counts.qmd
-          - text: get_clusters_batch
-            file: man/get_clusters_batch.qmd
-          - text: get_credible_intervals
-            file: man/get_credible_intervals.qmd
-          - text: get_posterior_probabilities
-            file: man/get_posterior_probabilities.qmd
-          - text: graphToPrototype
-            file: man/graphToPrototype.qmd
-          - text: london
-            file: man/london.qmd
-          - text: make_clustering_template
-            file: man/make_clustering_template.qmd
-          - text: message
-            file: man/message.qmd
-          - text: nature1
-            file: man/nature1.qmd
-          - text: plot_cluster_centers
-            file: man/plot_cluster_centers.qmd
-          - text: plot_cluster_fill_counts
-            file: man/plot_cluster_fill_counts.qmd
-          - text: plot_cluster_fill_rates
-            file: man/plot_cluster_fill_rates.qmd
-          - text: plot_credible_intervals
-            file: man/plot_credible_intervals.qmd
-          - text: plot_posterior_probabilities
-            file: man/plot_posterior_probabilities.qmd
-          - text: plot_trace
-            file: man/plot_trace.qmd
-          - text: plotImage
-            file: man/plotImage.qmd
-          - text: plotImageThinned
-            file: man/plotImageThinned.qmd
-          - text: plotLetter
-            file: man/plotLetter.qmd
-          - text: plotLine
-            file: man/plotLine.qmd
-          - text: plotNodes
-            file: man/plotNodes.qmd
-          - text: process_batch_dir
-            file: man/process_batch_dir.qmd
-          - text: process_batch_list
-            file: man/process_batch_list.qmd
-          - text: processDocument
-            file: man/processDocument.qmd
-          - text: processHandwriting
-            file: man/processHandwriting.qmd
-          - text: read_and_process
-            file: man/read_and_process.qmd
-          - text: readPNGBinary
-            file: man/readPNGBinary.qmd
-          - text: rgb2grayscale
-            file: man/rgb2grayscale.qmd
-          - text: rgba2rgb
-            file: man/rgba2rgb.qmd
-          - text: thinImage
-            file: man/thinImage.qmd
-          - text: twoSent
-            file: man/twoSent.qmd
-          - text: whichToFill
-            file: man/whichToFill.qmd
-      - text: News
-        file: NEWS.md
-      - text: License
-        file: LICENSE.md
-      - text: Citation
-        file: CITATION.md
 format:
   html:
     css: csafe.css
+    toc: true
+    toc-depth: 2
+    toc-location: left
