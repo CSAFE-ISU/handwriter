@@ -2,7 +2,7 @@
 title: "handwriter"
 format: 
   html:
-    theme: csafe.css
+    theme: styles.css
 ---
 
 ```{r, include = FALSE}

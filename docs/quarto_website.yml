@@ -17,7 +17,7 @@ website:
 
 format:
   html:
-    css: csafe.css
+    css: styles.css
     toc: true
     toc-depth: 2
     toc-location: left

@@ -1,37 +1,107 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 
-h4 {
-  font-family: 'Montserrat', sans-serif;
+:root {
+    --purple: #981E97;
+    --gray: #545859;
+    --ltgray: #bbbab5;
+    --white: #fff;
+}
+
+h6, .h6, h5, .h5, h4, .h4, h3, .h3, h2, .h2, h1, .h1 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  font-weight: 400;
+  line-height: 1.2;
+  color: var(--purple);
+}
+
+h1, .h1 {
+  font-size: calc(1.75rem + 1.5vw);
+  font-weight: 100;
+}
+@media (min-width: 1200px) {
+  h1, .h1 {
+    font-size: 3rem;
+  }
+}
+
+h2, .h2 {
+  font-size: calc(1rem + 0.6vw);
   font-weight: 700;
-/*  color: #003A70;*/
+}
+@media (min-width: 1200px) {
+  h2, .h2 {
+    font-size: 2rem;
+  }
 }
 
-h3 {
-  font-family: 'Montserrat', sans-serif;
-  font-weight: bold;
-  color: #545859;
+h3, .h3 {
+  font-size: calc(1rem + 0.6vw);
+  font-weight: 500;
+}
+@media (min-width: 1200px) {
+  h3, .h3 {
+    font-size: 1.75rem;
+  }
 }
 
-h2 {
-  font-family: 'Montserrat', sans-serif;
-  font-weight: bold;
-  color: #003A70;
+h4, .h4 {
+  font-size: calc(1.275rem + 0.3vw);
+}
+@media (min-width: 1200px) {
+  h4, .h4 {
+    font-size: 1.5rem;
+  }
 }
 
-h1 {
-  font-family: 'Montserrat', sans-serif;
-  font-weight: bold;
-  font-size: 36px;
-  color: #003A70;
+h5, .h5 {
+  font-size: 1.25rem;
+}
+
+h6, .h6 {
+  font-size: 1rem;
 }
 
 body {
   font-family: 'Montserrat', sans-serif;
   font-weight: 500;
   font-size: 16px;
-  color: #545859;
+  color: var(--gray);
 }
 
 html, body {
   height: 100%;
+}
+
+/* Increase the navbar logo size */
+.navbar-brand img {
+    max-height: 50px; /* Increase the max width as needed */
+    width: auto;     /* Maintain aspect ratio */
+    vertical-align: middle;
+}
+
+/* Change background color of navigation bar to white */
+.navbar {
+    background-color: var(--white)
+}
+
+.navbar-nav {
+  overflow: hidden;
+  height: 70px;
+  align-items: flex-end;
+}
+
+/* Inactive tab color */
+.navbar-nav .nav-link {
+    color: var(--ltgray); /* Color for inactive links */
+}
+
+/* Active tab color */
+.navbar-nav .nav-link.active, .navbar-nav .nav-link.show {
+  color: var(--gray);
+}
+
+/* Hover tab color */
+.navbar-nav .nav-link:hover {
+    color: var(--ltgray); /* Color on hover */
 }
