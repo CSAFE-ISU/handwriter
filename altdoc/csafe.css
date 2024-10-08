@@ -149,7 +149,7 @@
   
   --bs-heading-color: var(--bs-purple);
   
-  --bs-link-color: var(-bs-orange);
+  --bs-link-color: var(--bs-orange);
   --bs-link-hover-color: #9db1c6;
   --bs-link-color-rgb: 246, 141, 46;
   --bs-link-hover-color-rgb: 157, 177, 198;
@@ -3826,7 +3826,7 @@ textarea.form-control-lg {
 .navbar {
   --bs-navbar-padding-x: 0;
   --bs-navbar-padding-y: 0.5rem;
-  --bs-navbar-color: var(--bs-gray);
+  --bs-navbar-color: var(--bs-pink);
   --bs-navbar-hover-color: var(--bs-gray-dark);
   --bs-navbar-disabled-color: rgba(var(--bs-emphasis-color-rgb), 0.3);
   --bs-navbar-active-color: var(--bs-gray-dark);
@@ -4238,7 +4238,7 @@ textarea.form-control-lg {
 .navbar[data-bs-theme=dark] {
   --bs-navbar-color: rgba(255, 255, 255, 0.55);
   --bs-navbar-hover-color: rgba(255, 255, 255, 0.75);
-  --bs-navbar-disabled-color: var(--bs-orange);
+  --bs-navbar-disabled-color: rgba(255, 255, 255, 0.25);
   --bs-navbar-active-color: #fff;
   --bs-navbar-brand-color: #fff;
   --bs-navbar-brand-hover-color: #fff;
