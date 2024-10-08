@@ -244,5 +244,3 @@ show_problem_docs <- function(prob_log_file) {
     message("The following documents could not be processed: ", paste0(problem_docs, collapse = ', '))
   }
 }
-
-
