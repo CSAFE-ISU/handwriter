@@ -2,7 +2,7 @@
 
 ## New features
 
-* The new function `plotClusterCenters()` creates a plot of the clusters centers from a cluster template. The cluster centers are displayed as orange shapes. The function also plots all graphs in each cluster as grey shapes with 5% transparency to depict the variability of graph shapes within each cluster.
+* The new function `plot_cluster_centers()` creates a plot of the clusters centers from a cluster template. The cluster centers are displayed as orange shapes. The function also plots all graphs in each cluster as grey shapes with 5% transparency to depict the variability of graph shapes within each cluster.
 
 * The new function `plotGraphs()` plots every graph in a document processed with `processDocument()`.
 
@@ -14,9 +14,9 @@
 
 * Fixed bug in `format_template_data()` where the function coerced writer IDs to integers even if the writer IDs contained characters.
 
-* Fixed bug in `get_clusters_batch()` where the function would stall but not return an error message if a document had a graph with a large number of edges (paths). Now the function deletes graphs with more than 30 edges.
+* Fixed bug in `get_clusters_batch()` where the function would stall but not return an error message if a document had a graph with a large number of edges (paths). Now the function ignores graphs with more than 30 edges.
 
-* Fixed bug in `fit_model()` where the function saves the same data in two separate files: "model_clusters.rds" and "all_clusters.rds". I added an argument to `get_clusters_batch()` called 'save_master_file' and made the default FALSE. If TRUE, "all_clusters.rds" will be saved.
+* Fixed bug in `fit_model()` where the function saves the same data in two separate files: "model_clusters.rds" and "all_clusters.rds". The argument 'save_master_file' was added to `get_clusters_batch()`. If TRUE, a data frame of all cluster assignments, "all_clusters.rds", will be saved. The default is FALSE.
 
 # handwriter 3.1.1
 
