@@ -42,7 +42,7 @@ in output_dir &gt; problems.txt. If this is the first run,
 
 ### Value
 
-A list of processed documents
+No return value, called for side effects
 
 
 
@@ -50,8 +50,7 @@ A list of processed documents
 ```{r, warning=FALSE, message=FALSE, eval=FALSE}
 library(handwriter)
 
-process_batch_list("path/to/input_dir", "path/to/output_dir")
-docs <- process_batch_list("path/to/input_dir", "path/to/output_dir")
+process_batch_dir("path/to/input_dir", "path/to/output_dir")
 
 
 

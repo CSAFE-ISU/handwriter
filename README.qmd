@@ -1,7 +1,8 @@
 ---
 title: "handwriter"
-format: html
-editor: visual
+format: 
+  html:
+    theme: csafe.css
 ---
 
 ```{r, include = FALSE}

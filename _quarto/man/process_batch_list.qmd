@@ -42,7 +42,7 @@ in output_dir &gt; problems.txt. If this is the first run,
 
 ### Value
 
-A list of processed documents
+No return value, called for side effects
 
 
 
@@ -52,7 +52,7 @@ library(handwriter)
 
 images <- c('path/to/image1.png', 'path/to/image2.png', 'path/to/image3.png')
 process_batch_list(images, "path/to/output_dir", FALSE)
-docs <- process_batch_list(images, "path/to/output_dir", TRUE)
+process_batch_list(images, "path/to/output_dir", TRUE)
 
 
 

@@ -1,8 +1,8 @@
 project:
   type: website
 website:
-  title: handwriter
   navbar:
+    logo: CSAFE_Tools_handwriter.png
     search: true
     right:
       - icon: github
@@ -114,4 +114,4 @@ website:
         file: CITATION.md
 format:
   html:
-    css: styles.css
+    css: csafe.css
