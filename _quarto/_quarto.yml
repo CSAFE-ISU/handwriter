@@ -9,13 +9,17 @@ website:
         file: index.qmd
       - text: News
         file: NEWS.md
+      - text: License
+        file: LICENSE.md
+      - text: Citation
+        file: CITATION.md
     right:
       - icon: github
         href: https://github.com/CSAFE-ISU/handwriter
         aria-label: handwriter GitHub
 format:
   html:
-    css: styles.css
+    css: csafe.css
     toc: true
-    toc-depth: 2
+    toc-depth: 3
     toc-location: left

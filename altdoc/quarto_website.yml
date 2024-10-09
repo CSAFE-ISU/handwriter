@@ -10,6 +10,10 @@ website:
         file: index.qmd
       - text: News
         file: $ALTDOC_NEWS
+      - text: License
+        file: $ALTDOC_LICENSE
+      - text: Citation
+        file: $ALTDOC_CITATION
     right:
       - icon: github
         href: $ALTDOC_PACKAGE_URL_GITHUB
@@ -17,7 +21,7 @@ website:
 
 format:
   html:
-    css: styles.css
+    css: csafe.css
     toc: true
-    toc-depth: 2
+    toc-depth: 3
     toc-location: left

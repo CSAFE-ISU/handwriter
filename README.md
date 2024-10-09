@@ -11,17 +11,17 @@ you are a forensic document examiner, legal professional, academic, or
 simply curious about how statistics are applied to handwriting,
 handwriter provides an automated way to evaluate handwriting samples.
 
-## Quick Start
+# Quick Start
 
-### VIEW A DEMO
+## VIEW A DEMO
 
 View a demo of handwriter on handwritten documents from the CSAFE
 Handwriting Database. Go to
 [demo](https://csafe.shinyapps.io/handwriterAppDemo/).
 
-### SIMULATE CASEWORK WITH EXAMPLE DOCUMENTS
+## SIMULATE CASEWORK WITH EXAMPLE DOCUMENTS
 
-#### INSTALLATION
+### INSTALLATION
 
 Handwriter requires R, RStudio IDE, and JAGS.
 
@@ -30,7 +30,7 @@ Handwriter requires R, RStudio IDE, and JAGS.
 -   Install JAGS from
     [SourceForge](https://sourceforge.net/projects/mcmc-jags/files/)
 
-#### LAUNCH THE APP
+### LAUNCH THE APP
 
 Open RStudio, navigate to the console window. Install the handwriterApp
 package. You only need to do this once.
@@ -51,7 +51,7 @@ the pop-up window instead of in a browser, some links will not work.
 
 Click **Simulate Casework** and follow the instructions in the app.
 
-## Advanced
+# Advanced
 
 You can install handwriter from CRAN with:
 

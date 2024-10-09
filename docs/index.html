@@ -102,7 +102,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 }</script>
 
 
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="csafe.css">
 </head>
 
 <body class="floating nav-fixed">
@@ -130,6 +130,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="nav-link" href="./NEWS.html"> 
 <span class="menu-text">News</span></a>
   </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./LICENSE.html"> 
+<span class="menu-text">License</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./CITATION.html"> 
+<span class="menu-text">Citation</span></a>
+  </li>  
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item compact">
@@ -151,11 +159,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <nav id="TOC" role="doc-toc" class="toc-active">
     <h2 id="toc-title">On this page</h2>
    
+  <ul>
+  <li><a href="#quick-start" id="toc-quick-start" class="nav-link active" data-scroll-target="#quick-start">Quick Start</a>
   <ul class="collapse">
-  <li><a href="#quick-start" id="toc-quick-start" class="nav-link active" data-scroll-target="#quick-start">Quick Start</a></li>
-  <li><a href="#advanced" id="toc-advanced" class="nav-link" data-scroll-target="#advanced">Advanced</a></li>
+  <li><a href="#view-a-demo" id="toc-view-a-demo" class="nav-link" data-scroll-target="#view-a-demo">VIEW A DEMO</a></li>
+  <li><a href="#simulate-casework-with-example-documents" id="toc-simulate-casework-with-example-documents" class="nav-link" data-scroll-target="#simulate-casework-with-example-documents">SIMULATE CASEWORK WITH EXAMPLE DOCUMENTS</a>
+  <ul class="collapse">
+  <li><a href="#installation" id="toc-installation" class="nav-link" data-scroll-target="#installation">INSTALLATION</a></li>
+  <li><a href="#launch-the-app" id="toc-launch-the-app" class="nav-link" data-scroll-target="#launch-the-app">LAUNCH THE APP</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#advanced" id="toc-advanced" class="nav-link" data-scroll-target="#advanced">Advanced</a>
+  <ul class="collapse">
   <li><a href="#process-a-handwriting-example" id="toc-process-a-handwriting-example" class="nav-link" data-scroll-target="#process-a-handwriting-example">Process a Handwriting Example</a></li>
-  <li><a href="#perform-writership-analysis" id="toc-perform-writership-analysis" class="nav-link" data-scroll-target="#perform-writership-analysis">Perform Writership Analysis</a></li>
+  <li><a href="#perform-writership-analysis" id="toc-perform-writership-analysis" class="nav-link" data-scroll-target="#perform-writership-analysis">Perform Writership Analysis</a>
+  <ul class="collapse">
+  <li><a href="#step-1-create-the-main-directory-and-subdirectories" id="toc-step-1-create-the-main-directory-and-subdirectories" class="nav-link" data-scroll-target="#step-1-create-the-main-directory-and-subdirectories">STEP 1: Create the Main Directory and Subdirectories</a></li>
+  <li><a href="#step-2-create-a-cluster-template" id="toc-step-2-create-a-cluster-template" class="nav-link" data-scroll-target="#step-2-create-a-cluster-template">STEP 2: Create a Cluster Template</a></li>
+  <li><a href="#step-3-fit-a-hierarchical-model" id="toc-step-3-fit-a-hierarchical-model" class="nav-link" data-scroll-target="#step-3-fit-a-hierarchical-model">STEP 3: Fit a Hierarchical Model</a></li>
+  <li><a href="#analyze-questioned-documents" id="toc-analyze-questioned-documents" class="nav-link" data-scroll-target="#analyze-questioned-documents">Analyze Questioned Documents</a></li>
+  </ul></li>
+  </ul></li>
   </ul>
 </nav>
 </nav>
@@ -188,24 +212,24 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <!-- badges: start -->
 <!-- badges: end -->
 <p>Handwriter is designed to assist forensic examiners by analyzing handwritten documents against a <em>closed set</em> of potential writers. It determines the probability that each writer wrote the document. Whether you are a forensic document examiner, legal professional, academic, or simply curious about how statistics are applied to handwriting, handwriter provides an automated way to evaluate handwriting samples.</p>
-<section id="quick-start" class="level2">
-<h2 class="anchored" data-anchor-id="quick-start">Quick Start</h2>
-<section id="view-a-demo" class="level3">
-<h3 class="anchored" data-anchor-id="view-a-demo">VIEW A DEMO</h3>
+<section id="quick-start" class="level1">
+<h1>Quick Start</h1>
+<section id="view-a-demo" class="level2">
+<h2 class="anchored" data-anchor-id="view-a-demo">VIEW A DEMO</h2>
 <p>View a demo of handwriter on handwritten documents from the CSAFE Handwriting Database. Go to <a href="https://csafe.shinyapps.io/handwriterAppDemo/">demo</a>.</p>
 </section>
-<section id="simulate-casework-with-example-documents" class="level3">
-<h3 class="anchored" data-anchor-id="simulate-casework-with-example-documents">SIMULATE CASEWORK WITH EXAMPLE DOCUMENTS</h3>
-<section id="installation" class="level4">
-<h4 class="anchored" data-anchor-id="installation">INSTALLATION</h4>
+<section id="simulate-casework-with-example-documents" class="level2">
+<h2 class="anchored" data-anchor-id="simulate-casework-with-example-documents">SIMULATE CASEWORK WITH EXAMPLE DOCUMENTS</h2>
+<section id="installation" class="level3">
+<h3 class="anchored" data-anchor-id="installation">INSTALLATION</h3>
 <p>Handwriter requires R, RStudio IDE, and JAGS.</p>
 <ul>
 <li>Install R and RStudio from <a href="https://posit.co/download/rstudio-desktop/">POSIT</a></li>
 <li>Install JAGS from <a href="https://sourceforge.net/projects/mcmc-jags/files/">SourceForge</a></li>
 </ul>
 </section>
-<section id="launch-the-app" class="level4">
-<h4 class="anchored" data-anchor-id="launch-the-app">LAUNCH THE APP</h4>
+<section id="launch-the-app" class="level3">
+<h3 class="anchored" data-anchor-id="launch-the-app">LAUNCH THE APP</h3>
 <p>Open RStudio, navigate to the console window. Install the handwriterApp package. You only need to do this once.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">"handwriterApp"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -220,14 +244,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 </section>
 </section>
-<section id="advanced" class="level2">
-<h2 class="anchored" data-anchor-id="advanced">Advanced</h2>
+<section id="advanced" class="level1">
+<h1>Advanced</h1>
 <p>You can install handwriter from CRAN with:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">"handwriter"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>You can install the development version of handwriter from <a href="https://github.com/">GitHub</a> with:</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># install.packages("devtools")</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">"CSAFE-ISU/handwriter"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</section>
 <section id="process-a-handwriting-example" class="level2">
 <h2 class="anchored" data-anchor-id="process-a-handwriting-example">Process a Handwriting Example</h2>
 <p>The file “phrase_example.png” is a scanned PNG of handwriting from the CSAFE Handwriting Database. This PNG image is included in the handwriter package in a folder called “extdata.” Use the helper function <code>handwriter_example()</code> to find the path to where “phrase_example.png” is saved on your computer.</p>
@@ -471,6 +494,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 
 
+</section>
 </section>
 </section>
 </section>

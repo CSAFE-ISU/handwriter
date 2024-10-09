@@ -4,7 +4,7 @@
     "href": "CITATION.html",
     "title": "Citation",
     "section": "",
-    "text": "Citation\nTo cite package ‘handwriter’ in publications use:\n\n  Iowa State University of Science and Technology on behalf of its Center for\n  Statistics and Applications in Forensic Evidence, Berry N, Reinders S,\n  Taylor J (????). _handwriter: Handwriting Analysis in R_. R package version\n  3.2.0, &lt;https://github.com/CSAFE-ISU/handwriter&gt;.\n\nA BibTeX entry for LaTeX users is\n\n  @Manual{,\n    title = {handwriter: Handwriting Analysis in R},\n    author = {{Iowa State University of Science and Technology on behalf of its Center for Statistics and Applications in Forensic Evidence} and Nick Berry and Stephanie Reinders and James Taylor},\n    note = {R package version 3.2.0},\n    url = {https://github.com/CSAFE-ISU/handwriter},\n  }"
+    "text": "Citation\nTo cite package ‘handwriter’ in publications use:\n\n  Iowa State University of Science and Technology on behalf of its Center for\n  Statistics and Applications in Forensic Evidence, Berry N, Reinders S,\n  Taylor J (2024). _handwriter: Handwriting Analysis in R_. R package version\n  3.1.1.9000, commit 32d80c5bc8919f4cef91c518b1e77ae7cba5651e,\n  &lt;https://github.com/CSAFE-ISU/handwriter&gt;.\n\nA BibTeX entry for LaTeX users is\n\n  @Manual{,\n    title = {handwriter: Handwriting Analysis in R},\n    author = {{Iowa State University of Science and Technology on behalf of its Center for Statistics and Applications in Forensic Evidence} and Nick Berry and Stephanie Reinders and James Taylor},\n    year = {2024},\n    note = {R package version 3.1.1.9000, commit 32d80c5bc8919f4cef91c518b1e77ae7cba5651e},\n    url = {https://github.com/CSAFE-ISU/handwriter},\n  }"
   },
   {
     "objectID": "NEWS.html",
@@ -200,14 +200,14 @@
     "href": "man/get_cluster_fill_counts.html",
     "title": "",
     "section": "",
-    "text": "get_cluster_fill_counts() creates a data frame that shows the number of graphs in each cluster for each input document.\n\n\n\nget_cluster_fill_counts(df)\n\n\n\n\n\n\n\ndf\n\n\nA data frame with columns writer, doc, and cluster. Each row corresponding to a graph and lists the writer of that graph, the document from which the graph was obtained, and the cluster to which that graph is assigned.\n\n\n\n\n\n\nA dataframe of cluster fill counts for each document in the input data frame.\n\n\n\n\nlibrary(handwriter)\n\nwriter &lt;- c(rep(1, 20), rep(2, 20), rep(3, 20))\ndocname &lt;- c(rep('doc1',20), rep('doc2', 20), rep('doc3', 20))\ndoc &lt;- c(rep(1, 20), rep(2, 20), rep(3, 20))\ncluster &lt;- sample(3, 60, replace=TRUE)\ndf &lt;- data.frame(docname, writer, doc, cluster)\nget_cluster_fill_counts(df)\n\n# A tibble: 3 × 6\n# Groups:   docname, writer, doc [3]\n  docname writer   doc   `1`   `2`   `3`\n  &lt;chr&gt;    &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt;\n1 doc1         1     1     5     9     6\n2 doc2         2     2     8     5     7\n3 doc3         3     3     6     6     8"
+    "text": "get_cluster_fill_counts() creates a data frame that shows the number of graphs in each cluster for each input document.\n\n\n\nget_cluster_fill_counts(df)\n\n\n\n\n\n\n\ndf\n\n\nA data frame with columns writer, doc, and cluster. Each row corresponding to a graph and lists the writer of that graph, the document from which the graph was obtained, and the cluster to which that graph is assigned.\n\n\n\n\n\n\nA dataframe of cluster fill counts for each document in the input data frame.\n\n\n\n\nlibrary(handwriter)\n\nwriter &lt;- c(rep(1, 20), rep(2, 20), rep(3, 20))\ndocname &lt;- c(rep('doc1',20), rep('doc2', 20), rep('doc3', 20))\ndoc &lt;- c(rep(1, 20), rep(2, 20), rep(3, 20))\ncluster &lt;- sample(3, 60, replace=TRUE)\ndf &lt;- data.frame(docname, writer, doc, cluster)\nget_cluster_fill_counts(df)\n\n# A tibble: 3 × 6\n# Groups:   docname, writer, doc [3]\n  docname writer   doc   `1`   `2`   `3`\n  &lt;chr&gt;    &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt;\n1 doc1         1     1     6     5     9\n2 doc2         2     2     4     6    10\n3 doc3         3     3     7     5     8"
   },
   {
     "objectID": "man/get_cluster_fill_counts.html#get_cluster_fill_counts",
     "href": "man/get_cluster_fill_counts.html#get_cluster_fill_counts",
     "title": "",
     "section": "",
-    "text": "get_cluster_fill_counts() creates a data frame that shows the number of graphs in each cluster for each input document.\n\n\n\nget_cluster_fill_counts(df)\n\n\n\n\n\n\n\ndf\n\n\nA data frame with columns writer, doc, and cluster. Each row corresponding to a graph and lists the writer of that graph, the document from which the graph was obtained, and the cluster to which that graph is assigned.\n\n\n\n\n\n\nA dataframe of cluster fill counts for each document in the input data frame.\n\n\n\n\nlibrary(handwriter)\n\nwriter &lt;- c(rep(1, 20), rep(2, 20), rep(3, 20))\ndocname &lt;- c(rep('doc1',20), rep('doc2', 20), rep('doc3', 20))\ndoc &lt;- c(rep(1, 20), rep(2, 20), rep(3, 20))\ncluster &lt;- sample(3, 60, replace=TRUE)\ndf &lt;- data.frame(docname, writer, doc, cluster)\nget_cluster_fill_counts(df)\n\n# A tibble: 3 × 6\n# Groups:   docname, writer, doc [3]\n  docname writer   doc   `1`   `2`   `3`\n  &lt;chr&gt;    &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt;\n1 doc1         1     1     5     9     6\n2 doc2         2     2     8     5     7\n3 doc3         3     3     6     6     8"
+    "text": "get_cluster_fill_counts() creates a data frame that shows the number of graphs in each cluster for each input document.\n\n\n\nget_cluster_fill_counts(df)\n\n\n\n\n\n\n\ndf\n\n\nA data frame with columns writer, doc, and cluster. Each row corresponding to a graph and lists the writer of that graph, the document from which the graph was obtained, and the cluster to which that graph is assigned.\n\n\n\n\n\n\nA dataframe of cluster fill counts for each document in the input data frame.\n\n\n\n\nlibrary(handwriter)\n\nwriter &lt;- c(rep(1, 20), rep(2, 20), rep(3, 20))\ndocname &lt;- c(rep('doc1',20), rep('doc2', 20), rep('doc3', 20))\ndoc &lt;- c(rep(1, 20), rep(2, 20), rep(3, 20))\ncluster &lt;- sample(3, 60, replace=TRUE)\ndf &lt;- data.frame(docname, writer, doc, cluster)\nget_cluster_fill_counts(df)\n\n# A tibble: 3 × 6\n# Groups:   docname, writer, doc [3]\n  docname writer   doc   `1`   `2`   `3`\n  &lt;chr&gt;    &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt;\n1 doc1         1     1     6     5     9\n2 doc2         2     2     4     6    10\n3 doc3         3     3     7     5     8"
   },
   {
     "objectID": "man/readPNGBinary.html",
@@ -728,18 +728,18 @@
     "text": "Handwriter is designed to assist forensic examiners by analyzing handwritten documents against a closed set of potential writers. It determines the probability that each writer wrote the document. Whether you are a forensic document examiner, legal professional, academic, or simply curious about how statistics are applied to handwriting, handwriter provides an automated way to evaluate handwriting samples."
   },
   {
-    "objectID": "index.html#quick-start",
-    "href": "index.html#quick-start",
+    "objectID": "index.html#view-a-demo",
+    "href": "index.html#view-a-demo",
     "title": "handwriter",
-    "section": "Quick Start",
-    "text": "Quick Start\n\nVIEW A DEMO\nView a demo of handwriter on handwritten documents from the CSAFE Handwriting Database. Go to demo.\n\n\nSIMULATE CASEWORK WITH EXAMPLE DOCUMENTS\n\nINSTALLATION\nHandwriter requires R, RStudio IDE, and JAGS.\n\nInstall R and RStudio from POSIT\nInstall JAGS from SourceForge\n\n\n\nLAUNCH THE APP\nOpen RStudio, navigate to the console window. Install the handwriterApp package. You only need to do this once.\n\ninstall.packages(\"handwriterApp\")\n\nEvery time you want to use the app, type:\n\nlibrary(handwriterApp)\nhandwriterApp()\n\nIn the pop-up window, click Open in Browser. If you use the app in the pop-up window instead of in a browser, some links will not work.\nClick Simulate Casework and follow the instructions in the app."
+    "section": "VIEW A DEMO",
+    "text": "VIEW A DEMO\nView a demo of handwriter on handwritten documents from the CSAFE Handwriting Database. Go to demo."
   },
   {
-    "objectID": "index.html#advanced",
-    "href": "index.html#advanced",
+    "objectID": "index.html#simulate-casework-with-example-documents",
+    "href": "index.html#simulate-casework-with-example-documents",
     "title": "handwriter",
-    "section": "Advanced",
-    "text": "Advanced\nYou can install handwriter from CRAN with:\ninstall.packages(\"handwriter\")\nYou can install the development version of handwriter from GitHub with:\n# install.packages(\"devtools\")\ndevtools::install_github(\"CSAFE-ISU/handwriter\")"
+    "section": "SIMULATE CASEWORK WITH EXAMPLE DOCUMENTS",
+    "text": "SIMULATE CASEWORK WITH EXAMPLE DOCUMENTS\n\nINSTALLATION\nHandwriter requires R, RStudio IDE, and JAGS.\n\nInstall R and RStudio from POSIT\nInstall JAGS from SourceForge\n\n\n\nLAUNCH THE APP\nOpen RStudio, navigate to the console window. Install the handwriterApp package. You only need to do this once.\n\ninstall.packages(\"handwriterApp\")\n\nEvery time you want to use the app, type:\n\nlibrary(handwriterApp)\nhandwriterApp()\n\nIn the pop-up window, click Open in Browser. If you use the app in the pop-up window instead of in a browser, some links will not work.\nClick Simulate Casework and follow the instructions in the app."
   },
   {
     "objectID": "index.html#process-a-handwriting-example",
