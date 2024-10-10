@@ -13,15 +13,15 @@ handwriter provides an automated way to evaluate handwriting samples.
 
 # Quick Start
 
-## VIEW A DEMO
+## View a Demo
 
 View a demo of handwriter on handwritten documents from the CSAFE
 Handwriting Database. Go to
 [demo](https://csafe.shinyapps.io/handwriterAppDemo/).
 
-## SIMULATE CASEWORK WITH EXAMPLE DOCUMENTS
+## Simulate Casework with Example Documents
 
-### INSTALLATION
+### Installation
 
 Handwriter requires R, RStudio IDE, and JAGS.
 
@@ -30,7 +30,7 @@ Handwriter requires R, RStudio IDE, and JAGS.
 -   Install JAGS from
     [SourceForge](https://sourceforge.net/projects/mcmc-jags/files/)
 
-### LAUNCH THE APP
+### Launch the App
 
 Open RStudio, navigate to the console window. Install the handwriterApp
 package. You only need to do this once.
