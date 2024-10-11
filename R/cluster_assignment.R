@@ -183,7 +183,7 @@ get_clusters_batch <- function(template, input_dir, output_dir, writer_indices, 
   # allow a warning to be given if a document without graphs is encountered and
   # this message could be removed.
   outfiles <- list.files(output_dir, pattern = ".rds", full.names = TRUE)
-  outfiles <- outfiles[which(outfiles != "all_clusters.rds")]
+  outfiles <- outfiles[which(basename(outfiles) != "all_clusters.rds")]
   if (length(outfiles) != nrow(proclist)){
     warning('Unable to get cluster assignments for one or more documents.')
   }

@@ -1,5 +1,9 @@
 # handwriter (development version)
 
+## Minor improvements and fixes
+
+* Fixed a bug in `get_clusters_batch()` so it no longer returns the error message, "Unable to get cluster assignments for one or more documents," if the file all_clusters.rds exists in the output directory.
+
 # handwriter 3.2.0
 
 ## New features
