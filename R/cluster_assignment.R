@@ -130,7 +130,7 @@ get_clusters_batch <- function(template, input_dir, output_dir, writer_indices, 
     out_proclist <- list()
     for (i in 1:length(proclist)) {
       # load doc
-      message(paste("     Loading graphs for", basename(proclist[i])))
+      message(paste("Loading graphs for", basename(proclist[i])))
       doc <- readRDS(proclist[i])
 
       # check that doc$docname is not blank
@@ -184,7 +184,7 @@ get_clusters_batch <- function(template, input_dir, output_dir, writer_indices, 
   # this message could be removed.
   outfiles <- list.files(output_dir, pattern = ".rds", full.names = TRUE)
   outfiles <- outfiles[which(basename(outfiles) != "all_clusters.rds")]
-  if (length(outfiles) != nrow(proclist)){
+  if (length(outfiles) != length(unique(proclist$docname))){
     warning('Unable to get cluster assignments for one or more documents.')
   }
 
