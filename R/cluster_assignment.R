@@ -165,13 +165,13 @@ get_clusters_batch <- function(template, input_dir, output_dir, writer_indices, 
       imagesList <- list_images(doc)
 
       # get cluster assignments
-      message(paste("     Getting cluster assignments for", doc$docname))
+      message(paste("Getting cluster assignments for", doc$docname))
       cluster_assign <- sapply(imagesList, makeassignment, templateCenterList = template$centers, outliercut = outliercut)
 
       df <- make_clusters_df(cluster_assign, doc, writer_indices, doc_indices)
 
       saveRDS(df, file = outfile)
-      message(paste("     Saving cluster assignments for ", doc$docname, "\n"))
+      message(paste("Saving cluster assignments for ", doc$docname, "\n"))
 
       out_proclist[[i]] <- df
     }
