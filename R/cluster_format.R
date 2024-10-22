@@ -203,9 +203,15 @@ format_questioned_data <- function(model, questioned_clusters, writer_indices, d
     # clusters that model doc(s) did not
     graph_measurements <- graph_measurements %>%
       dplyr::left_join(cluster_lookup, by = "original_cluster")
-    # return error if NAs exist in cluster
-    if (any(is.na(graph_measurements$cluster))) {
-      stop("graph_measurements$cluster has at least one NA")
+    
+    # if more than 10% of cluster values are NA, throw an error. Otherwise, 
+    # remove any rows with NA for cluster from graph_measurements
+    count_nas <- sum(is.na(graph_measurements$cluster))
+    if (100*count_nas / nrow(graph_measurements) > 10) {
+      stop("More than 10% of graph_measurements$cluster have NA values.")
+    } else if (count_nas > 0 && (100*count_nas / nrow(graph_measurements) <= 10)) {
+      graph_measurements <- graph_measurements %>%
+        dplyr::filter(!is.na(cluster))
     }
   }
 

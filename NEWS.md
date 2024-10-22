@@ -4,6 +4,11 @@
 
 * Fixed a bug in `get_clusters_batch()` so it no longer returns the error message, "Unable to get cluster assignments for one or more documents," if the file all_clusters.rds exists in the output directory.
 
+* Fixed a bug in `get_clusters_batch()` so it no longer mistakenly returns the error message, "Unable to get cluster assignments for one or more documents," even if cluster assignments were successfully processed for all input documents.
+
+* If the graphs from the model training documents do not populate all available clusters in the cluster template, one or more of the graphs from the questioned document(s) could potentially be assigned to a cluster in the template that doesn't contain any model training graphs. Previously, `analyze_questioned_documents()` threw an error if this occurs. Now, it only throws an error if more than 10% of the graphs from the questioned documents are assigned to clusters that are not populated by model training graphs. The mismatch between clusters used by the model document graphs and clusters used by the questioned document(s) graphs only becomes an issue if it occurs for a large number of graphs.
+
+
 # handwriter 3.2.0
 
 ## New features
