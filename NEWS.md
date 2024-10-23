@@ -2,6 +2,8 @@
 
 ## Minor improvements and fixes
 
+* The new function `plotGraphs()` added in version 3.2.0 mistakenly was not exported. The function has been renamed as `plot_graphs()` and is now available to users.
+
 * Fixed a bug in `get_clusters_batch()` so it no longer returns the error message, "Unable to get cluster assignments for one or more documents," if the file all_clusters.rds exists in the output directory.
 
 * Fixed a bug in `get_clusters_batch()` so it no longer mistakenly returns the error message, "Unable to get cluster assignments for one or more documents," even if cluster assignments were successfully processed for all input documents.
