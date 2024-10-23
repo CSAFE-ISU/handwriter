@@ -336,7 +336,20 @@ plotLetter = function(doc, whichLetter, showPaths = TRUE, showCentroid = TRUE, s
   return(p)
 }
 
-plotGraphs <- function(doc) {
+#' Plot Graphs
+#'
+#' @param doc A PNG image of handwriting processed with [`processDocument`].
+#'
+#' @return A plot of all graphs in the document
+#' 
+#' @export
+#'
+#' @examples
+#' image_path <- system.file("extdata", "phrase_example.png", package = "handwriter")
+#' doc <- processDocument(image_path)
+#' plot_graphs(doc)
+#' 
+plot_graphs <- function(doc) {
   format_graph_df <- function(graph, i) {
     # bind global variables to fix check() note
     Var1 <- NULL
