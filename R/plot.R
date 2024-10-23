@@ -349,7 +349,7 @@ plotLetter = function(doc, whichLetter, showPaths = TRUE, showCentroid = TRUE, s
 #' doc <- processDocument(image_path)
 #' plot_graphs(doc)
 #' 
-plot_graphs <- function(doc) {
+plot_graphs <- function(doc, ncol = NULL) {
   format_graph_df <- function(graph, i) {
     # bind global variables to fix check() note
     Var1 <- NULL
@@ -383,9 +383,10 @@ plot_graphs <- function(doc) {
     ggplot2::ggplot(ggplot2::aes(x, y)) + 
     ggplot2::geom_raster(aes(fill = as.factor(value)), na.rm=TRUE) + 
     ggplot2::scale_fill_manual(values = c("black", "white"), guide = "none") + 
-    ggplot2::coord_fixed() + 
+    ggplot2::coord_fixed() +
     ggplot2::theme_void() +
-    ggplot2::facet_wrap(~graph)
+    ggplot2::facet_wrap(~graph, ncol = ncol) +
+    ggplot2::theme(strip.text = element_blank())
   
   return(p)
 }
