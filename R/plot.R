@@ -338,17 +338,23 @@ plotLetter = function(doc, whichLetter, showPaths = TRUE, showCentroid = TRUE, s
 
 #' Plot Graphs
 #'
-#' @param doc A PNG image of handwriting processed with [`processDocument`].
+#' Use [`processDocument()`] to split handwritting into component shapes called
+#' *graphs*. `plot_graphs()` creates a plot that displays the graphs. [`ggplot2::facet_wrap()`]
+#' places each graph in its own facet, and `ncol` sets the number of columns of facets.
+#'
+#' @param doc A PNG image of handwriting processed with [`processDocument()`].
+#' @param ncol Optionally, set the number of columns in the output plot. The default is `NULL`
+#' which allows [`ggplot2::facet_wrap()`] to automatically choose the number of columns.
 #'
 #' @return A plot of all graphs in the document
-#' 
-#' @export
 #'
 #' @examples
 #' image_path <- system.file("extdata", "phrase_example.png", package = "handwriter")
 #' doc <- processDocument(image_path)
 #' plot_graphs(doc)
 #' 
+#' @export
+#' @md
 plot_graphs <- function(doc, ncol = NULL) {
   format_graph_df <- function(graph, i) {
     # bind global variables to fix check() note

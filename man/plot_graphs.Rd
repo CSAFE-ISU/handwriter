@@ -4,16 +4,21 @@
 \alias{plot_graphs}
 \title{Plot Graphs}
 \usage{
-plot_graphs(doc)
+plot_graphs(doc, ncol = NULL)
 }
 \arguments{
-\item{doc}{A PNG image of handwriting processed with [`processDocument`].}
+\item{doc}{A PNG image of handwriting processed with \code{\link[=processDocument]{processDocument()}}.}
+
+\item{ncol}{Optionally, set the number of columns in the output plot. The default is \code{NULL}
+which allows \code{\link[ggplot2:facet_wrap]{ggplot2::facet_wrap()}} to automatically choose the number of columns.}
 }
 \value{
 A plot of all graphs in the document
 }
 \description{
-Plot Graphs
+Use \code{\link[=processDocument]{processDocument()}} to split handwritting into component shapes called
+\emph{graphs}. \code{plot_graphs()} creates a plot that displays the graphs. \code{\link[ggplot2:facet_wrap]{ggplot2::facet_wrap()}}
+places each graph in its own facet, and \code{ncol} sets the number of columns of facets.
 }
 \examples{
 image_path <- system.file("extdata", "phrase_example.png", package = "handwriter")
