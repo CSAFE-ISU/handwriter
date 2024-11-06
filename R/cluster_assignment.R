@@ -21,10 +21,10 @@
 #' @param input_dir A directory containing graphs created with
 #'   [`process_batch_dir`]
 #' @param output_dir Output directory for cluster assignments
-#' @param writer_indices Vector of start and end indices for the writer id in
-#'   the graph file names
-#' @param doc_indices Vector of start and end indices for the document id in the
-#'   graph file names
+#' @param writer_indices Optional. A Vector of start and end indices for the writer id in
+#'   the graph file names.
+#' @param doc_indices Optional. Vector of start and end indices for the document id in the
+#'   graph file names.
 #' @param num_cores Integer number of cores to use for parallel processing
 #' @param save_master_file TRUE or FALSE. If TRUE, a master file named
 #'   'all_clusters.rds' containing the cluster assignments for all documents in
@@ -46,7 +46,13 @@
 #'
 #' @export
 #' @md
-get_clusters_batch <- function(template, input_dir, output_dir, writer_indices, doc_indices, num_cores = 1, save_master_file = FALSE) {
+get_clusters_batch <- function(template, 
+                               input_dir, 
+                               output_dir, 
+                               writer_indices = NULL, 
+                               doc_indices = NULL, 
+                               num_cores = 1, 
+                               save_master_file = FALSE) {
   # bind global variables to fix check() note
   i <- outliercut <- docname <- NULL
 
@@ -120,7 +126,10 @@ get_clusters_batch <- function(template, input_dir, output_dir, writer_indices, 
       # get cluster assignments
       cluster_assign <- sapply(imagesList, makeassignment, templateCenterList = template$centers, outliercut = outliercut)
       
-      df <- make_clusters_df(cluster_assign, doc, writer_indices, doc_indices)
+      df <- make_clusters_df(cluster_assign = cluster_assign, 
+                             doc = doc, 
+                             writer_indices = writer_indices, 
+                             doc_indices = doc_indices)
 
       saveRDS(df, file = outfile)
       
@@ -168,7 +177,10 @@ get_clusters_batch <- function(template, input_dir, output_dir, writer_indices, 
       message(paste("Getting cluster assignments for", doc$docname))
       cluster_assign <- sapply(imagesList, makeassignment, templateCenterList = template$centers, outliercut = outliercut)
 
-      df <- make_clusters_df(cluster_assign, doc, writer_indices, doc_indices)
+      df <- make_clusters_df(cluster_assign = cluster_assign, 
+                             doc = doc, 
+                             writer_indices = writer_indices, 
+                             doc_indices = doc_indices)
 
       saveRDS(df, file = outfile)
       message(paste("Saving cluster assignments for ", doc$docname, "\n"))
@@ -411,7 +423,7 @@ MakeLetterListLetterSpecific = function(letterList, dims)
   return(letterList)
 }
 
-make_clusters_df <- function(cluster_assign, doc, writer_indices, doc_indices) {
+make_clusters_df <- function(cluster_assign, doc, writer_indices = NULL, doc_indices = NULL) {
   # calculate pc rotation angle and wrapped pc rotation angle
   # NOTE: foreach can't find get_pc_rotation unless it is nested in make_clusters_df
   get_pc_rotation <- function(x) {
@@ -426,8 +438,12 @@ make_clusters_df <- function(cluster_assign, doc, writer_indices, doc_indices) {
   
   # add docname, writer, doc, slope, xvar, yvar, and covar
   df$docname <- doc$docname
-  df$writer <- sapply(df$docname, function(x) substr(x, start = writer_indices[1], stop = writer_indices[2]))
-  df$doc <- sapply(df$docname, function(x) substr(x, start = doc_indices[1], stop = doc_indices[2]), USE.NAMES = FALSE)
+  
+  if (!is.null(writer_indices) && !is.null(doc_indices)){
+    df$writer <- sapply(df$docname, function(x) substr(x, start = writer_indices[1], stop = writer_indices[2]))
+    df$doc <- sapply(df$docname, function(x) substr(x, start = doc_indices[1], stop = doc_indices[2]), USE.NAMES = FALSE)
+  }
+  
   df$slope <- sapply(doc$process$letterList, function(x) x$characterFeatures$slope)
   df$xvar <- sapply(doc$process$letterList, function(x) x$characterFeatures$xvar)
   df$yvar <- sapply(doc$process$letterList, function(x) x$characterFeatures$yvar)
@@ -436,7 +452,11 @@ make_clusters_df <- function(cluster_assign, doc, writer_indices, doc_indices) {
   df$pc_wrapped <- 2 * df$pc_rotation
   
   # sort columns
-  df <- df[, c("docname", "writer", "doc", "cluster", "slope", "xvar", "yvar", "covar", "pc_rotation", "pc_wrapped")]
+  if (!is.null(writer_indices) && !is.null(doc_indices)){
+    df <- df[, c("docname", "writer", "doc", "cluster", "slope", "xvar", "yvar", "covar", "pc_rotation", "pc_wrapped")]
+  } else {
+    df <- df[, c("docname", "cluster", "slope", "xvar", "yvar", "covar", "pc_rotation", "pc_wrapped")]
+  }
   return(df)
 }
 
@@ -468,7 +488,8 @@ delete_graphs <- function(doc, max_edges = 30){
 #' get_clusterassignment
 #'
 #' An internal function for getting cluster assignments for model or questioned
-#' documents. This function runs 'get_clusters_batch'.
+#' documents. This function runs 'get_clusters_batch'. Notice that this function
+#' requires writer and doc indices even those 'get_clusters_batch' does not.
 #'
 #' @param main_dir Directory containing a cluster template created with
 #'   `make_clustering_template`
