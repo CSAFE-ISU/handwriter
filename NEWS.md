@@ -1,5 +1,9 @@
 # handwriter (development version)
 
+## Minor improvements and fixes
+
+* Changed the `writer_indices` and `doc_indices` arguments in `get_clusters_batch()` to be optional. The main reason for this change is so that users do not need to use a naming convention for their handwriting files in order to use `handwriterRF::calculate_slr()` which calls `get_clusters_batch()`.
+
 # handwriter 3.2.1
 
 ## Minor improvements and fixes
