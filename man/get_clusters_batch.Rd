@@ -8,8 +8,8 @@ get_clusters_batch(
   template,
   input_dir,
   output_dir,
-  writer_indices,
-  doc_indices,
+  writer_indices = NULL,
+  doc_indices = NULL,
   num_cores = 1,
   save_master_file = FALSE
 )
@@ -22,11 +22,11 @@ get_clusters_batch(
 
 \item{output_dir}{Output directory for cluster assignments}
 
-\item{writer_indices}{Vector of start and end indices for the writer id in
-the graph file names}
+\item{writer_indices}{Optional. A Vector of start and end indices for the writer id in
+the graph file names.}
 
-\item{doc_indices}{Vector of start and end indices for the document id in the
-graph file names}
+\item{doc_indices}{Optional. Vector of start and end indices for the document id in the
+graph file names.}
 
 \item{num_cores}{Integer number of cores to use for parallel processing}
 

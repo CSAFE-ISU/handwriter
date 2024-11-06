@@ -88,17 +88,29 @@ format_template_data <- function(template) {
 get_cluster_fill_counts <- function(df) {
   docname <- writer <- doc <- cluster <- n <- NULL
   
-  # count number of graphs in each cluster for each writer
-  cluster_fill_counts <- df %>%
-    dplyr::group_by(docname, writer, doc, cluster) %>%
-    dplyr::summarise(n = dplyr::n()) %>%
-    dplyr::mutate(n = as.integer(n)) %>%
-    tidyr::pivot_wider(names_from = cluster, values_from = n, values_fill = 0)
-  
-  # sort columns
-  cols <- c(colnames(cluster_fill_counts[, c(1, 2, 3)]), sort(as.numeric(colnames(cluster_fill_counts[, -c(1, 2, 3)]))))
-  cluster_fill_counts <- cluster_fill_counts[, cols]
-  
+  if (('writer' %in% colnames(df)) && ('doc' %in% colnames(df))) {
+    # count number of graphs in each cluster for each writer
+    cluster_fill_counts <- df %>%
+      dplyr::group_by(docname, writer, doc, cluster) %>%
+      dplyr::summarise(n = dplyr::n()) %>%
+      dplyr::mutate(n = as.integer(n)) %>%
+      tidyr::pivot_wider(names_from = cluster, values_from = n, values_fill = 0)
+    
+    # sort columns
+    cols <- c(colnames(cluster_fill_counts[, c(1, 2, 3)]), sort(as.numeric(colnames(cluster_fill_counts[, -c(1, 2, 3)]))))
+    cluster_fill_counts <- cluster_fill_counts[, cols]
+  } else {
+    cluster_fill_counts <- df %>%
+      dplyr::group_by(docname, cluster) %>%
+      dplyr::summarise(n = dplyr::n()) %>%
+      dplyr::mutate(n = as.integer(n)) %>%
+      tidyr::pivot_wider(names_from = cluster, values_from = n, values_fill = 0)
+    
+    # sort columns
+    cols <- c(colnames(cluster_fill_counts[, c(1)]), sort(as.numeric(colnames(cluster_fill_counts[, -c(1)]))))
+    cluster_fill_counts <- cluster_fill_counts[, cols]
+  }
+
   return(cluster_fill_counts)
 }
 
