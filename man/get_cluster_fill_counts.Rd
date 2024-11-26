@@ -2,7 +2,7 @@
 % Please edit documentation in R/cluster_format.R
 \name{get_cluster_fill_counts}
 \alias{get_cluster_fill_counts}
-\title{get_cluster_fill_counts}
+\title{Get Cluster Fill Counts}
 \usage{
 get_cluster_fill_counts(df)
 }
