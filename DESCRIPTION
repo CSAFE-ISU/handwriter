@@ -33,6 +33,7 @@ Imports:
     rjags,
     stringr,
     tidyr,
+    tidyselect
 Suggests: 
     knitr,
     rmarkdown,
