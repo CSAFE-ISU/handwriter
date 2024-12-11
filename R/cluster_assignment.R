@@ -191,6 +191,11 @@ get_clusters_batch <- function(template,
     proclist <- do.call(rbind, out_proclist)
   }
   
+  # Close connection if running in parallel
+  if (num_cores > 1) {
+    parallel::stopCluster(my_cluster)
+  }
+  
   # check for missing clusters. NOTE: The foreach loop could be restructured to
   # allow a warning to be given if a document without graphs is encountered and
   # this message could be removed.
