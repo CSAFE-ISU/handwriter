@@ -6,6 +6,8 @@
 
 * Changed the `writer_indices` and `doc_indices` arguments in `get_clusters_batch()` to be optional. The main reason for this change is so that users do not need to use a naming convention for their handwriting files in order to use `handwriterRF::calculate_slr()` and `handwriterRF::compare_documents()` which call `get_clusters_batch()`.
 
+* Fixed bug in `get_clusters_batch()` so that the warning "closing unused connection" no longer occurs if the user runs the function in parallel.
+
 # handwriter 3.2.1
 
 ## Minor improvements and fixes
