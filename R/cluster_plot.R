@@ -174,6 +174,71 @@ plot_cluster_fill_rates <- function(formatted_data, facet = FALSE) {
   return(p)
 }
 
+#' Plot Writer Profiles
+#'
+#' Create a line plot of writer profiles for one or more documents.
+#'
+#' @param profiles A data frame of writer profiles created with
+#'   \code{{get_writer_profiles}}.
+#' @param color_by A column name. 'ggplot2' will always group by docname, but
+#'   will use this column to assign colors.
+#' @param ... Additional arguments passed to `ggplot2::facet_wrap`, such as
+#'   `facets`, `nrow`, etc.
+#'
+#' @return A line plot
+#'
+#' @export
+#'
+#' @examples
+#' \donttest{
+#' docs <- system.file(file.path("extdata"), package = "handwriter")
+#' profiles <- get_writer_profiles(docs, measure = "counts")
+#' plot_writer_profiles(profiles)
+#' 
+#' profiles <- get_writer_profiles(docs, measure = "rates")
+#' plot_writer_profiles(profiles)
+#' }
+#' 
+#' @md
+plot_writer_profiles <- function(profiles, color_by = "docname", ...) {
+  # prevent note: "no visible binding for global variable"
+  docname <- cluster <- rate <- .data <- NULL
+  
+  profiles <- profiles %>%
+    tidyr::pivot_longer(
+      cols = -tidyselect::any_of(c("docname", "writer", "doc", "total_graphs")),
+      names_to = "cluster",
+      values_to = "value"
+    ) %>%
+    dplyr::mutate(
+      docname = factor(docname),
+      cluster = as.integer(stringr::str_replace(cluster, "cluster", ""))
+    )
+  
+  # Add counts or rates label
+  measure <- ifelse(max(profiles$value) > 1, "counts", "rates")
+  colnames(profiles)[colnames(profiles) == "value"] <- measure
+  
+  p <- profiles %>%
+    ggplot2::ggplot(ggplot2::aes(
+      x = cluster,
+      y = .data[[measure]],
+      group = docname,
+      color = .data[[color_by]]
+    )) +
+    ggplot2::geom_line() +
+    ggplot2::geom_point() +
+    ggplot2::theme_bw()
+  
+  # optional. facet by writer or docname
+  extra_args <- list(...)
+  if (length(extra_args) > 0) {
+    p <- p +
+      ggplot2::facet_wrap(...)
+  }
+  
+  return(p)
+}
 
 #' Plot Trace
 #'

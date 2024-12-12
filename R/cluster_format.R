@@ -65,44 +65,6 @@ format_template_data <- function(template) {
 }
 
 
-#' Get Cluster Fill Counts
-#'
-#' `get_cluster_fill_counts()` creates a data frame that shows the number of
-#' graphs in each cluster for each input document.
-#'
-#' @param df A data frame with columns `docname` and `cluster`. Each row
-#'   corresponding to a graph and lists the document from which the graph was
-#'   obtained, and the cluster to which that graph is assigned. Optionally, the
-#'   data frame might also have `writer` and `doc` columns. If present, `writer`
-#'   lists the writer ID of each document and `doc` is an identifier to
-#'   distinguish between different documents from the same writer.
-#' @return A dataframe of cluster fill counts for each document in the input
-#'   data frame.
-#'
-#' @examples
-#' docname <- c(rep('doc1',20), rep('doc2', 20), rep('doc3', 20))
-#' writer <- c(rep(1, 20), rep(2, 20), rep(3, 20))
-#' doc <- c(rep(1, 20), rep(2, 20), rep(3, 20))
-#' cluster <- sample(3, 60, replace=TRUE)
-#' df <- data.frame(docname, writer, doc, cluster)
-#' get_cluster_fill_counts(df)
-#'
-#' @export
-#' @md
-get_cluster_fill_counts <- function(df) {
-  docname <- writer <- doc <- cluster <- n <- NULL
-  
-  # count number of graphs in each cluster for each writer
-  cluster_fill_counts <- df %>%
-      dplyr::group_by(dplyr::pick(tidyselect::any_of(c("docname", "writer", "doc", "cluster")))) %>%
-      dplyr::summarise(n = dplyr::n()) %>%
-      dplyr::mutate(n = as.integer(n)) %>%
-      tidyr::pivot_wider(names_from = cluster, values_from = n, values_fill = 0) %>%
-      dplyr::select(tidyselect::any_of(c("docname", "writer", "doc")), tidyselect::everything())
-
-  return(cluster_fill_counts)
-}
-
 # Internal Functions ------------------------------------------------------
 
 
