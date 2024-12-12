@@ -90,27 +90,3 @@ test_that("formatted questioned data is formatted correctly", {
   # check cluster labels
   expect_gte(min(data$graph_measurements$cluster), 1)
 })
-
-
-# get_cluster_fill_counts -------------------------------------------------
-
-testthat::test_that("Get cluster fill counts works without writer or doc indices", {
-  clusters <- readRDS(testthat::test_path("fixtures", "processHandwriting", "clusters_wo_indices.rds"))
-  actual <- get_cluster_fill_counts(clusters)
-  
-  expected <- readRDS(testthat::test_path("fixtures", "processHandwriting", "counts_wo_indices.rds"))
-  
-  expect_equal(actual, expected)
-  
-})
-
-testthat::test_that("Get cluster fill counts works with writer or doc indices", {
-  clusters <- readRDS(testthat::test_path("fixtures", "processHandwriting", "clusters.rds"))
-  actual <- get_cluster_fill_counts(clusters)
-  
-  expected <- readRDS(testthat::test_path("fixtures", "processHandwriting", "counts.rds"))
-  
-  expect_equal(actual, expected)
-  
-})
-

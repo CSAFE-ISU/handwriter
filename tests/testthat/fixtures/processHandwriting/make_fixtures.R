@@ -12,6 +12,8 @@ for (sample in samples) {
   save_proclist(sample)
 }
 
+# clusters ----
+# clusters without writer or doc
 unlink(tempdir(), recursive = TRUE)
 clusters <- get_clusters_batch(
   example_cluster_template,
@@ -20,7 +22,10 @@ clusters <- get_clusters_batch(
 saveRDS(clusters, testthat::test_path("fixtures", "processHandwriting", "clusters_wo_indices.rds"))
 counts <- get_cluster_fill_counts(clusters)
 saveRDS(counts, testthat::test_path("fixtures", "processHandwriting", "counts_wo_indices.rds"))
+rates <- get_cluster_fill_rates(clusters)
+saveRDS(rates, testthat::test_path("fixtures", "processHandwriting", "rates_wo_indices.rds"))
 
+# clusters with writer or doc
 unlink(tempdir(), recursive = TRUE)
 clusters <- get_clusters_batch(
   template = example_cluster_template,
@@ -31,3 +36,12 @@ clusters <- get_clusters_batch(
 saveRDS(clusters, testthat::test_path("fixtures", "processHandwriting", "clusters.rds"))
 counts <- get_cluster_fill_counts(clusters)
 saveRDS(counts, testthat::test_path("fixtures", "processHandwriting", "counts.rds"))
+rates <- get_cluster_fill_rates(clusters)
+saveRDS(rates, testthat::test_path("fixtures", "processHandwriting", "rates.rds"))
+
+# writer profiles
+profiles <- get_writer_profiles(
+  input_dir = testthat::test_path("fixtures", "processHandwriting", "samples"),
+  template = example_cluster_template,
+  measure = "counts"
+)
