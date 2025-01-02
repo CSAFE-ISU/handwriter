@@ -2,6 +2,8 @@
 
 
 <!-- badges: start -->
+[![R-CMD-check](https://github.com/CSAFE-ISU/handwriter/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/CSAFE-ISU/handwriter/actions/workflows/R-CMD-check.yaml)
+[![Codecov test coverage](https://codecov.io/gh/CSAFE-ISU/handwriter/graph/badge.svg)](https://app.codecov.io/gh/CSAFE-ISU/handwriter)
 <!-- badges: end -->
 
 Handwriter is designed to assist forensic examiners by analyzing
