@@ -1,6 +1,6 @@
 Package: handwriter
 Title: Handwriting Analysis in R
-Version: 3.2.3.9000
+Version: 3.2.4
 Authors@R: c(person("Iowa State University of Science and Technology on behalf of its Center for Statistics and Applications in Forensic Evidence", role = c("aut", "cph", "fnd")),
           person("Nick", "Berry", role = "aut"),
           person("Stephanie", "Reinders", role = c("aut", "cre"), email = "srein@iastate.edu"),
