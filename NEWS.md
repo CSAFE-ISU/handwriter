@@ -1,12 +1,16 @@
-# handwriter (development version)
+# handwriter 3.2.4
 
-# handwriter 3.2.2
+## Minor improvements and fixes
+
+* Fixed `get_writer_profiles()` and `plot_writer_profiles()` so that they are exported functions.
+
+# handwriter 3.2.3
 
 ## New features
 
 * Created `get_cluster_fill_rates()` to calculate the proportion of graphs assigned to each cluster in a cluster template.
 
-* Created `get_writer_profiles()` to estimate writer profiles for all handwritten documents in the input directory. Writer profiles are the cluster fill counts or the cluster fill rates. This function runs `process_batch_dir()` to split the handwritting int component shapes called graphs. Then, it runs `get_clusters_batch()` to assign each graph to a cluster in a cluster template. Lastly, it runs `get_cluster_fill_counts()` or `get_cluster_fill_rates()` depending on whether the user chooses counts or rates.
+* Created `get_writer_profiles()` to estimate writer profiles for all handwritten documents in the input directory. Writer profiles are the cluster fill counts or the cluster fill rates. This function runs `process_batch_dir()` to split the handwriting into component shapes called graphs. Then, it runs `get_clusters_batch()` to assign each graph to a cluster in a cluster template. Lastly, it runs `get_cluster_fill_counts()` or `get_cluster_fill_rates()` depending on whether the user chooses counts or rates.
 
 ## Minor improvements and fixes
 
