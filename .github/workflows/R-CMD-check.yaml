@@ -57,7 +57,7 @@ jobs:
           pak-version: devel
           extra-packages: |
             any::rcmdcheck
-            RcppZiggurat=?source&reinstall
+            RcppZiggurat
           needs: check
 
       - uses: r-lib/actions/check-r-package@v2
