@@ -1,3 +1,5 @@
+# handwriter (development version)
+
 # handwriter 3.2.4
 
 ## Minor improvements and fixes
