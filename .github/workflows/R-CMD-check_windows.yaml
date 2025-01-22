@@ -5,7 +5,7 @@ on:
     branches: [main, master]
   pull_request:
 
-name: R-CMD-check_windoes.yaml
+name: R-CMD-check_windows.yaml
 
 permissions: read-all
 
