@@ -2,7 +2,9 @@
 
 
 <!-- badges: start -->
+[![R-CMD-check](https://github.com/CSAFE-ISU/handwriter/actions/workflows/R-CMD-check-macos.yaml/badge.svg)](https://github.com/CSAFE-ISU/handwriter/actions/workflows/R-CMD-check-macos.yaml)
 [![R-CMD-check](https://github.com/CSAFE-ISU/handwriter/actions/workflows/R-CMD-check-windows.yaml/badge.svg)](https://github.com/CSAFE-ISU/handwriter/actions/workflows/R-CMD-check-windows.yaml)
+[![R-CMD-check](https://github.com/CSAFE-ISU/handwriter/actions/workflows/R-CMD-check-ubuntu.yaml/badge.svg)](https://github.com/CSAFE-ISU/handwriter/actions/workflows/R-CMD-check-ubuntu.yaml)
 [![Codecov test coverage](https://codecov.io/gh/CSAFE-ISU/handwriter/graph/badge.svg)](https://app.codecov.io/gh/CSAFE-ISU/handwriter)
 <!-- badges: end -->
 
