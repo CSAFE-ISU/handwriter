@@ -104,9 +104,16 @@ testthat::test_that("Plot credible intervals runs sucessfully", {
 
 testthat::test_that("Plot posterior probabilities runs successfully", {
   testthat::expect_no_error(plot_posterior_probabilities(analysis = example_analysis))
+  testthat::expect_no_error(
+    plot_posterior_probabilities(analysis = readRDS(testthat::test_path("fixtures", "template2", "data", "analysis.rds")))
+  )
 })
 
 testthat::test_that("Plot cluster centers runs successfully", {
   testthat::expect_no_error(plot_cluster_centers(example_cluster_template))
   testthat::expect_no_error(plot_cluster_centers(example_cluster_template, plot_graphs = TRUE))
+})
+
+testthat::test_that("Plot cluster centers returns a message if cluster graphs are unavailable", {
+  testthat::expect_message(plot_cluster_centers(templateK40, plot_graphs = TRUE), "The cluster template does not contain the training graphs. Only the cluster centers will be plotted.")
 })
