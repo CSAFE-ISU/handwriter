@@ -1,5 +1,5 @@
 # Single Chain ------------------------------------------------------------
-test_that("analyze questioned document works when writer IDs contain numbers and letters", {
+testthat::test_that("analyze questioned document works when writer IDs contain numbers and letters", {
   
   # delete tempdir() > main_dir
   empty_tempdir(subfolder = "main_dir")
@@ -15,11 +15,22 @@ test_that("analyze questioned document works when writer IDs contain numbers and
                                          writer_indices = c(1, 5),
                                          doc_indices = c(7, 18))
   
-  expect_identical(actual, example_analysis)
+  testthat::expect_identical(actual, example_analysis)
 })
 
-test_that("calculate accuracy works on a single chain", {
+testthat::test_that("calculate accuracy works on a single chain", {
   actual <- calculate_accuracy(example_analysis)
   
-  expect_equal(actual, 1)
+  testthat::expect_equal(actual, 1)
+})
+
+testthat::test_that("Get posterior probabilities works", {
+  actual <- get_posterior_probabilities(
+    analysis = example_analysis,
+    questioned_doc = "w0030_s03_pWOZ_r01"
+  )
+  
+  expected <- readRDS(testthat::test_path("fixtures", "analysis", "posterior_probabilities.rds"))
+  
+  testthat::expect_equal(actual, expected)
 })
