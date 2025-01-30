@@ -1,5 +1,44 @@
 # Single Chain ------------------------------------------------------------
 
+testthat::test_that("fit model works when writer IDs contain numbers and letters", {
+  
+  # delete tempdir() > main_dir
+  empty_tempdir(subfolder = "main_dir")
+  
+  # copy docs and graphs to tempdir > main_dir > data to save processing time on
+  # the next step
+  files2tempdir(type = "model")
+  
+  actual <- fit_model(main_dir = file.path(tempdir(), 'main_dir'),
+                      model_docs = file.path(tempdir(), 'main_dir', 'data', 'model_docs'),
+                      num_iters = 200,
+                      num_chains = 1,
+                      num_cores = 1,
+                      writer_indices = c(1, 5),
+                      doc_indices = c(7, 18))
+  
+  # because it uses MCMC the model will not be exactly the same each time so we
+  # cannot use expect_identical and compare the actual model to a fixture model
+  
+  # names
+  expect_named(actual, c("fitted_model",
+                         "rjags_data",
+                         "graph_measurements",
+                         "cluster_fill_counts"))
+  
+  # check that model is an mcmc object
+  expect_true(coda::is.mcmc(actual$fitted_model[[1]]))
+  
+  # check dimensions
+  K <- actual$rjags_data$G
+  W <- actual$rjags_data$W
+  expect_length(actual$fitted_model, 1)
+  expect_equal(dim(actual$fitted_model[[1]]), c(200, 2*K + 3*K*W))
+  
+  # check variable names
+  expect_equal(colnames(actual$fitted_model[[1]]), list_model_variables(num_writers = W, num_clusters = K))
+})
+
 test_that("drop burn-in works on a single chain", {
   iters = 200
   burnin = 25
