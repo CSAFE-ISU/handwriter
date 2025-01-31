@@ -145,7 +145,7 @@ get_clusters_batch <- function(template,
       # check that doc$docname is not blank
       if (!("docname" %in% names(doc))) {
         move_problem_file(path = proclist[i], output_dir = output_dir)
-        message(paste("docname is NULL for", path, "\n"))
+        message(paste("docname is NULL for", proclist[i], "\n"))
         next
       }
       

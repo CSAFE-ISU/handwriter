@@ -23,7 +23,6 @@ Imports:
     ggplot2,
     igraph,
     lpSolve,
-    magick,
     mc2d,
     png,
     purrr,
