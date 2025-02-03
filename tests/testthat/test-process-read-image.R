@@ -33,3 +33,27 @@ test_that("otsuBinarization works with custom breaks value", {
   expect_true(threshold_default >= 0 && threshold_default <= 255)
   expect_true(threshold_custom >= 0 && threshold_custom <= 255)
 })
+
+testthat::test_that("readPNGBinary works with defaults", {
+  actual <- readPNGBinary(testthat::test_path("fixtures", "processHandwriting", "samples", "sample1.png"))
+  expected <- readRDS(testthat::test_path("fixtures", "processHandwriting", "PNGBinary", "sample1.rds"))
+  testthat::expect_identical(actual, expected)
+})
+
+testthat::test_that("readPNGBinary works with inversion", {
+  actual <- readPNGBinary(path = testthat::test_path("fixtures", "processHandwriting", "samples", "sample1.png"), inversion = TRUE)
+  expected <- readRDS(testthat::test_path("fixtures", "processHandwriting", "PNGBinary", "sample1_inverted.rds"))
+  testthat::expect_identical(actual, expected)
+})
+
+testthat::test_that("readPNGBinary works with positive cutoff adjustment", {
+  actual <- readPNGBinary(path = testthat::test_path("fixtures", "processHandwriting", "samples", "sample1.png"), cutoffAdjust = 5)
+  expected <- readRDS(testthat::test_path("fixtures", "processHandwriting", "PNGBinary", "sample1_cutoff5.rds"))
+  testthat::expect_identical(actual, expected)
+})
+
+testthat::test_that("readPNGBinary works with negative cutoff adjustment", {
+  actual <- readPNGBinary(path = testthat::test_path("fixtures", "processHandwriting", "samples", "sample1.png"), cutoffAdjust = -1)
+  expected <- readRDS(testthat::test_path("fixtures", "processHandwriting", "PNGBinary", "sample1_cutoffneg1.rds"))
+  testthat::expect_identical(actual, expected)
+})

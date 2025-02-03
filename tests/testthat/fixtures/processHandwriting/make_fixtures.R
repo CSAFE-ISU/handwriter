@@ -45,3 +45,20 @@ profiles <- get_writer_profiles(
   template = example_cluster_template,
   measure = "counts"
 )
+
+# readPNGBinary -----------------------------------------------------------
+
+actual <- readPNGBinary(testthat::test_path("fixtures", "processHandwriting", "samples", "sample1.png"))
+saveRDS(actual, testthat::test_path("fixtures", "processHandwriting", "PNGBinary", "sample1.rds"))
+
+actual <- readPNGBinary(testthat::test_path("fixtures", "processHandwriting", "samples", "sample1.png"), 
+                        inversion = TRUE)
+saveRDS(actual, testthat::test_path("fixtures", "processHandwriting", "PNGBinary", "sample1_inverted.rds"))
+
+actual <- readPNGBinary(testthat::test_path("fixtures", "processHandwriting", "samples", "sample1.png"), 
+                        cutoffAdjust = 5)
+saveRDS(actual, testthat::test_path("fixtures", "processHandwriting", "PNGBinary", "sample1_cutoff5.rds"))
+
+actual <- readPNGBinary(testthat::test_path("fixtures", "processHandwriting", "samples", "sample1.png"), 
+                        cutoffAdjust = -1)
+saveRDS(actual, testthat::test_path("fixtures", "processHandwriting", "PNGBinary", "sample1_cutoffneg1.rds"))

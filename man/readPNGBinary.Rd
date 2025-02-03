@@ -32,7 +32,7 @@ This function reads in and binarizes a PNG image.
 \examples{
 image_path <- system.file("extdata", "phrase_example.png", package = "handwriter")
 csafe_document <- list()
-csafe_document$image = readPNGBinary(image_path)
+csafe_document$image <- readPNGBinary(image_path)
 plotImage(csafe_document)
 
 }
