@@ -24,3 +24,18 @@ actual <- analyze_questioned_documents(main_dir = main_dir,
                                        num_cores = 1,
                                        writer_indices = c(1, 5),
                                        doc_indices = c(7, 18))
+
+# Fixtures for format_template_data() ----
+
+# Template data with outliers
+template_data_w_outliers <- format_template_data(template = example_cluster_template)
+saveRDS(template_data_w_outliers, testthat::test_path("fixtures", "template", "template_data_w_outliers.rds"))
+
+# Template data without outliers
+no_outliers <- example_cluster_template
+not_outliers <- no_outliers$cluster != -1
+no_outliers$cluster <- no_outliers$cluster[not_outliers]
+no_outliers$writers <- no_outliers$writers[not_outliers]
+no_outliers$doc <- no_outliers$doc[not_outliers]
+template_data_wo_outliers <- format_template_data(template = no_outliers)
+saveRDS(template_data_wo_outliers, testthat::test_path("fixtures", "template", "template_data_wo_outliers.rds"))

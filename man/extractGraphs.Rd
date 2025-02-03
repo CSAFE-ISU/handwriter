@@ -24,8 +24,8 @@ Extracts graphs from .png images and saves each by their respective writer.
 }
 \examples{
 \dontrun{
-sof = "path to folder containing .png images"
-saf = "path to folder where graphs will be saved to"
+sof <- "path to folder containing .png images"
+saf <- "path to folder where graphs will be saved to"
 extractGraphs(sof, saf)
 }
 }

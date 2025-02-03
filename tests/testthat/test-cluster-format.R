@@ -1,4 +1,27 @@
+
+# format_template_data ----------------------------------------------------
+
+testthat::test_that("format template data works with outliers", {
+  actual <- format_template_data(example_cluster_template)
+  expected <- readRDS(testthat::test_path("fixtures", "template", "template_data_w_outliers.rds"))
+  testthat::expect_identical(actual, expected)
+})
+
+testthat::test_that("format template data works without outliers", {
+  
+  new_template <- example_cluster_template
+  not_outliers <- new_template$cluster != -1
+  new_template$cluster <- new_template$cluster[not_outliers]
+  new_template$writers <- new_template$writers[not_outliers]
+  new_template$doc <- new_template$doc[not_outliers]
+  
+  actual <- format_template_data(new_template)
+  expected <- readRDS(testthat::test_path("fixtures", "template", "template_data_wo_outliers.rds"))
+  testthat::expect_identical(actual, expected)
+})
+
 # format_model_data -------------------------------------------------------
+
 test_that("format model data works", {
   model_clusters <- readRDS(test_path("fixtures", "template", "data", "model_clusters.rds"))
   data <- format_model_data(model_clusters=model_clusters, 
