@@ -6,7 +6,7 @@ testthat::test_that("Get cluster fill counts works without writer or doc indices
   
   expected <- readRDS(testthat::test_path("fixtures", "processHandwriting", "counts_wo_indices.rds"))
   
-  expect_equal(actual, expected)
+  testthat::expect_equal(actual, expected)
   
 })
 
@@ -16,8 +16,7 @@ testthat::test_that("Get cluster fill counts works with writer and doc indices",
   
   expected <- readRDS(testthat::test_path("fixtures", "processHandwriting", "counts.rds"))
   
-  expect_equal(actual, expected)
-  
+  testthat::expect_equal(actual, expected)
 })
 
 # get_cluster_fill_rates -------------------------------------------------
@@ -28,7 +27,7 @@ testthat::test_that("Get cluster fill rates works without writer or doc indices"
   
   expected <- readRDS(testthat::test_path("fixtures", "processHandwriting", "rates_wo_indices.rds"))
   
-  expect_equal(actual, expected)
+  testthat::expect_equal(actual, expected)
 })
 
 testthat::test_that("Get cluster fill rates works with writer and doc indices", {
@@ -37,7 +36,7 @@ testthat::test_that("Get cluster fill rates works with writer and doc indices", 
   
   expected <- readRDS(testthat::test_path("fixtures", "processHandwriting", "rates.rds"))
   
-  expect_equal(actual, expected)
+  testthat::expect_equal(actual, expected)
 })
 
 
@@ -53,7 +52,7 @@ testthat::test_that("Get writer profiles works with counts without writer or doc
   
   expected <- readRDS(testthat::test_path("fixtures", "processHandwriting", "counts_wo_indices.rds"))
   
-  expect_equal(actual, expected)
+  testthat::expect_equal(actual, expected)
 })
 
 testthat::test_that("Get writer profiles works with counts with writer and doc indices", {
@@ -68,7 +67,7 @@ testthat::test_that("Get writer profiles works with counts with writer and doc i
   
   expected <- readRDS(testthat::test_path("fixtures", "processHandwriting", "counts.rds"))
   
-  expect_equal(actual, expected)
+  testthat::expect_equal(actual, expected)
 })
 
 testthat::test_that("Get writer profiles works with rates without writer or doc indices", {
@@ -81,7 +80,7 @@ testthat::test_that("Get writer profiles works with rates without writer or doc 
   
   expected <- readRDS(testthat::test_path("fixtures", "processHandwriting", "rates_wo_indices.rds"))
   
-  expect_equal(actual, expected)
+  testthat::expect_equal(actual, expected)
 })
 
 testthat::test_that("Get writer profiles works with rates with writer and doc indices", {
@@ -96,5 +95,5 @@ testthat::test_that("Get writer profiles works with rates with writer and doc in
   
   expected <- readRDS(testthat::test_path("fixtures", "processHandwriting", "rates.rds"))
   
-  expect_equal(actual, expected)
+  testthat::expect_equal(actual, expected)
 })
