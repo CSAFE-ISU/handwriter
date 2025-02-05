@@ -1,9 +1,30 @@
-test_that("Batch processing a directory works", {
-  expect_no_error(process_batch_dir(input_dir = testthat::test_path("fixtures", "processHandwriting", "samples"),
-                                    output_dir = tempdir(),
-                                    skip_docs_on_retry = TRUE))
+# process_batch_dir -------------------------------------------------------
+
+testthat::test_that("Batch processing a directory works", {
+  empty_tempdir("batch")
   
+  # Check that process_batch_dir() processes docs without error
+  testthat::expect_no_error(
+    process_batch_dir(
+      input_dir = testthat::test_path("fixtures", "example_cluster_template_1qd", "data", "template_docs"),
+      output_dir = file.path(tempdir(), "batch"),
+      skip_docs_on_retry = TRUE
+    )
+  )
+  
+  # Check that process_batch_dir() detects that docs were already processed
+  testthat::expect_message(
+    process_batch_dir(
+      input_dir = testthat::test_path("fixtures", "example_cluster_template_1qd", "data", "template_docs"),
+      output_dir = file.path(tempdir(), "batch"),
+      skip_docs_on_retry = TRUE
+    ),
+    "All documents have been processed or flagged as problem files."
+  )
 })
+
+
+# show_problem_docs -------------------------------------------------------
 
 test_that("Show problem docs gives correct message when log is empty", {
   withr::with_file("file1", {
