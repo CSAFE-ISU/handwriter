@@ -42,7 +42,7 @@ saveRDS(data, test_path("fixtures", "temp1qd", "data", "model_data.rds"))
 counts <- get_cluster_fill_counts(model_clusters)
 saveRDS(counts, testthat::test_path("fixtures", "temp1qd", "data", "model_counts.rds"))
 rates <- get_cluster_fill_rates(model_clusters)
-saveRDS(counts, testthat::test_path("fixtures", "temp1qd", "data", "model_rates.rds"))
+saveRDS(rates, testthat::test_path("fixtures", "temp1qd", "data", "model_rates.rds"))
 
 analysis <- analyze_questioned_documents(main_dir = main_dir,
                                          questioned_docs = file.path(main_dir, "data", "questioned_docs"),
