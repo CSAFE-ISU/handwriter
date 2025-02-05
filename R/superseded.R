@@ -48,12 +48,12 @@ extractGraphs <- function(source_folder = getwd(), save_folder = getwd()) {
   filenames <- as.list(list.files(source_folder, pattern = ".png", full.names = TRUE))
 
   foreach(i = 1:length(filenames)) %dopar% {
-    path <- paste0(source_folder, "/", filenames[[i]])
+    path <- file.path(source_folder, filenames[[i]])
     writer_id <- paste0(substr(basename(path), start = 0, stop = nchar(basename(path)) - 17))
 
     # setwd(save_folder)
     ifelse(!dir.exists(file.path(save_folder, writer_id)), dir.create(file.path(save_folder, writer_id)), FALSE)
-    graph_writer <- paste0(save_folder, writer_id, "/")
+    graph_writer <- file.path(save_folder, writer_id)
 
     getGraphs(filenames[[i]], save_folder = graph_writer)
   }

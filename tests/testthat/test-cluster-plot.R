@@ -122,7 +122,7 @@ testthat::test_that("Plot credible intervals runs sucessfully", {
 testthat::test_that("Plot posterior probabilities runs successfully", {
   testthat::expect_no_error(plot_posterior_probabilities(analysis = example_analysis))
   testthat::expect_no_error(
-    plot_posterior_probabilities(analysis = readRDS(testthat::test_path("fixtures", "template2", "data", "analysis.rds")))
+    plot_posterior_probabilities(analysis = readRDS(testthat::test_path("fixtures", "temp1qd", "data", "analysis.rds")))
   )
 })
 
