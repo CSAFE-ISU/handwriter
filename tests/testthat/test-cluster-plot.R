@@ -1,3 +1,5 @@
+# test plot_cluster_fill_count --------------------------------------------
+
 testthat::test_that("Plot cluster fill counts runs sucessfully", {
   # template data
   template_data <- format_template_data(example_cluster_template)
@@ -16,6 +18,9 @@ testthat::test_that("Plot cluster fill counts runs sucessfully", {
   )
   
 })
+
+
+# test plot_cluster_fill_rates --------------------------------------------
 
 testthat::test_that("Plot cluster fill rates runs sucessfully", {
   # template data
@@ -36,8 +41,11 @@ testthat::test_that("Plot cluster fill rates runs sucessfully", {
   
 })
 
+
+# test plot_writer_profiles -----------------------------------------------
+
 testthat::test_that("Plot writer profiles runs successfully with cluster fill counts", {
-  counts <- readRDS(testthat::test_path("fixtures", "processHandwriting", "counts.rds"))
+  counts <- readRDS(testthat::test_path("fixtures", "temp1qd", "data", "model_counts.rds"))
   
   # with default values
   testthat::expect_no_error(plot_writer_profiles(counts))
@@ -69,7 +77,7 @@ testthat::test_that("Plot writer profiles runs successfully with cluster fill co
 })
 
 testthat::test_that("Plot writer profiles runs successfully with cluster fill rates", {
-  rates <- readRDS(testthat::test_path("fixtures", "processHandwriting", "rates.rds"))
+  rates <- readRDS(testthat::test_path("fixtures", "temp1qd", "data", "model_rates.rds"))
   
   # with default values
   testthat::expect_no_error(plot_writer_profiles(rates))
@@ -92,15 +100,24 @@ testthat::test_that("Plot writer profiles runs successfully with cluster fill ra
   testthat::expect_no_error(plot_writer_profiles(rates, color_by = "docname", facets = "docname", ncol = 4))
 })
 
+
+# test plot_trace ---------------------------------------------------------
+
 testthat::test_that("Plot trace runs successfully", {
   testthat::expect_no_error(plot_trace(model = example_model, variable = "pi[1,1]"))
   testthat::expect_no_error(plot_trace(model = example_model, variable = "mu[2,3]"))
 })
 
+
+# test plot_credible_interval ---------------------------------------------
+
 testthat::test_that("Plot credible intervals runs sucessfully", {
   testthat::expect_no_error(plot_credible_intervals(model = example_model))
   testthat::expect_no_error(plot_credible_intervals(model = example_model, facet = TRUE))
 })
+
+
+# test plot_posterior_probabilities ---------------------------------------
 
 testthat::test_that("Plot posterior probabilities runs successfully", {
   testthat::expect_no_error(plot_posterior_probabilities(analysis = example_analysis))
@@ -108,6 +125,9 @@ testthat::test_that("Plot posterior probabilities runs successfully", {
     plot_posterior_probabilities(analysis = readRDS(testthat::test_path("fixtures", "template2", "data", "analysis.rds")))
   )
 })
+
+
+# test plot_cluster_centers -----------------------------------------------
 
 testthat::test_that("Plot cluster centers runs successfully", {
   testthat::expect_no_error(plot_cluster_centers(example_cluster_template))
