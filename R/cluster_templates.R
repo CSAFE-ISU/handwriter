@@ -389,11 +389,12 @@ do_setup <- function(main_dir) {
 #' that dirname(dir_path) must already exist.
 #'
 #' @param dir_path Path to a directory
+#' @param ... Additional arguments for `dir.create()` 
 #'
 #' @noRd
-make_dir <- function(dir_path) {
+make_dir <- function(dir_path, ...) {
   if (!dir.exists(dir_path)) {
-    dir.create(dir_path)
+    dir.create(dir_path, ...)
   }
 }
 
