@@ -1,9 +1,9 @@
 # templateK40 with 2 QD ---------------------------------------------------
 
 # Copied model_docs and questioned_docs from fixtures >
-# example_cluster_template_2qd
+# temp2qd
 
-main_dir <- testthat::test_path("fixtures", "templateK40_2qd")
+main_dir <- testthat::test_path("fixtures", "tempK402qd")
 
 # save templateK40 in folder
 saveRDS(templateK40, file.path(main_dir, "data", "template.rds"))

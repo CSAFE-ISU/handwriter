@@ -1,7 +1,6 @@
-
 # example_cluster_template and 1 QD ---------------------------------------
 
-main_dir <- testthat::test_path("fixtures", "example_cluster_template_1qd")
+main_dir <- testthat::test_path("fixtures", "temp1qd")
 
 # make template identical to example_cluster_template
 make_clustering_template(main_dir = main_dir,

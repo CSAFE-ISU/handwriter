@@ -2,9 +2,9 @@
 
 # copied model_clusters, model_clusters.rds, model_docs, model_graphs,
 # model.rds, template_docs, template_graphs, and template.rds from fixtures >
-# example_cluster_template_1qd
+# temp1qd
 
-main_dir <- testthat::test_path("fixtures", "example_cluster_template_2qd")
+main_dir <- testthat::test_path("fixtures", "temp2qd")
 
 analysis <- analyze_questioned_documents(main_dir = main_dir,
                                          questioned_docs = file.path(main_dir, "data", "questioned_docs"),

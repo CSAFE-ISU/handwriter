@@ -6,7 +6,7 @@ testthat::test_that("Batch processing a directory works", {
   # Check that process_batch_dir() processes docs without error
   testthat::expect_no_error(
     process_batch_dir(
-      input_dir = testthat::test_path("fixtures", "example_cluster_template_1qd", "data", "template_docs"),
+      input_dir = testthat::test_path("fixtures", "temp1qd", "data", "template_docs"),
       output_dir = file.path(tempdir(), "batch"),
       skip_docs_on_retry = TRUE
     )
@@ -15,7 +15,7 @@ testthat::test_that("Batch processing a directory works", {
   # Check that process_batch_dir() detects that docs were already processed
   testthat::expect_message(
     process_batch_dir(
-      input_dir = testthat::test_path("fixtures", "example_cluster_template_1qd", "data", "template_docs"),
+      input_dir = testthat::test_path("fixtures", "temp1qd", "data", "template_docs"),
       output_dir = file.path(tempdir(), "batch"),
       skip_docs_on_retry = TRUE
     ),
