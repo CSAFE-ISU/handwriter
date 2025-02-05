@@ -1,3 +1,5 @@
+# test distXY -------------------------------------------------------------
+
 test_that("Testing the distXY function", {
   # Test case 1: Same point, expect 0 distance
   xy1 <- c(0, 0)
@@ -25,6 +27,9 @@ test_that("Testing the distXY function", {
   expect_equal(distXY(xy1, xy2), 5)
 
 })
+
+
+# test dist_loc -----------------------------------------------------------
 
 # Calculates the distances between endpoints of one path with the endpoints of a
 # second path.
@@ -64,26 +69,8 @@ test_that("dist_loc function", {
   expect_setequal(actual, c(3.16,1))
 })
 
-# Test cases for dist_loc function using expect_near
-# test_that("dist_loc returns expected distances", {
-#   # Test data
-#   p1e1 <- c(0, 0)
-#   p1e2 <- c(1, 0)
-#   p2e1 <- c(0, 1)
-#   p2e2 <- c(1, 1)
-#   
-#   # Call dist_loc function
-#   result <- dist_loc(p1e1, p1e2, p2e1, p2e2)
-#   
-#   # Expected output
-#   expected_d_loc_plus <- min(distXY(p1e1, p2e1), distXY(p1e2, p2e2))
-#   expected_d_loc_minus <- min(distXY(p1e1, p2e2), distXY(p1e2, p2e1))
-#   
-#   # Test output with tolerance
-#   tolerance <- 1e-9
-#   expect_near(result[1], expected_d_loc_plus, tol = tolerance)
-#   expect_near(result[2], expected_d_loc_minus, tol = tolerance)
-# })
+
+# test dist_sld -----------------------------------------------------------
 
 test_that("dist_sld function", {
   # Test case 1: Same path, expect 0 difference
@@ -108,6 +95,9 @@ test_that("dist_sld function", {
   expect_equal(dist_sld(p1e1, p1e2, p2e1, p2e2), 0)
 })
 
+
+# test pointLineProportionVect --------------------------------------------
+
 test_that("pointLineProportionVect function", {
   # Test case 1: Zero proportion, expect (0, 0)
   endpt1 <- c(0, 0)
@@ -123,7 +113,6 @@ test_that("pointLineProportionVect function", {
   edgecutpt_n <- c(2, 2)
   expect_equal(pointLineProportionVect(endpt1, endpt2, edgecut_prop_n, edgecutpt_n), c(0, 0))
   
-  
   # Test case 3: Different path and line cut points, expect non-zero difference
   endpt1 <- c(0, 0)
   endpt2 <- c(6, 6)
@@ -133,6 +122,10 @@ test_that("pointLineProportionVect function", {
   expect_true(result[1] != 0 || result[2] != 0)
   
 })
+
+
+# test solveLP ------------------------------------------------------------
+
 #find the optimal pairings of paths between two graphs.
 test_that("solveLP function", {
   # Test case 1: 2x2 dists matrix with a clear optimal solution
@@ -150,40 +143,8 @@ test_that("solveLP function", {
   expect_equal(result$matching, c(3, 2, 1))
 })
 
-# create_dummy_image_list, creates a list of dummy data, 
-# which is often useful for testing purposes. The function takes two arguments: is_proto, 
-# which is a boolean indicating whether the output should be in "proto" format or not, 
-# and num_paths, which is the number of paths to be created.
 
-create_dummy_image_list <- function(is_proto = TRUE, num_paths = 1) {
-  numPathCuts <- 5
-  path_ends <- matrix(1:(4 * num_paths), nrow = num_paths, byrow = TRUE)
-  path_quarters <- matrix(1:(2 * (numPathCuts - 1) * num_paths), nrow = num_paths, byrow = TRUE)
-  path_center <- matrix(1:(2 * num_paths), nrow = num_paths, byrow = TRUE)
-  lengths <- 1:num_paths
-  
-  if (is_proto) {
-    image_list <- list(
-      pathEnds = path_ends,
-      pathQuarters = path_quarters,
-      pathCenter = path_center,
-      lengths = lengths
-    )
-  } else {
-    pathends0 = array(path_ends, dim = c(2, 2, num_paths))
-    image_list <- list(
-      allPaths = lapply(1:num_paths, function(x) 1:x),
-      pathEndsrc = lapply(1:num_paths, function(x) pathends0[,,x]),
-      pathQuarters = path_quarters,
-      pathCenter = path_center,
-      lengths = lengths,
-      centroid = c(5, 5),
-      image = matrix(0, nrow = 10, ncol = 10)
-    )
-  }
-  
-  return(image_list)
-}
+# test getGraphInfo -------------------------------------------------------
 
 # Test 1: getGraphInfo with two prototype image lists
 test_that("getGraphInfo returns the correct output with two prototype image lists", {
@@ -223,96 +184,3 @@ test_that("getGraphInfo returns the correct output with one prototype and one no
   expect_equal(graph_info2$numPaths1, 2)
   expect_equal(graph_info2$numPaths2, 3)
 })
-
-##########################
-#getAllPairsDistances
-##########################
-# Test: getAllPairsDistances updates weights and pathEndPointsMatch in graphInfo correctly
-# test_that("getAllPairsDistances updates weights and pathEndPointsMatch in graphInfo correctly", {
-#   numPathCuts <- 5
-#   graphInfo <- list(
-#     pathCheckNum = 4,
-#     numPaths1 = 2,
-#     numPaths2 = 2,
-#     weights = matrix(0, nrow = 4, ncol = 4),
-#     len1 = c(1, 2),
-#     len2 = c(3, 4),
-#     pe1 = array(1:8, dim = c(2, 2, 2)),
-#     pe2 = array(1:8, dim = c(2, 2, 2)),
-#     pathEndPointsMatch = logical(16),
-#     letterSize = c(10, 10)
-#   )
-#   
-#   graphInfo <- getAllPairsDistances(graphInfo, numPathCuts)
-#   
-#   expect_true(all(graphInfo$weights >= 0))
-#   expect_true(any(graphInfo$pathEndPointsMatch))
-# })
-# 
-# # Test: getAllPairsDistances handles a case with all ghost edges in graph 1
-# test_that("getAllPairsDistances handles a case with all ghost edges in graph 1", {
-#   numPathCuts <- 5
-#   graphInfo <- list(
-#     pathCheckNum = 4,
-#     numPaths1 = 0,
-#     numPaths2 = 4,
-#     weights = matrix(0, nrow = 4, ncol = 4),
-#     len1 = rep(0, 4),
-#     len2 = c(3, 4, 5, 6),
-#     pe1 = array(1:16, dim = c(2, 4, 2)),
-#     pe2 = array(1:16, dim = c(2, 4, 2)),
-#     
-#     pathEndPointsMatch = logical(16),
-#     letterSize = c(10, 10)
-#   )
-#   
-#   graphInfo <- getAllPairsDistances(graphInfo, numPathCuts)
-#   
-#   expect_true(all(graphInfo$weights >= 0))
-#   expect_true(any(graphInfo$pathEndPointsMatch))
-# })
-# 
-# # Test: getAllPairsDistances handles a case with all ghost edges in graph 2
-# test_that("getAllPairsDistances handles a case with all ghost edges in graph 2", {
-#   numPathCuts <- 5
-#   graphInfo <- list(
-#     pathCheckNum = 4,
-#     numPaths1 = 4,
-#     numPaths2 = 0,
-#     weights = matrix(0, nrow = 4, ncol = 4),
-#     len1 = c(1, 2, 3, 4),
-#     len2 = rep(0, 4),
-#     pe1 = array(1:16, dim = c(2, 4, 2)),
-#     pe2 = array(1:16, dim = c(2, 4, 2)),
-#     
-#     pathEndPointsMatch = logical(16),
-#     letterSize = c(10, 10)
-#   )
-#   
-#   graphInfo <- getAllPairsDistances(graphInfo, numPathCuts)
-#   
-#   expect_true(all(graphInfo$weights >= 0))
-#   expect_true(any(graphInfo$pathEndPointsMatch))
-# })
-# # Test: getAllPairsDistances handles a case with no ghost edges
-# test_that("getAllPairsDistances handles a case with no ghost edges", {
-#   numPathCuts <- 5
-#   graphInfo <- list(
-#     pathCheckNum = 4,
-#     numPaths1 = 4,
-#     numPaths2 = 4,
-#     weights = matrix(0, nrow = 4, ncol = 4),
-#     len1 = c(1, 2, 3, 4),
-#     len2 = c(3, 4, 5, 6),
-#     pe1 = array(1:16, dim = c(2, 4, 2)),
-#     pe2 = array(1:16, dim = c(2, 4, 2)),
-#     
-#     pathEndPointsMatch = logical(16),
-#     letterSize = c(10, 10)
-#   )
-#   
-#   graphInfo <- getAllPairsDistances(graphInfo, numPathCuts)
-#   
-#   expect_true(all(graphInfo$weights >= 0))
-#   expect_true(any(graphInfo$pathEndPointsMatch))
-# })
