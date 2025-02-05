@@ -1,3 +1,5 @@
+# test otsuBinarization ---------------------------------------------------
+
 # Test case 1: Test with a uniform image (all pixels have the same intensity)
 test_that("otsuBinarization works with uniform image", {
   img <- matrix(50, nrow = 10, ncol = 10)
@@ -34,26 +36,29 @@ test_that("otsuBinarization works with custom breaks value", {
   expect_true(threshold_custom >= 0 && threshold_custom <= 255)
 })
 
+
+# test readPNGBinary ------------------------------------------------------
+
 testthat::test_that("readPNGBinary works with defaults", {
-  actual <- readPNGBinary(testthat::test_path("fixtures", "processHandwriting", "samples", "sample1.png"))
-  expected <- readRDS(testthat::test_path("fixtures", "processHandwriting", "PNGBinary", "sample1.rds"))
+  actual <- readPNGBinary(testthat::test_path("fixtures", "temp1qd", "data", "template_docs", "w0016_s01_pLND_r01.png"))
+  expected <- readRDS(testthat::test_path("fixtures", "temp1qd", "data", "read_png_binary.rds"))
   testthat::expect_identical(actual, expected)
 })
 
-testthat::test_that("readPNGBinary works with inversion", {
-  actual <- readPNGBinary(path = testthat::test_path("fixtures", "processHandwriting", "samples", "sample1.png"), inversion = TRUE)
-  expected <- readRDS(testthat::test_path("fixtures", "processHandwriting", "PNGBinary", "sample1_inverted.rds"))
+testthat::test_that("readPNGBinary works with defaults", {
+  actual <- readPNGBinary(testthat::test_path("fixtures", "temp1qd", "data", "template_docs", "w0016_s01_pLND_r01.png"), inversion = TRUE)
+  expected <- readRDS(testthat::test_path("fixtures", "temp1qd", "data", "read_png_binary_invert.rds"))
   testthat::expect_identical(actual, expected)
 })
 
 testthat::test_that("readPNGBinary works with positive cutoff adjustment", {
-  actual <- readPNGBinary(path = testthat::test_path("fixtures", "processHandwriting", "samples", "sample1.png"), cutoffAdjust = 5)
-  expected <- readRDS(testthat::test_path("fixtures", "processHandwriting", "PNGBinary", "sample1_cutoff5.rds"))
+  actual <- readPNGBinary(testthat::test_path("fixtures", "temp1qd", "data", "template_docs", "w0016_s01_pLND_r01.png"), cutoffAdjust = 5)
+  expected <- readRDS(testthat::test_path("fixtures", "temp1qd", "data", "read_png_binary_cut5.rds"))
   testthat::expect_identical(actual, expected)
 })
 
 testthat::test_that("readPNGBinary works with negative cutoff adjustment", {
-  actual <- readPNGBinary(path = testthat::test_path("fixtures", "processHandwriting", "samples", "sample1.png"), cutoffAdjust = -1)
-  expected <- readRDS(testthat::test_path("fixtures", "processHandwriting", "PNGBinary", "sample1_cutoffneg1.rds"))
+  actual <- readPNGBinary(testthat::test_path("fixtures", "temp1qd", "data", "template_docs", "w0016_s01_pLND_r01.png"), cutoffAdjust = -0.5)
+  expected <- readRDS(testthat::test_path("fixtures", "temp1qd", "data", "read_png_binary_cut-0.5.rds"))
   testthat::expect_identical(actual, expected)
 })

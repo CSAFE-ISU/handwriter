@@ -2,6 +2,25 @@
 
 main_dir <- testthat::test_path("fixtures", "temp1qd")
 
+# make fixture for readPNGBinary
+actual <- readPNGBinary(file.path(main_dir, "data", "template_docs", "w0016_s01_pLND_r01.png"))
+saveRDS(actual, file.path(main_dir, "data", "read_png_binary.rds"))
+
+# make fixture for readPNGBinary with inversion
+actual <- readPNGBinary(file.path(main_dir, "data", "template_docs", "w0016_s01_pLND_r01.png"),
+                        inversion = TRUE)
+saveRDS(actual, file.path(main_dir, "data", "read_png_binary_invert.rds"))
+
+# make fixture for readPNGBinary with cutoff = 5
+actual <- readPNGBinary(file.path(main_dir, "data", "template_docs", "w0016_s01_pLND_r01.png"),
+                        cutoffAdjust = 5)
+saveRDS(actual, file.path(main_dir, "data", "read_png_binary_cut5.rds"))
+
+# make fixture for readPNGBinary with cutoff = -0.5
+actual <- readPNGBinary(file.path(main_dir, "data", "template_docs", "w0016_s01_pLND_r01.png"),
+                        cutoffAdjust = -0.5)
+saveRDS(actual, file.path(main_dir, "data", "read_png_binary_cut-0.5.rds"))
+
 # make template identical to example_cluster_template
 make_clustering_template(main_dir = main_dir,
                          template_docs = file.path(main_dir, 'data', 'template_docs'),
