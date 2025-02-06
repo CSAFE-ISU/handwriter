@@ -1,69 +1,59 @@
-test_that("processDocument works on sample1.png", {
+# test processDocument ----------------------------------------------------
+
+test_that("processDocument works on w0016_s01_pLND_r01.png", {
   # use the same fixtures as "processHandwriting works on sample1.png"
-  actual <- processDocument(testthat::test_path("fixtures", "processHandwriting", "samples", "sample1.png"))
-  expected <- readRDS(testthat::test_path("fixtures", "processHandwriting", "graphs", "sample1_proclist.rds"))
+  actual <- processDocument(testthat::test_path("fixtures", "temp1qd", "data", "template_docs", "w0016_s01_pLND_r01.png"))
+  expected <- readRDS(testthat::test_path("fixtures", "temp1qd", "data", "template_graphs", "w0016_s01_pLND_r01_proclist.rds"))
   expect_equal(actual, expected, tolerance = 1e-08)
 })
 
-test_that("processDocument works on sample2.png", {
-  # use the same fixtures as "processHandwriting works on sample2.png"
-  actual <- processDocument(testthat::test_path("fixtures", "processHandwriting", "samples", "sample2.png"))
-  expected <- readRDS(testthat::test_path("fixtures", "processHandwriting", "graphs", "sample2_proclist.rds"))
+test_that("processDocument works on w0080_s01_pLND_r01.png", {
+  actual <- processDocument(testthat::test_path("fixtures", "temp1qd", "data", "template_docs", "w0080_s01_pLND_r01.png"))
+  expected <- readRDS(testthat::test_path("fixtures", "temp1qd", "data", "template_graphs", "w0080_s01_pLND_r01_proclist.rds"))
   expect_equal(actual, expected, tolerance = 1e-08)
 })
 
-test_that("processDocument works on sample3.png", {
-  # use the same fixtures as "processHandwriting works on sample3.png"
-  actual <- processDocument(testthat::test_path("fixtures", "processHandwriting", "samples", "sample3.png"))
-  expected <- readRDS(testthat::test_path("fixtures", "processHandwriting", "graphs", "sample3_proclist.rds"))
+test_that("processDocument works on w0124_s01_pLND_r01.png", {
+  actual <- processDocument(testthat::test_path("fixtures", "temp1qd", "data", "template_docs", "w0124_s01_pLND_r01.png"))
+  expected <- readRDS(testthat::test_path("fixtures", "temp1qd", "data", "template_graphs", "w0124_s01_pLND_r01_proclist.rds"))
   expect_equal(actual, expected, tolerance = 1e-08)
 })
 
-test_that("processHandwriting works on sample1.png", {
+
+# test processHandwriting -------------------------------------------------
+
+test_that("processHandwriting works on w0016_s01_pLND_r01.png", {
   actual <- list()
-  actual$image <- readPNGBinary(testthat::test_path("fixtures", "processHandwriting", "samples", "sample1.png"))
+  actual$image <- readPNGBinary(testthat::test_path("fixtures", "temp1qd", "data", "template_docs", "w0016_s01_pLND_r01.png"))
   actual$thin <- thinImage(actual$image)
   actual$process <- processHandwriting(actual$thin, dim(actual$image))
-  actual$docname <- 'sample1'
+  actual$docname <- 'w0016_s01_pLND_r01'
   
-  expected <- readRDS(testthat::test_path("fixtures", "processHandwriting", "graphs", "sample1_proclist.rds"))
+  expected <- readRDS(testthat::test_path("fixtures", "temp1qd", "data", "template_graphs", "w0016_s01_pLND_r01_proclist.rds"))
   
   expect_equal(actual, expected, tolerance = 1e-08)
 })
 
-test_that("processHandwriting works on sample2.png", {
+test_that("processHandwriting works on w0080_s01_pLND_r01.png", {
   actual <- list()
-  actual$image <- readPNGBinary(testthat::test_path("fixtures", "processHandwriting", "samples", "sample2.png"))
+  actual$image <- readPNGBinary(testthat::test_path("fixtures", "temp1qd", "data", "template_docs", "w0080_s01_pLND_r01.png"))
   actual$thin <- thinImage(actual$image)
   actual$process <- processHandwriting(actual$thin, dim(actual$image))
-  actual$docname <- 'sample2'
+  actual$docname <- 'w0080_s01_pLND_r01'
   
-  expected <- readRDS(testthat::test_path("fixtures", "processHandwriting", "graphs", "sample2_proclist.rds"))
+  expected <- readRDS(testthat::test_path("fixtures", "temp1qd", "data", "template_graphs", "w0080_s01_pLND_r01_proclist.rds"))
   
   expect_equal(actual, expected, tolerance = 1e-08)
 })
 
-test_that("processHandwriting works on sample3.png", {
+test_that("processHandwriting works on w0124_s01_pLND_r01.png", {
   actual <- list()
-  actual$image <- readPNGBinary(testthat::test_path("fixtures", "processHandwriting", "samples", "sample3.png"))
+  actual$image <- readPNGBinary(testthat::test_path("fixtures", "temp1qd", "data", "template_docs", "w0124_s01_pLND_r01.png"))
   actual$thin <- thinImage(actual$image)
   actual$process <- processHandwriting(actual$thin, dim(actual$image))
-  actual$docname <- 'sample3'
+  actual$docname <- 'w0124_s01_pLND_r01'
   
-  expected <- readRDS(testthat::test_path("fixtures", "processHandwriting", "graphs", "sample3_proclist.rds"))
-  
-  expect_equal(actual, expected, tolerance = 1e-08)
-})
-
-test_that("processHandwriting works on sample4.png", {
-  actual <- list()
-  actual$image <- readPNGBinary(testthat::test_path("fixtures", "processHandwriting", "samples", "sample4.png"))
-  actual$thin <- thinImage(actual$image)
-  actual$process <- processHandwriting(actual$thin, dim(actual$image))
-  actual$docname <- 'sample4'
-  
-  expected <- readRDS(testthat::test_path("fixtures", "processHandwriting", "graphs", "sample4_proclist.rds"))
+  expected <- readRDS(testthat::test_path("fixtures", "temp1qd", "data", "template_graphs", "w0124_s01_pLND_r01_proclist.rds"))
   
   expect_equal(actual, expected, tolerance = 1e-08)
 })
-

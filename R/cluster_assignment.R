@@ -145,7 +145,7 @@ get_clusters_batch <- function(template,
       # check that doc$docname is not blank
       if (!("docname" %in% names(doc))) {
         move_problem_file(path = proclist[i], output_dir = output_dir)
-        message(paste("docname is NULL for", path, "\n"))
+        message(paste("docname is NULL for", proclist[i], "\n"))
         next
       }
       
@@ -563,76 +563,4 @@ get_clusterassignment <- function(main_dir, input_type, writer_indices, doc_indi
   }
 
   return(proclist)
-}
-
-
-GetImageMatrix <- function(letterList, maxImageSize = 50) {
-  imagesList <- list()
-  imagesList <- c(imagesList, lapply(letterList, function(x) {
-    centeredImage(x)
-  }))
-
-  # letterList = unlist(letListFull,recursive=FALSE)
-
-  for (i in 1:length(imagesList)) {
-    l <- imagesList[[i]]$centroid[1]
-    r <- dim(imagesList[[i]]$image)[2] - imagesList[[i]]$centroid[1] + 1
-    t <- dim(imagesList[[i]]$image)[1] - imagesList[[i]]$centroid[2] + 1
-    b <- imagesList[[i]]$centroid[2]
-    if (l > r) {
-      imagesList[[i]]$image <- cbind(imagesList[[i]]$image, matrix(1, ncol = l - r, nrow = dim(imagesList[[i]]$image)[1]))
-    } else if (l < r) {
-      imagesList[[i]]$image <- cbind(matrix(1, ncol = r - l, nrow = dim(imagesList[[i]]$image)[1]), imagesList[[i]]$image)
-    }
-    if (t > b) {
-      imagesList[[i]]$image <- rbind(imagesList[[i]]$image, matrix(1, nrow = t - b, ncol = dim(imagesList[[i]]$image)[2]))
-    } else if (t < b) {
-      imagesList[[i]]$image <- rbind(matrix(1, nrow = b - t, ncol = dim(imagesList[[i]]$image)[2]), imagesList[[i]]$image)
-    }
-  }
-
-  for (i in 1:length(imagesList)) {
-    if (any(dim(imagesList[[i]]$image) > maxImageSize)) {
-      imagesList[[i]]$image <- imagesList[[i]]$image %>%
-        as.raster() %>%
-        magick::image_read() %>%
-        magick::image_resize(paste0(maxImageSize, "x", maxImageSize)) %>%
-        magick::image_quantize(max = 2, dither = FALSE, colorspace = "gray") %>%
-        `[[`(1) %>%
-        as.numeric() %>%
-        `[`(, , 1)
-      imagesList[[i]]$image <- rbind(1, cbind(1, imagesList[[i]]$image, 1), 1)
-      thinned <- thinImage(imagesList[[i]]$image)
-      imagesList[[i]]$image[] <- 1
-      imagesList[[i]]$image[thinned] <- 0
-
-      imagesList[[i]]$image <- imagesList[[i]]$image[-c(1, dim(imagesList[[i]]$image)[1]), -c(1, dim(imagesList[[i]]$image)[2])]
-      # print(plotImage(imagesList[[i]]$image) + theme_bw())
-      cat(i, " ")
-    }
-  }
-
-  for (i in 1:length(imagesList)) {
-    dims <- dim(imagesList[[i]]$image)
-    lrPad <- maxImageSize + 2 - dims[2]
-    tbPad <- maxImageSize + 2 - dims[1]
-    l <- floor(lrPad / 2)
-    r <- ceiling(lrPad / 2)
-    b <- ceiling(tbPad / 2)
-    t <- floor(tbPad / 2)
-
-    imagesList[[i]]$image <- rbind(matrix(1, nrow = t, ncol = dims[2]), imagesList[[i]]$image, matrix(1, nrow = b, ncol = dims[2]))
-    imagesList[[i]]$image <- cbind(matrix(1, ncol = l, nrow = dim(imagesList[[i]]$image)[1]), imagesList[[i]]$image, matrix(1, ncol = r, nrow = dim(imagesList[[i]]$image)[1]))
-
-    imagesList[[i]]$image <- imagesList[[i]]$image[, -c(1, maxImageSize + 2)]
-    imagesList[[i]]$image <- imagesList[[i]]$image[-c(1, maxImageSize + 2), ]
-  }
-  # apply(matrix(unlist(lapply(imagesList, function(x){dim(x$image)})), ncol = 2, byrow = TRUE), 2, function(x){all(x == maxImageSize)})
-
-
-  images <- array(NA, c(maxImageSize, maxImageSize, length(imagesList)))
-  for (i in 1:length(imagesList)) {
-    images[, , i] <- imagesList[[i]]$image
-  }
-  return(images)
 }

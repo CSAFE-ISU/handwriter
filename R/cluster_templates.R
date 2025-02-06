@@ -389,11 +389,12 @@ do_setup <- function(main_dir) {
 #' that dirname(dir_path) must already exist.
 #'
 #' @param dir_path Path to a directory
+#' @param ... Additional arguments for `dir.create()` 
 #'
 #' @noRd
-make_dir <- function(dir_path) {
+make_dir <- function(dir_path, ...) {
   if (!dir.exists(dir_path)) {
-    dir.create(dir_path)
+    dir.create(dir_path, ...)
   }
 }
 
@@ -730,52 +731,6 @@ meanGraphSet_slowchange <- function(template_images_list, num_path_cuts, num_dis
   return(graphToPrototype(template_images_list[[retindex]], numPathCuts = num_path_cuts))
 }
 
-
-#' Overall Mean Graph
-#'
-#' `overall_meanGraph()` calculates the overall mean graph of the cluster
-#' centers and returns the cluster center that is closest to the overall mean
-#' graph. Calculating the true overall mean graph from every graph used to
-#' create the clustering template is too computationally expensive, so we use
-#' this as an estimation of the true overall mean.
-#'
-#' @param centers List of cluster centers
-#' @param num_path_cuts Integer number of sections to cut each graph into for
-#'   shape comparison
-#' @return The cluster center closest to the overall mean graph
-#'
-#' @noRd
-overall_meanGraph <- function(centers, num_path_cuts) {
-  indices <- 1:length(centers) # adds graphs in order
-  if (length(centers) < 1) stop("Please specify more than 0 graphs to mean.")
-  
-  # initialize
-  dists <- rep(0, length(centers))
-  meanGraph1 <- centers[[1]]
-  
-  # add centers one-by-one to the mean graph calculation
-  if (length(centers) > 1) {
-    for (i in 2:length(centers)) {
-      meanGraph1 <- weightedMeanGraphs(centers[[indices[i]]], meanGraph1, 1 / i, isProto1 = TRUE, isProto2 = TRUE, numPathCuts = num_path_cuts)
-    }
-  }
-  
-  # calculate the distance between the new mean graph and each center
-  for (i in 1:length(centers))
-  {
-    dists[i] <- getGraphDistance(meanGraph1, centers[[i]], isProto1 = TRUE, isProto2 = TRUE, numPathCuts = num_path_cuts)$matching_weight
-  }
-  
-  # find the index of the graph that is closest to the mean graph
-  if (dists[1] >= stats::quantile(dists, 0)) {
-    retindex <- which.min(dists)
-  } else {
-    retindex <- 1
-  }
-  
-  return(list("overall_center_dists" = dists, overall_center = centers[[retindex]]))
-}
-
 #' Within Cluster Sum of Squares
 #'
 #' `within_cluster_sum_of_squares()` calculates the the within-cluster sum of squares for the
@@ -795,33 +750,6 @@ within_cluster_sum_of_squares <- function(wcd, cluster) {
   wcss <- sum(wcd^2)
   
   return(wcss)
-}
-
-#' Root Mean Square Error
-#'
-#' `root_mean_square_error()` calculates the the root mean square error for the
-#' current iteration of the K-means algorithm
-#'
-#' @param wcd Matrix of within-cluster distances: the distances between each
-#'   graph and each cluster center
-#' @param cluster Vector of the cluster assignment for each graph
-#' @return The root mean square error
-#'
-#' @noRd
-root_mean_square_error <- function(wcd, cluster) {
-  # Get within cluster distances of non-outlier clusters
-  wcd <- wcd[cluster != -1]
-  
-  # Get number of non-outlier graphs
-  n <- length(wcd)
-  
-  # Calculate within-cluster sum of squares
-  wcss <- sum(wcd^2)
-  
-  # Calculate the root means square error
-  rmse <- sqrt(wcss / n)
-  
-  return(rmse)
 }
 
 #' loop_extract
