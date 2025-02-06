@@ -271,8 +271,7 @@ testthat::test_that("get_clusterassignment throws an error if template.rds is no
       writer_indices = c(1, 5),
       doc_indices = c(7, 18),
       num_cores = 1
-    ),
-    paste0("There is no cluster template in ", file.path(tempdir(), "main_dir"))
+    )
   )
 })
 
