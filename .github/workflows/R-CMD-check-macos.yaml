@@ -29,10 +29,6 @@ jobs:
       - uses: actions/checkout@v4
 
       - uses: r-lib/actions/setup-pandoc@v2
-      
-      - name: Install jags (macOS-latest)
-        if: runner.os == 'macOS'
-        run : brew install jags
 
       - uses: r-lib/actions/setup-r@v2
         with:
