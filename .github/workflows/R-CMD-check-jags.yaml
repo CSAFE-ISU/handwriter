@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [main, bmhta]
 
-name: R-CMD-check
+name: R-CMD-check-jags.yaml
 
 jobs:
   R-CMD-check:
