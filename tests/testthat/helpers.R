@@ -4,9 +4,13 @@ empty_tempdir <- function(subfolder) {
 }
 
 # Copy png and rds files from one folder to another
-copy_files <- function(output_dir, input_dir) {
+copy_files <- function(output_dir, input_dir, extensions = ".png|.rds") {
   create_dir(output_dir, recursive = TRUE)
-  files <- list.files(input_dir, pattern = ".png|.rds")
+  if (is.null(extensions)) {
+    files <- list.files(input_dir)
+  } else {
+    files <- list.files(input_dir, pattern = extensions)
+  }
   file.copy(file.path(input_dir, files), file.path(output_dir, files))
 }
 

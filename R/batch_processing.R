@@ -72,6 +72,7 @@ process_batch_list <- function(images, output_dir, skip_docs_on_retry=TRUE) {
   # skip problem docs (optional)
   if (skip_docs_on_retry){
     images <- remove_prob_docs_from_list(problem_docs, images)
+    outfiles <- remove_prob_docs_from_list(problem_docs, outfiles)
     # exit if all images have been processed
     if (length(images) == 0) {
       message('All documents have been processed or flagged as problem documents.')
@@ -194,9 +195,14 @@ get_prob_docs_from_log <- function(log_file){
   return(problem_docs)
 }
 
-remove_prob_docs_from_list <- function(problem_docs, images){
-  images <- images[!(basename(images) %in% problem_docs)]
-  return(images)
+remove_prob_docs_from_list <- function(problem_docs, vec){
+  # get doc filenames for graph files
+  docs <- stringr::str_replace(vec, "_proclist.rds", ".png")
+  
+  # drop problem docs
+  vec <- vec[!(basename(docs) %in% problem_docs)]
+  
+  return(vec)
 }
 
 show_problem_docs <- function(prob_log_file) {
