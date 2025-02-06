@@ -1,6 +1,6 @@
-# example_cluster_template and 1 QD ---------------------------------------
-
 main_dir <- testthat::test_path("fixtures", "temp1qd")
+
+# readPNGBinary -----------------------------------------------------------
 
 # make fixture for readPNGBinary
 actual <- readPNGBinary(file.path(main_dir, "data", "template_docs", "w0016_s01_pLND_r01.png"))
@@ -21,6 +21,9 @@ actual <- readPNGBinary(file.path(main_dir, "data", "template_docs", "w0016_s01_
                         cutoffAdjust = -0.5)
 saveRDS(actual, file.path(main_dir, "data", "read_png_binary_cut-0.5.rds"))
 
+
+# template ----------------------------------------------------------------
+
 # make template identical to example_cluster_template
 make_clustering_template(main_dir = main_dir,
                          template_docs = file.path(main_dir, 'data', 'template_docs'),
@@ -38,6 +41,9 @@ saveRDS(data, file.path(main_dir, "data", "template_data_w_outliers.rds"))
 data <- format_template_data(example_cluster_template)
 data$cluster_fill_counts <- data$cluster_fill_counts %>% dplyr::select(-tidyselect::all_of(c("-1")))
 saveRDS(data, file.path(main_dir, "data", "template_data_wo_outliers.rds"))
+
+
+# model -------------------------------------------------------------------
 
 # make model with same settings as example_model. Even if we set the seed the
 # models will not be identical.
@@ -63,6 +69,9 @@ saveRDS(counts, testthat::test_path("fixtures", "temp1qd", "data", "model_counts
 rates <- get_cluster_fill_rates(model_clusters)
 saveRDS(rates, testthat::test_path("fixtures", "temp1qd", "data", "model_rates.rds"))
 
+
+# questioned documents ----------------------------------------------------
+
 analysis <- analyze_questioned_documents(main_dir = main_dir,
                                          questioned_docs = file.path(main_dir, "data", "questioned_docs"),
                                          model = model,
@@ -78,3 +87,9 @@ data <- format_questioned_data(model=model,
                                writer_indices=c(1,5), 
                                doc_indices=c(7,18))
 saveRDS(data, testthat::test_path("fixtures", "temp1qd", "data", "questioned_data.rds"))
+
+# make questioned cluster fill rates
+counts <- get_cluster_fill_counts(questioned_clusters)
+saveRDS(counts, testthat::test_path("fixtures", "temp1qd", "data", "questioned_counts.rds"))
+rates <- get_cluster_fill_rates(questioned_clusters)
+saveRDS(rates, testthat::test_path("fixtures", "temp1qd", "data", "questioned_rates.rds"))

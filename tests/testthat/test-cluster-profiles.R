@@ -24,6 +24,14 @@ testthat::test_that("Get cluster fill counts works without writer and doc column
   testthat::expect_equal(actual, expected)
 })
 
+testthat::test_that("Get cluster fill counts works with only one document", {
+  clusters <- readRDS(testthat::test_path("fixtures", "temp1qd", "data", "questioned_clusters.rds"))
+  actual <- get_cluster_fill_counts(clusters)
+  
+  expected <- readRDS(testthat::test_path("fixtures", "temp1qd", "data", "questioned_counts.rds"))
+  testthat::expect_equal(actual, expected)
+})
+
 # get_cluster_fill_rates -------------------------------------------------
 
 testthat::test_that("Get cluster fill rates works with writer and doc columns", {
@@ -46,6 +54,14 @@ testthat::test_that("Get cluster fill rates works without writer and doc columns
   expected <- expected %>% 
     dplyr::ungroup() %>%
     dplyr::select(-tidyselect::all_of(c("writer", "doc")))
+  testthat::expect_equal(actual, expected)
+})
+
+testthat::test_that("Get cluster fill rates works with only one document", {
+  clusters <- readRDS(testthat::test_path("fixtures", "temp1qd", "data", "questioned_clusters.rds"))
+  actual <- get_cluster_fill_rates(clusters)
+  
+  expected <- readRDS(testthat::test_path("fixtures", "temp1qd", "data", "questioned_rates.rds"))
   testthat::expect_equal(actual, expected)
 })
 
@@ -159,4 +175,47 @@ testthat::test_that("Get writer profiles works with rates without writer or doc 
     dplyr::select(-tidyselect::all_of(c("writer", "doc")))
   
   testthat::expect_equal(actual, expected)
+})
+
+testthat::test_that("Get writer profiles throws an error if measure is not counts or rates", {
+  empty_tempdir("main_dir")
+  
+  testthat::expect_error(
+    get_writer_profiles(
+      input_dir = testthat::test_path("fixtures", "temp1qd", "data", "model_docs"),
+      template = example_cluster_template,
+      measure = "frequency",
+      output_dir = file.path(tempdir(), "main_dir")
+    ),
+    "measure must be 'counts' or 'rates'"
+  )
+})
+
+testthat::test_that("Get writer profiles works if output_dir is not specified", {
+  empty_tempdir("writer_profiles")
+  
+  # copy questioned_graphs and questioned_clusters to tempdir to reduce processing time
+  copy_files(
+    input_dir = testthat::test_path("fixtures", "temp1qd", "data", "questioned_graphs"),
+    output_dir = file.path(tempdir(), "writer_profiles", "graphs")
+  )
+  copy_files(
+    input_dir = testthat::test_path("fixtures", "temp1qd", "data", "questioned_clusters"),
+    output_dir = file.path(tempdir(), "writer_profiles", "clusters")
+  )
+  
+  actual <- get_writer_profiles(
+    input_dir = testthat::test_path("fixtures", "temp1qd", "data", "questioned_docs"),
+    template = example_cluster_template,
+    writer_indices = c(1,5),
+    doc_indices = c(7,18),
+    measure = "counts"
+  )
+  
+  expected <- readRDS(testthat::test_path("fixtures", "temp1qd", "data", "questioned_counts.rds"))
+  
+  testthat::expect_equal(actual, expected)
+  
+  # check that tempdir was cleaned up
+  testthat::expect_false(dir.exists(file.path(tempdir(), "writer_profiles")))
 })
