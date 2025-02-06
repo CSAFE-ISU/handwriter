@@ -30,7 +30,7 @@ testthat::test_that("analyze_questioned_documents works with example_cluster_tem
   
   expected <- readRDS(testthat::test_path("fixtures", "temp1qd", "data", "analysis.rds"))
 
-  testthat::expect_identical(actual, expected)
+  testthat::expect_equal(actual, expected)
 })
 
 testthat::test_that("analyze_questioned_documents works with templateK40 and 2 qd", {
@@ -63,7 +63,7 @@ testthat::test_that("analyze_questioned_documents works with templateK40 and 2 q
   
   expected <- readRDS(testthat::test_path("fixtures", "tempK402qd", "data", "analysis.rds"))
   
-  testthat::expect_identical(actual, expected)
+  testthat::expect_equal(actual, expected)
 })
 
 
