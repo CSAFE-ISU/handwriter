@@ -19,7 +19,7 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {os: macos-latest,   r: 'release'}
+          - {os: macOS-latest,   r: 'release'}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -35,6 +35,11 @@ jobs:
           r-version: ${{ matrix.config.r }}
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
+      
+      - name: Install JAGS (macOS)
+        if: runner.os == 'macOS'
+        run : |
+          brew install jags
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
