@@ -51,6 +51,11 @@ jobs:
           echo "CPPFLAGS=-I$JAGS_HOME/include" >> $GITHUB_ENV
           echo "LD_LIBRARY_PATH=$JAGS_HOME/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
           echo "DYLD_LIBRARY_PATH=$JAGS_HOME/lib:$DYLD_LIBRARY_PATH" >> $GITHUB_ENV
+          # Create symbolic links for JAGS modules
+          sudo mkdir -p /usr/local/lib/JAGS/modules-4
+          for module in basemod bugs terminal; do
+            sudo ln -sf "$JAGS_HOME/lib/JAGS/modules-4/${module}.so" "/usr/local/lib/JAGS/modules-4/${module}.so"
+          done
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
