@@ -1,6 +1,5 @@
 testthat::test_that("template creation works", {
-  # Creating a cluster template takes too much memory to run on CRAN or CI
-  testthat::skip_on_ci()
+  # Creating a cluster template takes too much memory to run on CRAN?
   testthat::skip_on_cran()
   
   empty_tempdir(subfolder = "main_dir")
