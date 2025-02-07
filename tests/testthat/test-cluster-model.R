@@ -2,7 +2,6 @@
 
 testthat::test_that("fit_model works with a single chain", {
   # fit_model() requires JAGS so skip test on CRAN and CI
-  testthat::skip_on_ci()
   testthat::skip_on_cran()
   
   # delete tempdir() > main_dir
