@@ -38,13 +38,19 @@ jobs:
       
       - name: Install JAGS (macOS)
         if: runner.os == 'macOS'
-        run : |
-          brew install jags
-      
-      - name: Set JAGS library path
         run: |
-          echo "LD_LIBRARY_PATH=/opt/homebrew/Cellar/jags/4.3.2/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
-
+          brew install jags
+          echo "JAGS_HOME=$(brew --prefix jags)" >> $GITHUB_ENV
+      
+      - name: Set up JAGS environment
+        if: runner.os == 'macOS'
+        run: |
+          echo "JAGS_LIB=$JAGS_HOME/lib" >> $GITHUB_ENV
+          echo "PKG_CONFIG_PATH=$JAGS_HOME/lib/pkgconfig:$PKG_CONFIG_PATH" >> $GITHUB_ENV
+          echo "LDFLAGS=-L$JAGS_HOME/lib" >> $GITHUB_ENV
+          echo "CPPFLAGS=-I$JAGS_HOME/include" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=$JAGS_HOME/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
+          echo "DYLD_LIBRARY_PATH=$JAGS_HOME/lib:$DYLD_LIBRARY_PATH" >> $GITHUB_ENV
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
