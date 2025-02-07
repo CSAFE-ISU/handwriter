@@ -11,7 +11,7 @@ permissions: read-all
 
 jobs:
   test-coverage:
-    runs-on: windows-latest
+    runs-on: macOS-latest
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
 
@@ -21,6 +21,25 @@ jobs:
       - uses: r-lib/actions/setup-r@v2
         with:
           use-public-rspm: true
+
+      - name: Install JAGS (macOS)
+        run: |
+          brew install jags
+          echo "JAGS_HOME=$(brew --prefix jags)" >> $GITHUB_ENV
+      
+      - name: Set up JAGS environment
+        run: |
+          echo "JAGS_LIB=$JAGS_HOME/lib" >> $GITHUB_ENV
+          echo "PKG_CONFIG_PATH=$JAGS_HOME/lib/pkgconfig:$PKG_CONFIG_PATH" >> $GITHUB_ENV
+          echo "LDFLAGS=-L$JAGS_HOME/lib" >> $GITHUB_ENV
+          echo "CPPFLAGS=-I$JAGS_HOME/include" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=$JAGS_HOME/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
+          echo "DYLD_LIBRARY_PATH=$JAGS_HOME/lib:$DYLD_LIBRARY_PATH" >> $GITHUB_ENV
+          # Create symbolic links for JAGS modules
+          sudo mkdir -p /usr/local/lib/JAGS/modules-4
+          for module in basemod bugs terminal; do
+            sudo ln -sf "$JAGS_HOME/lib/JAGS/modules-4/${module}.so" "/usr/local/lib/JAGS/modules-4/${module}.so"
+          done
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
@@ -50,7 +69,7 @@ jobs:
         if: always()
         run: |
           ## --------------------------------------------------------------------
-          find '${{ runner.temp }}/package' -name 'testthat.Rout*' -exec cat '{}' \; || true
+          find "${{ runner.temp }}/package" -name 'testthat.Rout*' -exec cat '{}' \; || true
         shell: bash
 
       - name: Upload test results
