@@ -39,9 +39,23 @@ jobs:
       - name: Install JAGS (Windows)
         if: runner.os == 'Windows'
         run: |
+          # Create a temporary directory for the installer
+          $tempDir = Join-Path $env:RUNNER_TEMP "jags-installer"
+          New-Item -ItemType Directory -Path $tempDir -Force
+          
+          # Download JAGS to the temporary directory
+          $installerPath = Join-Path $tempDir "JAGS-4.3.1.exe"
           curl -LO https://sourceforge.net/projects/mcmc-jags/files/JAGS/4.x/Windows/JAGS-4.3.1.exe
-          Start-Process -FilePath "JAGS-4.3.1.exe" -ArgumentList "/S" -NoNewWindow -Wait
+          Move-Item -Path "JAGS-4.3.1.exe" -Destination $installerPath
+          
+          # Install JAGS
+          Start-Process -FilePath $installerPath -ArgumentList "/S" -NoNewWindow -Wait
+          
+          # Set environment variable
           echo "JAGS_HOME=C:/Program Files/JAGS/JAGS-4.3.1" >> $env:GITHUB_ENV
+          
+          # Clean up the installer
+          Remove-Item -Path $tempDir -Recurse -Force
         shell: pwsh
 
       - name: Set up JAGS environment (Windows)
