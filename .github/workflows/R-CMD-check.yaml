@@ -5,7 +5,7 @@ on:
     branches: [main, master]
   pull_request:
 
-name: R-CMD-check-macos.yaml
+name: R-CMD-check.yaml
 
 permissions: read-all
 
@@ -20,6 +20,10 @@ jobs:
       matrix:
         config:
           - {os: macOS-latest,   r: 'release'}
+          - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release'}
+          - {os: ubuntu-latest,   r: 'release'}
+          - {os: ubuntu-latest,   r: 'oldrel-1'}
+          - {os: windows-latest, r: 'release'}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -27,6 +31,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      
+      - name: Install system dependencies (Ubuntu)
+        if: runner.os == 'Ubuntu'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgsl-dev
 
       - uses: r-lib/actions/setup-pandoc@v2
 
@@ -42,7 +52,29 @@ jobs:
           brew install jags
           echo "JAGS_HOME=$(brew --prefix jags)" >> $GITHUB_ENV
       
-      - name: Set up JAGS environment
+      - name: Install JAGS (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          # Create a temporary directory for the installer
+          $tempDir = Join-Path $env:RUNNER_TEMP "jags-installer"
+          New-Item -ItemType Directory -Path $tempDir -Force
+          
+          # Download JAGS to the temporary directory
+          $installerPath = Join-Path $tempDir "JAGS-4.3.1.exe"
+          curl -LO https://sourceforge.net/projects/mcmc-jags/files/JAGS/4.x/Windows/JAGS-4.3.1.exe
+          Move-Item -Path "JAGS-4.3.1.exe" -Destination $installerPath
+          
+          # Install JAGS
+          Start-Process -FilePath $installerPath -ArgumentList "/S" -NoNewWindow -Wait
+          
+          # Set environment variable
+          echo "JAGS_HOME=C:/Program Files/JAGS/JAGS-4.3.1" >> $env:GITHUB_ENV
+          
+          # Clean up the installer
+          Remove-Item -Path $tempDir -Recurse -Force
+        shell: pwsh
+      
+      - name: Set up JAGS environment (macOS)
         if: runner.os == 'macOS'
         run: |
           echo "JAGS_LIB=$JAGS_HOME/lib" >> $GITHUB_ENV
@@ -56,6 +88,12 @@ jobs:
           for module in basemod bugs terminal; do
             sudo ln -sf "$JAGS_HOME/lib/JAGS/modules-4/${module}.so" "/usr/local/lib/JAGS/modules-4/${module}.so"
           done
+      
+      - name: Set up JAGS environment (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          echo "PATH=C:/Program Files/JAGS/JAGS-4.3.1/bin;${env:PATH}" >> $env:GITHUB_ENV
+        shell: pwsh
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
