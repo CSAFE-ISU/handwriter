@@ -41,7 +41,7 @@
 #'
 #' @export
 #' @md
-readPNGBinary <- function(path, cutoffAdjust = 0, clean = TRUE, crop = TRUE, inversion = FALSE) {
+readPNGBinary <- function(path, mask_path = NULL, cutoffAdjust = 0, clean = TRUE, crop = TRUE, inversion = FALSE) {
 
   message(paste0("path in readPNGBinary: ", path))
 
@@ -62,6 +62,18 @@ readPNGBinary <- function(path, cutoffAdjust = 0, clean = TRUE, crop = TRUE, inv
       img <- rgb2grayscale(img)
     }
   }
+  
+  # Apply mask
+  if (!is.null(mask_path)) {
+    load(mask_path)
+    
+    if (!identical(dim(img), dim(mask))) {
+      stop("The mask and image have different dimensions.")
+    }
+    
+    img[mask == 1] <- 1
+  }
+  
   if (inversion) {
     img <- 1 - img
   }

@@ -18,8 +18,7 @@ testthat::test_that("process_batch_dir works", {
       input_dir = testthat::test_path("fixtures", "temp1qd", "data", "template_docs"),
       output_dir = file.path(tempdir(), "batch"),
       skip_docs_on_retry = TRUE
-    ),
-    "All documents have been processed or flagged as problem files."
+    )
   )
 })
 

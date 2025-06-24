@@ -4,10 +4,17 @@
 \alias{process_batch_dir}
 \title{Process Batch Directory}
 \usage{
-process_batch_dir(input_dir, output_dir = ".", skip_docs_on_retry = TRUE)
+process_batch_dir(
+  input_dir,
+  mask_dir = NULL,
+  output_dir = ".",
+  skip_docs_on_retry = TRUE
+)
 }
 \arguments{
 \item{input_dir}{Input directory that contains images}
+
+\item{mask_dir}{Directory that contains masks for input images}
 
 \item{output_dir}{A directory to save the processed images}
 

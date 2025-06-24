@@ -32,6 +32,8 @@
 #'
 #' @param path File path for handwriting document. The document must be in PNG
 #'   file format.
+#' @param mask_path File path for an RData file containing a binary masking
+#'   matrix that marks areas of the image for `processDocument()` to ignore.
 #'
 #' @return The processed document as a list
 #'
@@ -44,10 +46,10 @@
 #'
 #' @export
 #' @md
-processDocument <- function(path) {
+processDocument <- function(path, mask_path = NULL) {
   doc <- list()
   # load image as matrix
-  doc$image <- readPNGBinary(path) 
+  doc$image <- readPNGBinary(path = path, mask_path = mask_path) 
   # load writing as 1-column matrix of index locations of black pixels
   doc$thin <- thinImage(doc$image)
   doc$process <- processHandwriting(doc$thin, dim(doc$image))

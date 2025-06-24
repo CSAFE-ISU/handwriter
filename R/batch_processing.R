@@ -29,6 +29,7 @@
 #' Optional. Return a list of the processed documents.
 #'
 #' @param images A vector of image file paths
+#' @param masks A vector of mask file paths. Not every image needs a corresponding mask file
 #' @param output_dir A directory to save the processed images
 #' @param skip_docs_on_retry Logical whether to skip documents in the images arguement that
 #'   caused errors on a previous run. The errors and document names are stored
@@ -46,7 +47,7 @@
 #'
 #' @export
 #' @md
-process_batch_list <- function(images, output_dir, skip_docs_on_retry=TRUE) {
+process_batch_list <- function(images, masks = NULL, output_dir, skip_docs_on_retry=TRUE) {
   # output directory
   create_dir(output_dir, msg = "Creating output directory...", recursive = TRUE)
   
@@ -87,14 +88,33 @@ process_batch_list <- function(images, output_dir, skip_docs_on_retry=TRUE) {
     sink(prob_log_file, append=FALSE)
   }
   
+  # Get mask_dir if masks exist
+  if (!is.null(masks)) {
+    mask_dir <- dirname(masks[1])
+  }
+  
   # Save as RDS while renaming with _proclist suffix
   for (i in 1:length(images)) {
     possibleError <- tryCatch(
       expr = { 
         image <- images[[i]]
+        
+        # Check if image has a corresponding mask
+        if (!is.null(masks)) {
+          # Check if image has a mask in masks list
+          mask_index <- which(basename(masks) == stringr::str_replace(basename(image), "(.PNG|.png)", "_mask.RData"))
+          if (length(mask_index) > 0) {
+            mask <- masks[mask_index]
+          } else {
+            mask <- NULL
+          }
+        } else {
+          mask <- NULL
+        }
+        
         outfile <- outfiles[[i]]
         message(sprintf("Processing document %s...", basename(image)))
-        doc <- processDocument(image)
+        doc <- processDocument(image, mask)
         message(sprintf("Saving processed document %s...\n", basename(image)))
         saveRDS(doc, file = outfile)
       }, 
@@ -128,6 +148,7 @@ process_batch_list <- function(images, output_dir, skip_docs_on_retry=TRUE) {
 #'     (5) Optional. Return a list of the processed documents.
 #'
 #' @param input_dir Input directory that contains images
+#' @param mask_dir Directory that contains masks for input images
 #' @param output_dir A directory to save the processed images
 #' @param skip_docs_on_retry Logical whether to skip documents in input_dir that
 #'   caused errors on a previous run. The errors and document names are stored
@@ -143,11 +164,18 @@ process_batch_list <- function(images, output_dir, skip_docs_on_retry=TRUE) {
 #' 
 #' @export
 #' @md
-process_batch_dir <- function(input_dir, output_dir = ".", skip_docs_on_retry=TRUE) {
+process_batch_dir <- function(input_dir, mask_dir = NULL, output_dir = ".", skip_docs_on_retry=TRUE) {
+
   message("Listing documents to be processed...")
   file_list <- list.files(input_dir, pattern = "(.PNG|.png)$", full.names = TRUE)
-  
-  process_batch_list(images=file_list, 
+  if (!is.null(mask_dir)) {
+    mask_list <- list.files(mask_dir, pattern = ".RData", full.names = TRUE)
+  } else {
+    mask_list <- NULL
+  }
+
+  process_batch_list(images=file_list,
+                     masks=mask_list,
                      output_dir=output_dir,
                      skip_docs_on_retry=skip_docs_on_retry)
   return()

@@ -4,11 +4,14 @@
 \alias{processDocument}
 \title{Process Document}
 \usage{
-processDocument(path)
+processDocument(path, mask_path = NULL)
 }
 \arguments{
 \item{path}{File path for handwriting document. The document must be in PNG
 file format.}
+
+\item{mask_path}{File path for an RData file containing a binary masking
+matrix that marks areas of the image for \code{processDocument()} to ignore.}
 }
 \value{
 The processed document as a list

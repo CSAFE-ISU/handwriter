@@ -6,6 +6,7 @@
 \usage{
 readPNGBinary(
   path,
+  mask_path = NULL,
   cutoffAdjust = 0,
   clean = TRUE,
   crop = TRUE,

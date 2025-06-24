@@ -4,10 +4,12 @@
 \alias{process_batch_list}
 \title{Process Batch List}
 \usage{
-process_batch_list(images, output_dir, skip_docs_on_retry = TRUE)
+process_batch_list(images, masks = NULL, output_dir, skip_docs_on_retry = TRUE)
 }
 \arguments{
 \item{images}{A vector of image file paths}
+
+\item{masks}{A vector of mask file paths. Not every image needs a corresponding mask file}
 
 \item{output_dir}{A directory to save the processed images}
 
