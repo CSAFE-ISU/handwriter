@@ -1,5 +1,8 @@
 # handwriter (development version)
 
+* New `get_csafe_writerIDs()` extracts writer IDs from CSAFE Handwriting Database file names or full file paths. Optionally returns unique IDs or integers, and returns `NA` when no writer ID is found.
+* New `csafe_handwriting_db` dataset lists the file names of the CSAFE Handwriting Database scans, organized by database release (versions 1–5).
+
 # handwriter 3.2.4
 
 ## Minor improvements and fixes
