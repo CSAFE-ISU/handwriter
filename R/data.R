@@ -27,6 +27,40 @@
 #' csafe_processList <- processHandwriting(csafe_document$thin, dim(csafe_document$image))
 "csafe"
 
+#' CSAFE Handwriting Database file names
+#'
+#' File names of the handwriting sample scans in the CSAFE Handwriting Database,
+#' organized by database version. Each writer appears in only one release. File
+#' names follow the pattern `<writerID>_<session#>_<prompt>_<rep>.png`, where
+#' `writerID` is the writer ID. `session#` is the session number: s01, s02, or
+#' s03. `prompt` is the writing prompt: pLND for the London Letter, pPHR for the
+#' short phrase, or pWOZ for the Wizard of Oz. `rep` is the repetition: r01,
+#' r02, or r03.
+#'
+#' @format A named list of 5 character vectors:
+#' \describe{
+#'   \item{version1}{2,432 file names from 90 writers.}
+#'   \item{version2}{1,377 file names from 51 writers.}
+#'   \item{version3}{2,700 file names from 100 writers.}
+#'   \item{version4}{2,781 file names from 103 writers.}
+#'   \item{version5}{3,537 file names from 131 writers.}
+#' }
+#'
+#'   Writers completed 3 sessions (`s01`–`s03`), copying each of 3 prompts 3
+#'   times per session (`r01`–`r03`). Prompts are the London Letter (`pLND`), a
+#'   common phrase (`pPHR`), and an excerpt from The Wonderful Wizard of Oz
+#'   (`pWOZ`).
+#'
+#' @source CSAFE Handwriting Database, Center for Statistics and Applications in
+#'   Forensic Evidence,
+#'   \url{https://doi.org/10.25380/iastate.10062203}
+#'
+#' @examples
+#' names(csafe_handwriting_db)
+#' head(csafe_handwriting_db$version1)
+#' get_csafe_writerIDs(csafe_handwriting_db$version5, only_unique = TRUE)
+"csafe_handwriting_db"
+
 #' Cursive written word: London
 #'
 #' @format Binary image matrix. 148 rows and 481 columns.
