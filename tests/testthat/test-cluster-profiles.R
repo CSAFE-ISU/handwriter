@@ -168,6 +168,8 @@ testthat::test_that("Get writer profiles works with rates with writer and doc in
   )
   
   expected <- readRDS(testthat::test_path("fixtures", "temp1qd", "data", "model_rates.rds"))
+  # example_cluster_template has 5 clusters, so drop the columns for clusters 6-40
+  expected <- expected[, !(colnames(expected) %in% paste0("cluster", 6:40))]
   
   testthat::expect_equal(actual, expected)
 })
@@ -191,6 +193,8 @@ testthat::test_that("Get writer profiles works with rates without writer or doc 
   )
   
   expected <- readRDS(testthat::test_path("fixtures", "temp1qd", "data", "model_rates.rds"))
+  # example_cluster_template has 5 clusters, so drop the columns for clusters 6-40
+  expected <- expected[, !(colnames(expected) %in% paste0("cluster", 6:40))]
   # drop writer and doc columns from expected
   expected <- expected %>% 
     dplyr::ungroup() %>%
@@ -240,4 +244,24 @@ testthat::test_that("Get writer profiles works if output_dir is not specified", 
   
   # check that tempdir was cleaned up
   testthat::expect_false(dir.exists(file.path(tempdir(), "writer_profiles")))
+})
+
+testthat::test_that("Get cluster fill rates uses num_clusters for missing clusters", {
+  df <- data.frame(docname = c("doc1", "doc1", "doc2", "doc2"), cluster = c(1, 3, 3, 3))
+  
+  actual <- get_cluster_fill_rates(df, num_clusters = 5)
+  testthat::expect_equal(colnames(actual), c("docname", "total_graphs", paste0("cluster", 1:5)))
+  testthat::expect_equal(unname(unlist(actual[1, paste0("cluster", 1:5)])), c(0.5, 0, 0.5, 0, 0))
+  
+  # default is 40 clusters
+  actual <- get_cluster_fill_rates(df)
+  testthat::expect_equal(colnames(actual), c("docname", "total_graphs", paste0("cluster", 1:40)))
+})
+
+testthat::test_that("Get cluster fill rates errors if a cluster label is greater than num_clusters", {
+  df <- data.frame(docname = c("doc1", "doc1"), cluster = c(1, 7))
+  testthat::expect_error(get_cluster_fill_rates(df, num_clusters = 5),
+                         "df contains cluster labels greater than num_clusters")
+  testthat::expect_error(get_cluster_fill_rates(df, num_clusters = 2.5),
+                         "num_clusters must be a single integer")
 })
