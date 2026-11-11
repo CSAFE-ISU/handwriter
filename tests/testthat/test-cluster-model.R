@@ -87,3 +87,12 @@ testthat::test_that("about variable works on a single chain", {
                               model = example_model), 
                "Eta is the mean, or the location parameter, of the hyper prior for mu for cluster 3")
 })
+
+testthat::test_that("about variable labels writers by factor level, not order of appearance", {
+  # reverse the rows so the writers appear in a different order than the
+  # levels of docwriter, which is how JAGS numbers the writers (issue #231)
+  model <- example_model
+  model$cluster_fill_counts <- model$cluster_fill_counts[nrow(model$cluster_fill_counts):1, ]
+  testthat::expect_equal(about_variable(variable = "pi[1,3]", model = model),
+               "Pi is the cluster fill probability for writer ID w0009 and cluster 3")
+})

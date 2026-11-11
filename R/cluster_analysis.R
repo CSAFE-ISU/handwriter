@@ -118,8 +118,10 @@ analyze_questioned_documents <- function(main_dir, questioned_docs, model, num_c
   # list questioned writers
   qdocs <- unique(questioned_data$graph_measurements$docname)
   
-  # list known writers
-  kwriters <- unique(model$graph_measurements$writer)
+  # list known writers. JAGS numbers the writers by the levels of the
+  # docwriter factor, so pi[w, ], mu[w, ], and tau[w, ] belong to the w-th
+  # level, which is not necessarily the order the writers appear in the data.
+  kwriters <- levels(rjags_data$docwriter)
 
   # obtain posterior samples of model parameters
   message("Obtaining likelihood evaluations...")

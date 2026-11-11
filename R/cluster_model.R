@@ -249,7 +249,8 @@ about_variable <- function(variable, model) {
     )
 
     # replace writer
-    writers <- unique(model$cluster_fill_counts$writer)
+    # JAGS numbers the writers by the levels of the docwriter factor
+    writers <- levels(model$rjags_data$docwriter)
     about <-
       stringr::str_replace(about, " w ", paste0(" ID ", writers[writer], " "))
 
