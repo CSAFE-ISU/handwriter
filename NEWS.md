@@ -1,5 +1,9 @@
 # handwriter (development version)
 
+## Minor improvements and fixes
+
+* Fixed bug in `get_cluster_fill_counts()`, introduced in version 3.2.3, where the cluster columns were no longer sorted numerically. They followed the order in which clusters first appeared in the data. `fit_model()` and `analyze_questioned_documents()` refer to clusters by column position, so the cluster fill counts of the model documents, the cluster fill counts of the questioned documents, and the cluster labels used for the wrapped-Cauchy parameters could refer to different clusters. This lowered the accuracy of the closed-set model. Models fit with versions 3.2.3 or 3.2.4 should be refit (#231).
+
 # handwriter 3.2.4
 
 ## Minor improvements and fixes

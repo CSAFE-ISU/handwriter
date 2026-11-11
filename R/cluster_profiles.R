@@ -50,8 +50,18 @@ get_cluster_fill_counts <- function(df) {
     dplyr::group_by(dplyr::pick(tidyselect::any_of(c("docname", "writer", "doc", "cluster")))) %>%
     dplyr::summarise(n = dplyr::n()) %>%
     dplyr::mutate(n = as.integer(n)) %>%
-    tidyr::pivot_wider(names_from = cluster, values_from = n, values_fill = 0) %>%
-    dplyr::select(tidyselect::any_of(c("docname", "writer", "doc")), tidyselect::everything())
+    tidyr::pivot_wider(names_from = cluster, values_from = n, values_fill = 0)
+
+  # sort cluster columns numerically. pivot_wider() orders the new columns by
+  # first appearance, which depends on which clusters the first document(s)
+  # happen to use. Downstream code (e.g. format_model_data() and
+  # analyze_questioned_documents()) indexes clusters by column position, so
+  # the columns must be in numerical order.
+  label_cols <- intersect(c("docname", "writer", "doc"), colnames(cluster_fill_counts))
+  cluster_cols <- setdiff(colnames(cluster_fill_counts), label_cols)
+  cluster_cols <- cluster_cols[order(as.numeric(cluster_cols))]
+  cluster_fill_counts <- cluster_fill_counts %>%
+    dplyr::select(tidyselect::all_of(c(label_cols, cluster_cols)))
 
   return(cluster_fill_counts)
 }
