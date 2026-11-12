@@ -1,4 +1,4 @@
-# handwriter (development version)
+# handwriter 3.3.0
 
 ## Breaking changes
 
@@ -6,15 +6,17 @@
 
 ## Minor improvements and fixes
 
-* Fixed bug in `process_batch_dir()` and `process_batch_list()` where console output could stay diverted to the problems.txt log file if processing stopped early, for example if the user interrupted it. The functions now always close the log file when they exit, and they no longer close sinks opened by the user (#229).
-
 * Fixed bug in `get_cluster_fill_counts()`, introduced in version 3.2.3, where the cluster columns were no longer sorted numerically. They followed the order in which clusters first appeared in the data. `fit_model()` and `analyze_questioned_documents()` refer to clusters by column position, so the cluster fill counts of the model documents, the cluster fill counts of the questioned documents, and the cluster labels used for the wrapped-Cauchy parameters could refer to different clusters. This lowered the accuracy of the closed-set model. Models fit with versions 3.2.3 or 3.2.4 should be refit (#231).
 
 * Fixed `analyze_questioned_documents()` so that known writers are labeled in the same order the model numbers them. Previously, if the writers' order in the data differed from their sorted order, posterior probabilities could be attributed to the wrong writer. `about_variable()` had the same issue and was also fixed (#231).
 
 * Fixed `analyze_questioned_documents()` so that the document-level and graph-level likelihoods are always evaluated on the same questioned document (#231).
 
+* Fixed bug in `process_batch_dir()` and `process_batch_list()` where console output could stay diverted to the problems.txt log file if processing stopped early, for example if the user interrupted it. The functions now always close the log file when they exit, and they no longer close sinks opened by the user (#229).
+
 * Added the `num_clusters` argument to `get_cluster_fill_rates()`. Previously, the function assumed the cluster template had 40 clusters. The default is still 40. `get_writer_profiles()` now uses the number of clusters in its `template` (#231).
+
+* The `fit_model()` documentation now recommends 4000 MCMC iterations, with the first 1000 dropped as burn-in using `drop_burnin()` (#223).
 
 # handwriter 3.2.4
 
