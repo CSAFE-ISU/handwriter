@@ -80,7 +80,14 @@ process_batch_list <- function(images, output_dir, skip_docs_on_retry=TRUE) {
     }
   }
   
-  # start printing to log
+  # start printing to log. Close the sink when the function exits, even if it
+  # exits early because of an error or an interrupt, so the console output
+  # isn't left diverted to the log file (#229). Only close sinks opened here,
+  # so any sinks the user opened stay in place.
+  num_sinks <- sink.number()
+  on.exit({
+    while (sink.number() > num_sinks) sink()
+  }, add = TRUE)
   if (file.exists(prob_log_file)){
     sink(prob_log_file, append=TRUE)
   } else {
@@ -104,8 +111,7 @@ process_batch_list <- function(images, output_dir, skip_docs_on_retry=TRUE) {
   }
   
   # stop sinking to problem log file
-  sink(file = NULL, type = "output")
-  sink(file = NULL, type = "message")
+  while (sink.number() > num_sinks) sink()
   
   # show list of problem docs from log NOTE: Initially, I added problem doc names
   # to a vector inside the error part of trycatch and returned the list of
