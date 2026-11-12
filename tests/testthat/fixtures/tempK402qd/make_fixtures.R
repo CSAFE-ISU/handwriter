@@ -1,7 +1,7 @@
 # templateK40 with 2 QD ---------------------------------------------------
 
-# Copied model_docs and questioned_docs from fixtures >
-# temp2qd
+# Copied model_docs and questioned_docs from fixtures > temp2qd, which was
+# deleted because no tests used it.
 
 main_dir <- testthat::test_path("fixtures", "tempK402qd")
 

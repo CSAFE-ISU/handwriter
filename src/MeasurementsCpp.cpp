@@ -218,7 +218,6 @@ NumericVector findCentroidofLoop(NumericVector loopPath, NumericVector dims){
 List findLoops(List allpaths, NumericVector dims){
   List knownLoops = Rcpp::List::create();
   NumericVector pathConsidering;
-  int count = 0;
   for(int i = 0; i < allpaths.size(); i++){
      pathConsidering = Rcpp::as<NumericVector>(allpaths[i]);
      if(pathConsidering.size() < 10) continue; //arbitarty value of 10 chosen, worked for every letter so far
@@ -227,7 +226,6 @@ List findLoops(List allpaths, NumericVector dims){
      NumericVector endingPoint  = convertIndextoXY(pathConsidering[pathConsidering.size()-1], dims);
      double distanceBetweenPoints = findDistanceBetweenTwoPoints(startingPoint, endingPoint);
      if(distanceBetweenPoints < 6){
-       count++;
        knownLoops.push_back(pathConsidering);
      }
   }    

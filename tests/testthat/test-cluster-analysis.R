@@ -34,6 +34,7 @@ testthat::test_that("analyze_questioned_documents works with example_cluster_tem
 })
 
 testthat::test_that("analyze_questioned_documents works with templateK40 and 2 qd", {
+  skip_if_no_tempK402qd()
   
   empty_tempdir(subfolder = "main_dir")
   
@@ -68,6 +69,7 @@ testthat::test_that("analyze_questioned_documents works with templateK40 and 2 q
 
 
 testthat::test_that("analyze_questioned_documents matches docs correctly when graph rows are out of order", {
+  skip_if_no_tempK402qd()
   # Reverse the order of the questioned documents' graphs so the order of
   # appearance of the docnames differs from the rows of cluster_fill_counts
   # (issue #231). The results should not change.
@@ -111,6 +113,7 @@ testthat::test_that("calculate_accuracy works with example_cluster_template and 
 })
 
 testthat::test_that("calculate_accuracy works with templateK40 and 2 qd", {
+  skip_if_no_tempK402qd()
   
   analysis <- readRDS(testthat::test_path("fixtures", "tempK402qd", "data", "analysis.rds"))
   actual <- calculate_accuracy(analysis)
@@ -136,6 +139,7 @@ testthat::test_that("Get posterior probabilities works with example_cluster_temp
 })
 
 testthat::test_that("Get posterior probabilities works with templateK40 and 2 qd", {
+  skip_if_no_tempK402qd()
   analysis <- readRDS(testthat::test_path("fixtures", "tempK402qd", "data", "analysis.rds"))
   actual <- get_posterior_probabilities(
     analysis = analysis,

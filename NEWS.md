@@ -1,4 +1,8 @@
-# handwriter (development version)
+# handwriter 3.3.0
+
+## Breaking changes
+
+* rjags moved from Imports to Suggests, because rjags requires the JAGS system library, and it can't be installed on platforms where JAGS 4 isn't available (#233). Only `fit_model()` uses rjags. It now gives an informative error if rjags isn't available. The rest of handwriter no longer needs JAGS or rjags. To use `fit_model()`, install JAGS 4.x.y and then rjags. coda, which was previously installed with rjags, moved from Suggests to Imports.
 
 ## Minor improvements and fixes
 
@@ -8,7 +12,11 @@
 
 * Fixed `analyze_questioned_documents()` so that the document-level and graph-level likelihoods are always evaluated on the same questioned document (#231).
 
+* Fixed bug in `process_batch_dir()` and `process_batch_list()` where console output could stay diverted to the problems.txt log file if processing stopped early, for example if the user interrupted it. The functions now always close the log file when they exit, and they no longer close sinks opened by the user (#229).
+
 * Added the `num_clusters` argument to `get_cluster_fill_rates()`. Previously, the function assumed the cluster template had 40 clusters. The default is still 40. `get_writer_profiles()` now uses the number of clusters in its `template` (#231).
+
+* The `fit_model()` documentation now recommends 4000 MCMC iterations, with the first 1000 dropped as burn-in using `drop_burnin()` (#223).
 
 # handwriter 3.2.4
 
