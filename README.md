@@ -29,16 +29,16 @@ Handwriter requires R, RStudio IDE, and JAGS.
 
 -   Install R and RStudio from
     [POSIT](https://docs.posit.co/ide/user/)
--   Install JAGS from
+-   Install JAGS version 4.x.y from
     [SourceForge](https://sourceforge.net/projects/mcmc-jags/files/)
 
 ### Launch the App
 
 Open RStudio, navigate to the console window. Install the handwriterApp
-package. You only need to do this once.
+and rjags packages. You only need to do this once.
 
 ``` r
-install.packages("handwriterApp")
+install.packages(c("handwriterApp", "rjags"))
 ```
 
 Every time you want to use the app, type:
@@ -67,6 +67,16 @@ You can install the development version of handwriter from
 ``` r
 # install.packages("devtools")
 devtools::install_github("CSAFE-ISU/handwriter")
+```
+
+The function `fit_model()` also requires JAGS and the rjags package. The
+other functions in handwriter do not. To use `fit_model()`, install JAGS
+version 4.x.y from
+[SourceForge](https://sourceforge.net/projects/mcmc-jags/files/) and
+then install rjags:
+
+``` r
+install.packages("rjags")
 ```
 
 ## Process a Handwriting Example
