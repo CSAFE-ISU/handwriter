@@ -63,3 +63,12 @@ list_model_variables <- function(num_writers, num_clusters) {
   variables <- c(etas, gammas, mus, pis, taus)
   return(variables)
 }
+# The tempK402qd fixture is excluded from the package build in .Rbuildignore
+# to keep the CRAN tarball under 5 MB, so skip tests that use it when it is
+# missing. The tests still run locally and on GitHub Actions.
+skip_if_no_tempK402qd <- function() {
+  testthat::skip_if_not(
+    dir.exists(testthat::test_path("fixtures", "tempK402qd")),
+    "fixture tempK402qd is not available"
+  )
+}

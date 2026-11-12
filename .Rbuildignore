@@ -16,3 +16,4 @@
 ^scratch.R$
 ^altdoc$
 ^_quarto$
+^tests/testthat/fixtures/tempK402qd$
