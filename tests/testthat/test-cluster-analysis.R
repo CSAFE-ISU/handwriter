@@ -67,6 +67,39 @@ testthat::test_that("analyze_questioned_documents works with templateK40 and 2 q
 })
 
 
+testthat::test_that("analyze_questioned_documents matches docs correctly when graph rows are out of order", {
+  # Reverse the order of the questioned documents' graphs so the order of
+  # appearance of the docnames differs from the rows of cluster_fill_counts
+  # (issue #231). The results should not change.
+  empty_tempdir(subfolder = "main_dir")
+  
+  copy_files(
+    input_dir = testthat::test_path("fixtures", "tempK402qd", "data", "questioned_graphs"), 
+    output_dir = file.path(tempdir(), "main_dir", "data", "questioned_graphs")
+  )
+  saveRDS(templateK40, file.path(tempdir(), "main_dir", "data", "template.rds"))
+  
+  # save reversed cluster assignments so get_clusterassignment() loads them
+  clusters <- readRDS(testthat::test_path("fixtures", "tempK402qd", "data", "questioned_clusters.rds"))
+  testthat::expect_gt(length(unique(clusters$docname)), 1)
+  clusters <- clusters[nrow(clusters):1, ]
+  saveRDS(clusters, file.path(tempdir(), "main_dir", "data", "questioned_clusters.rds"))
+  
+  model <- readRDS(testthat::test_path("fixtures", "tempK402qd", "data", "model.rds"))
+  
+  actual <- analyze_questioned_documents(main_dir = file.path(tempdir(), 'main_dir'),
+                                         questioned_docs = testthat::test_path("fixtures", "tempK402qd", "data", "questioned_docs"),
+                                         model = model,
+                                         num_cores = 1,
+                                         writer_indices = c(1, 5),
+                                         doc_indices = c(7, 18))
+  
+  expected <- readRDS(testthat::test_path("fixtures", "tempK402qd", "data", "analysis.rds"))
+  
+  testthat::expect_equal(actual$likelihood_evals, expected$likelihood_evals)
+  testthat::expect_equal(actual$posterior_probabilities, expected$posterior_probabilities)
+})
+
 # test calculate_accuracy -------------------------------------------------
 
 testthat::test_that("calculate_accuracy works with example_cluster_template and 1 qd", {

@@ -115,11 +115,15 @@ analyze_questioned_documents <- function(main_dir, questioned_docs, model, num_c
   my_cluster <- parallel::makeCluster(num_cores)
   doParallel::registerDoParallel(my_cluster)
 
-  # list questioned writers
-  qdocs <- unique(questioned_data$graph_measurements$docname)
+  # list questioned documents in the same order as the rows of
+  # cluster_fill_counts so that the doc-level (multinomial) and graph-level
+  # (wrapped-Cauchy) likelihoods are evaluated on the same document
+  qdocs <- questioned_data$cluster_fill_counts$docname
   
-  # list known writers
-  kwriters <- unique(model$graph_measurements$writer)
+  # list known writers. JAGS numbers the writers by the levels of the
+  # docwriter factor, so pi[w, ], mu[w, ], and tau[w, ] belong to the w-th
+  # level, which is not necessarily the order the writers appear in the data.
+  kwriters <- levels(rjags_data$docwriter)
 
   # obtain posterior samples of model parameters
   message("Obtaining likelihood evaluations...")

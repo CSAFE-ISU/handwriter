@@ -50,8 +50,18 @@ get_cluster_fill_counts <- function(df) {
     dplyr::group_by(dplyr::pick(tidyselect::any_of(c("docname", "writer", "doc", "cluster")))) %>%
     dplyr::summarise(n = dplyr::n()) %>%
     dplyr::mutate(n = as.integer(n)) %>%
-    tidyr::pivot_wider(names_from = cluster, values_from = n, values_fill = 0) %>%
-    dplyr::select(tidyselect::any_of(c("docname", "writer", "doc")), tidyselect::everything())
+    tidyr::pivot_wider(names_from = cluster, values_from = n, values_fill = 0)
+
+  # sort cluster columns numerically. pivot_wider() orders the new columns by
+  # first appearance, which depends on which clusters the first document(s)
+  # happen to use. Downstream code (e.g. format_model_data() and
+  # analyze_questioned_documents()) indexes clusters by column position, so
+  # the columns must be in numerical order.
+  label_cols <- intersect(c("docname", "writer", "doc"), colnames(cluster_fill_counts))
+  cluster_cols <- setdiff(colnames(cluster_fill_counts), label_cols)
+  cluster_cols <- cluster_cols[order(as.numeric(cluster_cols))]
+  cluster_fill_counts <- cluster_fill_counts %>%
+    dplyr::select(tidyselect::all_of(c(label_cols, cluster_cols)))
 
   return(cluster_fill_counts)
 }
@@ -68,6 +78,10 @@ get_cluster_fill_counts <- function(df) {
 #'   data frame might also have `writer` and `doc` columns. If present, `writer`
 #'   lists the writer ID of each document and `doc` is an identifier to
 #'   distinguish between different documents from the same writer.
+#' @param num_clusters Optional. The number of clusters in the cluster template
+#'   used to create `df`. Clusters that none of the documents' graphs are
+#'   assigned to are added as columns of zeros. The default is 40, the number of
+#'   clusters in `templateK40`.
 #'
 #' @return A data frame of cluster fill rates.
 #'
@@ -82,7 +96,15 @@ get_cluster_fill_counts <- function(df) {
 #' rates <- get_cluster_fill_rates(df)
 #'
 #' @md
-get_cluster_fill_rates <- function(df) {
+get_cluster_fill_rates <- function(df, num_clusters = 40) {
+  if (length(num_clusters) != 1 || !is.numeric(num_clusters) ||
+      num_clusters %% 1 != 0 || num_clusters < 1) {
+    stop("num_clusters must be a single integer greater than or equal to 1")
+  }
+  if (any(df$cluster > num_clusters)) {
+    stop("df contains cluster labels greater than num_clusters")
+  }
+
   counts <- get_cluster_fill_counts(df = df)
   
   # get label columns. docname is required for input data frames but writer and
@@ -104,7 +126,7 @@ get_cluster_fill_rates <- function(df) {
   }
 
   # add missing clusters
-  missing_labels <- setdiff(1:40, colnames(cfr))
+  missing_labels <- setdiff(1:num_clusters, colnames(cfr))
   if (length(missing_labels) > 0) {
     missing <- lapply(missing_labels, function(k) data.frame(k = rep(0, nrow(cfr))))
     missing <- do.call(cbind, missing)
@@ -216,7 +238,7 @@ get_writer_profiles <- function(
   if (measure == "counts") {
     profiles <- get_cluster_fill_counts(clusters)
   } else if (measure == "rates") {
-    profiles <- get_cluster_fill_rates(clusters)
+    profiles <- get_cluster_fill_rates(clusters, num_clusters = length(template$centers))
   } else {
     # Redundant with previous check
     stop("measure must be 'counts' or 'rates'")

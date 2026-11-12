@@ -24,6 +24,28 @@ testthat::test_that("Get cluster fill counts works without writer and doc column
   testthat::expect_equal(actual, expected)
 })
 
+testthat::test_that("Get cluster fill counts sorts cluster columns numerically", {
+  # The first document does not use clusters 2 or 10, so pivot_wider() would
+  # put those columns last if they were not explicitly sorted (issue #231).
+  df <- data.frame(
+    docname = c(rep("doc1", 4), rep("doc2", 5)),
+    writer = c(rep("w1", 4), rep("w2", 5)),
+    doc = c(rep("s1", 4), rep("s1", 5)),
+    cluster = c(1, 3, 3, 11, 2, 10, 1, 11, 2)
+  )
+  actual <- get_cluster_fill_counts(df)
+
+  testthat::expect_equal(colnames(actual), c("docname", "writer", "doc", "1", "2", "3", "10", "11"))
+  testthat::expect_equal(as.integer(actual[1, -c(1, 2, 3)]), c(1L, 0L, 2L, 0L, 1L))
+  testthat::expect_equal(as.integer(actual[2, -c(1, 2, 3)]), c(1L, 2L, 0L, 1L, 1L))
+})
+
+testthat::test_that("Get cluster fill counts sorts cluster columns numerically with outliers", {
+  df <- data.frame(docname = c("doc1", "doc1", "doc2", "doc2"), cluster = c(5, 2, -1, 1))
+  actual <- get_cluster_fill_counts(df)
+  testthat::expect_equal(colnames(actual), c("docname", "-1", "1", "2", "5"))
+})
+
 testthat::test_that("Get cluster fill counts works with only one document", {
   clusters <- readRDS(testthat::test_path("fixtures", "temp1qd", "data", "questioned_clusters.rds"))
   actual <- get_cluster_fill_counts(clusters)
@@ -146,6 +168,8 @@ testthat::test_that("Get writer profiles works with rates with writer and doc in
   )
   
   expected <- readRDS(testthat::test_path("fixtures", "temp1qd", "data", "model_rates.rds"))
+  # example_cluster_template has 5 clusters, so drop the columns for clusters 6-40
+  expected <- expected[, !(colnames(expected) %in% paste0("cluster", 6:40))]
   
   testthat::expect_equal(actual, expected)
 })
@@ -169,6 +193,8 @@ testthat::test_that("Get writer profiles works with rates without writer or doc 
   )
   
   expected <- readRDS(testthat::test_path("fixtures", "temp1qd", "data", "model_rates.rds"))
+  # example_cluster_template has 5 clusters, so drop the columns for clusters 6-40
+  expected <- expected[, !(colnames(expected) %in% paste0("cluster", 6:40))]
   # drop writer and doc columns from expected
   expected <- expected %>% 
     dplyr::ungroup() %>%
@@ -218,4 +244,24 @@ testthat::test_that("Get writer profiles works if output_dir is not specified", 
   
   # check that tempdir was cleaned up
   testthat::expect_false(dir.exists(file.path(tempdir(), "writer_profiles")))
+})
+
+testthat::test_that("Get cluster fill rates uses num_clusters for missing clusters", {
+  df <- data.frame(docname = c("doc1", "doc1", "doc2", "doc2"), cluster = c(1, 3, 3, 3))
+  
+  actual <- get_cluster_fill_rates(df, num_clusters = 5)
+  testthat::expect_equal(colnames(actual), c("docname", "total_graphs", paste0("cluster", 1:5)))
+  testthat::expect_equal(unname(unlist(actual[1, paste0("cluster", 1:5)])), c(0.5, 0, 0.5, 0, 0))
+  
+  # default is 40 clusters
+  actual <- get_cluster_fill_rates(df)
+  testthat::expect_equal(colnames(actual), c("docname", "total_graphs", paste0("cluster", 1:40)))
+})
+
+testthat::test_that("Get cluster fill rates errors if a cluster label is greater than num_clusters", {
+  df <- data.frame(docname = c("doc1", "doc1"), cluster = c(1, 7))
+  testthat::expect_error(get_cluster_fill_rates(df, num_clusters = 5),
+                         "df contains cluster labels greater than num_clusters")
+  testthat::expect_error(get_cluster_fill_rates(df, num_clusters = 2.5),
+                         "num_clusters must be a single integer")
 })

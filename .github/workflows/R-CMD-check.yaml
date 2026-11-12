@@ -36,7 +36,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgsl-dev libgsl27
+          sudo apt-get install -y libgsl-dev
 
       - uses: r-lib/actions/setup-pandoc@v2
 
@@ -49,8 +49,12 @@ jobs:
       - name: Install JAGS (macOS)
         if: runner.os == 'macOS'
         run: |
-          brew install jags
-          echo "JAGS_HOME=$(brew --prefix jags)" >> $GITHUB_ENV
+          # Install the official JAGS 4.x installer into /usr/local, where the
+          # CRAN rjags binary expects it. Homebrew now ships JAGS 5, which the
+          # rjags binary cannot load (it links to libjags.4.dylib).
+          curl -fsSL -o "$RUNNER_TEMP/JAGS.pkg" "https://sourceforge.net/projects/mcmc-jags/files/JAGS/4.x/Mac%20OS%20X/JAGS-4.3.2.pkg/download"
+          sudo installer -pkg "$RUNNER_TEMP/JAGS.pkg" -target /
+          ls /usr/local/lib/libjags.4.dylib
       
       - name: Install JAGS (Windows)
         if: runner.os == 'Windows'
@@ -73,21 +77,6 @@ jobs:
           # Clean up the installer
           Remove-Item -Path $tempDir -Recurse -Force
         shell: pwsh
-      
-      - name: Set up JAGS environment (macOS)
-        if: runner.os == 'macOS'
-        run: |
-          echo "JAGS_LIB=$JAGS_HOME/lib" >> $GITHUB_ENV
-          echo "PKG_CONFIG_PATH=$JAGS_HOME/lib/pkgconfig:$PKG_CONFIG_PATH" >> $GITHUB_ENV
-          echo "LDFLAGS=-L$JAGS_HOME/lib" >> $GITHUB_ENV
-          echo "CPPFLAGS=-I$JAGS_HOME/include" >> $GITHUB_ENV
-          echo "LD_LIBRARY_PATH=$JAGS_HOME/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
-          echo "DYLD_LIBRARY_PATH=$JAGS_HOME/lib:$DYLD_LIBRARY_PATH" >> $GITHUB_ENV
-          # Create symbolic links for JAGS modules
-          sudo mkdir -p /usr/local/lib/JAGS/modules-4
-          for module in basemod bugs terminal; do
-            sudo ln -sf "$JAGS_HOME/lib/JAGS/modules-4/${module}.so" "/usr/local/lib/JAGS/modules-4/${module}.so"
-          done
       
       - name: Set up JAGS environment (Windows)
         if: runner.os == 'Windows'

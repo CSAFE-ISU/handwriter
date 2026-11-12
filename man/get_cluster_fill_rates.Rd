@@ -4,7 +4,7 @@
 \alias{get_cluster_fill_rates}
 \title{Get Cluster Fill Rates}
 \usage{
-get_cluster_fill_rates(df)
+get_cluster_fill_rates(df, num_clusters = 40)
 }
 \arguments{
 \item{df}{A data frame of cluster assignments from \code{get_clusters_batch}.
@@ -14,6 +14,11 @@ obtained and the cluster to which that graph is assigned. Optionally, the
 data frame might also have \code{writer} and \code{doc} columns. If present, \code{writer}
 lists the writer ID of each document and \code{doc} is an identifier to
 distinguish between different documents from the same writer.}
+
+\item{num_clusters}{Optional. The number of clusters in the cluster template
+used to create \code{df}. Clusters that none of the documents' graphs are
+assigned to are added as columns of zeros. The default is 40, the number of
+clusters in \code{templateK40}.}
 }
 \value{
 A data frame of cluster fill rates.
