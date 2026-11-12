@@ -66,6 +66,13 @@ A list of training data used to fit the model and the fitted model
 in \code{model_docs} and draws samples from the model as Markov Chain Monte
 Carlo (MCMC) estimates.
 }
+\details{
+\code{fit_model()} requires the rjags package, which in turn requires the JAGS
+library (version 4.x.y) to be installed on your computer. Download JAGS from
+\url{https://mcmc-jags.sourceforge.io/} and then install rjags with
+\code{install.packages("rjags")}. The other functions in handwriter do not
+require JAGS or rjags.
+}
 \examples{
 \dontrun{
 main_dir <- "/path/to/main_dir"

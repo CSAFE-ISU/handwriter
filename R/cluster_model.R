@@ -24,6 +24,12 @@
 #' in `model_docs` and draws samples from the model as Markov Chain Monte
 #' Carlo (MCMC) estimates.
 #'
+#' `fit_model()` requires the rjags package, which in turn requires the JAGS
+#' library (version 4.x.y) to be installed on your computer. Download JAGS from
+#' <https://mcmc-jags.sourceforge.io/> and then install rjags with
+#' `install.packages("rjags")`. The other functions in handwriter do not
+#' require JAGS or rjags.
+#'
 #' @param main_dir A directory that contains a cluster template created by
 #'   [`make_clustering_template()`]
 #' @param model_docs A directory containing model training documents
@@ -93,6 +99,17 @@ fit_model <- function(main_dir,
                       c = 2,
                       d = 2,
                       e = 0.5) {
+  # rjags is in Suggests because it requires the JAGS system library. Check
+  # that it is available before doing any processing.
+  if (!rjags_available()) {
+    stop(
+      "fit_model() requires the rjags package, which requires JAGS 4.x.y. ",
+      "Install JAGS 4.x.y from https://mcmc-jags.sourceforge.io/ and then run ",
+      "install.packages('rjags').",
+      call. = FALSE
+    )
+  }
+
   # process model training documents and save in main_dir > data > model_graphs
   message("Processing model documents...")
   process_batch_dir(
@@ -307,6 +324,20 @@ get_credible_intervals <- function(model, interval_min = 0.05, interval_max = 0.
 }
 
 # Internal Functions ------------------------------------------------------
+
+
+#' Check Whether rjags Is Available
+#'
+#' rjags is in Suggests because it requires the JAGS system library.
+#' requireNamespace() returns FALSE if rjags isn't installed or if it is
+#' installed but can't find JAGS when it loads.
+#'
+#' @return TRUE if rjags can be loaded, otherwise FALSE
+#'
+#' @noRd
+rjags_available <- function() {
+  requireNamespace("rjags", quietly = TRUE)
+}
 
 
 #' format_draws

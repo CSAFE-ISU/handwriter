@@ -1,5 +1,9 @@
 # handwriter (development version)
 
+## Breaking changes
+
+* rjags moved from Imports to Suggests, because rjags requires the JAGS system library, and it can't be installed on platforms where JAGS 4 isn't available (#233). Only `fit_model()` uses rjags. It now gives an informative error if rjags isn't available. The rest of handwriter no longer needs JAGS or rjags. To use `fit_model()`, install JAGS 4.x.y and then rjags. coda, which was previously installed with rjags, moved from Suggests to Imports.
+
 ## Minor improvements and fixes
 
 * Fixed bug in `get_cluster_fill_counts()`, introduced in version 3.2.3, where the cluster columns were no longer sorted numerically. They followed the order in which clusters first appeared in the data. `fit_model()` and `analyze_questioned_documents()` refer to clusters by column position, so the cluster fill counts of the model documents, the cluster fill counts of the questioned documents, and the cluster labels used for the wrapped-Cauchy parameters could refer to different clusters. This lowered the accuracy of the closed-set model. Models fit with versions 3.2.3 or 3.2.4 should be refit (#231).

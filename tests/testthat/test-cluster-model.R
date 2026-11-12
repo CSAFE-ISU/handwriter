@@ -1,8 +1,10 @@
 # test fit_model ----------------------------------------------------------
 
 testthat::test_that("fit_model works with a single chain", {
-  # fit_model() requires JAGS so skip test on CRAN and CI
+  # fit_model() requires rjags, which requires JAGS, so skip test on CRAN and
+  # if rjags can't be loaded
   testthat::skip_on_cran()
+  testthat::skip_if_not(rjags_available(), "rjags is not available")
   
   # delete tempdir() > main_dir
   empty_tempdir(subfolder = "main_dir")
@@ -67,6 +69,15 @@ testthat::test_that("drop burn-in works on a single chain", {
   testthat::expect_equal(dim(model$fitted_model[[1]]), c(iters-burnin, 2*K + 3*K*W))
 })
 
+
+testthat::test_that("fit_model gives an informative error if rjags is not available", {
+  testthat::local_mocked_bindings(rjags_available = function() FALSE)
+  testthat::expect_error(
+    fit_model(main_dir = tempdir(), model_docs = tempdir(), num_iters = 10,
+              num_cores = 1, writer_indices = c(1, 5), doc_indices = c(7, 18)),
+    "fit_model\\(\\) requires the rjags package"
+  )
+})
 
 # test about_variable -----------------------------------------------------
 
