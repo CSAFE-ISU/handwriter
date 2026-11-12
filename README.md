@@ -28,7 +28,7 @@ Handwriting Database. Go to
 Handwriter requires R, RStudio IDE, and JAGS.
 
 -   Install R and RStudio from
-    [POSIT](https://posit.co/download/rstudio-desktop/)
+    [POSIT](https://docs.posit.co/ide/user/)
 -   Install JAGS from
     [SourceForge](https://sourceforge.net/projects/mcmc-jags/files/)
 
@@ -278,7 +278,7 @@ model <- fit_model(main_dir = "path/to/main_dir",
 For this tutorial, we will use the small example model, `example_model`,
 included in handwriter. This model was trained from three documents each
 from writers 9, 30, 203, 238, and 400 from the [CSAFE handwriting
-database](https://data.csafe.iastate.edu/HandwritingDatabase/).
+database](https://doi.org/10.25380/iastate.10062203).
 
 ``` r
 model <- example_model
@@ -389,7 +389,7 @@ analysis <- analyze_questioned_documents(
 Let’s pretend that a handwriting sample from each of the 5 “persons of
 interest” is a questioned document. These documents are also from the
 [CSAFE handwriting
-database](https://data.csafe.iastate.edu/HandwritingDatabase/) and have
+database](https://doi.org/10.25380/iastate.10062203) and have
 already been analyzed with `example_model` and the results are included
 in handwriter as `example_analysis`.
 
