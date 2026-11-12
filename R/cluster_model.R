@@ -33,7 +33,10 @@
 #' @param main_dir A directory that contains a cluster template created by
 #'   [`make_clustering_template()`]
 #' @param model_docs A directory containing model training documents
-#' @param num_iters An integer number of iterations of MCMC.
+#' @param num_iters An integer number of iterations of MCMC. We recommend
+#'   4000 iterations and then dropping the first 1000 iterations as burn-in
+#'   with [`drop_burnin()`]. We used these settings in all of our tests of the
+#'   model.
 #' @param num_chains An integer number of chains to use.
 #' @param num_cores An integer number of cores to use for parallel processing
 #'   clustering assignments. The model fitting is not done in parallel.
@@ -67,14 +70,14 @@
 #' model <- fit_model(
 #'   main_dir = main_dir,
 #'   model_docs = model_docs,
-#'   num_iters = 100,
+#'   num_iters = 4000,
 #'   num_chains = 1,
 #'   num_cores = 2,
 #'   writer_indices = c(2, 5),
 #'   doc_indices = c(7, 18)
 #' )
 #'
-#' model <- drop_burnin(model = model, burn_in = 25)
+#' model <- drop_burnin(model = model, burn_in = 1000)
 #'
 #' analysis <- analyze_questioned_documents(
 #'   main_dir = main_dir,
