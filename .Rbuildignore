@@ -1,6 +1,6 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
-/inst/python/.*$
+^inst/python$
 ^docs$
 ^examples$
 ^data-raw$
