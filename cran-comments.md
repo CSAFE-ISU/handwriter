@@ -11,7 +11,7 @@ This is an update from handwriter 3.2.4 to 3.3.0. It:
 
 ## Reverse dependencies
 
-We checked 2 reverse dependencies, handwriterApp 2.0.0 and handwriterRF 1.1.1, with R CMD check --as-cran against handwriter 3.3.0.
+We checked 2 reverse dependencies, handwriterApp 2.0.0 and handwriterRF 1.1.1, comparing R CMD check results across CRAN and dev versions of this package.
 
  * We saw 0 new problems
  * We failed to check 0 packages
