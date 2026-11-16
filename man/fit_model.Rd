@@ -25,7 +25,10 @@ fit_model(
 
 \item{model_docs}{A directory containing model training documents}
 
-\item{num_iters}{An integer number of iterations of MCMC.}
+\item{num_iters}{An integer number of iterations of MCMC. We recommend
+4000 iterations and then dropping the first 1000 iterations as burn-in
+with \code{\link[=drop_burnin]{drop_burnin()}}. We used these settings in all of our tests of the
+model.}
 
 \item{num_chains}{An integer number of chains to use.}
 
@@ -66,6 +69,13 @@ A list of training data used to fit the model and the fitted model
 in \code{model_docs} and draws samples from the model as Markov Chain Monte
 Carlo (MCMC) estimates.
 }
+\details{
+\code{fit_model()} requires the rjags package, which in turn requires the JAGS
+library (version 4.x.y) to be installed on your computer. Download JAGS from
+\url{https://mcmc-jags.sourceforge.io/} and then install rjags with
+\code{install.packages("rjags")}. The other functions in handwriter do not
+require JAGS or rjags.
+}
 \examples{
 \dontrun{
 main_dir <- "/path/to/main_dir"
@@ -75,14 +85,14 @@ questioned_docs <- "path/to/questioned_docs"
 model <- fit_model(
   main_dir = main_dir,
   model_docs = model_docs,
-  num_iters = 100,
+  num_iters = 4000,
   num_chains = 1,
   num_cores = 2,
   writer_indices = c(2, 5),
   doc_indices = c(7, 18)
 )
 
-model <- drop_burnin(model = model, burn_in = 25)
+model <- drop_burnin(model = model, burn_in = 1000)
 
 analysis <- analyze_questioned_documents(
   main_dir = main_dir,
