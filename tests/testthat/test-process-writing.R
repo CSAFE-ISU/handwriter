@@ -8,12 +8,14 @@ test_that("processDocument works on w0016_s01_pLND_r01.png", {
 })
 
 test_that("processDocument works on w0080_s01_pLND_r01.png", {
+  testthat::skip_on_cran()
   actual <- processDocument(testthat::test_path("fixtures", "temp1qd", "data", "template_docs", "w0080_s01_pLND_r01.png"))
   expected <- readRDS(testthat::test_path("fixtures", "temp1qd", "data", "template_graphs", "w0080_s01_pLND_r01_proclist.rds"))
   expect_equal(actual, expected, tolerance = 1e-08)
 })
 
 test_that("processDocument works on w0124_s01_pLND_r01.png", {
+  testthat::skip_on_cran()
   actual <- processDocument(testthat::test_path("fixtures", "temp1qd", "data", "template_docs", "w0124_s01_pLND_r01.png"))
   expected <- readRDS(testthat::test_path("fixtures", "temp1qd", "data", "template_graphs", "w0124_s01_pLND_r01_proclist.rds"))
   expect_equal(actual, expected, tolerance = 1e-08)
@@ -35,6 +37,7 @@ test_that("processHandwriting works on w0016_s01_pLND_r01.png", {
 })
 
 test_that("processHandwriting works on w0080_s01_pLND_r01.png", {
+  testthat::skip_on_cran()
   actual <- list()
   actual$image <- readPNGBinary(testthat::test_path("fixtures", "temp1qd", "data", "template_docs", "w0080_s01_pLND_r01.png"))
   actual$thin <- thinImage(actual$image)
@@ -47,6 +50,7 @@ test_that("processHandwriting works on w0080_s01_pLND_r01.png", {
 })
 
 test_that("processHandwriting works on w0124_s01_pLND_r01.png", {
+  testthat::skip_on_cran()
   actual <- list()
   actual$image <- readPNGBinary(testthat::test_path("fixtures", "temp1qd", "data", "template_docs", "w0124_s01_pLND_r01.png"))
   actual$thin <- thinImage(actual$image)

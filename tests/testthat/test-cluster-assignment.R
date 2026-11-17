@@ -15,6 +15,7 @@ test_that("get_clusters_batch works sequentially", {
 })
 
 test_that("get_clusters_batch works in parallel", {
+  testthat::skip_on_cran()
   empty_tempdir("clusters")
   
   actual <- get_clusters_batch(example_cluster_template,
@@ -49,6 +50,7 @@ test_that("get_clusters_batch works sequentially if cluster assignments already 
 })
 
 test_that("get_clusters_batch works in parallel if cluster assignments already exist", {
+  testthat::skip_on_cran()
   empty_tempdir("clusters")
   
   copy_files(
@@ -68,6 +70,7 @@ test_that("get_clusters_batch works in parallel if cluster assignments already e
 })
 
 test_that("get_clusters_batch works sequentially without writer or doc indices", {
+  testthat::skip_on_cran()
   empty_tempdir("clusters")
   
   actual <- get_clusters_batch(
@@ -82,6 +85,7 @@ test_that("get_clusters_batch works sequentially without writer or doc indices",
 })
 
 test_that("get_clusters_batch can save master file ", {
+  testthat::skip_on_cran()
   empty_tempdir("clusters")
   
   results <- get_clusters_batch(example_cluster_template,
@@ -98,6 +102,7 @@ test_that("get_clusters_batch can save master file ", {
 })
 
 test_that("get_clusters_batch works in parallel without writer or doc indices", {
+  testthat::skip_on_cran()
   empty_tempdir("clusters")
   
   actual <- get_clusters_batch(
@@ -164,6 +169,7 @@ testthat::test_that("get_clusters_batch running sequentially moves problem file 
 })
 
 testthat::test_that("get_clusters_batch running in parallel moves problem file to problem_files folder", {
+  testthat::skip_on_cran()
   empty_tempdir("graphs")
   empty_tempdir("clusters")
   
@@ -203,6 +209,7 @@ testthat::test_that("get_clusters_batch throws warning if file doesn't contain g
 })
 
 testthat::test_that("get_clusters_batch returns NULL if file doesn't contain graphs and running in parallel", {
+  testthat::skip_on_cran()
   empty_tempdir("graphs")
   empty_tempdir("clusters")
   
