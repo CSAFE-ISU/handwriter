@@ -1,4 +1,5 @@
 testthat::test_that("extractGraphs runs without errors", {
+  testthat::skip_on_cran()
   empty_tempdir("graphs")
   
   make_dir(file.path(tempdir(), "graphs", "w0016"), recursive = TRUE)
@@ -14,6 +15,7 @@ testthat::test_that("extractGraphs runs without errors", {
 })
 
 testthat::test_that("read_and_process works on w0016_s01_pLND_r01.png", {
+  testthat::skip_on_cran()
   actual <- read_and_process(
     image_name = testthat::test_path("fixtures", "temp1qd", "data", "template_docs", "w0016_s01_pLND_r01.png"),
     transform_output = "document"
@@ -27,6 +29,7 @@ testthat::test_that("read_and_process works on w0016_s01_pLND_r01.png", {
 })
 
 testthat::test_that("getGraphs works on w0016_s01_pLND_r01.png", {
+  testthat::skip_on_cran()
   actual <- getGraphs(image = testthat::test_path("fixtures", "temp1qd", "data", "template_docs", "w0016_s01_pLND_r01.png"),
                       save_folder = tempdir())
   expected <- readRDS(testthat::test_path("fixtures", "temp1qd", "data", "template_graphs", "w0016_s01_pLND_r01_proclist.rds"))

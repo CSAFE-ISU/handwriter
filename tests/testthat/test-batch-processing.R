@@ -1,6 +1,7 @@
 # process_batch_dir -------------------------------------------------------
 
 testthat::test_that("process_batch_dir works", {
+  testthat::skip_on_cran()
   empty_tempdir("batch")
   
   # Check that process_batch_dir() processes docs without error
@@ -24,6 +25,7 @@ testthat::test_that("process_batch_dir works", {
 })
 
 testthat::test_that("process_batch_dir works when a doc has been flagged as a problem and all other docs have been processed", {
+  testthat::skip_on_cran()
   # w0030_s03_pWOZ_r01.png was artificially flagged as a problem doc in problems.txt
   
   empty_tempdir("main_dir")
@@ -54,6 +56,7 @@ testthat::test_that("process_batch_dir works when a doc has been flagged as a pr
 })
 
 testthat::test_that("process_batch_dir works when a doc has been flagged as a problem and another doc has not been processed", {
+  testthat::skip_on_cran()
   # w0030_s03_pWOZ_r01.png was artificially flagged as a problem doc in problems.txt
   
   empty_tempdir("main_dir")

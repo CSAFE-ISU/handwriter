@@ -118,6 +118,7 @@ testthat::test_that("Get writer profiles works with counts with writer and doc i
 })
 
 testthat::test_that("Get writer profiles works with counts without writer or doc indices", {
+  testthat::skip_on_cran()
   empty_tempdir("main_dir")
   
   # copy model_graphs to tempdir to reduce processing time. NOTE: model_clusters
@@ -175,6 +176,7 @@ testthat::test_that("Get writer profiles works with rates with writer and doc in
 })
 
 testthat::test_that("Get writer profiles works with rates without writer or doc indices", {
+  testthat::skip_on_cran()
   empty_tempdir("main_dir")
   
   # copy model_graphs to tempdir to reduce processing time. NOTE: model_clusters
