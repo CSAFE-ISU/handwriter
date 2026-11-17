@@ -1,3 +1,10 @@
+## Resubmission
+
+This is a resubmission. The incoming pretest on r-devel-windows-x86_64 gave a NOTE that the overall check time was 22 min (> 10 min). In this version:
+
+* The slower tests that repeat coverage (the same functions on extra documents, in parallel, or with superseded wrappers) are now skipped on CRAN with `skip_on_cran()`. They still run in our local and GitHub Actions checks.
+* The test suite now takes about 18 seconds locally with `NOT_CRAN=false`, down from about 110 seconds.
+
 ## Update
 
 This is an update from handwriter 3.2.4 to 3.3.0. It:
